@@ -29,9 +29,10 @@ jobs:
         with:
           name: IamMusicPlayerRenewedForge
           path: forge/build/libs
+          compression-level: 9
       - name: Upload Build Artifacts fabric
         uses: actions/upload-artifact@v4
         with:
           name: IamMusicPlayerRenewedFabric
           path: fabric/build/libs
-          
+          compression-level: 9
