@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "iammusicplayer",
-  "version": "${rootProject.mod_version}",
+  "version": "${version}",
   "name": "Iam Music Player",
   "description": "Add a music player that you can listen to with multiple players.\nThe ikisugi music player mod...",
   "authors": [
