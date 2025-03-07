@@ -5,7 +5,7 @@ license = "GNU LGPLv3"
 
 [[mods]]
 modId = "iammusicplayer"
-version = "${version}"
+version = "${rootProject.mod_version}"
 displayName = "Iam Music Player"
 displayURL = "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer"
 updateJSONURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/version_check.json"
