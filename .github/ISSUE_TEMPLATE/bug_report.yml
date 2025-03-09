@@ -44,9 +44,10 @@ body:
     attributes:
       label: Mod Loader
       options:
-        - "3.22.0-alpha.7"
-        - "3.22.0-alpha.6"
-        - "3.22.0-alpha.5"
+        - "Forge"
+        - "Neo Forge"
+        - "Fabric"
+        - "Quilt"
     validations:
       required: true
 
