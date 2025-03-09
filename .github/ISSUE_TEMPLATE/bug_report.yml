@@ -43,6 +43,7 @@ body:
     id: loader
     attributes:
       lable: Mod Loader
+      description: "The Modloader you are using."
       options:
         - "Forge"
         - "Neo-Forge"
