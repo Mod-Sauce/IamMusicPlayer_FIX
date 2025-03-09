@@ -65,7 +65,7 @@ dependencies {
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
-    shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
+    shadowIn("dev.lavalink.youtube:v2:1.11.4")
     
     shadowIn('com.fasterxml.jackson.core:jackson-core:2.14.3')
     shadowIn('com.fasterxml.jackson.core:jackson-databind:2.14.3')
