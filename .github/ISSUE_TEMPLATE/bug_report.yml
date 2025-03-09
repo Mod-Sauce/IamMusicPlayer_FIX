@@ -40,15 +40,13 @@ body:
       required: true
 
   - type: dropdown
-    id: loader
+    id: modloader
     attributes:
-      lable: Mod Loader
-      description: "The Modloader you are using."
+      label: Mod Loader
       options:
-        - "Forge"
-        - "Neo-Forge"
-        - "Quilt"
-        - "Fabric"
+        - "3.22.0-alpha.7"
+        - "3.22.0-alpha.6"
+        - "3.22.0-alpha.5"
     validations:
       required: true
 
