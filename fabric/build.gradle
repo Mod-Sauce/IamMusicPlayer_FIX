@@ -46,7 +46,9 @@ configurations {
     shadowCommon.extendsFrom shadowIn
 }
 repositories {
-    maven { url "https://maven.terraformersmc.com/releases/" }
+    maven { url "https://maven.terraformersmc.com/releases/" }//modmenu
+      mavenCentral()
+  maven { url "https://jitpack.io" } // For com.github.walkyst.JAADec-fork:jaadec-ext-aac & ibxm-fork:com.github.walkyst:ibxm-fork
 }
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
