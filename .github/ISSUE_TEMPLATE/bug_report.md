@@ -1,38 +1,57 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+name: Bug Report
+description: Something is not working right
+title: "[Bug]: "
+labels: ["bug"]
+assignees:
+  - JaKooLit
 
----
+body:
+  - type: checkboxes
+    attributes:
+      label: Already reported ? *
+      description: Before opening a new bug report, please take a moment to search through the current open and closed issues to check if it already exists.
+      options:
+      - label: I have searched the existing open and closed issues.
+        required: true
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+  - type: dropdown
+    id: type
+    attributes:
+      label: Regression?
+      description: "Regression means that something used to work but no longer does."
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+  - type: textarea
+    id: mcversion
+    attributes:
+      label: Mod Version
+      description: "Please put the version of the mod that you are using here!"
+    validations:
+      required: true
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+  - type: textarea
+    id: desc
+    attributes:
+      label: Description
+      description: "What went wrong? What exactly happened?"
+    validations:
+      required: true
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: "How can someone else reproduce the issue?"
+    validations:
+      required: true
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+  - type: textarea
+    id: logs
+    attributes:
+      label: logs, images or videos and other Mods
+      description: "Anything that can help."
