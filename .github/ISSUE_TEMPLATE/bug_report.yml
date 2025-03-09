@@ -3,7 +3,8 @@ description: Something is not working right
 title: "[Bug]: "
 labels: ["bug"]
 assignees:
-  - JaKooLit
+  - Mooo0042
+  - Shadowbee27
 
 body:
   - type: checkboxes
@@ -27,7 +28,7 @@ body:
       required: true
 
   - type: textarea
-    id: mcversion
+    id: modversion
     attributes:
       label: Mod Version
       description: "Please put the version of the mod that you are using here!"
@@ -51,7 +52,7 @@ body:
       required: true
 
   - type: textarea
-    id: logs
+    id: other
     attributes:
       label: logs, images or videos and other Mods
       description: "Anything that can help."
