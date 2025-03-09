@@ -39,6 +39,17 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: loader
+    attributes:
+      lable: Mod Loader
+      options:
+        - "Forge"
+        - "Neo-Forge"
+        - "Quilt"
+        - "Fabric"
+    validations:
+      required: true
 
   - type: textarea
     id: desc
