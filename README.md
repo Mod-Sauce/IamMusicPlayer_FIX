@@ -43,4 +43,4 @@ etc..
 
 # Attention
 
-Please not than none of us knows how to code Java
+Please note than none of us knows how to code Java
