@@ -41,6 +41,6 @@ etc..
 [Modrinth](https://modrinth.com/mod/iam-music-player-renewed) (Recommended)   
 [Curseforge](https://www.curseforge.com/minecraft/mc-mods/iammusicplayer-renewed)
 
-# Atention
+# Attention
 
 Please not than none of us knows how to code Java
