@@ -40,3 +40,7 @@ etc..
 [Github](https://github.com/Mod-Sauce/IamMusicPlayer_FIX/releases/)                                                 
 [Modrinth](https://modrinth.com/mod/iam-music-player-renewed) (Recommended)   
 [Curseforge](https://www.curseforge.com/minecraft/mc-mods/iammusicplayer-renewed)
+
+# Attention
+
+Please note than none of us knows how to code Java
