@@ -32,7 +32,7 @@ public class IamMusicPlayer {
         IMPMenus.init();
         IMPPoiType.init();
         IMPVillagerProfessions.init();
-        IMPCriteriaTriggers.init();
+        IMPCriteriaTriggers.IMPInvolvementTrigger();
         ServerMusicHandler.init();
         ServerHandler.init();
         CommonHandler.init();
