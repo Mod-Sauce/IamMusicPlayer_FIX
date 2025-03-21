@@ -19,7 +19,7 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class IMPVillagerProfessions {
@@ -48,7 +48,7 @@ public class IMPVillagerProfessions {
         registerSelling(DJ.get(), 2, Items.REDSTONE, 12, 15, 2);
         registerSelling(DJ.get(), 3, Items.JUKEBOX, 1, 5, 20);
 
-        TradeRegistry.registerTradeForWanderingTrader(true, new SimpleTrade(new ItemStack(Items.EMERALD, 42), ItemStack.EMPTY, IMPItemUtil.createKamesutaAntenna(), 1, 10, 0.05f));
+    //    TradeRegistry.registerTradeForWanderingTrader(true,new SimpleTrade( ItemStack(Items.EMERALD, 42), Optional.empty(), IMPItemUtil.createKamesutaAntenna(), 1, 10, 0.05f));
     }
 
     public static void registerBuying(VillagerProfession profession, int level, ItemLike item, int emeraldCost, int numberOfItems, int maxUses, int villagerXp) {
