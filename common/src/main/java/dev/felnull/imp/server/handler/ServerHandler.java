@@ -9,14 +9,16 @@ import dev.felnull.imp.server.commands.MusicCommand;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.LootDataManager;
+import net.minecraft.resources.ResourceKey;
+//import net.minecraft.resources.ResourceLocation;
+//import net.minecraft.world.level.storage.loot.LootDataManager;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import org.jetbrains.annotations.Nullable;
+//import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -28,10 +30,29 @@ public class ServerHandler {
         CommandRegistrationEvent.EVENT.register(ServerHandler::registerCommand);
         LootEvent.MODIFY_LOOT_TABLE.register(ServerHandler::modifyLootTable);
     }
-
+/*
     public static void modifyLootTable(@Nullable LootDataManager lootDataManager, ResourceLocation id, LootEvent.LootTableModificationContext context, boolean builtin) {
         boolean normal = LOOT_NORMAL.contains(id.toString());
         boolean rare = LOOT_RARE.contains(id.toString());
+
+        if (normal || rare) {
+            var antennaPoolB = LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+                    .when(LootItemRandomChanceCondition.randomChance(rare ? 0.364364f : 0.1919810f))
+                    .add(LootItem.lootTableItem(IMPItems.PARABOLIC_ANTENNA.get()).setWeight(1))
+                    .add(LootItem.lootTableItem(IMPItems.RADIO_ANTENNA.get()).setWeight(rare ? 1 : 4));
+            context.addPool(antennaPoolB);
+
+            var djKitPoolB = LootPool.lootPool().setRolls(UniformGenerator.between(1, 3))
+                    .when(LootItemRandomChanceCondition.randomChance(0.114514f))
+                    .add(LootItem.lootTableItem(IMPBlocks.BOOMBOX.get()).setWeight(1))
+                    .add(LootItem.lootTableItem(IMPItems.CASSETTE_TAPE.get()).setWeight(rare ? 3 : 6));
+            context.addPool(djKitPoolB);
+        }
+    }
+*/
+    private static void modifyLootTable(ResourceKey<LootTable> lootTableResourceKey, LootEvent.LootTableModificationContext context, boolean builtin) {
+        boolean normal = LOOT_NORMAL.contains(lootTableResourceKey.toString());
+        boolean rare = LOOT_RARE.contains(lootTableResourceKey.toString());
 
         if (normal || rare) {
             var antennaPoolB = LootPool.lootPool().setRolls(ConstantValue.exactly(1))
