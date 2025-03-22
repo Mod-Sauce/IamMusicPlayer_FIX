@@ -45,7 +45,11 @@ allprojects {
             url repsyUrl
         }
         maven {
-            url = "https://maven.felnull.dev"
+            url repsyUrl
+            credentials {
+                username repsyUsername
+                password repsyPassword
+            }
         }
         maven {
             url = 'https://m2.dv8tion.net/releases'
