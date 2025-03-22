@@ -52,6 +52,9 @@ allprojects {
             }
         }
         maven {
+            url = "https://maven.felnull.dev"
+        }
+        maven {
             url = 'https://m2.dv8tion.net/releases'
         }
         maven {
