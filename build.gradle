@@ -60,7 +60,7 @@ allprojects {
             url "https://maven.lavalink.dev/releases"
         }
         maven {
-            url "https://maven.pkg.github.com/Mod-Sauce/otyacraftEngineRenewed
+            url "https://maven.pkg.github.com/Mod-Sauce/otyacraftEngineRenewed"
         }
     }
 
