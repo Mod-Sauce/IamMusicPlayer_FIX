@@ -24,6 +24,8 @@ jobs:
       - run: chmod +x ./gradlew
       - name: Build with Gradle
         run: ./gradlew build
+        env:
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
       - name: Upload Build Artifacts forge
         uses: actions/upload-artifact@v4
         with:
