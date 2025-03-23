@@ -46,10 +46,6 @@ allprojects {
         }
         maven {
             url repsyUrl
-            credentials {
-                username repsyUsername
-                password repsyPassword
-            }
         }
         maven {
             url = "https://maven.felnull.dev"
