@@ -35,11 +35,11 @@ allprojects {
     apply plugin: "java"
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
-/*
-    archivesBaseName = rootProject.archives_base_name
+
+    //archivesBaseName = rootProject.archives_base_name
     version = rootProject.mod_version
-    group = rootProject.maven_group
-*/
+    //group = rootProject.maven_group
+
     repositories {
         maven {
             url repsyUrl
