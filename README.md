@@ -44,3 +44,4 @@ etc..
 # Attention
 
 Please note than none of us knows how to code Java
+Please try restarting MC before writing an Github issue, often fixes that it
