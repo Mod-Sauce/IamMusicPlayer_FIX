@@ -5,17 +5,17 @@
   "name": "Iam Music Player",
   "description": "Add a music player that you can listen to with multiple players.\nThe ikisugi music player mod...",
   "authors": [
-    "MORIMORI0317",
-    "nin8995"
+    "Shadowbee27",
+    "Mooo0042"
   ],
   "contributors": [
-    "FelNull developers"
+    "Mod Sauce & contributors"
   ],
   "contact": {
-    "email": "teamfelnull@felnull.dev",
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer",
-    "sources": "https://github.com/TeamFelnull/IamMusicPlayer",
-    "issues": "https://github.com/TeamFelnull/IamMusicPlayer/issues"
+    "email": "ModSauce@disroot.org",
+    "homepage": "https://mod-sauce.github.io/impr.html",
+    "sources": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX",
+    "issues": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
   },
   "license": "GNU LGPLv3",
   "icon": "assets/iammusicplayer/icon.png",
@@ -39,9 +39,9 @@
   ],
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.20",
-    "architectury": ">=9.0.8",
-    "cloth-config2": ">=11.0.99",
+    "minecraft": "=1.20.1",
+    "architectury": ">=9.2.14",
+    "cloth-config2": ">=11.1.136",
     "otyacraftengine": ">=3.7.0-alpha.2"
   }
 }
