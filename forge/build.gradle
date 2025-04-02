@@ -53,7 +53,7 @@ dependencies {
     modApi "me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-forge:${rootProject.rei_version}"
 
-    modApi "curse.maven:ctm-535489:6352920"//Sound Physics Remastered
+    modApi "curse.maven:ctm-535489:${rootProject.sound_physics_remastered_forge}"//Sound Physics Remastered
     //modCompileOnly "vazkii.patchouli:Patchouli:1.19.4-79-FORGE:api"
     //modRuntimeOnly "vazkii.patchouli:Patchouli:1.19.4-79-FORGE"
 
