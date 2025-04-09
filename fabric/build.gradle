@@ -163,7 +163,7 @@ components.java {
         skip()
     }
 }
-
+/*
 publishing {
     publications {
         mavenFabric(MavenPublication) {
@@ -270,3 +270,4 @@ if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
         changelog = file('../LATEST_CHANGELOG.md').text
     }
 }
+*/

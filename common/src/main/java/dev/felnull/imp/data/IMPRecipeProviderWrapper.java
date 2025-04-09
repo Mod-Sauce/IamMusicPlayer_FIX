@@ -95,7 +95,7 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                 .define('D', PlatformItemTags.diamonds())
                 .define('I', PlatformItemTags.ironIngots())
                 .define('G', PlatformItemTags.glassPanes())
-                .define('R', PlatformItemTags.redstoneBlocks().getKey())
+                .define('R', PlatformItemTags.redstoneDusts())
                 .define('B', PlatformItemTags.diamonds())
                 .pattern("III")
                 .pattern("DGR")
