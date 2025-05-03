@@ -80,7 +80,7 @@ dependencies {
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
-    shadowIn("dev.lavalink.youtube:v2:1.11.4")
+    shadowIn("dev.lavalink.youtube:v2:1.13.1")
 
     shadowIn "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"

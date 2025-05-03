@@ -69,7 +69,7 @@ dependencies {
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
     shadowIn 'com.mpatric:mp3agic:0.9.1'
 
-    shadowIn("dev.lavalink.youtube:v2:1.11.4")
+    shadowIn("dev.lavalink.youtube:v2:1.13.1")
 }
 
 processResources {
