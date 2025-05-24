@@ -4,20 +4,20 @@ on:
   - workflow_dispatch
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 200
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: useblacksmith/setup-java@v5
         with:
           java-version: 17
           distribution: zulu
           cache: gradle
       - name: Loom Cache
-        uses: actions/cache@v4
+        uses: useblacksmith/cache@v5
         with:
           path: "**/.gradle/loom-cache"
           key: "${{ runner.os }}-gradle-${{ hashFiles('**/libs.versions.*', '**/*.gradle*', '**/gradle-wrapper.properties') }}"
