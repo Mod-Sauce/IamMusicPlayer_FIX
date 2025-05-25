@@ -36,16 +36,16 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
-    archivesBaseName = rootProject.archives_base_name
+//    archivesName = rootProject.archives_base_name
     version = rootProject.mod_version
     //group = rootProject.maven_group
 
     repositories {
         maven {
-            url repsyUrl
+            url = repsyUrl
             credentials {
-                username repsyUsername
-                password repsyPassword
+                username = repsyUsername
+                password = repsyPassword
             }
         }
         maven {
@@ -61,10 +61,10 @@ allprojects {
             url = 'https://maven.blamejared.com'
         }
         maven {
-            url "https://cursemaven.com"
+            url = "https://cursemaven.com"
         }
         maven {
-            url "https://maven.lavalink.dev/releases"
+            url = "https://maven.lavalink.dev/releases"
         }
     }
 

@@ -71,12 +71,8 @@ dependencies {
 
     modApi "dev.felnull:special-model-loader:1.2.0"
     include "dev.felnull:special-model-loader:1.2.0"
-    modApi "curse.maven:sound-physics-remastered-535489:${rootProject.sound_physics_remastered_fabric}"//Sound Physics Remastered
-    //modApi "vazkii.patchouli:Patchouli:1.19.4-79-FABRIC"
+    modApi "curse.maven:sound-physics-remastered-535489:${rootProject.sound_physics_remastered_fabric}"
 
-    /*shadowIn("com.github.walkyst:lavaplayer-fork:${rootProject.lava_version}") {
-        exclude group: 'com.github.walkyst', module: 'lavaplayer-natives-fork'
-    }*/
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
@@ -145,7 +141,7 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier.set(null)
-    setArchivesBaseName("${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}")
+//    setArchivesBaseName("${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}")
 }
 
 jar {
