@@ -99,20 +99,28 @@ public class LavaNativeManager {
 
     private boolean checked(File file) {
         var fs = file.listFiles();
-        if (fs == null)
+        if (fs == null) {
+            LOGGER.error("File doesn't exist");
             return false;
+        }
         var fls = Lists.newArrayList(fs);
         var hf = fls.stream().filter(n -> n.getName().equals("hash.json")).findAny();
-        if (hf.isEmpty())
+        if (hf.isEmpty()) {
+            // TODO: Add better Logger
+            LOGGER.error("Logger form Line 109");
             return false;
+        }
         JsonObject jo;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(hf.get())))) {
             jo = GSON.fromJson(reader, JsonObject.class);
         } catch (IOException e) {
+            LOGGER.error("Logger from Line 117");
             return false;
         }
-        if (!jo.has("hash") || fls.size() <= 1)
+        if (!jo.has("hash") || fls.size() <= 1) {
+            LOGGER.error("Logger from line 121");
             return false;
+        }
         fls.remove(hf.get());
 
         if (fls.size() == 1 && !jo.get("hash").isJsonObject()) {
@@ -128,20 +136,27 @@ public class LavaNativeManager {
             var hjo = jo.get("hash").getAsJsonObject();
             for (Map.Entry<String, JsonElement> entry : hjo.entrySet()) {
                 var lf = fls.stream().filter(n -> n.getName().equals(entry.getKey())).findAny();
-                if (lf.isEmpty())
+                if (lf.isEmpty()) {
+                    LOGGER.error("Logger from line 139");
                     return false;
+                }
                 try {
                     var ch = entry.getValue().getAsString();
                     var th = new String(Hex.encodeHex(
                             FNDataUtil.createMD5Hash(Files.readAllBytes(lf.get().toPath()))));
-                    if (!th.equals(ch))
+                    if (!th.equals(ch)) {
+                        LOGGER.error("Logger from line 147");
                         return false;
+                    }
                 } catch (Exception ignored) {
+                    LOGGER.error("Logger from line 151");
                     return false;
                 }
             }
+            LOGGER.error("Logger from line 155");
             return true;
         }
+        LOGGER.error("Logger from line 158");
         return false;
     }
 }
