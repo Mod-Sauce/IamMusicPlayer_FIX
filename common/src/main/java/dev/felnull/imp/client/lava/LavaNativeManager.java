@@ -86,7 +86,7 @@ public class LavaNativeManager {
             }
         );
 
-if (!checked(npF)) throw new IllegalStateException("Consistency check failed");
+        if (!checked(npF)) throw new IllegalStateException("Consistency check failed");
 
 
     private boolean checked(File file) {
