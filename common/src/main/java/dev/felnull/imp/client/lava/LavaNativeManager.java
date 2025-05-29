@@ -73,21 +73,19 @@ public class LavaNativeManager {
         ho.add("hash", jooo.get("hash"));
 
         Files.writeString(npF.toPath().resolve("hash.json"), GSON.toJson(ho));
-        
-        FNDataUtil.readZipStreamed(
-            new BufferedInputStream(FNURLUtil.getStream(new URL(jooo.get("url").getAsString()))),
-            (zipEntry, inputStream) -> {
-                File fl = npF.toPath().resolve(zipEntry.getName()).toFile();
-                try (InputStream is = inputStream; OutputStream os = new FileOutputStream(fl)) {
-                    FNDataUtil.bufInputToOutput(is, os);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+
+        FNDataUtil.readZipStreamed(new BufferedInputStream(FNURLUtil.getStream(new URL(jooo.get("url").getAsString()))), (zipEntry, inputStream) -> {
+            var fl = npF.toPath().resolve(zipEntry.getName()).toFile();
+            try (InputStream is = inputStream; OutputStream os = new FileOutputStream(fl)) {
+                FNDataUtil.bufInputToOutput(is, os);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        );
+        });
 
-        if (!checked(npF)) throw new IllegalStateException("Consistency check failed");
-
+        if (!checked(npF))
+            throw new IllegalStateException("Consistency check failed");
+    }
 
     private boolean checked(File file) {
         var fs = file.listFiles();
