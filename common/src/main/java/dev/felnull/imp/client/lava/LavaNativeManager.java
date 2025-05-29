@@ -21,6 +21,7 @@ public class LavaNativeManager {
             LogManager.getLogger(LavaNativeManager.class);
     private static final Gson GSON = new Gson();
     private static final LavaNativeManager INSTANCE = new LavaNativeManager();
+    private static final String nativesVersion = "2.2.3";
 
     public static LavaNativeManager getInstance() {
         return INSTANCE;
@@ -58,11 +59,11 @@ public class LavaNativeManager {
             jo = GSON.fromJson(reader, JsonObject.class);
         }
 
-        if (!jo.has(IamMusicPlayer.NATIVE_VERSION) || !jo.get(IamMusicPlayer.NATIVE_VERSION).isJsonObject())
+        if (!jo.has(nativesVersion) || !jo.get(nativesVersion).isJsonObject())
             throw new IllegalStateException(
                     "Could not find version of native library to support");
 
-        var joo = jo.getAsJsonObject(IamMusicPlayer.NATIVE_VERSION);
+        var joo = jo.getAsJsonObject(nativesVersion);
 
         if (!joo.has(osAndArch) || !joo.get(osAndArch).isJsonObject())
             throw new IllegalStateException("Unsupported OS or architecture");
@@ -97,6 +98,7 @@ public class LavaNativeManager {
     }
 
     private boolean checked(File file) {
+        LOGGER.info(IamMusicPlayer.NATIVE_VERSION + "<- This is the Native version");
         var fs = file.listFiles();
         if (fs == null) {
             LOGGER.error("File doesn't exist");
