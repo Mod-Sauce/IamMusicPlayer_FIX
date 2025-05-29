@@ -96,9 +96,7 @@ public class LavaNativeManager {
         if (!checked(npF))
             throw new IllegalStateException("Consistency check failed");
     }
-
     private boolean checked(File file) {
-        LOGGER.info(IamMusicPlayer.NATIVE_VERSION + "<- This is the Native version");
         var fs = file.listFiles();
         if (fs == null) {
             LOGGER.error("File doesn't exist");

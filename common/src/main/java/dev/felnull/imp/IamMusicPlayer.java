@@ -20,7 +20,6 @@ import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 
 public class IamMusicPlayer {
     public static final String MODID = "iammusicplayer";
-    public static final String NATIVE_VERSION = "2.2.3";
     private static final Supplier<String> MODNAME = Suppliers.memoize(() -> Platform.getMod(MODID).getName());
     private static final IMPConfig CONFIG = AutoConfig.register(IMPConfig.class, Toml4jConfigSerializer::new).getConfig();
 
