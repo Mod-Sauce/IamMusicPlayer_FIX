@@ -79,8 +79,7 @@ public class LavaNativeManager {
             (zipEntry, inputStream) -> {
                 if (zipEntry.isDirectory()) return;
 
-                // Clean and resolve path
-                var entryPath = zipEntry.getName().replaceAll("[\\\\/:*?\"<>|]", "_");
+                // resolve path
                 var fl = npF.toPath().resolve(entryPath).normalize().toFile();
 
                 // Make sure directories exist
