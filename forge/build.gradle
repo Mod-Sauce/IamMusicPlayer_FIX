@@ -1,7 +1,7 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "8.1.1"
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id "com.modrinth.minotaur" version "2.8.0"
+//    id 'com.matthewprenger.cursegradle' version '1.4.0'
+//    id "com.modrinth.minotaur" version "2.8.0"
 }
 
 architectury {
@@ -107,7 +107,6 @@ shadowJar {
 
     relocate 'ibxm', 'dev.felnull.imp.include.ibxm'
     relocate 'net.sourceforge.jaad', 'dev.felnull.imp.include.net.sourceforge.jaad'
-    // relocate 'org.mozilla.javascript', 'dev.felnull.imp.include.org.mozilla.javascript'
     relocate 'org.mozilla.classfile', 'dev.felnull.imp.include.org.mozilla.classfile'
     relocate 'dev.lavalink.youtube', 'dev.felnull.imp.include.dev.lavalink.youtube'
 }
@@ -124,7 +123,6 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier.set(null)
- //   setArchivesBaseName("${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}")
 }
 
 jar {
