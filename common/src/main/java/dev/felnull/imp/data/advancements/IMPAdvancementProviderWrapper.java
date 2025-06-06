@@ -1,9 +1,9 @@
 package dev.felnull.imp.data.advancements;
 
 import com.google.common.collect.ImmutableList;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.AdvancementProviderWrapper;
 import net.minecraft.data.PackOutput;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.AdvancementProviderWrapper;
 
 public class IMPAdvancementProviderWrapper extends AdvancementProviderWrapper {
 

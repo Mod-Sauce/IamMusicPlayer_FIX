@@ -1,10 +1,10 @@
 package dev.felnull.imp.data;
 
 import dev.felnull.imp.data.advancements.IMPAdvancementProviderWrapper;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.DataProviderWrapper;
-import dev.felnull.otyacraftengine.data.provider.DirectCopyProviderWrapper;
 import net.minecraft.data.PackOutput;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.DataProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.provider.DirectCopyProviderWrapper;
 
 import java.nio.file.Paths;
 

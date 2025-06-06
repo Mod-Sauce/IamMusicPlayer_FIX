@@ -1,12 +1,12 @@
 package dev.felnull.imp.client.music;
 
 import dev.felnull.imp.music.tracker.*;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
 
 import java.util.HashMap;
 import java.util.Map;

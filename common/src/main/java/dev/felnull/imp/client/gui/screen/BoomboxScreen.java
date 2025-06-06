@@ -10,8 +10,6 @@ import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.client.gui.screen.OEItemBEContainerBasedScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,6 +18,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.client.gui.screen.OEItemBEContainerBasedScreen;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.nio.file.Path;
 import java.util.HashMap;

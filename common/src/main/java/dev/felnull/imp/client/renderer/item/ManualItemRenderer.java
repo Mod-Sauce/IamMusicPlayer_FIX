@@ -7,8 +7,6 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.model.IMPModels;
 import dev.felnull.imp.integration.PatchouliIntegration;
 import dev.felnull.imp.item.ManualItem;
-import dev.felnull.otyacraftengine.client.renderer.item.BEWLItemRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -17,6 +15,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class ManualItemRenderer implements BEWLItemRenderer {
     private static final Minecraft mc = Minecraft.getInstance();

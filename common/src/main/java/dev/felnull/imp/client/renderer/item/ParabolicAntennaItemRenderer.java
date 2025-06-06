@@ -3,13 +3,13 @@ package dev.felnull.imp.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.IMPHoliday;
 import dev.felnull.imp.client.model.IMPModels;
-import dev.felnull.otyacraftengine.client.renderer.item.BEWLItemRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class ParabolicAntennaItemRenderer implements BEWLItemRenderer {
     @Override

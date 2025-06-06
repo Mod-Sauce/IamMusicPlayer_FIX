@@ -1,7 +1,6 @@
 package dev.felnull.imp.item;
 
 import dev.felnull.imp.music.resource.Music;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -13,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
 
 import java.util.List;
 

@@ -1,10 +1,10 @@
 package dev.felnull.imp.music.resource;
 
 import dev.felnull.imp.util.IMPNbtUtil;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
 
 import java.util.*;
 

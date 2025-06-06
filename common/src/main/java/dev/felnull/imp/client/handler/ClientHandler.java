@@ -20,11 +20,6 @@ import dev.felnull.imp.integration.PatchouliIntegration;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
-import dev.felnull.otyacraftengine.client.event.ClientEvent;
-import dev.felnull.otyacraftengine.client.gui.TextureRegion;
-import dev.felnull.otyacraftengine.client.gui.components.IconButton;
-import dev.felnull.otyacraftengine.event.MoreEntityEvent;
-import dev.felnull.otyacraftengine.item.location.HandItemLocation;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.minecraft.client.Minecraft;
@@ -39,6 +34,11 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.modsauce.otyacraftenginerenewed.client.event.ClientEvent;
+import org.modsauce.otyacraftenginerenewed.client.gui.TextureRegion;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.IconButton;
+import org.modsauce.otyacraftenginerenewed.event.MoreEntityEvent;
+import org.modsauce.otyacraftenginerenewed.item.location.HandItemLocation;
 
 public class ClientHandler {
     private static final Minecraft mc = Minecraft.getInstance();

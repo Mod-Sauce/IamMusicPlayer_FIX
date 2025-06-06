@@ -8,7 +8,6 @@ import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.overlay.MusicLinesOverlay;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.item.BoomboxItem;
-import dev.felnull.otyacraftengine.client.event.MoreRenderEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,6 +17,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.client.event.MoreRenderEvent;
 
 public class RenderHandler {
     private static final MusicLinesOverlay MUSIC_LINES_OVERLAY = new MusicLinesOverlay();

@@ -3,11 +3,11 @@ package dev.felnull.imp.blockentity;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.felnull.imp.block.IMPBlocks;
-import dev.felnull.otyacraftengine.OtyacraftEngine;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import org.modsauce.otyacraftenginerenewed.OtyacraftEngine;
 
 public class IMPBlockEntities {
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES_REGISTER = DeferredRegister.create(OtyacraftEngine.MODID, Registries.BLOCK_ENTITY_TYPE);

@@ -1,7 +1,5 @@
 package dev.felnull.imp.block;
 
-import dev.felnull.otyacraftengine.block.HorizontalDirectionalEquipmentEntityBlock;
-import dev.felnull.otyacraftengine.block.IContainerEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -13,6 +11,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import org.modsauce.otyacraftenginerenewed.block.HorizontalDirectionalEquipmentEntityBlock;
+import org.modsauce.otyacraftenginerenewed.block.IContainerEntityBlock;
 
 public abstract class IMPBaseEntityBlock extends HorizontalDirectionalEquipmentEntityBlock implements IContainerEntityBlock {
     public static final BooleanProperty POWERED = IMPBlockStateProperties.POWER;

@@ -11,8 +11,6 @@ import dev.felnull.imp.client.model.IMPModels;
 import dev.felnull.imp.client.renderer.item.AntennaItemRenderer;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.client.renderer.blockentity.AbstractBlockEntityRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,6 +19,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.client.renderer.blockentity.AbstractBlockEntityRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.HashMap;
 import java.util.Map;

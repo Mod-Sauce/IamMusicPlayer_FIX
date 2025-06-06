@@ -4,15 +4,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.blockentity.CassetteDeckBlockEntity;
 import dev.felnull.imp.client.renderer.blockentity.CassetteDeckBlockEntityRenderer;
-import dev.felnull.otyacraftengine.client.renderer.item.BEWLItemRenderer;
-import dev.felnull.otyacraftengine.client.util.OEModelUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OEModelUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class CassetteDeckItemRenderer implements BEWLItemRenderer {
     private final CassetteDeckBlockEntity entity = new CassetteDeckBlockEntity(BlockPos.ZERO, IMPBlocks.CASSETTE_DECK.get().defaultBlockState());

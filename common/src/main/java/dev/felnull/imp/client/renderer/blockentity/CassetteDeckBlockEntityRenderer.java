@@ -7,14 +7,14 @@ import dev.felnull.imp.block.CassetteDeckBlock;
 import dev.felnull.imp.blockentity.CassetteDeckBlockEntity;
 import dev.felnull.imp.client.gui.screen.monitor.cassette_deck.CassetteDeckMonitor;
 import dev.felnull.imp.client.model.IMPModels;
-import dev.felnull.otyacraftengine.client.renderer.blockentity.AbstractBlockEntityRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
+import org.modsauce.otyacraftenginerenewed.client.renderer.blockentity.AbstractBlockEntityRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.HashMap;
 import java.util.Map;

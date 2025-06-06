@@ -2,7 +2,6 @@ package dev.felnull.imp.client.renderer.item.hand;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.item.BoomboxItem;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -14,6 +13,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class BoomboxHandRenderer {
     private static final Minecraft mc = Minecraft.getInstance();

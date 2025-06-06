@@ -2,12 +2,12 @@ package dev.felnull.imp.client.model;
 
 import dev.felnull.imp.IMPHoliday;
 import dev.felnull.imp.IamMusicPlayer;
-import dev.felnull.otyacraftengine.client.callpoint.ModelRegister;
-import dev.felnull.otyacraftengine.client.model.ModelCollectiveRegister;
-import dev.felnull.otyacraftengine.client.model.ModelHolder;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.client.callpoint.ModelRegister;
+import org.modsauce.otyacraftenginerenewed.client.model.ModelCollectiveRegister;
+import org.modsauce.otyacraftenginerenewed.client.model.ModelHolder;
 
 public class IMPModels {
     private static final ModelCollectiveRegister REGISTER = ModelCollectiveRegister.create();

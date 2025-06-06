@@ -5,12 +5,12 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import dev.felnull.fnjl.util.FNDataUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
-import dev.felnull.otyacraftengine.util.OERegisterUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.level.block.Block;
+import org.modsauce.otyacraftenginerenewed.util.OERegisterUtils;
 
 import java.util.function.Function;
 import java.util.function.Supplier;

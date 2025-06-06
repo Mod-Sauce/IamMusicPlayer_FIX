@@ -4,9 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.blockentity.CassetteDeckBlockEntity;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.CassetteDeckScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class MenuCDMonitor extends CassetteDeckMonitor {
     private static final Component WRITE = Component.translatable("imp.button.write");

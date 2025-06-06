@@ -1,7 +1,7 @@
 package dev.felnull.imp.music;
 
-import dev.felnull.otyacraftengine.util.OENbtUtils;
 import net.minecraft.nbt.CompoundTag;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 /**
  * スピーカー固定情報

@@ -48,12 +48,12 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    modApi "dev.felnull:otyacraftengine-forge:${rootProject.oe_version}"
+    modApi "org.modsauce:otyacraftenginerenewed-forge:${rootProject.oe_version}"
 
     modApi "me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-forge:${rootProject.rei_version}"
 
-    modApi "curse.maven:ctm-535489:${rootProject.sound_physics_remastered_forge}"
+//    modApi "curse.maven:ctm-535489:${rootProject.sound_physics_remastered_forge}"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'

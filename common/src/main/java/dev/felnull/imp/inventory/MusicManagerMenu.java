@@ -1,9 +1,9 @@
 package dev.felnull.imp.inventory;
 
-import dev.felnull.otyacraftengine.inventory.OEBEBaseMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
+import org.modsauce.otyacraftenginerenewed.inventory.OEBEBaseMenu;
 
 public class MusicManagerMenu extends OEBEBaseMenu {
 

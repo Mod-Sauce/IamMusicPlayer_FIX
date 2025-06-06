@@ -4,8 +4,6 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.blockentity.IMPBlockEntities;
 import dev.felnull.imp.item.BoomboxItem;
-import dev.felnull.otyacraftengine.shape.bundle.DirectionVoxelShapesBundle;
-import dev.felnull.otyacraftengine.util.OEVoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +27,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.shape.bundle.DirectionVoxelShapesBundle;
+import org.modsauce.otyacraftenginerenewed.util.OEVoxelShapeUtils;
 
 public class BoomboxBlock extends IMPBaseEntityBlock {
     private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "boombox"), BoomboxBlock.class));

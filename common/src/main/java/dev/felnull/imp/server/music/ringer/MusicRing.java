@@ -5,10 +5,10 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.advancements.IMPCriteriaTriggers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.networking.IMPPackets;
-import dev.felnull.otyacraftengine.advancement.ModInvolvementTrigger;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.modsauce.otyacraftenginerenewed.advancement.ModInvolvementTrigger;
 
 import java.util.*;
 

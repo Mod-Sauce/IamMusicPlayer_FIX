@@ -1,10 +1,10 @@
 package dev.felnull.imp.client.gui.components;
 
 import dev.felnull.imp.client.gui.IIMPSmartRender;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class SmartButton extends IMPButton implements IIMPSmartRender {
     private boolean center = true;

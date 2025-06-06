@@ -2,11 +2,11 @@ package dev.felnull.imp.client.gui.components;
 
 import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
-import dev.felnull.otyacraftengine.client.gui.components.FixedListWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
 
 import java.util.List;
 

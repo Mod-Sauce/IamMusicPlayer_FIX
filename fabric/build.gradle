@@ -63,7 +63,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modApi "dev.felnull:otyacraftengine-fabric:${rootProject.oe_version}"
+    modApi "org.modsauce:otyacraftenginerenewed-fabric:${rootProject.oe_version}"
 
     modApi "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
     modApi "me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}"
@@ -71,7 +71,7 @@ dependencies {
 
     modApi "dev.felnull:special-model-loader:1.2.0"
     include "dev.felnull:special-model-loader:1.2.0"
-    modApi "curse.maven:sound-physics-remastered-535489:${rootProject.sound_physics_remastered_fabric}"
+//    modApi "curse.maven:sound-physics-remastered-535489:${rootProject.sound_physics_remastered_fabric}"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'

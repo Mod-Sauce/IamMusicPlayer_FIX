@@ -1,8 +1,8 @@
 package dev.felnull.imp.music.resource;
 
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
 import net.minecraft.nbt.CompoundTag;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.util.ArrayList;
 import java.util.List;

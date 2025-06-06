@@ -2,11 +2,11 @@ package dev.felnull.imp.client.gui.components;
 
 import dev.architectury.utils.value.BooleanValue;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class LoopControlWidget extends AbstractWidget {
     private final BooleanValue loop;

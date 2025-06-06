@@ -3,9 +3,6 @@ package dev.felnull.imp.data;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.item.IMPItemTags;
 import dev.felnull.imp.item.IMPItems;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.RecipeProviderWrapper;
-import dev.felnull.otyacraftengine.tag.PlatformItemTags;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -14,6 +11,9 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.RecipeProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.tag.PlatformItemTags;
 
 import java.util.function.Consumer;
 

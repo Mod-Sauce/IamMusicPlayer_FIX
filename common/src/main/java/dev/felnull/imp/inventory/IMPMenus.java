@@ -3,8 +3,6 @@ package dev.felnull.imp.inventory;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.felnull.imp.IamMusicPlayer;
-import dev.felnull.otyacraftengine.item.location.PlayerItemLocation;
-import dev.felnull.otyacraftengine.util.OEMenuUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.Container;
@@ -12,6 +10,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocation;
+import org.modsauce.otyacraftenginerenewed.util.OEMenuUtil;
 
 public class IMPMenus {
     private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(IamMusicPlayer.MODID, Registries.MENU);

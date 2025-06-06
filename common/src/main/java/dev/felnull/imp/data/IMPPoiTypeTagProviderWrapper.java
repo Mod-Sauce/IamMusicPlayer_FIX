@@ -1,12 +1,12 @@
 package dev.felnull.imp.data;
 
 import dev.felnull.imp.entity.village.IMPPoiType;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.PoiTypeTagProviderWrapper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.PoiTypeTags;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.PoiTypeTagProviderWrapper;
 
 import java.util.concurrent.CompletableFuture;
 

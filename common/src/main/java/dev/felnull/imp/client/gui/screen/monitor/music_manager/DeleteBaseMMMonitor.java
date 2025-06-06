@@ -4,12 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public abstract class DeleteBaseMMMonitor extends MusicManagerMonitor {
     private static final Component CANCEL_TEXT = Component.translatable("gui.cancel");

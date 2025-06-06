@@ -7,8 +7,6 @@ import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.handler.CommonHandler;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
-import dev.felnull.otyacraftengine.item.IInstructionItem;
-import dev.felnull.otyacraftengine.item.ItemContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -33,6 +31,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.item.IInstructionItem;
+import org.modsauce.otyacraftenginerenewed.item.ItemContainer;
 
 import java.util.ArrayList;
 import java.util.List;

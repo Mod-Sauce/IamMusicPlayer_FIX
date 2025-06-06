@@ -1,6 +1,5 @@
 package dev.felnull.imp.item;
 
-import dev.felnull.otyacraftengine.item.EquipmentItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -8,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.item.EquipmentItem;
 
 import java.util.List;
 

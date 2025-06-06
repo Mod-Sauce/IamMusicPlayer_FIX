@@ -1,9 +1,9 @@
 package dev.felnull.imp.client.integration;
 
 import dev.felnull.imp.IamMusicPlayer;
-import dev.felnull.otyacraftengine.integration.BaseIntegration;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
+import org.modsauce.otyacraftenginerenewed.integration.BaseIntegration;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,13 +7,13 @@ import dev.felnull.imp.advancements.WriteCassetteTapeTrigger;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.advancement.ModInvolvementTrigger;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.AdvancementSubProviderWrapper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.modsauce.otyacraftenginerenewed.advancement.ModInvolvementTrigger;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.AdvancementSubProviderWrapper;
 
 import java.util.function.Consumer;
 
