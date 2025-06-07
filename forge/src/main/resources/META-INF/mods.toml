@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[43,)"
-issueTrackerURL = "https://github.com/TeamFelnull/IamMusicPlayer/issues"
+issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
 [[mods]]
@@ -30,7 +30,7 @@ side = "BOTH"
 [[dependencies.iammusicplayer]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2)"
+versionRange = "[1.19.2,)"
 ordering = "NONE"
 side = "BOTH"
 
