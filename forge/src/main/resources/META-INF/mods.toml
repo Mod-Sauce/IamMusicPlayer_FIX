@@ -6,11 +6,11 @@ license = "GNU LGPLv3"
 [[mods]]
 modId = "iammusicplayer"
 version = "${version}"
-displayName = "Iam Music Player"
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer"
+displayName = "Iam Music Player Renewede"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer-renewed"
 updateJSONURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/version_check.json"
-authors = "MORIMORI0317, nin8995"
-credits = "FelNull developers"
+authors = "Mooo0042, Shadowbee27"
+credits = "Mod-Sauce Dev's"
 description = '''
 Add a boombox that can play music.
 The ikisugi music player mod...
@@ -30,7 +30,7 @@ side = "BOTH"
 [[dependencies.iammusicplayer]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2,)"
+versionRange = "[1.19.2)"
 ordering = "NONE"
 side = "BOTH"
 
