@@ -64,14 +64,4 @@ publishing {
             }
         }
     }
-
-    repositories {
-        maven {
-            url "${project.maven_put_url}"
-            credentials {
-                username = "felnull"
-                password = "${project.maven_put_pass}" != '' ? "${project.maven_put_pass}" : System.getenv('mavenpassword')
-            }
-        }
-    }
 }
