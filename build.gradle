@@ -9,7 +9,6 @@ architectury {
 }
 
 changelog {
-    repositoryUrl = rootProject.repository_url
     introduction = """
     Changelog to track updates for this mod.  
     Add your changes to Unreleased if you want to commit.  
