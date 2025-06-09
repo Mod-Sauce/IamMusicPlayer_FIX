@@ -1,16 +1,16 @@
 modLoader = "javafml"
 loaderVersion = "[40,)"
-issueTrackerURL = "https://github.com/TeamFelnull/IamMusicPlayer/issues"
+issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
 [[mods]]
 modId = "iammusicplayer"
 version = "${version}"
-displayName = "Iam Music Player"
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer"
-updateJSONURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/version_check.json"
-authors = "MORIMORI0317, nin8995"
-credits = "FelNull developers"
+displayName = "Iam Music Player Renewed"
+displayURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX"
+updateJSONURL = ""
+authors = "Shadowbee27, Mooo0042"
+credits = "Modsauce and contributers"
 logoFile = "logo.png"
 description = '''
 Thank you for downloading!
@@ -29,21 +29,21 @@ side = "BOTH"
 [[dependencies.iammusicplayer]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.18.2,)"
+versionRange = "1.18.2"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "architectury"
 mandatory = true
-versionRange = "[4.1.32,)"
+versionRange = "4.12.94"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "cloth_config"
 mandatory = true
-versionRange = "[6.2.57,)"
+versionRange = "6.5.102"
 ordering = "NONE"
 side = "BOTH"
 

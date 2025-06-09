@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "id": "iammusicplayer",
   "version": "${version}",
-  "name": "Iam Music Player",
+  "name": "Iam Music Player Renewed",
   "description": "Thank you for downloading!\nThis mod is The Ikisugi Music Player MOD.",
   "authors": [
-    "MORIMORI0317",
-    "nin8995",
-    "FelNull developers"
+    "Shadowbee27",
+    "Mooo0042",
+    "Modsauce and contributors"
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer",
-    "sources": "https://github.com/TeamFelnull/IamMusicPlayer",
-    "issues": "https://github.com/TeamFelnull/IamMusicPlayer/issues"
+    "homepage": "https://mod-sauce.github.io/impr.html",
+    "sources": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/",
+    "issues": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
   },
   "license": "GNU LGPLv3",
   "icon": "assets/iammusicplayer/icon.png",
@@ -37,9 +37,9 @@
   ],
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.18.2",
-    "architectury": ">=4.1.32",
-    "cloth-config2": ">=6.2.57",
+    "minecraft": "=1.18.2",
+    "architectury": ">=4.12.94",
+    "cloth-config2": ">=6.5.102",
     "otyacraftengine": ">=2.14"
   }
 }
