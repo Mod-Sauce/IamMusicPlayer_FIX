@@ -30,9 +30,6 @@ public class IMPConfig implements ConfigData {
     public String lavaPlayerNativesURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/lavaplayer/natives_link.json";
 
     @ConfigEntry.Category("client")
-    public String neteaseCloudMusicApiURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/api_server.json";
-
-    @ConfigEntry.Category("client")
     public boolean hideDisplaySprite = false;
 
     @ConfigEntry.Category("client")

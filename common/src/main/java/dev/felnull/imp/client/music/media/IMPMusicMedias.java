@@ -10,12 +10,10 @@ public class IMPMusicMedias {
     public static final YoutubeMusicMedia YOUTUBE = new YoutubeMusicMedia("youtube");
     public static final SoundCloudMusicMedia SOUNDCLOUD = new SoundCloudMusicMedia("soundcloud");
     public static final HttpMusicMedia HTTP = new HttpMusicMedia("http");
-    public static final NetEaseCloudMusicMedia NETEASE_CLOUD_MUSIC = new NetEaseCloudMusicMedia();
 
     public static void init() {
         register("youtube", YOUTUBE);
         register("soundcloud", SOUNDCLOUD);
-        register("netease_cloud_music", NETEASE_CLOUD_MUSIC);
         register("http", HTTP);
     }
 
