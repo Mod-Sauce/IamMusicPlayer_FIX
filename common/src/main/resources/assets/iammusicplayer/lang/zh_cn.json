@@ -213,7 +213,7 @@
   "soundCategory.iammusicplayer": "IMP音乐",
   "imp.button.config": "IMP设置",
   "_comment.co": "Config",
-  "text.autoconfig.iammusicplayer.title": "Iam Music Player设置",
+  "text.autoconfig.iammusicplayer.title": "Iam Music Player Renewed设置",
   "text.autoconfig.iammusicplayer.category.client": "客户端",
   "text.autoconfig.iammusicplayer.option.errorLog": "错误日志",
   "text.autoconfig.iammusicplayer.option.volume": "音量",
@@ -247,7 +247,7 @@
   "entity.minecraft.villager.iammusicplayer.dj": "DJ",
   "entity.minecraft.villager.iammusicplayer:dj": "DJ",
   "_comment.a": "Advancements",
-  "advancements.iammusicplayer.root.title": "Iam Music Player",
+  "advancements.iammusicplayer.root.title": "Iam Music Player Renewed",
   "advancements.iammusicplayer.root.description": "一个ikisugi music player mod",
   "advancements.iammusicplayer.add_music.title": "音乐记录器",
   "advancements.iammusicplayer.add_music.description": "使用音乐管理器将音乐添加到播放列表",
@@ -262,7 +262,7 @@
   "advancements.iammusicplayer.listen_to_kamesuta.title": "KAME之力！！！",
   "advancements.iammusicplayer.listen_to_kamesuta.description": "使用kamesuta天线播放kamesuta的视频",
   "_comment.bo": "书",
-  "book.imp.landing_text": "本书介绍了如何使用IamMusicPlayer。$(br2)请注意，中文翻译可能不正确，因为此mod的作者是日本人，而中文根据英文翻译。$(br2)如果您发现此mod中存在错误或与其他mod冲突，请在$(l:https://github.com/TeamFelnull/IamMusicPlayer/issues)GitHub中反馈$(/l).",
+  "book.imp.landing_text": "本书介绍了如何使用IamMusicPlayerRenewed。$(br2)请注意，中文翻译可能不正确，因为此mod的作者是日本人，而中文根据英文翻译。$(br2)如果您发现此mod中存在错误或与其他mod冲突，请在$(l:https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues)GitHub中反馈$(/l).",
   "_comment.cr": "创造标签",
-  "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player"
+  "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player Renewed"
 }

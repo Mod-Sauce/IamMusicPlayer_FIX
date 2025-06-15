@@ -213,7 +213,7 @@
   "soundCategory.iammusicplayer": "Musique IMP",
   "imp.button.config": "Configuration IMP",
   "_comment.co": "Configuration",
-  "text.autoconfig.iammusicplayer.title": "Iam Music Player Configuration",
+  "text.autoconfig.iammusicplayer.title": "Iam Music Player Renewed Configuration",
   "text.autoconfig.iammusicplayer.category.client": "Côté client",
   "text.autoconfig.iammusicplayer.option.errorLog": "Journal des erreurs",
   "text.autoconfig.iammusicplayer.option.volume": "Volume",
@@ -247,7 +247,7 @@
   "entity.minecraft.villager.iammusicplayer.dj": "DJ",
   "entity.minecraft.villager.iammusicplayer:dj": "DJ",
   "_comment.a": "Advancements",
-  "advancements.iammusicplayer.root.title": "Iam Music Player",
+  "advancements.iammusicplayer.root.title": "Iam Music Player Renewed",
   "advancements.iammusicplayer.root.description": "Le mod de lecteur de musique ikisugi",
   "advancements.iammusicplayer.add_music.title": "Registre musical",
   "advancements.iammusicplayer.add_music.description": "Ajouter de la musique aux listes de lecture à l'aide du gestionnaire de musique",
@@ -262,7 +262,7 @@
   "advancements.iammusicplayer.listen_to_kamesuta.title": "Kame Power!!!",
   "advancements.iammusicplayer.listen_to_kamesuta.description": "Visionner une vidéo d'un kamesuta utilisant une antenne kamesuta",
   "_comment.bo": "Book",
-  "book.imp.landing_text": "Ce livre décrit comment utiliser IamMusicPlayer.$(br2)Veuillez noter que la traduction anglaise peut être incorrecte car le créateur de ce mod est japonais.$(br2)Si vous trouvez des bugs dans ce mod ou des conflits avec d'autres mods, veuillez nous le faire savoir dans le $(l:https://github.com/TeamFelnull/IamMusicPlayer/issues)GitHub issues$(/l).",
+  "book.imp.landing_text": "Ce livre décrit comment utiliser IamMusicPlayerRenewed.$(br2)Veuillez noter que la traduction anglaise peut être incorrecte car le créateur de ce mod est japonais.$(br2)Si vous trouvez des bugs dans ce mod ou des conflits avec d'autres mods, veuillez nous le faire savoir dans le $(l:https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues)GitHub issues$(/l).",
   "_comment.cr": "CreativeTab",
-  "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player"
+  "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player Renewed"
 }
