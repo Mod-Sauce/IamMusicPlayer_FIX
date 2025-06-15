@@ -54,6 +54,7 @@ dependencies {
     shadowIn('com.fasterxml.jackson.core:jackson-databind:2.14.3')
 
     shadowIn 'com.github.sealedtx:java-youtube-downloader:3.2.3'
+    shadowIn("dev.lavalink.youtube:v2:1.13.1")
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
     // shadowIn 'org.jsoup:jsoup:1.14.3'
     shadowIn 'com.mpatric:mp3agic:0.9.1'
