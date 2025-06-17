@@ -13,9 +13,9 @@
   ],
   "contact": {
     "email": "dev@mod-sauce.ddns-ip.net",
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer",
-    "sources": "https://github.com/TeamFelnull/IamMusicPlayer",
-    "issues": "https://github.com/TeamFelnull/IamMusicPlayer/issues"
+    "homepage": "https://modrinth.com/mod/iam-music-player-renewed",
+    "sources": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/",
+    "issues": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
   },
   "license": "GNU LGPLv3",
   "icon": "assets/iammusicplayer/icon.png",

@@ -7,8 +7,8 @@ license = "GNU LGPLv3"
 modId = "iammusicplayer"
 version = "${version}"
 displayName = "Iam Music Player Renewede"
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer-renewed"
-updateJSONURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/version_check.json"
+displayURL = "https://modrinth.com/mod/iam-music-player-renewed"
+updateJSONURL = ""
 authors = "Mooo0042, Shadowbee27"
 credits = "Mod-Sauce Dev's"
 description = '''
@@ -23,7 +23,7 @@ catalogueImageIcon = "icon.png"
 [[dependencies.iammusicplayer]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[43.5.0,)"
 ordering = "NONE"
 side = "BOTH"
 
