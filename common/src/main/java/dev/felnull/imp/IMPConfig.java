@@ -27,10 +27,7 @@ public class IMPConfig implements ConfigData {
     public String relayServerURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
 
     @ConfigEntry.Category("client")
-    public String lavaPlayerNativesURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/lavaplayer/natives_link.json";
-
-    @ConfigEntry.Category("client")
-    public String neteaseCloudMusicApiURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/api_server.json";
+    public String lavaPlayerNativesURL = "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
 
     @ConfigEntry.Category("client")
     public boolean hideDisplaySprite = false;

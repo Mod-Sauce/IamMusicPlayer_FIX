@@ -1,16 +1,16 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
-issueTrackerURL = "https://github.com/TeamFelnull/IamMusicPlayer/issues"
+loaderVersion = "[43.5,)"
+issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
 [[mods]]
 modId = "iammusicplayer"
 version = "${version}"
-displayName = "Iam Music Player"
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/iammusicplayer"
-updateJSONURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/version_check.json"
-authors = "MORIMORI0317, nin8995"
-credits = "FelNull developers"
+displayName = "Iam Music Player Renewede"
+displayURL = "https://modrinth.com/mod/iam-music-player-renewed"
+updateJSONURL = ""
+authors = "Mooo0042, Shadowbee27"
+credits = "Mod-Sauce Dev's"
 description = '''
 Add a boombox that can play music.
 The ikisugi music player mod...
@@ -23,7 +23,7 @@ catalogueImageIcon = "icon.png"
 [[dependencies.iammusicplayer]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[43.5.0,)"
 ordering = "NONE"
 side = "BOTH"
 
@@ -37,14 +37,14 @@ side = "BOTH"
 [[dependencies.iammusicplayer]]
 modId = "architectury"
 mandatory = true
-versionRange = "[6.2.43,)"
+versionRange = "[6.6.92,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "cloth_config"
 mandatory = true
-versionRange = "[8.0.75,)"
+versionRange = "[8.3.134,)"
 ordering = "NONE"
 side = "BOTH"
 

@@ -1,7 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id "com.modrinth.minotaur" version "2.4.4"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 architectury {
@@ -23,7 +21,7 @@ loom {
         }
     }
 
-   /* launches {
+    /* launches {
         data {
             arg "--existing", file("src/main/resources").absolutePath
         }
@@ -40,6 +38,14 @@ configurations {
     shadowCommon.extendsFrom shadowIn
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'org.json:json:20220924'
+        force 'org.jsoup:jsoup:1.15.3'
+        force 'commons-io:commons-io:2.11.0'
+    }
+}
+
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
     // Remove the next line if you don't want to depend on the API
@@ -48,29 +54,31 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    modApi "${rootProject.oe_repo_pre}dev.felnull:otyacraftengine-forge:${rootProject.oe_version}"
-    modApi "me.shedaniel.cloth:cloth-config-forge:8.3.115"
-    modApi "me.shedaniel:RoughlyEnoughItems-forge:9.1.528"
-    modApi "curse.maven:ctm-535489:3949786"
+    modApi "dev.felnull:otyacraftengine-forge:${rootProject.oe_version}"
+    modApi "me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config}"
+    modApi "me.shedaniel:RoughlyEnoughItems-forge:${rootProject.rei}"
+    modApi "curse.maven:ctm-535489:${rootProject.soundphysics_forge}"
 
     modCompileOnly "vazkii.patchouli:Patchouli:1.19.2-76:api"
     modRuntimeOnly "vazkii.patchouli:Patchouli:1.19.2-76"
 
-/*    shadowIn("com.github.walkyst:lavaplayer-fork:${rootProject.lava_version}") {
-        exclude group: 'com.github.walkyst', module: 'lavaplayer-natives-fork'
-    }
-    shadowIn 'com.github.sealedtx:java-youtube-downloader:3.1.0'*/
-    shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
+    shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_natives}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
-    
+
     shadowIn('com.fasterxml.jackson.core:jackson-core:2.14.3')
     shadowIn('com.fasterxml.jackson.core:jackson-databind:2.14.3')
     shadowIn "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
 
+    shadowIn("dev.lavalink.youtube:v2:${rootProject.youtube_src}")
+    
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
     shadowIn 'com.mpatric:mp3agic:0.9.1'
-    shadowIn("dev.lavalink.youtube:v2:1.11.4")
+
+    // Downgrade potentially problematic dependencies
+    shadowIn('org.json:json:20220924') // Older version from 2022
+    shadowIn('org.jsoup:jsoup:1.15.3') // Older version compatible with Java 17
+    shadowIn('commons-io:commons-io:2.11.0') // Older version compatible with Java 17
 }
 
 processResources {
@@ -121,18 +129,18 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
 }
 
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier = null
     setArchivesBaseName("${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}")
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 sourcesJar {
@@ -144,101 +152,5 @@ sourcesJar {
 components.java {
     withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
         skip()
-    }
-}
-
-publishing {
-    publications {
-        mavenForge(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            from components.java
-            pom {
-                name = 'IamMusicPlayer'
-                description = 'The ikisugi music player mod.'
-                licenses {
-                    license {
-                        name = 'GNU Lesser General Public License v3.0'
-                        url = 'https://www.gnu.org/licenses/lgpl-3.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'MORIMORI0317'
-                        name = 'MORIMORI0317'
-                    }
-                    developer {
-                        id = 'FelNull'
-                        name = 'TeamFelNull'
-                        email = 'teamfelnull@felnull.dev'
-                    }
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url "${project.maven_put_url}"
-            credentials {
-                username = "felnull"
-                password = "${project.maven_put_pass}" != '' ? "${project.maven_put_pass}" : System.getenv('mavenpassword')
-            }
-        }
-    }
-}
-
-curseforge {
-    if (System.getenv('curesforgeapikey') != null && "${project.curesforge_id}" != '') {
-        apiKey = System.getenv('curesforgeapikey')
-        project {
-            id = "${rootProject.curesforge_id}"
-
-            changelogType = 'markdown'
-            changelog = file('../LATEST_CHANGELOG.md')
-
-            releaseType = "${rootProject.release_type}"
-            addGameVersion "${rootProject.minecraft_version}"
-            addGameVersion 'Java 17'
-            addGameVersion "Forge"
-
-            project.support_versions.split(",").each {
-                String version -> addGameVersion version
-            }
-
-            relations {
-                requiredDependency "cloth-config"
-                requiredDependency "architectury-api"
-                requiredDependency "otyacraft-engine"
-                optionalDependency "patchouli"
-            }
-
-            mainArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")) {
-                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge"
-            }
-
-            addArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}-sources.jar")) {
-                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge-sources"
-            }
-        }
-    }
-}
-
-if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
-    modrinth {
-        token = System.getenv('modrinthapikey')
-        projectId = "${rootProject.modrinth_id}"
-        versionName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Forge"
-        versionNumber = "${rootProject.minecraft_version}-${project.mod_version}-Forge"
-        versionType = "${project.release_type}"
-        uploadFile = file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")
-        gameVersions = List.of(project.support_versions.split(","))
-        loaders = ["forge"]
-        dependencies {
-            required.project("9s6osm5g")//Cloth Config API
-            required.project("lhGA9TYQ")//Architectury API
-            required.project("iu3upNjC")//Otyacraft Engine
-            optional.project("nU0bVIaL")//Patchouli
-        }
-        changelog = file('../LATEST_CHANGELOG.md').text
     }
 }

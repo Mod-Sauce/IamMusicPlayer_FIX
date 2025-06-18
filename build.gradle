@@ -9,7 +9,6 @@ architectury {
 }
 
 changelog {
-    repositoryUrl = rootProject.repository_url
     introduction = """
     Changelog to track updates for this mod.  
     Add your changes to Unreleased if you want to commit.  
@@ -39,8 +38,8 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
-
     repositories {
+        mavenCentral()
         maven {
             url = "https://maven.lavalink.dev/#/releases"
         }
@@ -57,9 +56,17 @@ allprojects {
             url = 'https://maven.blamejared.com'
         }
         maven {
-            url "https://cursemaven.com"
+            url = "https://cursemaven.com"
         }
-        maven { url "https://maven.shedaniel.me/" }
+        maven {
+            url = "https://maven.shedaniel.me/"
+            }
+        maven {
+            url = "https://maven.lavalink.dev/releases"
+        }
+        maven {
+            url = "https://maven.terraformersmc.com/releases/"
+        }
     }
 
     tasks.withType(JavaCompile) {
