@@ -72,7 +72,6 @@ dependencies {
     
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
     shadowIn 'com.mpatric:mp3agic:0.9.1'
-    shadowIn("dev.lavalink.youtube:v2:1.11.4")
 
 }
 
@@ -131,7 +130,7 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier = null
-    setArchivesBaseName("${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}")
+    setArchivesBaseName("${rootProject.archives_base_name}-${project.name}-${rootProject.mod_version}-mc${rootProject.minecraft_version}")
 }
 
 jar {
