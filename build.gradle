@@ -39,6 +39,7 @@ allprojects {
     apply plugin: "maven-publish"
 
     repositories {
+        mavenCentral()
         maven {
             url = "https://maven.felnull.dev/"
         }
@@ -52,13 +53,16 @@ allprojects {
             url = 'https://maven.blamejared.com'
         }
         maven {
-            url "https://cursemaven.com"
+            url = "https://cursemaven.com"
         }
         maven {
-            url "https://maven.shedaniel.me/"
+            url = "https://maven.shedaniel.me/"
             }
         maven {
-            url "https://maven.lavalink.dev/releases"
+            url = "https://maven.lavalink.dev/releases"
+        }
+        maven {
+            url = "https://maven.terraformersmc.com/releases/"
         }
     }
 
