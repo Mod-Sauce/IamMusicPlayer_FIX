@@ -8,8 +8,8 @@ public class IMPCriteriaTriggers {
     public static final ListenToMusicTrigger LISTEN_TO_MUSIC = new ListenToMusicTrigger();
 
     public static void init() {
-        CriteriaTriggers.register(ADD_MUSIC);
-        CriteriaTriggers.register(WRITE_CASSETTE_TAPE);
-        CriteriaTriggers.register(LISTEN_TO_MUSIC);
+        CriteriaTriggers.register(ADD_MUSIC.getId().toString(), ADD_MUSIC);
+        CriteriaTriggers.register(WRITE_CASSETTE_TAPE.getId().toString(), WRITE_CASSETTE_TAPE);
+        CriteriaTriggers.register(LISTEN_TO_MUSIC.getId().toString(), LISTEN_TO_MUSIC);
     }
 }

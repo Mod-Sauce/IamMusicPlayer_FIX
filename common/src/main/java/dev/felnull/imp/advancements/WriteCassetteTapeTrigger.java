@@ -6,6 +6,7 @@ import net.minecraft.advancements.critereon.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class WriteCassetteTapeTrigger extends SimpleCriterionTrigger<WriteCassetteTapeTrigger.TriggerInstance> {
     private static final ResourceLocation ID = new ResourceLocation(IamMusicPlayer.MODID, "write_cassette_tape");
@@ -16,7 +17,7 @@ public class WriteCassetteTapeTrigger extends SimpleCriterionTrigger<WriteCasset
         return new TriggerInstance(composite, itemPredicate);
     }*/
     @Override
-    protected TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate contextAwarePredicate, DeserializationContext deserializationContext) {
+    protected @NotNull TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate contextAwarePredicate, DeserializationContext deserializationContext) {
         ItemPredicate itemPredicate = ItemPredicate.fromJson(jsonObject.get("item"));
         return new TriggerInstance(contextAwarePredicate, itemPredicate);
     }
@@ -25,7 +26,6 @@ public class WriteCassetteTapeTrigger extends SimpleCriterionTrigger<WriteCasset
         this.trigger(serverPlayer, (triggerInstance) -> triggerInstance.matches(itemStack));
     }
 
-    @Override
     public ResourceLocation getId() {
         return ID;
     }
