@@ -15,22 +15,10 @@ import java.util.Optional;
 public class ListenToMusicTrigger extends SimpleCriterionTrigger<ListenToMusicTrigger.TriggerInstance> {
   private static final ResourceLocation ID = new ResourceLocation(IamMusicPlayer.MODID, "listen_to_music");
 
-  /*
-   * @Override
-   * protected TriggerInstance createInstance(JsonObject jo,
-   * EntityPredicate.Composite composite, DeserializationContext
-   * deserializationContext) {
-   * boolean radio = jo.has("radio") && jo.get("radio").getAsBoolean();
-   * boolean remote = jo.has("remote") && jo.get("remote").getAsBoolean();
-   * boolean kamesuta = jo.has("kamesuta") && jo.get("kamesuta").getAsBoolean();
-   * return new TriggerInstance(composite, radio, remote, kamesuta);
-   * }
-   */
-
   @Override
   protected @NotNull TriggerInstance createInstance(JsonObject jo,
-                                                    Optional<ContextAwarePredicate> contextAwarePredicate,
-                                                    @NotNull DeserializationContext deserializationContext) {
+      Optional<ContextAwarePredicate> contextAwarePredicate,
+      @NotNull DeserializationContext deserializationContext) {
     boolean radio = false;
     boolean remote = false;
     boolean kamesuta = false;
@@ -68,22 +56,12 @@ public class ListenToMusicTrigger extends SimpleCriterionTrigger<ListenToMusicTr
     private final boolean kamesuta;
 
     public TriggerInstance(ContextAwarePredicate contextAwarePredicate, boolean radio, boolean remote,
-                           boolean kamesuta) {
-      super(ID, contextAwarePredicate);
+        boolean kamesuta) {
+      super(Optional.of(contextAwarePredicate));
       this.radio = radio;
       this.remote = remote;
       this.kamesuta = kamesuta;
     }
-
-    /*
-     * public TriggerInstance(EntityPredicate.Composite composite, boolean radio,
-     * boolean remote, boolean kamesuta) {
-     * super(ID, composite);
-     * this.radio = radio;
-     * this.remote = remote;
-     * this.kamesuta = kamesuta;
-     * }
-     */
 
     public boolean matches(boolean radio, boolean remote, boolean kamesuta) {
       if (this.radio && !radio)
