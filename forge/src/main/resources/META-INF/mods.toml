@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43.5,)"
+loaderVersion = "[43,)"
 issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
@@ -23,7 +23,7 @@ catalogueImageIcon = "icon.png"
 [[dependencies.iammusicplayer]]
 modId = "forge"
 mandatory = true
-versionRange = "[43.5.0,)"
+versionRange = "[43,)"
 ordering = "NONE"
 side = "BOTH"
 
@@ -44,7 +44,7 @@ side = "BOTH"
 [[dependencies.iammusicplayer]]
 modId = "cloth_config"
 mandatory = true
-versionRange = "[8.3.134,)"
+versionRange = "[8.0.75,)"
 ordering = "NONE"
 side = "BOTH"
 
