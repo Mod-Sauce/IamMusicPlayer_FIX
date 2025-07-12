@@ -37,6 +37,8 @@ allprojects {
     apply plugin: "java"
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
+    
+    version = rootProject.mod_version
 
     repositories {
         mavenCentral()
