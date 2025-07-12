@@ -6,7 +6,7 @@ license = "GNU LGPLv3"
 [[mods]]
 modId = "iammusicplayer"
 version = "${version}"
-displayName = "Iam Music Player Renewede"
+displayName = "Iam Music Player Renewed"
 displayURL = "https://modrinth.com/mod/iam-music-player-renewed"
 updateJSONURL = ""
 authors = "Mooo0042, Shadowbee27"
