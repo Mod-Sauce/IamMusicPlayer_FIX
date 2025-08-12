@@ -21,7 +21,7 @@ public class LavaNativeManager {
             LogManager.getLogger(LavaNativeManager.class);
     private static final Gson GSON = new Gson();
     private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-    private static final String nativesVersion = "2.2.3";
+    private static final String nativesVersion = "2.2.4";
 
     public static LavaNativeManager getInstance() {
         return INSTANCE;
