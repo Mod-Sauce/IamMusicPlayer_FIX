@@ -39,6 +39,11 @@ configurations {
     forgeDependencies.extendsFrom shadowIn
     shadowCommon.extendsFrom shadowIn
 }
+repositories {
+    maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
+    maven { url = "https://maven.ithundxr.dev/mirror" } // Registrate
+    maven { url = "https://maven.tterrag.com/" } // ForgeConfigAPIPort
+}
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
@@ -64,6 +69,13 @@ dependencies {
     shadowIn 'com.mpatric:mp3agic:0.9.1'
 
     shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
+    modImplementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    modImplementation("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
+    modCompileOnly("dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}")
+    modRuntimeOnly("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
+    modImplementation("com.tterrag.registrate:Registrate:${registrate_version}")
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
 }
 
 processResources {
