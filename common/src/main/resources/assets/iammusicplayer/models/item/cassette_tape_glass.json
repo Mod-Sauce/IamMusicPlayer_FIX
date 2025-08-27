@@ -1,3 +1,6 @@
 {
-  "parent": "iammusicplayer:item/cassette_tape_base"
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "iammusicplayer:item/cassette_tape_glass"
+	}
 }

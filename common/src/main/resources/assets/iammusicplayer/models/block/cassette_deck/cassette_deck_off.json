@@ -1,6 +1,70 @@
 {
-  "parent": "iammusicplayer:block/cassette_deck/cassette_deck_base",
-  "textures": {
-    "1": "iammusicplayer:block/cassette_deck/cassette_deck_off"
-  }
+	"credit": "Made with Blockbench",
+	"textures": {
+		"1": "iammusicplayer:block/casette_deck/cassette_deck_off",
+		"particle": "iammusicplayer:block/cassette_deck/cassette_deck"
+	},
+	"elements": [
+		{
+			"from": [0, 7, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 8, 4.5], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 0, 16, 4.5], "texture": "#1", "cullface": "west"},
+				"south": {"uv": [8, 0, 16, 4.5], "texture": "#1", "cullface": "west"},
+				"west": {"uv": [8, 0, 16, 4.5], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [0, 8, 8, 16], "texture": "#1", "cullface": "up"},
+				"down": {"uv": [2, 4.5, 2.5, 6.5], "texture": "#1", "cullface": "north"}
+			}
+		},
+		{
+			"from": [0, 0, 0],
+			"to": [16, 3, 16],
+			"faces": {
+				"north": {"uv": [0, 6.5, 8, 8], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 6.5, 16, 8], "texture": "#1", "cullface": "north"},
+				"south": {"uv": [8, 6.5, 16, 8], "texture": "#1", "cullface": "north"},
+				"west": {"uv": [8, 6.5, 16, 8], "texture": "#1", "cullface": "north"},
+				"up": {"uv": [2, 4.5, 2.5, 6.5], "texture": "#1", "cullface": "north"},
+				"down": {"uv": [8, 8, 16, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"from": [0, 3, 1.25],
+			"to": [16, 7, 16],
+			"faces": {
+				"north": {"uv": [2, 4.5, 2.5, 6.5], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 4.5, 15.375, 6.5], "texture": "#1", "cullface": "north"},
+				"south": {"uv": [8, 4.5, 16, 6.5], "texture": "#1", "cullface": "north"},
+				"west": {"uv": [8.625, 4.5, 16, 6.5], "texture": "#1", "cullface": "north"},
+				"up": {"uv": [0, 8, 8, 16], "texture": "#1", "cullface": "north"},
+				"down": {"uv": [8, 8, 16, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"from": [11, 3, 0],
+			"to": [16, 7, 1.25],
+			"faces": {
+				"north": {"uv": [0, 4.5, 2.5, 6.5], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [15.375, 4.5, 16, 6.5], "texture": "#1", "cullface": "north"},
+				"south": {"uv": [8, 4.5, 8.625, 6.5], "texture": "#1", "cullface": "north"},
+				"west": {"uv": [2, 4.5, 2.5, 6.5], "texture": "#1", "cullface": "north"},
+				"up": {"uv": [0, 8, 8, 16], "texture": "#1", "cullface": "north"},
+				"down": {"uv": [8, 8, 16, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"from": [0, 3, 0],
+			"to": [3, 7, 1.25],
+			"faces": {
+				"north": {"uv": [6.5, 4.5, 8, 6.5], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [2, 4.5, 2.5, 6.5], "texture": "#1", "cullface": "north"},
+				"south": {"uv": [14.5, 4.5, 16, 6.5], "texture": "#1", "cullface": "north"},
+				"west": {"uv": [8, 4.5, 8.625, 6.5], "texture": "#1", "cullface": "north"},
+				"up": {"uv": [0, 8, 8, 16], "texture": "#1", "cullface": "north"},
+				"down": {"uv": [8, 8, 16, 16], "texture": "#1", "cullface": "down"}
+			}
+		}
+	],
+	"display": {}
 }
