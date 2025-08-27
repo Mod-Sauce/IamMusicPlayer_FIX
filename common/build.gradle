@@ -5,9 +5,12 @@ architectury {
 loom {
     accessWidenerPath = file("src/main/resources/iammusicplayer.accesswidener")
 }
-
+repositories {
+    maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
+    maven { url = "https://maven.ithundxr.dev/mirror" } // Registrate
+    maven { url = "https://maven.tterrag.com/" } // ForgeConfigAPIPort
+}
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
 
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
@@ -26,6 +29,13 @@ dependencies {
 
     implementation "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
     implementation 'com.mpatric:mp3agic:0.9.1'
+    modImplementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    modImplementation("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
+    modCompileOnly("dev.engine-room.flywheel:flywheel-forge-api-${minecraft_version}:${flywheel_version}")
+    modRuntimeOnly("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
+    modImplementation("com.tterrag.registrate:Registrate:${registrate_version}")
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation("io.github.llamalad7:mixinextras-forge:0.4.1")
 }
 /*
 publishing {
