@@ -36,6 +36,7 @@ body:
         - "3.22.0-alpha.7"
         - "3.22.0-alpha.6"
         - "3.22.0-alpha.5"
+        - "Other"
     validations:
       required: true
 
