@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "(43.5,)"
+loaderVersion = "[43.5,)"
 issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
@@ -23,34 +23,34 @@ catalogueImageIcon = "icon.png"
 [[dependencies.iammusicplayer]]
 modId = "forge"
 mandatory = true
-versionRange = "(43.5.0,)"
+versionRange = "[43.5.0,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "minecraft"
 mandatory = true
-versionRange = "(1.19.2,)"
+versionRange = "[1.19.2,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "architectury"
 mandatory = true
-versionRange = "(6.6.92,)"
+versionRange = "[6.6.92,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "cloth_config"
 mandatory = true
-versionRange = "(8.3.134,)"
+versionRange = "[8.3.134,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "otyacraftengine"
 mandatory = true
-versionRange = "(3.2.0,)"
+versionRange = "[3.2.0,)"
 ordering = "NONE"
 side = "BOTH"
