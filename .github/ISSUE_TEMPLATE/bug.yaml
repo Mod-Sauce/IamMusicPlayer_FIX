@@ -71,5 +71,5 @@ body:
   - type: textarea
     id: other
     attributes:
-      label: Logs, Images or Videos and the other Mods you added
+      label: Logs (pls use https://mclo.gs/), Images or Videos and the other Mods you added
       description: "Anything that can help. If you are using an existing Modpack you can provide the Link to it."
