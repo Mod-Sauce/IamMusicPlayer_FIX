@@ -131,23 +131,24 @@ public class LavaNativeManager {
       return false;
     }
 
-    // 2. Build file list, ignoring hidden/junk files
+    // 2. Filter only actual native files and hash.json
     List<File> fls = Arrays.stream(fs)
-      .filter(f -> !f.isHidden()) // skip hidden files (.DS_Store, etc.)
+      .filter(f -> !f.isHidden())
       .filter(f -> !f.getName().equalsIgnoreCase("Thumbs.db"))
       .collect(Collectors.toList());
 
     // 3. Find hash.json
     Optional<File> hf = fls
       .stream()
-      .filter(n -> n.getName().equals("hash.json"))
+      .filter(f -> f.getName().equals("hash.json"))
       .findAny();
+
     if (hf.isEmpty()) {
       LOGGER.error("Missing hash.json in directory: {}", file);
       return false;
     }
 
-    // 4. Parse JSON
+    // 4. Parse hash.json
     JsonObject jo;
     try (
       BufferedReader reader = new BufferedReader(
@@ -166,17 +167,37 @@ public class LavaNativeManager {
       return false;
     }
 
-    // 6. Remove hash.json from file list
+    // 6. Remove hash.json from the list
     fls.remove(hf.get());
 
+    // 7. Filter native binaries based on OS
+    fls = fls
+      .stream()
+      .filter(f -> {
+        if (os.contains("linux") && f.getName().endsWith(".so")) return true;
+        if (os.contains("mac") && f.getName().endsWith(".dylib")) return true;
+        if (os.contains("win") && f.getName().endsWith(".dll")) return true;
+        return false;
+      })
+      .collect(Collectors.toList());
+
     if (fls.isEmpty()) {
-      LOGGER.error("No native files found (only hash.json present)");
-      return false;
+      if (os.contains("win")) {
+        LOGGER.error(
+          "No native files found for Windows (only hash.json present)"
+        );
+        return false;
+      } else {
+        LOGGER.warn(
+          "No native files found for {} — proceeding anyway (single-file archive expected)",
+          os
+        );
+      }
     }
 
     JsonElement hashElem = jo.get("hash");
 
-    // 7. Case A: Single hash string → validate first file
+    // 8. Case A: Single hash string → validate first file
     if (hashElem.isJsonPrimitive()) {
       if (fls.size() != 1) {
         LOGGER.warn(
@@ -214,13 +235,13 @@ public class LavaNativeManager {
       }
     }
 
-    // 8. Case B: Object of hashes → validate each file
+    // 9. Case B: Object of hashes → validate each file
     if (hashElem.isJsonObject()) {
       JsonObject hjo = hashElem.getAsJsonObject();
 
       if (hjo.size() != fls.size()) {
         LOGGER.error(
-          "Mismatch between hash entries ({}) and file count ({})",
+          "Mismatch between hash entries ({}) and native files ({})",
           hjo.size(),
           fls.size()
         );
@@ -233,9 +254,8 @@ public class LavaNativeManager {
 
         Optional<File> lf = fls
           .stream()
-          .filter(n -> n.getName().equals(filename))
+          .filter(f -> f.getName().equals(filename))
           .findAny();
-
         if (lf.isEmpty()) {
           LOGGER.error("Expected file {} not found in directory", filename);
           return false;
@@ -265,10 +285,11 @@ public class LavaNativeManager {
           return false;
         }
       }
+
       return true;
     }
 
-    // 9. Fallback
+    // 10. Fallback
     LOGGER.error(
       "Invalid 'hash' format in hash.json (expected string or object). Found: {}",
       hashElem
