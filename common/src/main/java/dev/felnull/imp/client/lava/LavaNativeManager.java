@@ -1,24 +1,32 @@
 package dev.felnull.imp.client.lava;
 
-import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.felnull.fnjl.util.FNDataUtil;
-import dev.felnull.fnjl.util.FNURLUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Manager for handling LavaPlayer native library downloads and loading
+ */
 public class LavaNativeManager {
 
   private static final Logger LOGGER = LogManager.getLogger(
@@ -26,261 +34,575 @@ public class LavaNativeManager {
   );
   private static final Gson GSON = new Gson();
   private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-  private static final String nativesVersion = "2.2.4";
+  private static final String NATIVES_VERSION = "2.2.4";
+  private static final String HASH_FILE_NAME = "hash.json";
+  private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
+  private static final int READ_TIMEOUT = 30000; // 30 seconds
+  private static final int DOWNLOAD_RETRY_COUNT = 3;
+  private static final long DOWNLOAD_RETRY_DELAY_MS = 1000;
+
+  // Executor for background downloads
+  private final ExecutorService downloadExecutor =
+    Executors.newSingleThreadExecutor(
+      new ThreadFactoryBuilder()
+        .setNameFormat("lava-natives-downloader-%d")
+        .setDaemon(true)
+        .build()
+    );
+
+  // In-progress downloads to prevent duplicate download attempts
+  private final Map<String, CompletableFuture<Boolean>> activeDownloads =
+    new ConcurrentHashMap<>();
+
+  private LavaNativeManager() {
+    // Private constructor for singleton
+  }
 
   public static LavaNativeManager getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Loads the native library for the specified OS/architecture
+   *
+   * @param osAndArch OS and architecture identifier (e.g. "windows-x86-64")
+   * @param name Name of the native library file to load
+   * @return true if library is available, false otherwise
+   */
   public boolean load(String osAndArch, String name) {
-    var npF = LavaPlayerLoader.getNaiveLibraryFolder()
-      .resolve(osAndArch)
-      .toFile();
-    if (!checked(npF)) {
+    Path nativesDir = LavaPlayerLoader.getNaiveLibraryFolder().resolve(
+      osAndArch
+    );
+    File nativesDirFile = nativesDir.toFile();
+    Path nativeLibPath = nativesDir.resolve(name);
+
+    // Check if natives directory exists and is valid
+    if (!isValidNativesDirectory(nativesDirFile)) {
       try {
-        LOGGER.info("LavaPlayer natives download start");
-        downloadNatives(osAndArch);
-        LOGGER.info("LavaPlayer natives download successful");
+        LOGGER.info(
+          "LavaPlayer natives for {} need to be downloaded",
+          osAndArch
+        );
+        boolean success = downloadNatives(osAndArch).join();
+        if (!success) {
+          LOGGER.error("LavaPlayer natives download failed for {}", osAndArch);
+          return false;
+        }
+        LOGGER.info("LavaPlayer natives download successful for {}", osAndArch);
       } catch (Exception e) {
-        LOGGER.error("LavaPlayer natives download failed", e);
+        LOGGER.error("LavaPlayer natives download failed for {}", osAndArch, e);
         return false;
       }
     }
-    LOGGER.info("LavaPlayer native(" + name + ") check successful");
 
-    return npF.toPath().resolve(name).toFile().exists();
+    LOGGER.info("LavaPlayer native({}) check successful", name);
+    return Files.exists(nativeLibPath);
   }
 
-  private void downloadNatives(String osAndArch) throws Exception {
-    var npF = LavaPlayerLoader.getNaiveLibraryFolder()
-      .resolve(osAndArch)
-      .toFile();
-    if (!npF.exists() && !npF.mkdirs()) throw new IllegalStateException(
-      "Failed to create the folder of the native library"
-    );
-
-    JsonObject jo;
-    try (
-      BufferedReader reader = new BufferedReader(
-        new InputStreamReader(
-          FNURLUtil.getStream(
-            new URI(IamMusicPlayer.getConfig().lavaPlayerNativesURL).toURL()
-          )
-        )
+  /**
+   * Downloads native libraries for specified OS and architecture
+   *
+   * @param osAndArch OS and architecture identifier
+   * @return CompletableFuture that resolves to true if download succeeded
+   */
+  public CompletableFuture<Boolean> downloadNatives(String osAndArch) {
+    // Return existing download if one is in progress for this OS/arch
+    return activeDownloads.computeIfAbsent(osAndArch, key ->
+      CompletableFuture.supplyAsync(
+        () -> {
+          try {
+            return downloadAndExtractNatives(osAndArch);
+          } catch (Exception e) {
+            LOGGER.error("Failed to download natives for {}", osAndArch, e);
+            return false;
+          } finally {
+            activeDownloads.remove(osAndArch);
+          }
+        },
+        downloadExecutor
       )
-    ) {
-      jo = GSON.fromJson(reader, JsonObject.class);
+    );
+  }
+
+  /**
+   * Performs the actual download and extraction of native libraries
+   *
+   * @param osAndArch OS and architecture identifier
+   * @return true if download and extraction succeeded
+   */
+  private boolean downloadAndExtractNatives(String osAndArch) throws Exception {
+    Path nativesDir = LavaPlayerLoader.getNaiveLibraryFolder().resolve(
+      osAndArch
+    );
+    File nativesDirFile = nativesDir.toFile();
+
+    // Create natives directory if it doesn't exist
+    if (!nativesDirFile.exists() && !nativesDirFile.mkdirs()) {
+      throw new IOException(
+        "Failed to create the directory for native libraries: " + nativesDir
+      );
     }
 
+    // Download natives manifest
+    JsonObject manifestJson = downloadManifest();
+
+    // Verify version exists in manifest
     if (
-      !jo.has(nativesVersion) || !jo.get(nativesVersion).isJsonObject()
-    ) throw new IllegalStateException(
-      "Could not find version of native library to support"
-    );
+      !manifestJson.has(NATIVES_VERSION) ||
+      !manifestJson.get(NATIVES_VERSION).isJsonObject()
+    ) {
+      throw new IllegalStateException(
+        "Native library version " + NATIVES_VERSION + " not found in manifest"
+      );
+    }
 
-    var joo = jo.getAsJsonObject(nativesVersion);
+    JsonObject versionJson = manifestJson.getAsJsonObject(NATIVES_VERSION);
 
+    // Verify OS/arch exists in manifest version
     if (
-      !joo.has(osAndArch) || !joo.get(osAndArch).isJsonObject()
-    ) throw new IllegalStateException("Unsupported OS or architecture");
+      !versionJson.has(osAndArch) || !versionJson.get(osAndArch).isJsonObject()
+    ) {
+      throw new IllegalStateException(
+        "Unsupported OS or architecture: " + osAndArch
+      );
+    }
 
-    var jooo = joo.getAsJsonObject(osAndArch);
+    JsonObject platformJson = versionJson.getAsJsonObject(osAndArch);
 
-    if (!jooo.has("hash")) throw new IllegalStateException(
-      "The hash value was not found"
+    // Verify required fields exist
+    if (!platformJson.has("hash")) {
+      throw new IllegalStateException("Hash value not found for " + osAndArch);
+    }
+
+    if (!platformJson.has("url")) {
+      throw new IllegalStateException(
+        "Download URL not found for " + osAndArch
+      );
+    }
+
+    // Create hash.json file
+    JsonObject hashJson = new JsonObject();
+    hashJson.add("hash", platformJson.get("hash"));
+    Files.writeString(
+      nativesDir.resolve(HASH_FILE_NAME),
+      GSON.toJson(hashJson)
     );
 
-    if (!jooo.has("url")) throw new IllegalStateException(
-      "Native library URL not found"
+    // Download and extract natives archive
+    String downloadUrl = platformJson.get("url").getAsString();
+    Path tempFile = downloadWithRetry(new URI(downloadUrl).toURL(), nativesDir);
+
+    try {
+      extractNatives(tempFile, nativesDir);
+    } finally {
+      // Clean up temp file
+      try {
+        Files.deleteIfExists(tempFile);
+      } catch (IOException e) {
+        LOGGER.warn(
+          "Failed to delete temporary download file: {}",
+          tempFile,
+          e
+        );
+      }
+    }
+
+    // Verify integrity of extracted files
+    if (!validateNativesIntegrity(nativesDirFile)) {
+      // If validation fails, clean up the directory to force a fresh download next time
+      try {
+        deleteDirectoryContents(nativesDirFile);
+      } catch (IOException e) {
+        LOGGER.warn(
+          "Failed to clean up invalid natives directory: {}",
+          nativesDir,
+          e
+        );
+      }
+      throw new IllegalStateException(
+        "Native library integrity check failed for " + osAndArch
+      );
+    }
+
+    return true;
+  }
+
+  /**
+   * Downloads the natives manifest from the configured URL
+   *
+   * @return JsonObject containing the natives manifest
+   */
+  private JsonObject downloadManifest() throws Exception {
+    URL manifestUrl = new URI(
+      IamMusicPlayer.getConfig().lavaPlayerNativesURL
+    ).toURL();
+
+    HttpURLConnection connection =
+      (HttpURLConnection) manifestUrl.openConnection();
+    connection.setConnectTimeout(CONNECTION_TIMEOUT);
+    connection.setReadTimeout(READ_TIMEOUT);
+
+    try (
+      BufferedReader reader = new BufferedReader(
+        new InputStreamReader(connection.getInputStream())
+      )
+    ) {
+      return GSON.fromJson(reader, JsonObject.class);
+    }
+  }
+
+  /**
+   * Downloads a file from URL with retry logic
+   *
+   * @param url URL to download from
+   * @param targetDir Directory to save the downloaded file
+   * @return Path to the downloaded temporary file
+   */
+  private Path downloadWithRetry(URL url, Path targetDir) throws Exception {
+    Path tempFile = targetDir.resolve(
+      "natives_download_" + System.currentTimeMillis() + ".tmp"
     );
 
-    var ho = new JsonObject();
-    ho.add("hash", jooo.get("hash"));
+    Exception lastException = null;
+    for (int attempt = 1; attempt <= DOWNLOAD_RETRY_COUNT; attempt++) {
+      if (attempt > 1) {
+        LOGGER.info(
+          "Retrying download (attempt {}/{})",
+          attempt,
+          DOWNLOAD_RETRY_COUNT
+        );
+        Thread.sleep(DOWNLOAD_RETRY_DELAY_MS);
+      }
 
-    Files.writeString(npF.toPath().resolve("hash.json"), GSON.toJson(ho));
+      try {
+        downloadFile(url, tempFile);
+        return tempFile;
+      } catch (IOException e) {
+        lastException = e;
+        LOGGER.warn("Download attempt {} failed: {}", attempt, e.getMessage());
+      }
+    }
 
-    FNDataUtil.readZipStreamed(
-      new BufferedInputStream(
-        FNURLUtil.getStream(new URI(jooo.get("url").getAsString()).toURL())
-      ),
-      (zipEntry, inputStream) -> {
-        var fl = npF.toPath().resolve(zipEntry.getName()).toFile();
-        try (
-          InputStream is = inputStream;
-          OutputStream os = new FileOutputStream(fl)
-        ) {
-          FNDataUtil.bufInputToOutput(is, os);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+    throw new IOException(
+      "Failed to download after " + DOWNLOAD_RETRY_COUNT + " attempts",
+      lastException
+    );
+  }
+
+  /**
+   * Downloads a file from URL using NIO channels for better performance
+   *
+   * @param url URL to download from
+   * @param destination Path to save the file to
+   */
+  private void downloadFile(URL url, Path destination) throws IOException {
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setConnectTimeout(CONNECTION_TIMEOUT);
+    connection.setReadTimeout(READ_TIMEOUT);
+
+    try (
+      ReadableByteChannel readChannel = Channels.newChannel(
+        connection.getInputStream()
+      );
+      FileChannel writeChannel = FileChannel.open(
+        destination,
+        StandardOpenOption.CREATE,
+        StandardOpenOption.WRITE,
+        StandardOpenOption.TRUNCATE_EXISTING
+      )
+    ) {
+      long fileSize = connection.getContentLengthLong();
+      LOGGER.info(
+        "Downloading {} ({} bytes)",
+        url,
+        fileSize > 0 ? fileSize : "unknown size"
+      );
+
+      // Transfer in chunks to handle large files
+      long position = 0;
+      long bytesTransferred;
+      long chunkSize = 1024 * 1024; // 1MB chunks
+
+      while (
+        (bytesTransferred = writeChannel.transferFrom(
+            readChannel,
+            position,
+            chunkSize
+          )) >
+        0
+      ) {
+        position += bytesTransferred;
+      }
+    }
+  }
+
+  /**
+   * Extracts a zip file to the specified directory
+   *
+   * @param zipFile Path to the zip file
+   * @param targetDir Directory to extract to
+   */
+  private void extractNatives(Path zipFile, Path targetDir) {
+    LOGGER.info("Extracting natives to {}", targetDir);
+
+    try {
+      InputStream zipStream = Files.newInputStream(zipFile);
+      try {
+        FNDataUtil.readZipStreamed(
+          new BufferedInputStream(zipStream),
+          (zipEntry, inputStream) -> {
+            Path entryPath = targetDir.resolve(zipEntry.getName());
+
+            // Create parent directories
+            try {
+              Files.createDirectories(entryPath.getParent());
+
+              // Copy entry to file
+              try (
+                InputStream is = inputStream;
+                OutputStream os = Files.newOutputStream(
+                  entryPath,
+                  StandardOpenOption.CREATE,
+                  StandardOpenOption.TRUNCATE_EXISTING
+                )
+              ) {
+                // Using buffer copy instead of deprecated method
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                  os.write(buffer, 0, bytesRead);
+                }
+              } catch (IOException e) {
+                throw new UncheckedIOException(
+                  "Failed to extract " + zipEntry.getName(),
+                  e
+                );
+              }
+
+              // Set executable flag for libraries on Unix-like systems
+              String fileName = entryPath.getFileName().toString();
+              if (
+                isUnixSystem() &&
+                (fileName.endsWith(".so") || fileName.endsWith(".dylib"))
+              ) {
+                entryPath.toFile().setExecutable(true, false);
+              }
+            } catch (IOException e) {
+              throw new UncheckedIOException("Failed to create directories", e);
+            }
+          }
+        );
+      } catch (IOException e) {
+        LOGGER.error("Failed to extract zip file: {}", e.getMessage(), e);
+        throw new UncheckedIOException("Failed to extract natives archive", e);
+      }
+    } catch (UncheckedIOException | IOException e) {
+      LOGGER.error("Extraction failed: {}", e.getMessage(), e);
+      throw new RuntimeException(
+        "Failed to extract natives",
+        e instanceof UncheckedIOException
+          ? ((UncheckedIOException) e).getCause()
+          : e
+      );
+    } finally {
+      // No need to close zipStream - it's handled by FNDataUtil.readZipStreamed
+    }
+  }
+
+  /**
+   * Checks if natives directory is valid and contains all required files
+   *
+   * @param directory Directory to check
+   * @return true if directory is valid
+   */
+  private boolean isValidNativesDirectory(File directory) {
+    // Check if directory exists and is a directory
+    if (!directory.exists() || !directory.isDirectory()) {
+      return false;
+    }
+
+    // Validate contents against hash
+    return validateNativesIntegrity(directory);
+  }
+
+  /**
+   * Validates integrity of extracted native files against hash
+   *
+   * @param directory Directory containing native files
+   * @return true if all files match their hashes
+   */
+  private boolean validateNativesIntegrity(File directory) {
+    try {
+      LOGGER.info("Validating native libraries integrity in {}", directory);
+
+      // 1. List files in the directory
+      File[] files = directory.listFiles();
+      if (files == null) {
+        LOGGER.error(
+          "Directory does not exist or cannot be read: {}",
+          directory
+        );
+        return false;
+      }
+
+      // 2. Filter relevant files (ignore hidden/system files)
+      List<File> relevantFiles = Arrays.stream(files)
+        .filter(f -> !f.isHidden())
+        .filter(f -> !f.getName().equalsIgnoreCase("Thumbs.db"))
+        .collect(Collectors.toList());
+
+      // 3. Find hash.json
+      Optional<File> hashFile = relevantFiles
+        .stream()
+        .filter(f -> f.getName().equals(HASH_FILE_NAME))
+        .findAny();
+
+      if (hashFile.isEmpty()) {
+        LOGGER.error("Missing {} in directory: {}", HASH_FILE_NAME, directory);
+        return false;
+      }
+
+      // 4. Parse hash.json
+      JsonObject hashJson;
+      try (
+        BufferedReader reader = new BufferedReader(
+          new InputStreamReader(new FileInputStream(hashFile.get()))
+        )
+      ) {
+        hashJson = GSON.fromJson(reader, JsonObject.class);
+      }
+
+      // 5. Verify hash.json format
+      if (!hashJson.has("hash")) {
+        LOGGER.error("{} missing required field 'hash'", HASH_FILE_NAME);
+        return false;
+      }
+
+      // 6. Remove hash.json from the list for validation
+      relevantFiles.remove(hashFile.get());
+
+      // 7. Filter native libraries based on current OS
+      List<File> nativeLibs = filterNativeLibrariesForCurrentOS(relevantFiles);
+
+      if (nativeLibs.isEmpty()) {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+          LOGGER.error("No native library files found for Windows");
+          return false;
+        } else {
+          LOGGER.warn(
+            "No native library files found for {} — proceeding anyway (single-file archive expected)",
+            os
+          );
         }
       }
-    );
 
-    if (!checked(npF)) throw new IllegalStateException(
-      "Consistency check failed"
-    );
+      // 8. Validate hashes
+      JsonElement hashElement = hashJson.get("hash");
+      return validateHashes(hashElement, nativeLibs);
+    } catch (Exception e) {
+      LOGGER.error(
+        "Unexpected error during native libraries integrity check: {}",
+        e.getMessage(),
+        e
+      );
+      return false;
+    }
   }
 
-  private boolean checked(File file) {
-    String os = System.getProperty("os.name").toLowerCase();
-
-    // 1. Check directory
-    File[] fs = file.listFiles();
-    if (fs == null) {
-      LOGGER.error("Directory does not exist or cannot be read: {}", file);
-      return false;
-    }
-
-    // 2. Filter only actual native files and hash.json
-    List<File> fls = Arrays.stream(fs)
-      .filter(f -> !f.isHidden())
-      .filter(f -> !f.getName().equalsIgnoreCase("Thumbs.db"))
-      .collect(Collectors.toList());
-
-    // 3. Find hash.json
-    Optional<File> hf = fls
-      .stream()
-      .filter(f -> f.getName().equals("hash.json"))
-      .findAny();
-
-    if (hf.isEmpty()) {
-      LOGGER.error("Missing hash.json in directory: {}", file);
-      return false;
-    }
-
-    // 4. Parse hash.json
-    JsonObject jo;
-    try (
-      BufferedReader reader = new BufferedReader(
-        new InputStreamReader(new FileInputStream(hf.get()))
-      )
-    ) {
-      jo = GSON.fromJson(reader, JsonObject.class);
-    } catch (IOException e) {
-      LOGGER.error("Failed to read/parse hash.json: {}", e.getMessage());
-      return false;
-    }
-
-    // 5. Ensure "hash" key exists
-    if (!jo.has("hash")) {
-      LOGGER.error("hash.json missing required field 'hash'");
-      return false;
-    }
-
-    // 6. Remove hash.json from the list
-    fls.remove(hf.get());
-
-    // 7. Filter native binaries based on OS
-    fls = fls
-      .stream()
-      .filter(f -> {
-        if (os.contains("linux") && f.getName().endsWith(".so")) return true;
-        if (os.contains("mac") && f.getName().endsWith(".dylib")) return true;
-        if (os.contains("win") && f.getName().endsWith(".dll")) return true;
+  /**
+   * Validates native libraries against provided hash
+   *
+   * @param hashElement JsonElement containing hash information
+   * @param nativeLibs List of native library files
+   * @return true if all hashes match
+   */
+  private boolean validateHashes(
+    JsonElement hashElement,
+    List<File> nativeLibs
+  ) {
+    // Case 1: Single hash string for a single file
+    if (hashElement.isJsonPrimitive()) {
+      if (nativeLibs.isEmpty()) {
+        LOGGER.error("No native library files found to validate against hash");
         return false;
-      })
-      .collect(Collectors.toList());
+      }
 
-    if (fls.isEmpty()) {
-      if (os.contains("win")) {
+      if (nativeLibs.size() > 1) {
+        LOGGER.warn(
+          "Primitive hash provided but {} files found (expected 1). Validating first file only.",
+          nativeLibs.size()
+        );
+      }
+
+      File targetFile = nativeLibs.get(0);
+      String expectedHash = hashElement.getAsString();
+      String actualHash = calculateMD5Hash(targetFile.toPath());
+
+      if (!expectedHash.equals(actualHash)) {
         LOGGER.error(
-          "No native files found for Windows (only hash.json present)"
+          "Hash mismatch for {}: expected {}, got {}",
+          targetFile.getName(),
+          expectedHash,
+          actualHash
         );
         return false;
-      } else {
-        LOGGER.warn(
-          "No native files found for {} — proceeding anyway (single-file archive expected)",
-          os
-        );
       }
+
+      return true;
     }
 
-    JsonElement hashElem = jo.get("hash");
+    // Case 2: Object with hashes for multiple files
+    if (hashElement.isJsonObject()) {
+      JsonObject hashesObject = hashElement.getAsJsonObject();
 
-    // 8. Case A: Single hash string → validate first file
-    if (hashElem.isJsonPrimitive()) {
-      if (fls.size() != 1) {
-        LOGGER.warn(
-          "Primitive hash provided but {} files found (expected 1). Validating first file anyway.",
-          fls.size()
-        );
-      }
+      // Create a map of filenames to files
+      Map<String, File> filesByName = nativeLibs
+        .stream()
+        .collect(Collectors.toMap(File::getName, f -> f));
 
-      try {
-        File target = fls.get(0);
-        String expected = hashElem.getAsString();
-        String actual = new String(
-          Hex.encodeHex(
-            FNDataUtil.createMD5Hash(Files.readAllBytes(target.toPath()))
-          )
-        );
-        if (expected.equals(actual)) {
-          return true;
-        } else {
+      // Validate each hash entry
+      for (Map.Entry<String, JsonElement> entry : hashesObject.entrySet()) {
+        String filename = entry.getKey();
+        String expectedHash = entry.getValue().getAsString();
+
+        File file = filesByName.get(filename);
+        if (file == null) {
+          LOGGER.error("Expected file {} not found", filename);
+          return false;
+        }
+
+        String actualHash = calculateMD5Hash(file.toPath());
+        if (!expectedHash.equals(actualHash)) {
           LOGGER.error(
             "Hash mismatch for {}: expected {}, got {}",
-            target.getName(),
-            expected,
-            actual
-          );
-          return false;
-        }
-      } catch (Exception e) {
-        LOGGER.error(
-          "Error computing hash for {}: {}",
-          fls.get(0).getName(),
-          e.getMessage()
-        );
-        return false;
-      }
-    }
-
-    // 9. Case B: Object of hashes → validate each file
-    if (hashElem.isJsonObject()) {
-      JsonObject hjo = hashElem.getAsJsonObject();
-
-      if (hjo.size() != fls.size()) {
-        LOGGER.error(
-          "Mismatch between hash entries ({}) and native files ({})",
-          hjo.size(),
-          fls.size()
-        );
-        return false;
-      }
-
-      for (Map.Entry<String, JsonElement> entry : hjo.entrySet()) {
-        String filename = entry.getKey();
-        String expected = entry.getValue().getAsString();
-
-        Optional<File> lf = fls
-          .stream()
-          .filter(f -> f.getName().equals(filename))
-          .findAny();
-        if (lf.isEmpty()) {
-          LOGGER.error("Expected file {} not found in directory", filename);
-          return false;
-        }
-
-        try {
-          String actual = new String(
-            Hex.encodeHex(
-              FNDataUtil.createMD5Hash(Files.readAllBytes(lf.get().toPath()))
-            )
-          );
-          if (!expected.equals(actual)) {
-            LOGGER.error(
-              "Hash mismatch for {}: expected {}, got {}",
-              filename,
-              expected,
-              actual
-            );
-            return false;
-          }
-        } catch (Exception e) {
-          LOGGER.error(
-            "Error computing hash for {}: {}",
             filename,
-            e.getMessage()
+            expectedHash,
+            actualHash
+          );
+          return false;
+        }
+      }
+
+      // Check for extra files not in hash object
+      Set<String> expectedFiles = new HashSet<>(hashesObject.keySet());
+      Set<String> actualFiles = new HashSet<>(filesByName.keySet());
+
+      if (!expectedFiles.equals(actualFiles)) {
+        Set<String> extraFiles = new HashSet<>(actualFiles);
+        extraFiles.removeAll(expectedFiles);
+
+        if (!extraFiles.isEmpty()) {
+          LOGGER.warn("Found extra files not in hash.json: {}", extraFiles);
+        }
+
+        Set<String> missingFiles = new HashSet<>(expectedFiles);
+        missingFiles.removeAll(actualFiles);
+
+        if (!missingFiles.isEmpty()) {
+          LOGGER.error(
+            "Missing files that should be present according to hash.json: {}",
+            missingFiles
           );
           return false;
         }
@@ -289,11 +611,105 @@ public class LavaNativeManager {
       return true;
     }
 
-    // 10. Fallback
+    // Invalid hash format
     LOGGER.error(
-      "Invalid 'hash' format in hash.json (expected string or object). Found: {}",
-      hashElem
+      "Invalid 'hash' format in {} (expected string or object). Found: {}",
+      HASH_FILE_NAME,
+      hashElement
     );
     return false;
+  }
+
+  /**
+   * Filters the list of files to only include native libraries for the current OS
+   *
+   * @param files List of files to filter
+   * @return List of native library files for the current OS
+   */
+  private List<File> filterNativeLibrariesForCurrentOS(List<File> files) {
+    String os = System.getProperty("os.name").toLowerCase();
+
+    return files
+      .stream()
+      .filter(f -> {
+        String name = f.getName();
+        if (os.contains("linux") && name.endsWith(".so")) return true;
+        if (os.contains("mac") && name.endsWith(".dylib")) return true;
+        if (os.contains("win") && name.endsWith(".dll")) return true;
+        return false;
+      })
+      .collect(Collectors.toList());
+  }
+
+  /**
+   * Calculates MD5 hash of a file
+   *
+   * @param path Path to the file
+   * @return MD5 hash as a hex string
+   */
+  private String calculateMD5Hash(Path path) {
+    try {
+      byte[] hash = FNDataUtil.createMD5Hash(Files.readAllBytes(path));
+      return new String(Hex.encodeHex(hash));
+    } catch (IOException | NoSuchAlgorithmException e) {
+      throw new UncheckedIOException(
+        "Failed to calculate MD5 hash",
+        new IOException(e)
+      );
+    }
+  }
+
+  /**
+   * Deletes all contents of a directory without deleting the directory itself
+   *
+   * @param directory Directory to clear
+   */
+  private void deleteDirectoryContents(File directory) throws IOException {
+    if (!directory.exists() || !directory.isDirectory()) {
+      return;
+    }
+
+    File[] files = directory.listFiles();
+    if (files == null) {
+      return;
+    }
+
+    for (File file : files) {
+      if (file.isDirectory()) {
+        deleteDirectoryContents(file);
+        if (!file.delete()) {
+          LOGGER.warn("Failed to delete directory: {}", file);
+        }
+      } else {
+        if (!file.delete()) {
+          LOGGER.warn("Failed to delete file: {}", file);
+        }
+      }
+    }
+  }
+
+  /**
+   * Checks if running on a Unix-like system
+   *
+   * @return true if running on Linux, macOS, etc.
+   */
+  private boolean isUnixSystem() {
+    String os = System.getProperty("os.name").toLowerCase();
+    return os.contains("nix") || os.contains("nux") || os.contains("mac");
+  }
+
+  /**
+   * Shuts down the download executor service
+   */
+  public void shutdown() {
+    downloadExecutor.shutdown();
+    try {
+      if (!downloadExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+        downloadExecutor.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      downloadExecutor.shutdownNow();
+    }
   }
 }
