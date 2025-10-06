@@ -711,5 +711,4 @@ public class LavaNativeManager {
       Thread.currentThread().interrupt();
       downloadExecutor.shutdownNow();
     }
-  }
 }
