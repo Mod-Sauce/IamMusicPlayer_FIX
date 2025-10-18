@@ -20,6 +20,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +36,7 @@ public class LavaNativeManager {
   );
   private static final Gson GSON = new Gson();
   private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-  private static final String NATIVES_VERSION = "2.2.4";
+  private static final String NATIVES_VERSION = "2.2.3"; // Changed to 2.2.3 to match common version
   private static final String HASH_FILE_NAME = "hash.json";
   private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
   private static final int READ_TIMEOUT = 30000; // 30 seconds
@@ -152,7 +154,7 @@ public class LavaNativeManager {
       !manifestJson.get(NATIVES_VERSION).isJsonObject()
     ) {
       throw new IllegalStateException(
-        "Native library version " + NATIVES_VERSION + " not found in manifest"
+        "Native library version " + NATIVES_VERSION + " not found in manifest. Available versions: " + manifestJson.keySet()
       );
     }
 
@@ -163,7 +165,7 @@ public class LavaNativeManager {
       !versionJson.has(osAndArch) || !versionJson.get(osAndArch).isJsonObject()
     ) {
       throw new IllegalStateException(
-        "Unsupported OS or architecture: " + osAndArch
+        "Unsupported OS or architecture: " + osAndArch + ". Available platforms: " + versionJson.keySet()
       );
     }
 
@@ -190,6 +192,7 @@ public class LavaNativeManager {
 
     // Download and extract natives archive
     String downloadUrl = platformJson.get("url").getAsString();
+    LOGGER.info("Downloading natives from: {}", downloadUrl);
     Path tempFile = downloadWithRetry(new URI(downloadUrl).toURL(), nativesDir);
 
     try {
@@ -233,14 +236,21 @@ public class LavaNativeManager {
    * @return JsonObject containing the natives manifest
    */
   private JsonObject downloadManifest() throws Exception {
-    URL manifestUrl = new URI(
-      IamMusicPlayer.getConfig().lavaPlayerNativesURL
-    ).toURL();
+    String manifestUrlString = IamMusicPlayer.getConfig().lavaPlayerNativesURL;
+    LOGGER.info("Downloading natives manifest from: {}", manifestUrlString);
+    
+    URL manifestUrl = new URI(manifestUrlString).toURL();
 
     HttpURLConnection connection =
       (HttpURLConnection) manifestUrl.openConnection();
     connection.setConnectTimeout(CONNECTION_TIMEOUT);
     connection.setReadTimeout(READ_TIMEOUT);
+    connection.setRequestProperty("User-Agent", "IamMusicPlayer");
+
+    int responseCode = connection.getResponseCode();
+    if (responseCode != 200) {
+      throw new IOException("Failed to download manifest. HTTP response code: " + responseCode);
+    }
 
     try (
       BufferedReader reader = new BufferedReader(
@@ -276,10 +286,17 @@ public class LavaNativeManager {
 
       try {
         downloadFile(url, tempFile);
+        LOGGER.info("Download completed successfully");
         return tempFile;
       } catch (IOException e) {
         lastException = e;
         LOGGER.warn("Download attempt {} failed: {}", attempt, e.getMessage());
+        // Delete partial download
+        try {
+          Files.deleteIfExists(tempFile);
+        } catch (IOException deleteEx) {
+          LOGGER.debug("Failed to delete partial download", deleteEx);
+        }
       }
     }
 
@@ -299,6 +316,12 @@ public class LavaNativeManager {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setConnectTimeout(CONNECTION_TIMEOUT);
     connection.setReadTimeout(READ_TIMEOUT);
+    connection.setRequestProperty("User-Agent", "IamMusicPlayer");
+    
+    int responseCode = connection.getResponseCode();
+    if (responseCode != 200) {
+      throw new IOException("Failed to download file. HTTP response code: " + responseCode + " for URL: " + url);
+    }
 
     try (
       ReadableByteChannel readChannel = Channels.newChannel(
@@ -315,10 +338,10 @@ public class LavaNativeManager {
       LOGGER.info(
         "Downloading {} ({} bytes)",
         url,
-        fileSize > 0 ? fileSize : "unknown size"
+        fileSize > 0 ? String.format("%,d", fileSize) : "unknown size"
       );
 
-      // Transfer in chunks to handle large files
+      // Transfer in chunks
       long position = 0;
       long bytesTransferred;
       long chunkSize = 1024 * 1024; // 1MB chunks
@@ -332,7 +355,15 @@ public class LavaNativeManager {
         0
       ) {
         position += bytesTransferred;
+        if (fileSize > 0) {
+          int progress = (int) ((position * 100) / fileSize);
+          if (progress % 10 == 0) {
+            LOGGER.debug("Download progress: {}%", progress);
+          }
+        }
       }
+      
+      LOGGER.info("Downloaded {} bytes", position);
     }
   }
 
@@ -342,70 +373,68 @@ public class LavaNativeManager {
    * @param zipFile Path to the zip file
    * @param targetDir Directory to extract to
    */
-  private void extractNatives(Path zipFile, Path targetDir) {
-    LOGGER.info("Extracting natives to {}", targetDir);
+  private void extractNatives(Path zipFile, Path targetDir) throws IOException {
+    LOGGER.info("Extracting natives from {} to {}", zipFile, targetDir);
 
-    try {
-      InputStream zipStream = Files.newInputStream(zipFile);
-      try {
-        FNDataUtil.readZipStreamed(
-          new BufferedInputStream(zipStream),
-          (zipEntry, inputStream) -> {
-            Path entryPath = targetDir.resolve(zipEntry.getName());
+    try (
+      InputStream fileStream = Files.newInputStream(zipFile);
+      BufferedInputStream bufferedStream = new BufferedInputStream(fileStream);
+      ZipInputStream zipStream = new ZipInputStream(bufferedStream)
+    ) {
+      ZipEntry entry;
+      int fileCount = 0;
+      
+      while ((entry = zipStream.getNextEntry()) != null) {
+        if (entry.isDirectory()) {
+          continue;
+        }
 
-            // Create parent directories
-            try {
-              Files.createDirectories(entryPath.getParent());
+        String entryName = entry.getName();
+        // Skip macOS metadata files
+        if (entryName.contains("__MACOSX") || entryName.startsWith("._")) {
+          continue;
+        }
 
-              // Copy entry to file
-              try (
-                InputStream is = inputStream;
-                OutputStream os = Files.newOutputStream(
-                  entryPath,
-                  StandardOpenOption.CREATE,
-                  StandardOpenOption.TRUNCATE_EXISTING
-                )
-              ) {
-                // Using buffer copy instead of deprecated method
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = is.read(buffer)) != -1) {
-                  os.write(buffer, 0, bytesRead);
-                }
-              } catch (IOException e) {
-                throw new UncheckedIOException(
-                  "Failed to extract " + zipEntry.getName(),
-                  e
-                );
-              }
+        Path entryPath = targetDir.resolve(entryName);
+        LOGGER.debug("Extracting: {}", entryName);
 
-              // Set executable flag for libraries on Unix-like systems
-              String fileName = entryPath.getFileName().toString();
-              if (
-                isUnixSystem() &&
-                (fileName.endsWith(".so") || fileName.endsWith(".dylib"))
-              ) {
-                entryPath.toFile().setExecutable(true, false);
-              }
-            } catch (IOException e) {
-              throw new UncheckedIOException("Failed to create directories", e);
-            }
+        // Create parent directories
+        Files.createDirectories(entryPath.getParent());
+
+        // Copy entry to file
+        try (
+          OutputStream os = Files.newOutputStream(
+            entryPath,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING
+          )
+        ) {
+          byte[] buffer = new byte[8192];
+          int bytesRead;
+          while ((bytesRead = zipStream.read(buffer)) != -1) {
+            os.write(buffer, 0, bytesRead);
           }
-        );
-      } catch (IOException e) {
-        LOGGER.error("Failed to extract zip file: {}", e.getMessage(), e);
-        throw new UncheckedIOException("Failed to extract natives archive", e);
+          fileCount++;
+        }
+
+        // Set executable flag for libraries on Unix-like systems
+        String fileName = entryPath.getFileName().toString();
+        if (
+          isUnixSystem() &&
+          (fileName.endsWith(".so") || fileName.endsWith(".dylib"))
+        ) {
+          entryPath.toFile().setExecutable(true, false);
+          LOGGER.debug("Set executable flag for: {}", fileName);
+        }
+        
+        zipStream.closeEntry();
       }
-    } catch (UncheckedIOException | IOException e) {
-      LOGGER.error("Extraction failed: {}", e.getMessage(), e);
-      throw new RuntimeException(
-        "Failed to extract natives",
-        e instanceof UncheckedIOException
-          ? ((UncheckedIOException) e).getCause()
-          : e
-      );
-    } finally {
-      // No need to close zipStream - it's handled by FNDataUtil.readZipStreamed
+      
+      LOGGER.info("Extracted {} files", fileCount);
+      
+      if (fileCount == 0) {
+        throw new IOException("No files were extracted from the archive");
+      }
     }
   }
 
@@ -433,7 +462,7 @@ public class LavaNativeManager {
    */
   private boolean validateNativesIntegrity(File directory) {
     try {
-      LOGGER.info("Validating native libraries integrity in {}", directory);
+      LOGGER.debug("Validating native libraries integrity in {}", directory);
 
       // 1. List files in the directory
       File[] files = directory.listFiles();
@@ -449,6 +478,7 @@ public class LavaNativeManager {
       List<File> relevantFiles = Arrays.stream(files)
         .filter(f -> !f.isHidden())
         .filter(f -> !f.getName().equalsIgnoreCase("Thumbs.db"))
+        .filter(f -> !f.getName().startsWith("."))
         .collect(Collectors.toList());
 
       // 3. Find hash.json
@@ -485,17 +515,11 @@ public class LavaNativeManager {
       List<File> nativeLibs = filterNativeLibrariesForCurrentOS(relevantFiles);
 
       if (nativeLibs.isEmpty()) {
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win")) {
-          LOGGER.error("No native library files found for Windows");
-          return false;
-        } else {
-          LOGGER.warn(
-            "No native library files found for {} — proceeding anyway (single-file archive expected)",
-            os
-          );
-        }
+        LOGGER.error("No native library files found in {}", directory);
+        return false;
       }
+
+      LOGGER.debug("Found {} native library file(s) to validate", nativeLibs.size());
 
       // 8. Validate hashes
       JsonElement hashElement = hashJson.get("hash");
@@ -549,6 +573,7 @@ public class LavaNativeManager {
         return false;
       }
 
+      LOGGER.debug("Hash validated successfully for {}", targetFile.getName());
       return true;
     }
 
@@ -582,6 +607,8 @@ public class LavaNativeManager {
           );
           return false;
         }
+        
+        LOGGER.debug("Hash validated successfully for {}", filename);
       }
 
       // Check for extra files not in hash object
@@ -608,6 +635,7 @@ public class LavaNativeManager {
         }
       }
 
+      LOGGER.debug("All hashes validated successfully");
       return true;
     }
 
@@ -653,7 +681,7 @@ public class LavaNativeManager {
       return new String(Hex.encodeHex(hash));
     } catch (IOException | NoSuchAlgorithmException e) {
       throw new UncheckedIOException(
-        "Failed to calculate MD5 hash",
+        "Failed to calculate MD5 hash for " + path,
         new IOException(e)
       );
     }
