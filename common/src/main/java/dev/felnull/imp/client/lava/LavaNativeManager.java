@@ -36,7 +36,7 @@ public class LavaNativeManager {
   );
   private static final Gson GSON = new Gson();
   private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-  private static final String NATIVES_VERSION = "2.2.3"; // Changed to 2.2.3 to match common version
+  private static final String NATIVES_VERSION = "2.2.4";
   private static final String HASH_FILE_NAME = "hash.json";
   private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
   private static final int READ_TIMEOUT = 30000; // 30 seconds
@@ -154,7 +154,10 @@ public class LavaNativeManager {
       !manifestJson.get(NATIVES_VERSION).isJsonObject()
     ) {
       throw new IllegalStateException(
-        "Native library version " + NATIVES_VERSION + " not found in manifest. Available versions: " + manifestJson.keySet()
+        "Native library version " +
+          NATIVES_VERSION +
+          " not found in manifest. Available versions: " +
+          manifestJson.keySet()
       );
     }
 
@@ -165,7 +168,10 @@ public class LavaNativeManager {
       !versionJson.has(osAndArch) || !versionJson.get(osAndArch).isJsonObject()
     ) {
       throw new IllegalStateException(
-        "Unsupported OS or architecture: " + osAndArch + ". Available platforms: " + versionJson.keySet()
+        "Unsupported OS or architecture: " +
+          osAndArch +
+          ". Available platforms: " +
+          versionJson.keySet()
       );
     }
 
@@ -238,7 +244,7 @@ public class LavaNativeManager {
   private JsonObject downloadManifest() throws Exception {
     String manifestUrlString = IamMusicPlayer.getConfig().lavaPlayerNativesURL;
     LOGGER.info("Downloading natives manifest from: {}", manifestUrlString);
-    
+
     URL manifestUrl = new URI(manifestUrlString).toURL();
 
     HttpURLConnection connection =
@@ -249,7 +255,9 @@ public class LavaNativeManager {
 
     int responseCode = connection.getResponseCode();
     if (responseCode != 200) {
-      throw new IOException("Failed to download manifest. HTTP response code: " + responseCode);
+      throw new IOException(
+        "Failed to download manifest. HTTP response code: " + responseCode
+      );
     }
 
     try (
@@ -317,10 +325,15 @@ public class LavaNativeManager {
     connection.setConnectTimeout(CONNECTION_TIMEOUT);
     connection.setReadTimeout(READ_TIMEOUT);
     connection.setRequestProperty("User-Agent", "IamMusicPlayer");
-    
+
     int responseCode = connection.getResponseCode();
     if (responseCode != 200) {
-      throw new IOException("Failed to download file. HTTP response code: " + responseCode + " for URL: " + url);
+      throw new IOException(
+        "Failed to download file. HTTP response code: " +
+          responseCode +
+          " for URL: " +
+          url
+      );
     }
 
     try (
@@ -362,7 +375,7 @@ public class LavaNativeManager {
           }
         }
       }
-      
+
       LOGGER.info("Downloaded {} bytes", position);
     }
   }
@@ -383,7 +396,7 @@ public class LavaNativeManager {
     ) {
       ZipEntry entry;
       int fileCount = 0;
-      
+
       while ((entry = zipStream.getNextEntry()) != null) {
         if (entry.isDirectory()) {
           continue;
@@ -426,12 +439,12 @@ public class LavaNativeManager {
           entryPath.toFile().setExecutable(true, false);
           LOGGER.debug("Set executable flag for: {}", fileName);
         }
-        
+
         zipStream.closeEntry();
       }
-      
+
       LOGGER.info("Extracted {} files", fileCount);
-      
+
       if (fileCount == 0) {
         throw new IOException("No files were extracted from the archive");
       }
@@ -519,7 +532,10 @@ public class LavaNativeManager {
         return false;
       }
 
-      LOGGER.debug("Found {} native library file(s) to validate", nativeLibs.size());
+      LOGGER.debug(
+        "Found {} native library file(s) to validate",
+        nativeLibs.size()
+      );
 
       // 8. Validate hashes
       JsonElement hashElement = hashJson.get("hash");
@@ -607,7 +623,7 @@ public class LavaNativeManager {
           );
           return false;
         }
-        
+
         LOGGER.debug("Hash validated successfully for {}", filename);
       }
 
