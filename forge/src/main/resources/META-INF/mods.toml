@@ -5,7 +5,7 @@ license = "GNU LGPLv3"
 
 [[mods]]
 modId = "iammusicplayer"
-version = "${version}"
+version = "${version}-forge"
 displayName = "Iam Music Player Renewed"
 displayURL = "https://mod-sauce.github.io/impr.html"
 updateJSONURL = ""
@@ -48,6 +48,6 @@ side = "BOTH"
 [[dependencies.iammusicplayer]]
 modId = "otyacraftengine"
 mandatory = true
-versionRange = "3.7.0-1.20.1"
+versionRange = "3.7.1-1.20.1"
 ordering = "NONE"
 side = "BOTH"

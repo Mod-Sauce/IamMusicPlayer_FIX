@@ -10,6 +10,8 @@ bin/
 libs/
 .architectury-transformer/
 
+.zed/*
+*.factorypath
 .classpath
 .project
 .idea/
