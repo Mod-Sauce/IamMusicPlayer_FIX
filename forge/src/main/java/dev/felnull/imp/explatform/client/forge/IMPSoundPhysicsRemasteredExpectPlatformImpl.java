@@ -2,6 +2,7 @@ package dev.felnull.imp.explatform.client.forge;
 
 
 import com.sonicether.soundphysics.SoundPhysics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 
 public class IMPSoundPhysicsRemasteredExpectPlatformImpl {
@@ -9,7 +10,7 @@ public class IMPSoundPhysicsRemasteredExpectPlatformImpl {
         SoundPhysics.setDefaultEnvironment(sourceID);
     }
 
-    public static void setLastSoundCategoryAndName(SoundSource sc, String name) {
+    public static void setLastSoundCategoryAndName(SoundSource sc, ResourceLocation name) {
         SoundPhysics.setLastSoundCategoryAndName(sc, name);
     }
 

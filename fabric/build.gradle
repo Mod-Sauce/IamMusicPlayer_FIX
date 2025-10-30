@@ -71,7 +71,7 @@ dependencies {
 
     modApi "dev.felnull:special-model-loader:1.2.0"
     include "dev.felnull:special-model-loader:1.2.0"
-    modApi "curse.maven:sound-physics-remastered-535489:${rootProject.sound_physics_remastered_fabric}"
+    modApi "maven.modrinth:sound-physics-remastered:${rootProject.sound_physics_remastered_fabric}"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
