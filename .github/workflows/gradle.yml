@@ -16,7 +16,7 @@ jobs:
       - name: Set up JDK 17
         uses: useblacksmith/setup-java@v5
         with:
-          java-version: 17
+          java-version: 21
           distribution: zulu
           cache: gradle
 
@@ -49,7 +49,7 @@ jobs:
           name: IamMusicPlayerRenewedFabric
           path: fabric/build/libs
           compression-level: 9
-          
+
       - name: Install GitHub CLI
         if: failure()
         run: sudo apt update && sudo apt install -y gh
