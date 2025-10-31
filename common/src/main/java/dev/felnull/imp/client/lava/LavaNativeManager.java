@@ -30,14 +30,6 @@ import org.apache.logging.log4j.Logger;
  * Manager for handling LavaPlayer native library downloads and loading
  */
 public class LavaNativeManager {
-<<<<<<< HEAD
-    private static final Logger LOGGER =
-            LogManager.getLogger(LavaNativeManager.class);
-    private static final Gson GSON = new Gson();
-    private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-    private static final String nativesVersion = "2.2.4";
-=======
->>>>>>> d280ea9d6dbd59ebb8265d858bbb1f575aeb0cf5
 
   private static final Logger LOGGER = LogManager.getLogger(
     LavaNativeManager.class
