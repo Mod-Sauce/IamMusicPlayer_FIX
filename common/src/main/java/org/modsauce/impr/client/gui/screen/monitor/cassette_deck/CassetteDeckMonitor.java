@@ -1,0 +1,108 @@
+package org.modsauce.impr.client.gui.screen.monitor.cassette_deck;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import org.modsauce.impr.IamMusicPlayer;
+import org.modsauce.impr.blockentity.CassetteDeckBlockEntity;
+import org.modsauce.impr.client.gui.screen.CassetteDeckScreen;
+import org.modsauce.impr.client.gui.screen.monitor.Monitor;
+import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class CassetteDeckMonitor extends Monitor<CassetteDeckBlockEntity> {
+    private static final ResourceLocation BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/background.png");
+    private static final Map<CassetteDeckBlockEntity.MonitorType, MonitorFactory> monitorFactory = new HashMap<>();
+    private final CassetteDeckBlockEntity.MonitorType monitorType;
+    private final CassetteDeckScreen screen;
+
+    public CassetteDeckMonitor(CassetteDeckBlockEntity.MonitorType monitorType, CassetteDeckScreen screen) {
+        super(Component.translatable("imp.monitor.cassette_deck." + monitorType.getName()), 7, 18, 200, 56);
+        this.monitorType = monitorType;
+        this.screen = screen;
+    }
+
+    public ItemStack getCassetteTape(CassetteDeckBlockEntity blockEntity) {
+        return blockEntity.getCassetteTape();
+    }
+
+    public ItemStack getCassetteTape() {
+        return getScreen().getCassetteTape();
+    }
+
+    public int getVolume(CassetteDeckBlockEntity cassetteDeckBlockEntity) {
+        return cassetteDeckBlockEntity.getVolume();
+    }
+
+    public int getVolume() {
+        return getScreen().getVolume();
+    }
+
+    public boolean isMute() {
+        return getScreen().isMute();
+    }
+
+    public boolean isMute(CassetteDeckBlockEntity cassetteDeckBlockEntity) {
+        return cassetteDeckBlockEntity.isMute();
+    }
+
+    public CassetteDeckBlockEntity.MonitorType getType() {
+        return monitorType;
+    }
+
+    public CassetteDeckScreen getScreen() {
+        return screen;
+    }
+
+    public static CassetteDeckMonitor createdCassetteDeckMonitor(CassetteDeckBlockEntity.MonitorType type, CassetteDeckScreen screen) {
+        return monitorFactory.get(type).create(type, screen);
+    }
+
+    public BlockEntity getBlockEntity() {
+        return getScreen().getBlockEntity();
+    }
+
+    public static void firstInit() {
+        registerMonitors(CassetteDeckBlockEntity.MonitorType.OFF, OffCDMonitor::new);
+        registerMonitors(CassetteDeckBlockEntity.MonitorType.MENU, MenuCDMonitor::new);
+        registerMonitors(CassetteDeckBlockEntity.MonitorType.WRITE, WriteCDMonitor::new);
+        registerMonitors(CassetteDeckBlockEntity.MonitorType.PLAYBACK, PlaybackCDMonitor::new);
+        registerMonitors(CassetteDeckBlockEntity.MonitorType.WRITE_EXECUTION, WriteExecutionCDMonitor::new);
+    }
+
+    private static void registerMonitors(CassetteDeckBlockEntity.MonitorType type, MonitorFactory factory) {
+        monitorFactory.put(type, factory);
+    }
+
+    private static interface MonitorFactory {
+        CassetteDeckMonitor create(CassetteDeckBlockEntity.MonitorType type, CassetteDeckScreen screen);
+    }
+
+
+    public void insMonitor(CassetteDeckBlockEntity.MonitorType monitorType) {
+        getScreen().insMonitor(monitorType);
+    }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
+        super.render(guiGraphics, f, mouseX, mouseY);
+        OERenderUtils.drawTexture(BG_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0f, 0f, width, height, width, height);
+    }
+
+    @Override
+    public void renderAppearance(CassetteDeckBlockEntity blockEntity, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j, float f, float monitorWidth, float monitorHeight) {
+        super.renderAppearance(blockEntity, poseStack, multiBufferSource, i, j, f, monitorWidth, monitorHeight);
+        OERenderUtils.renderTextureSprite(BG_TEXTURE, poseStack, multiBufferSource, 0, 0, OERenderUtils.MIN_BREADTH, 0, 0, 0, monitorWidth, monitorHeight, 0, 0, width, height, width, height, i, j);
+    }
+
+    @Override
+    public float getDefaultRenderTextScale() {
+        return 1.2f;
+    }
+}
