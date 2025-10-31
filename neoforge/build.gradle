@@ -107,6 +107,10 @@ shadowJar {
 
     relocate 'ibxm', 'dev.felnull.imp.include.ibxm'
     relocate 'net.sourceforge.jaad', 'dev.felnull.imp.include.net.sourceforge.jaad'
+<<<<<<< HEAD:neoforge/build.gradle
+=======
+    relocate 'org.mozilla.javascript', 'dev.felnull.imp.include.org.mozilla.javascript'
+>>>>>>> d280ea9d6dbd59ebb8265d858bbb1f575aeb0cf5:forge/build.gradle
     relocate 'org.mozilla.classfile', 'dev.felnull.imp.include.org.mozilla.classfile'
     relocate 'dev.lavalink.youtube', 'dev.felnull.imp.include.dev.lavalink.youtube'
 }

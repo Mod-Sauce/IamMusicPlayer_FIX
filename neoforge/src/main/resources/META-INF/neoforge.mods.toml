@@ -5,7 +5,7 @@ license = "GNU LGPLv3"
 
 [[mods]]
 modId = "iammusicplayer"
-version = "${version}"
+version = "${version}-forge"
 displayName = "Iam Music Player Renewed"
 displayURL = "https://mod-sauce.github.io/impr.html"
 updateJSONURL = ""
