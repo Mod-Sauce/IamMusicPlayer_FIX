@@ -51,7 +51,6 @@ configurations {
 repositories {
     maven { url "https://maven.terraformersmc.com/releases/" }//modmenu
       mavenCentral()
-  maven { url "https://jitpack.io" } // For com.github.walkyst.JAADec-fork:jaadec-ext-aac & ibxm-fork:com.github.walkyst:ibxm-fork
 }
 
 dependencies {
@@ -63,7 +62,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modApi "dev.felnull:otyacraftengine-fabric:${rootProject.oe_version}"
+    modApi "dev.felnull:otyacraftenginerenewed-fabric:${rootProject.oe_version}"
 
     modApi "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
     modApi "me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}"
@@ -71,7 +70,7 @@ dependencies {
 
     modApi "dev.felnull:special-model-loader:1.2.0"
     include "dev.felnull:special-model-loader:1.2.0"
-    modApi "curse.maven:sound-physics-remastered-535489:${rootProject.sound_physics_remastered_fabric}"
+    modApi "maven.modrinth:sound-physics-remastered:fabric-${rootProject.sound_physics_remastered}"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'

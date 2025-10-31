@@ -1,0 +1,7 @@
+[
+  {
+    "label": "Run Fabric client",
+    "command": "./gradlew",
+    "args": ["fabric:runClient"]
+  }
+]
