@@ -16,13 +16,17 @@
   "icon": "assets/iammusicplayer/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["dev.felnull.imp.fabric.IamMusicPlayerFabric"],
-    "client": ["dev.felnull.imp.fabric.client.IamMusicPlayerClientFabric"],
+    "main": [
+      "org.modsauce.impr.fabric.IamMusicPlayerFabric"
+    ],
+    "client": [
+      "org.modsauce.impr.fabric.client.IamMusicPlayerClientFabric"
+    ],
     "fabric-datagen": [
-      "dev.felnull.imp.fabric.data.IamMusicPlayerDataGeneratorFabric"
+      "org.modsauce.impr.fabric.data.IamMusicPlayerDataGeneratorFabric"
     ],
     "otyacraftengine_client": [
-      "dev.felnull.imp.client.entrypoint.IMPOEClientEntryPoint"
+      "org.modsauce.impr.client.entrypoint.IMPOEClientEntryPoint"
     ]
   },
   "mixins": ["iammusicplayer-common.mixins.json"],
