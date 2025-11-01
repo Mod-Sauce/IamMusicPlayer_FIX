@@ -3,11 +3,11 @@ package org.modsauce.impr.data;
 import org.modsauce.impr.block.IMPBlocks;
 import org.modsauce.impr.item.IMPItemTags;
 import org.modsauce.impr.item.IMPItems;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.RecipeProviderWrapper;
-import dev.felnull.otyacraftengine.tag.PlatformItemTags;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.RecipeProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.tag.PlatformItemTags;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -23,8 +23,9 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
         super(packOutput, crossDataGeneratorAccess);
     }
 
-    @Override
-    public void generateRecipe(Consumer<FinishedRecipe> exporter, RecipeProviderAccess providerAccess) {
+    // TODO: Fix for 1.21 - TriggerInstance to Criterion conversion needed
+    /*@Override
+    public void generateRecipe(RecipeOutput exporter, RecipeProviderAccess providerAccess) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, IMPItems.MANUAL.get())
                 .requires(Items.BOOK)
                 .requires(IMPItemTags.CASSETTE_TAPE)
@@ -102,5 +103,10 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                 .pattern("BII")
                 .unlockedBy(providerAccess.getHasName(Items.DIAMOND), providerAccess.has(Items.DIAMOND))
                 .save(exporter);
+    }*/
+
+    @Override
+    public void generateRecipe(Consumer<RecipeOutput> exporter, RecipeProviderAccess providerAccess) {
+        // TODO: Implement recipe generation for 1.21
     }
 }

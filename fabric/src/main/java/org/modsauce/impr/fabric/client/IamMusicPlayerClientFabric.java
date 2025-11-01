@@ -9,6 +9,7 @@ public class IamMusicPlayerClientFabric implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         IamMusicPlayerClient.init();
-        SpecialModelLoaderEvents.LOAD_SCOPE.register(loc -> IamMusicPlayer.MODID.equals(loc.getNamespace()));
+        // TODO: Fix for special-model-loader 1.3.0 - API changed, need to investigate new API
+        // SpecialModelLoaderEvents.LOAD_SCOPE.register(loc -> IamMusicPlayer.MODID.equals(loc.getNamespace()));
     }
 }

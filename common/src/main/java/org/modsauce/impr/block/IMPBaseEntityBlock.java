@@ -1,7 +1,8 @@
 package org.modsauce.impr.block;
 
-import dev.felnull.otyacraftengine.block.HorizontalDirectionalEquipmentEntityBlock;
-import dev.felnull.otyacraftengine.block.IContainerEntityBlock;
+import com.mojang.serialization.MapCodec;
+import org.modsauce.otyacraftenginerenewed.block.HorizontalDirectionalEquipmentEntityBlock;
+import org.modsauce.otyacraftenginerenewed.block.IContainerEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -23,13 +24,16 @@ public abstract class IMPBaseEntityBlock extends HorizontalDirectionalEquipmentE
     }
 
     @Override
+    protected abstract MapCodec<? extends IMPBaseEntityBlock> codec();
+
+    @Override
     public RenderShape getRenderShape(BlockState blockState) {
         return RenderShape.MODEL;
     }
 
     @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-        return useContainer(blockState, level, blockPos, player, interactionHand, blockHitResult);
+    protected InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
+        return useContainer(blockState, level, blockPos, player, null, blockHitResult);
     }
 
     @Override

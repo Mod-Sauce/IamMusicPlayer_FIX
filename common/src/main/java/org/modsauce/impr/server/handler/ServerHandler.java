@@ -10,7 +10,6 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.loot.LootDataManager;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
@@ -26,10 +25,12 @@ public class ServerHandler {
 
     public static void init() {
         CommandRegistrationEvent.EVENT.register(ServerHandler::registerCommand);
-        LootEvent.MODIFY_LOOT_TABLE.register(ServerHandler::modifyLootTable);
+        // TODO: Fix for 1.21 - ResourceKey<LootTable> parameter instead of ResourceLocation
+        // LootEvent.MODIFY_LOOT_TABLE.register(ServerHandler::modifyLootTable);
     }
 
-    public static void modifyLootTable(@Nullable LootDataManager lootDataManager, ResourceLocation id, LootEvent.LootTableModificationContext context, boolean builtin) {
+    // TODO: Fix for 1.21 - ResourceKey<LootTable> parameter instead of ResourceLocation
+    /*public static void modifyLootTable(ResourceLocation id, LootEvent.LootTableModificationContext context, boolean builtin) {
         boolean normal = LOOT_NORMAL.contains(id.toString());
         boolean rare = LOOT_RARE.contains(id.toString());
 
@@ -46,7 +47,7 @@ public class ServerHandler {
                     .add(LootItem.lootTableItem(IMPItems.CASSETTE_TAPE.get()).setWeight(rare ? 3 : 6));
             context.addPool(djKitPoolB);
         }
-    }
+    }*/
 
     private static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registry, Commands.CommandSelection selectioncommandSelection) {
         MusicCommand.register(dispatcher);

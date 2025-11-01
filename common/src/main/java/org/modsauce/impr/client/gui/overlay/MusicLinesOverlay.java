@@ -5,7 +5,7 @@ import dev.felnull.fnjl.util.FNStringUtil;
 import org.modsauce.impr.client.music.MusicEngine;
 import org.modsauce.impr.client.music.MusicEntry;
 import org.modsauce.impr.client.music.player.MusicLoadChunk;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 

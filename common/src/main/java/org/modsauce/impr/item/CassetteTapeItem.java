@@ -1,22 +1,25 @@
 package org.modsauce.impr.item;
 
+import org.modsauce.impr.component.IMPDataComponents;
 import org.modsauce.impr.music.resource.Music;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class CassetteTapeItem extends Item implements DyeableLeatherItem {
+public class CassetteTapeItem extends Item {
     private final BaseType type;
 
     public CassetteTapeItem(Properties properties, BaseType type) {
@@ -40,7 +43,7 @@ public class CassetteTapeItem extends Item implements DyeableLeatherItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> list, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, List<Component> list, TooltipFlag tooltipFlag) {
         var m = getMusic(itemStack);
         if (m != null)
             list.add(Component.literal(m.getName()).withStyle(ChatFormatting.GRAY));
@@ -48,8 +51,9 @@ public class CassetteTapeItem extends Item implements DyeableLeatherItem {
 
     @Nullable
     public static Music getMusic(ItemStack stack) {
-        if (stack.getTag() != null && stack.getTag().contains("Music"))
-            return TagSerializable.loadSavedTag(stack.getTag().getCompound("Music"), new Music());
+        CompoundTag musicTag = stack.get(IMPDataComponents.MUSIC.get());
+        if (musicTag != null)
+            return TagSerializable.loadSavedTag(musicTag, new Music());
         return null;
     }
 
@@ -61,18 +65,16 @@ public class CassetteTapeItem extends Item implements DyeableLeatherItem {
     }
 
     public static ItemStack setMusic(ItemStack stack, Music music) {
-        stack.getOrCreateTag().put("Music", music.createSavedTag());
+        stack.set(IMPDataComponents.MUSIC.get(), music.createSavedTag());
         return stack;
     }
 
     public static float getTapePercentage(ItemStack stack) {
-        if (stack.getTag() != null)
-            return stack.getTag().getFloat("TapePercentage");
-        return 0;
+        return stack.getOrDefault(IMPDataComponents.TAPE_PERCENTAGE.get(), 0.0f);
     }
 
     public static ItemStack setTapePercentage(ItemStack stack, float par) {
-        stack.getOrCreateTag().putFloat("TapePercentage", par);
+        stack.set(IMPDataComponents.TAPE_PERCENTAGE.get(), par);
         return stack;
     }
 

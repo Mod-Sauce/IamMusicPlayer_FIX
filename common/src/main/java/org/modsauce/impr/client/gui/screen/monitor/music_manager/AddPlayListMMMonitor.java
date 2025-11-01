@@ -12,7 +12,7 @@ import org.modsauce.impr.client.gui.screen.MusicManagerScreen;
 import org.modsauce.impr.client.music.MusicSyncManager;
 import org.modsauce.impr.client.renderer.PlayImageRenderer;
 import org.modsauce.impr.music.resource.MusicPlayList;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 public class AddPlayListMMMonitor extends MusicManagerMonitor {
-    private static final ResourceLocation ADD_PLAY_LIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/add_play_list.png");
+    private static final ResourceLocation ADD_PLAY_LIST_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/add_play_list.png");
     private static final Component CREATE_PLAYLIST_TEXT = Component.translatable("imp.button.createPlaylist");
     private static final Component ONLINE_PLAYLIST_TEXT = Component.translatable("imp.button.addOnlinePlaylist");
     private final List<MusicPlayList> musicPlayLists = new ArrayList<>();

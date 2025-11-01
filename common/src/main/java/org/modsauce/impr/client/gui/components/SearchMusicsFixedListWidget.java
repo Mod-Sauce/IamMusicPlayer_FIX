@@ -2,7 +2,7 @@ package org.modsauce.impr.client.gui.components;
 
 import org.modsauce.impr.client.music.media.MusicMediaResult;
 import org.modsauce.impr.client.renderer.PlayImageRenderer;
-import dev.felnull.otyacraftengine.client.gui.components.FixedListWidget;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;

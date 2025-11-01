@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+// TODO: Fix for 1.21 - ImageButton constructor changed to use WidgetSprites
 public class PowerButton extends ImageButton {
     private final IMPBaseContainerScreen<?> screen;
     private final ResourceLocation resourceLocation;
@@ -15,7 +16,8 @@ public class PowerButton extends ImageButton {
     private final int textureHeight;
 
     public PowerButton(IMPBaseContainerScreen<?> screen, int x, int y, int width, int height, int xTexStart, int yTexStart, ResourceLocation resourceLocation, int textureWidth, int textureHeight) {
-        super(x, y, width, height, xTexStart, yTexStart, height, resourceLocation, textureWidth, textureHeight, button -> onPower(screen), Component.translatable("imp.button.power"));
+        // TODO: Fix constructor for 1.21 - needs WidgetSprites instead of individual texture parameters
+        super(x, y, width, height, new net.minecraft.client.gui.components.WidgetSprites(resourceLocation, resourceLocation), button -> onPower(screen));
         this.screen = screen;
         this.resourceLocation = resourceLocation;
         this.xTexStart = xTexStart;

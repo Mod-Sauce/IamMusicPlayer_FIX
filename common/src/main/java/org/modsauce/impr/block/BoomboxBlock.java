@@ -1,11 +1,12 @@
 package org.modsauce.impr.block;
 
+import com.mojang.serialization.MapCodec;
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.blockentity.BoomboxBlockEntity;
 import org.modsauce.impr.blockentity.IMPBlockEntities;
 import org.modsauce.impr.item.BoomboxItem;
-import dev.felnull.otyacraftengine.shape.bundle.DirectionVoxelShapesBundle;
-import dev.felnull.otyacraftengine.util.OEVoxelShapeUtils;
+import org.modsauce.otyacraftenginerenewed.shape.bundle.DirectionVoxelShapesBundle;
+import org.modsauce.otyacraftenginerenewed.util.OEVoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -31,8 +32,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class BoomboxBlock extends IMPBaseEntityBlock {
-    private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "boombox"), BoomboxBlock.class));
-    private static final DirectionVoxelShapesBundle SHAPE_NO_RAISED = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "boombox_no_raised"), BoomboxBlock.class));
+    public static final MapCodec<BoomboxBlock> CODEC = simpleCodec(BoomboxBlock::new);
+    private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "boombox"), BoomboxBlock.class));
+    private static final DirectionVoxelShapesBundle SHAPE_NO_RAISED = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "boombox_no_raised"), BoomboxBlock.class));
     public static final BooleanProperty RAISED = IMPBlockStateProperties.RAISE;
 
     protected BoomboxBlock(BlockBehaviour.Properties properties) {
@@ -41,7 +43,12 @@ public class BoomboxBlock extends IMPBaseEntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+    protected MapCodec<? extends BoomboxBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
 
         if (player.isCrouching()) {
             var be = level.getBlockEntity(blockPos);
@@ -57,7 +64,7 @@ public class BoomboxBlock extends IMPBaseEntityBlock {
                 }
             }
         } else {
-            return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
+            return super.useWithoutItem(blockState, level, blockPos, player, blockHitResult);
         }
         return InteractionResult.PASS;
     }
@@ -87,10 +94,10 @@ public class BoomboxBlock extends IMPBaseEntityBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState) {
-        var be = blockGetter.getBlockEntity(blockPos);
+    public ItemStack getCloneItemStack(net.minecraft.world.level.LevelReader levelReader, BlockPos blockPos, BlockState blockState) {
+        var be = levelReader.getBlockEntity(blockPos);
         if (be instanceof BoomboxBlockEntity boomboxBlockEntity)
             return BoomboxItem.createByBE(boomboxBlockEntity, true);
-        return super.getCloneItemStack(blockGetter, blockPos, blockState);
+        return super.getCloneItemStack(levelReader, blockPos, blockState);
     }
 }

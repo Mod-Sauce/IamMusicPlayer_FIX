@@ -3,8 +3,8 @@ package org.modsauce.impr.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.modsauce.impr.IMPHoliday;
 import org.modsauce.impr.client.model.IMPModels;
-import dev.felnull.otyacraftengine.client.renderer.item.BEWLItemRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -32,6 +32,12 @@ public class ParabolicAntennaItemRenderer implements BEWLItemRenderer {
             antenaModel = IMPModels.KATYOU_ANTENNA;
         }
         var plM = antenaModel.get();
+
+        // TODO: Fix for 1.21 - Models might not be loaded if special-model-loader LOAD_SCOPE is not registered
+        if (plM == null) {
+            return; // Skip rendering if model is not loaded
+        }
+
         var vc = ItemRenderer.getFoilBufferDirect(multiBufferSource, Sheets.solidBlockSheet(), true, itemStack.hasFoil());
 
         poseStack.pushPose();
@@ -54,11 +60,17 @@ public class ParabolicAntennaItemRenderer implements BEWLItemRenderer {
         OERenderUtils.renderModel(poseStack, vc, plM, i, i1);
 
         if (IMPHoliday.isXmas()) {
-            if (IMPModels.XMAS_ANTENNA_SIDE != null)
-                OERenderUtils.renderModel(poseStack, vc, IMPModels.XMAS_ANTENNA_SIDE.get(), i, i1);
+            if (IMPModels.XMAS_ANTENNA_SIDE != null) {
+                var sideModel = IMPModels.XMAS_ANTENNA_SIDE.get();
+                if (sideModel != null)
+                    OERenderUtils.renderModel(poseStack, vc, sideModel, i, i1);
+            }
 
-            if (displayContext == ItemDisplayContext.HEAD && IMPModels.XMAS_ANTENNA_TAMA != null)
-                OERenderUtils.renderModel(poseStack, vc, IMPModels.XMAS_ANTENNA_TAMA.get(), i, i1);
+            if (displayContext == ItemDisplayContext.HEAD && IMPModels.XMAS_ANTENNA_TAMA != null) {
+                var tamaModel = IMPModels.XMAS_ANTENNA_TAMA.get();
+                if (tamaModel != null)
+                    OERenderUtils.renderModel(poseStack, vc, tamaModel, i, i1);
+            }
         }
 
         poseStack.popPose();

@@ -150,6 +150,6 @@ public class ServerMessageHandler {
     }
 
     private static void sendMusicSyncData(ServerPlayer player, IMPPackets.MusicSyncType syncType, UUID uuid, List<MusicPlayList> playLists, List<Music> musics) {
-        NetworkManager.sendToPlayer(player, IMPPackets.MUSIC_SYNC, new IMPPackets.MusicSyncResponseMessage(syncType, uuid, playLists, musics).toFBB());
+        NetworkManager.sendToPlayer(player, IMPPackets.MUSIC_SYNC, new IMPPackets.MusicSyncResponseMessage(syncType, uuid, playLists, musics).toRFBB());
     }
 }

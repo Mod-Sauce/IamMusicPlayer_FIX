@@ -20,16 +20,16 @@ import org.modsauce.impr.integration.PatchouliIntegration;
 import org.modsauce.impr.item.BoomboxItem;
 import org.modsauce.impr.networking.IMPPackets;
 import org.modsauce.impr.server.music.ringer.MusicRingManager;
-import dev.felnull.otyacraftengine.client.event.ClientEvent;
-import dev.felnull.otyacraftengine.client.gui.TextureRegion;
-import dev.felnull.otyacraftengine.client.gui.components.IconButton;
-import dev.felnull.otyacraftengine.event.MoreEntityEvent;
-import dev.felnull.otyacraftengine.item.location.HandItemLocation;
+import org.modsauce.otyacraftenginerenewed.client.event.ClientEvent;
+import org.modsauce.otyacraftenginerenewed.client.gui.TextureRegion;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.IconButton;
+import org.modsauce.otyacraftenginerenewed.event.MoreEntityEvent;
+import org.modsauce.otyacraftenginerenewed.item.location.HandItemLocation;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SoundOptionsScreen;
+// import net.minecraft.client.gui.screens.SoundOptionsScreen; // TODO: Find replacement in 1.21.1
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -61,16 +61,18 @@ public class ClientHandler {
     }
 
     private static void onScreenInit(Screen screen, ScreenAccess screenAccess) {
-        if (screen instanceof SoundOptionsScreen) {
-            LAST_MUSIC_VOLUME = IamMusicPlayer.getConfig().volume;
-
-            screenAccess.addRenderableWidget(new IconButton(screen.width - 27, screen.height - 27, 20, 20, CONFIG_BUTTON, (button) -> mc.setScreen(AutoConfig.getConfigScreen(IMPConfig.class, screen).get()), CONFIG_BUTTON_REGION));
-        }
+        // TODO: Re-enable when SoundOptionsScreen replacement is found in 1.21.1
+        // if (screen instanceof SoundOptionsScreen) {
+        //     LAST_MUSIC_VOLUME = IamMusicPlayer.getConfig().volume;
+        //
+        //     screenAccess.addRenderableWidget(new IconButton(screen.width - 27, screen.height - 27, 20, 20, CONFIG_BUTTON, (button) -> mc.setScreen(AutoConfig.getConfigScreen(IMPConfig.class, screen).get()), CONFIG_BUTTON_REGION));
+        // }
     }
 
     private static CompoundEventResult<Screen> onModifyScreen(Screen screen) {
-        if (mc.screen instanceof SoundOptionsScreen && LAST_MUSIC_VOLUME != IamMusicPlayer.getConfig().volume)
-            AutoConfig.getConfigHolder(IMPConfig.class).save();
+        // TODO: Re-enable when SoundOptionsScreen replacement is found in 1.21.1
+        // if (mc.screen instanceof SoundOptionsScreen && LAST_MUSIC_VOLUME != IamMusicPlayer.getConfig().volume)
+        //     AutoConfig.getConfigHolder(IMPConfig.class).save();
         return CompoundEventResult.pass();
     }
 
@@ -79,7 +81,7 @@ public class ClientHandler {
             if (mc.player.isCrouching()) {
                 var bu = BoomboxItem.getRingerUUID(itemStack);
                 if (bu != null)
-                    NetworkManager.sendToServer(IMPPackets.HAND_LID_CYCLE, new IMPPackets.LidCycleMessage(bu, new HandItemLocation(InteractionHand.MAIN_HAND)).toFBB());
+                    NetworkManager.sendToServer(IMPPackets.HAND_LID_CYCLE, new IMPPackets.LidCycleMessage(bu, new HandItemLocation(InteractionHand.MAIN_HAND)).toRFBB());
             }
             return EventResult.interruptFalse();
         }

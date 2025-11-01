@@ -2,7 +2,7 @@ package org.modsauce.impr.integration;
 
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.explatform.IMPPatchouliExpectPlatform;
-import dev.felnull.otyacraftengine.integration.BaseIntegration;
+import org.modsauce.otyacraftenginerenewed.integration.BaseIntegration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 

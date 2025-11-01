@@ -11,7 +11,7 @@ import org.modsauce.impr.inventory.MusicManagerMenu;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicSource;
 import org.modsauce.impr.music.tracker.IMPMusicTrackers;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
@@ -28,7 +28,7 @@ import java.util.UUID;
 
 public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu> {
     private static final Minecraft mc = Minecraft.getInstance();
-    private static final ResourceLocation BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/music_manager_base.png");
+    private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/music_manager_base.png");
     private final Map<MusicManagerBlockEntity.MonitorType, MusicManagerMonitor> monitors = new HashMap<>();
     private final UUID musicPlayerId = UUID.randomUUID();
     public boolean lastSearch;

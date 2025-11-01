@@ -8,8 +8,8 @@ import org.modsauce.impr.music.resource.MusicSource;
 import org.modsauce.impr.server.music.MusicManager;
 import org.modsauce.impr.server.music.ringer.IMusicRinger;
 import org.modsauce.impr.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -63,9 +63,16 @@ public class BoomboxData {
     private boolean radioStartFlg;
     private boolean noChangeCassetteTape;
 
-    public BoomboxData(CompoundTag boomboxTag, @NotNull BoomboxData.DataAccess access) {
+    public BoomboxData(@Nullable CompoundTag boomboxTag, @NotNull BoomboxData.DataAccess access, @Nullable net.minecraft.core.HolderLookup.Provider registries) {
         this.access = access;
-        if (boomboxTag != null) this.load(boomboxTag.getCompound("BoomBoxData"), true, true);
+        if (boomboxTag != null && registries != null) {
+            this.load(boomboxTag.getCompound("BoomBoxData"), true, true, registries);
+        }
+    }
+
+    // Constructor for when we don't have registries yet (e.g., in BlockEntity constructor)
+    public BoomboxData(@NotNull BoomboxData.DataAccess access) {
+        this(null, access, null);
     }
 
     public void tick(Level level) {
@@ -301,7 +308,7 @@ public class BoomboxData {
         update();
     }
 
-    public CompoundTag save(CompoundTag tag, boolean absolutely, boolean sync) {
+    public CompoundTag save(CompoundTag tag, boolean absolutely, boolean sync, net.minecraft.core.HolderLookup.Provider registries) {
         tag.putString("MonitorType", this.monitorType.getName());
         tag.putBoolean("HandleRaising", this.handleRaising);
         tag.putBoolean("LidOpen", this.lidOpen);
@@ -335,7 +342,10 @@ public class BoomboxData {
 
         if (absolutely || sync) {
             tag.putBoolean("ChangeCassetteTape", this.changeCassetteTape);
-            tag.put("OldCassetteTape", this.oldCassetteTape.save(new CompoundTag()));
+            // Fix for 1.21: Cannot encode empty ItemStack
+            if (!this.oldCassetteTape.isEmpty()) {
+                tag.put("OldCassetteTape", this.oldCassetteTape.save(registries));
+            }
             tag.putBoolean("OldCassetteTapeFlg", oldCassetteTapeFlg);
             tag.putBoolean("LoadingMusic", this.loadingMusic);
             tag.putBoolean("RadioStartFlg", this.radioStartFlg);
@@ -344,7 +354,7 @@ public class BoomboxData {
         return tag;
     }
 
-    public void load(CompoundTag tag, boolean absolutely, boolean sync) {
+    public void load(CompoundTag tag, boolean absolutely, boolean sync, net.minecraft.core.HolderLookup.Provider registries) {
         this.monitorType = MonitorType.getByName(tag.getString("MonitorType"));
         this.handleRaising = tag.getBoolean("HandleRaising");
         this.lidOpen = tag.getBoolean("LidOpen");
@@ -379,7 +389,9 @@ public class BoomboxData {
 
         if (absolutely || sync) {
             this.changeCassetteTape = tag.getBoolean("ChangeCassetteTape");
-            this.oldCassetteTape = ItemStack.of(tag.getCompound("OldCassetteTape"));
+            if (registries != null) {
+                this.oldCassetteTape = ItemStack.parseOptional(registries, tag.getCompound("OldCassetteTape"));
+            }
             this.oldCassetteTapeFlg = tag.getBoolean("OldCassetteTapeFlg");
             this.loadingMusic = tag.getBoolean("LoadingMusic");
             this.radioStartFlg = tag.getBoolean("RadioStartFlg");

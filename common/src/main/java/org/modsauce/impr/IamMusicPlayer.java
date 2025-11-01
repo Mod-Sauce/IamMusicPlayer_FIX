@@ -6,6 +6,7 @@ import dev.architectury.platform.Platform;
 import org.modsauce.impr.advancements.IMPCriteriaTriggers;
 import org.modsauce.impr.block.IMPBlocks;
 import org.modsauce.impr.blockentity.IMPBlockEntities;
+import org.modsauce.impr.component.IMPDataComponents;
 import org.modsauce.impr.entity.village.IMPPoiType;
 import org.modsauce.impr.entity.village.IMPVillagerProfessions;
 import org.modsauce.impr.handler.CommonHandler;
@@ -24,6 +25,7 @@ public class IamMusicPlayer {
     private static final IMPConfig CONFIG = AutoConfig.register(IMPConfig.class, Toml4jConfigSerializer::new).getConfig();
 
     public static void init() {
+        IMPDataComponents.register();
         IMPPackets.init();
         IMPCreativeModeTabs.init();
         IMPItems.init();

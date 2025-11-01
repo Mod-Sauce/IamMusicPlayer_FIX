@@ -1,11 +1,11 @@
-package dev.felnull.imp.client.lava;
+package org.modsauce.impr.client.lava;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.felnull.fnjl.util.FNDataUtil;
-import dev.felnull.imp.IamMusicPlayer;
+import org.modsauce.impr.IamMusicPlayer;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;

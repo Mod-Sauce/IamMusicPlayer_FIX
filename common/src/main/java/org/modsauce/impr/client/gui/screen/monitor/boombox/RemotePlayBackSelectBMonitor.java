@@ -8,8 +8,8 @@ import org.modsauce.impr.client.gui.components.RemotePlayListFixedListWidget;
 import org.modsauce.impr.client.gui.screen.BoomboxScreen;
 import org.modsauce.impr.music.resource.Music;
 import org.modsauce.impr.music.resource.MusicPlayList;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class RemotePlayBackSelectBMonitor extends BoomboxMonitor {
-    protected static final ResourceLocation REMOTE_PLAYBACK_SELECT_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/remote_playback_select.png");
+    protected static final ResourceLocation REMOTE_PLAYBACK_SELECT_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/remote_playback_select.png");
     private final List<MusicPlayList> musicPlayLists = new ArrayList<>();
     private final List<Music> musics = new ArrayList<>();
     private List<MusicPlayList> musicPlayListsCash;

@@ -5,7 +5,7 @@ import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.blockentity.CassetteDeckBlockEntity;
 import org.modsauce.impr.client.gui.screen.CassetteDeckScreen;
 import org.modsauce.impr.client.gui.screen.monitor.Monitor;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class CassetteDeckMonitor extends Monitor<CassetteDeckBlockEntity> {
-    private static final ResourceLocation BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/background.png");
+    private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/background.png");
     private static final Map<CassetteDeckBlockEntity.MonitorType, MonitorFactory> monitorFactory = new HashMap<>();
     private final CassetteDeckBlockEntity.MonitorType monitorType;
     private final CassetteDeckScreen screen;

@@ -2,8 +2,8 @@ package org.modsauce.impr.client.gui.components;
 
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.client.music.media.IMPMusicMedias;
-import dev.felnull.otyacraftengine.client.gui.components.FixedListWidget;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Function;
 
 public class MusicLoaderTypesFixedListWidget extends IMPBaseFixedListWidget<String> {
-    public static final ResourceLocation UPLOAD_ICON = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/loader_types/upload.png");
+    public static final ResourceLocation UPLOAD_ICON = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/loader_types/upload.png");
     private final Function<String, Boolean> selected;
 
     public MusicLoaderTypesFixedListWidget(int x, int y, int width, int height, @NotNull Component message, int entryShowCount, @NotNull List<String> entryList, @Nullable PressEntry<String> onPressEntry, @Nullable FixedListWidget<String> old, Function<String, Boolean> selected) {

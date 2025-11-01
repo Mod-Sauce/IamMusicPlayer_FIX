@@ -8,7 +8,7 @@ import org.modsauce.impr.client.gui.screen.BoomboxScreen;
 import org.modsauce.impr.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicSource;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class RadioBMonitor extends PlayBackBaseBMonitor {
-    private static final ResourceLocation BACK_BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/playback_back.png");
+    private static final ResourceLocation BACK_BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/playback_back.png");
     private static final Component LOADING_STREAM_TEXT = Component.translatable("imp.text.streamLoading");
     private static final Component PLAYING_STREAM_TEXT = Component.translatable("imp.text.streamPlaying");
     private static final Component NON_PROGRESS_TEXT = Component.literal("--:--/--:--");

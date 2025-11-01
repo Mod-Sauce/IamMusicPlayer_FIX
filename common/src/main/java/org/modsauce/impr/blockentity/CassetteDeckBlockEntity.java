@@ -11,8 +11,8 @@ import org.modsauce.impr.music.tracker.MusicTrackerEntry;
 import org.modsauce.impr.server.music.MusicManager;
 import org.modsauce.impr.server.music.ringer.IMusicRinger;
 import org.modsauce.impr.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -131,8 +131,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         this.lidOpen = tag.getBoolean("LidOpen");
         if (this.lidOpen)
             lidOpenProgress = getLidOpenProgressAll();
@@ -149,8 +149,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.putBoolean("LidOpen", this.lidOpen);
         tag.putString("Monitor", monitor.getName());
         OENbtUtils.readUUIDMap(tag, "PlayerSelectPlaylists", playerSelectPlaylists);
@@ -169,7 +169,10 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     public void saveToUpdateTag(CompoundTag tag) {
         super.saveToUpdateTag(tag);
         tag.putBoolean("LidOpen", this.lidOpen);
-        tag.put("OldCassetteTape", this.oldCassetteTape.save(new CompoundTag()));
+        // Fix for 1.21: Cannot encode empty ItemStack
+        if (level != null && !this.oldCassetteTape.isEmpty()) {
+            tag.put("OldCassetteTape", this.oldCassetteTape.save(level.registryAccess()));
+        }
         tag.putBoolean("ChangeCassetteTape", this.changeCassetteTape);
         tag.putString("Monitor", monitor.getName());
 
@@ -191,7 +194,9 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     public void loadToUpdateTag(CompoundTag tag) {
         super.loadToUpdateTag(tag);
         this.lidOpen = tag.getBoolean("LidOpen");
-        this.oldCassetteTape = ItemStack.of(tag.getCompound("OldCassetteTape"));
+        if (level != null) {
+            this.oldCassetteTape = ItemStack.parseOptional(level.registryAccess(), tag.getCompound("OldCassetteTape"));
+        }
         this.changeCassetteTape = tag.getBoolean("ChangeCassetteTape");
         this.monitor = MonitorType.getByName(tag.getString("Monitor"));
 
@@ -334,6 +339,13 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
+    public void setItems(NonNullList<ItemStack> items) {
+        for (int i = 0; i < items.size() && i < this.items.size(); i++) {
+            this.items.set(i, items.get(i));
+        }
+    }
+
+    @Override
     protected Component getDefaultName() {
         return IMPBlocks.CASSETTE_DECK.get().getName();
     }
@@ -391,7 +403,7 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
         if ("monitor".equals(name)) {
             this.monitor = MonitorType.getByName(data.getString("name"));
             if (this.monitor == MonitorType.WRITE_EXECUTION && canWriteCassetteTape())
-                IMPCriteriaTriggers.WRITE_CASSETTE_TAPE.trigger(player, getCassetteTape());
+                IMPCriteriaTriggers.WRITE_CASSETTE_TAPE.get().trigger(player, getCassetteTape());
             return null;
         } else if ("select_playlist".equals(name)) {
             if (data.contains("uuid")) {

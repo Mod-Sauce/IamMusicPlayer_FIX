@@ -1,7 +1,7 @@
 package org.modsauce.impr.music.resource;
 
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.ArrayList;

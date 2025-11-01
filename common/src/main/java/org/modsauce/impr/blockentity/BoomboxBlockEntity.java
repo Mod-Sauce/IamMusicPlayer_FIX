@@ -34,7 +34,7 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     public BoomboxBlockEntity(BlockPos blockPos, BlockState blockState) {
 
         super(IMPBlockEntities.BOOMBOX.get(), blockPos, blockState);
-        this.boomboxData = new BoomboxData(null, new BoomboxData.DataAccess() {
+        this.boomboxData = new BoomboxData(new BoomboxData.DataAccess() {
             @Override
             public ItemStack getCassetteTape() {
                 return BoomboxBlockEntity.this.getCassetteTape();
@@ -100,7 +100,9 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     }
 
     public void setBoomboxData(BoomboxData data) {
-        boomboxData.load(data.save(new CompoundTag(), false, false), false, false);
+        if (level != null) {
+            boomboxData.load(data.save(new CompoundTag(), false, false, level.registryAccess()), false, false, level.registryAccess());
+        }
     }
 
     @Override
@@ -124,15 +126,15 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        this.boomboxData.load(tag.getCompound("BoomBoxData"), false, false);
+    protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.boomboxData.load(tag.getCompound("BoomBoxData"), false, false, registries);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.put("BoomBoxData", this.boomboxData.save(new CompoundTag(), false, false));
+    protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.put("BoomBoxData", this.boomboxData.save(new CompoundTag(), false, false, registries));
     }
 
     public static void tick(Level level, BlockPos blockPos, BlockState blockState, BoomboxBlockEntity blockEntity) {
@@ -151,13 +153,17 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     @Override
     public void saveToUpdateTag(CompoundTag tag) {
         super.saveToUpdateTag(tag);
-        tag.put("BoomBoxData", this.boomboxData.save(new CompoundTag(), false, true));
+        if (level != null) {
+            tag.put("BoomBoxData", this.boomboxData.save(new CompoundTag(), false, true, level.registryAccess()));
+        }
     }
 
     @Override
     public void loadToUpdateTag(CompoundTag tag) {
         super.loadToUpdateTag(tag);
-        this.boomboxData.load(tag.getCompound("BoomBoxData"), false, true);
+        if (level != null) {
+            this.boomboxData.load(tag.getCompound("BoomBoxData"), false, true, level.registryAccess());
+        }
     }
 
     @Override
@@ -168,6 +174,13 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     @Override
     public @NotNull NonNullList<ItemStack> getItems() {
         return items;
+    }
+
+    @Override
+    public void setItems(NonNullList<ItemStack> items) {
+        for (int i = 0; i < items.size() && i < this.items.size(); i++) {
+            this.items.set(i, items.get(i));
+        }
     }
 
     public void setRaisedHandleState(boolean raised) {

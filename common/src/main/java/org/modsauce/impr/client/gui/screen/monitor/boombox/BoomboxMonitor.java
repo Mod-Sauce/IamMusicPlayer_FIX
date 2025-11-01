@@ -8,7 +8,7 @@ import org.modsauce.impr.client.gui.screen.BoomboxScreen;
 import org.modsauce.impr.client.gui.screen.monitor.Monitor;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicSource;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 public abstract class BoomboxMonitor extends Monitor<BoomboxBlockEntity> {
     private static final Map<BoomboxData.MonitorType, MonitorFactory> monitorFactory = new HashMap<>();
-    protected static final ResourceLocation BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/background.png");
+    protected static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/background.png");
     private final BoomboxData.MonitorType monitorType;
     private final BoomboxScreen screen;
 

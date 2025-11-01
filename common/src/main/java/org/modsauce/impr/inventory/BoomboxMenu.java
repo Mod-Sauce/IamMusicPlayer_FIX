@@ -2,8 +2,8 @@ package org.modsauce.impr.inventory;
 
 import org.modsauce.impr.inventory.slot.AntennaSlot;
 import org.modsauce.impr.inventory.slot.CassetteTapeSlot;
-import dev.felnull.otyacraftengine.inventory.OEItemBEBaseMenu;
-import dev.felnull.otyacraftengine.item.location.PlayerItemLocation;
+import org.modsauce.otyacraftenginerenewed.inventory.OEItemBEBaseMenu;
+import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;

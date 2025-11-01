@@ -3,7 +3,7 @@ package org.modsauce.impr.client.gui.components;
 import org.modsauce.impr.client.gui.IIMPSmartRender;
 import org.modsauce.impr.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import org.modsauce.impr.music.resource.IIMPComparable;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;

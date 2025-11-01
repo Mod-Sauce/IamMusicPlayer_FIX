@@ -3,7 +3,7 @@ package org.modsauce.impr.client.gui.screen.monitor.music_manager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.modsauce.impr.blockentity.MusicManagerBlockEntity;
 import org.modsauce.impr.client.gui.screen.MusicManagerScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;

@@ -1,0 +1,544 @@
+Prism Launcher version: 9.4 (flatpak)
+
+
+Launched instance in online mode
+
+login.microsoftonline.com resolves to:
+    [2603:1026:3000:150::6, 2603:1026:3000:150::8, 2603:1026:3000:158::5, 2603:1026:3000:148::10, 2603:1027:1:148::5, 2603:1027:1:158::8, 2603:1026:3000:148::7, 2603:1026:3000:150::c, 20.190.160.128, 20.190.160.20, 40.126.32.138, 40.126.32.136, 20.190.160.65, 40.126.32.72, 40.126.32.76, 20.190.160.5]
+
+
+session.minecraft.net resolves to:
+    [2620:1ec:bdf::44, 2620:1ec:46::44, 13.107.246.44, 13.107.213.44]
+
+
+textures.minecraft.net resolves to:
+    [2620:1ec:bdf::44, 2620:1ec:46::44, 13.107.246.44, 13.107.213.44]
+
+
+api.mojang.com resolves to:
+    [2620:1ec:46::44, 2620:1ec:bdf::44, 13.107.213.44, 13.107.246.44]
+
+
+Minecraft folder is:
+/home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/1.21.1/minecraft
+
+
+Java path is:
+/home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/java/java-runtime-delta/bin/java
+
+
+Java is version 21.0.3, using 64 (amd64) architecture, from Microsoft.
+
+
+Intel(R) Core(TM) i5-6400 CPU @ 2.70GHz
+NVIDIA Corporation GM107 [GeForce GTX 750] (rev a2)
+
+Subsystem: CardExpert Technology Device 1381
+
+Kernel driver in use: nvidia
+
+OpenGL version string: 4.6.0 NVIDIA 580.95.05
+
+Main Class:
+  net.fabricmc.loader.impl.launch.knot.KnotClient
+
+Native path:
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/1.21.1/natives
+
+Traits:
+traits feature:is_quick_play_multiplayer
+traits FirstThreadOnMacOS
+traits XR:Initial
+traits feature:is_quick_play_singleplayer
+
+Libraries:
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-freetype-natives-linux/3.3.3/lwjgl-freetype-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-freetype/3.3.3/lwjgl-freetype-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-glfw-natives-linux/3.3.3/lwjgl-glfw-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-glfw/3.3.3/lwjgl-glfw-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-jemalloc-natives-linux/3.3.3/lwjgl-jemalloc-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-jemalloc/3.3.3/lwjgl-jemalloc-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-natives-linux/3.3.3/lwjgl-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-openal-natives-linux/3.3.3/lwjgl-openal-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-openal/3.3.3/lwjgl-openal-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-opengl-natives-linux/3.3.3/lwjgl-opengl-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-opengl/3.3.3/lwjgl-opengl-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-stb-natives-linux/3.3.3/lwjgl-stb-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-stb/3.3.3/lwjgl-stb-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-tinyfd-natives-linux/3.3.3/lwjgl-tinyfd-natives-linux-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl-tinyfd/3.3.3/lwjgl-tinyfd-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lwjgl/lwjgl/3.3.3/lwjgl-3.3.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/github/oshi/oshi-core/6.4.10/oshi-core-6.4.10.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/google/guava/guava/32.1.2-jre/guava-32.1.2-jre.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/ibm/icu/icu4j/73.2/icu4j-73.2.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/authlib/6.0.54/authlib-6.0.54.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/blocklist/1.0.10/blocklist-1.0.10.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/brigadier/1.3.10/brigadier-1.3.10.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/datafixerupper/8.0.16/datafixerupper-8.0.16.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/logging/1.2.7/logging-1.2.7.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/patchy/2.2.10/patchy-2.2.10.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/text2speech/1.17.9/text2speech-1.17.9.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/commons-codec/commons-codec/1.16.0/commons-codec-1.16.0.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/commons-io/commons-io/2.15.1/commons-io-2.15.1.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/commons-logging/commons-logging/1.2/commons-logging-1.2.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-buffer/4.1.97.Final/netty-buffer-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-codec/4.1.97.Final/netty-codec-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-common/4.1.97.Final/netty-common-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-handler/4.1.97.Final/netty-handler-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-resolver/4.1.97.Final/netty-resolver-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-transport-classes-epoll/4.1.97.Final/netty-transport-classes-epoll-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-transport-native-epoll/4.1.97.Final/netty-transport-native-epoll-4.1.97.Final-linux-aarch_64.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-transport-native-epoll/4.1.97.Final/netty-transport-native-epoll-4.1.97.Final-linux-x86_64.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-transport-native-unix-common/4.1.97.Final/netty-transport-native-unix-common-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/io/netty/netty-transport/4.1.97.Final/netty-transport-4.1.97.Final.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/it/unimi/dsi/fastutil/8.5.12/fastutil-8.5.12.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/net/java/dev/jna/jna-platform/5.14.0/jna-platform-5.14.0.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/net/java/dev/jna/jna/5.14.0/jna-5.14.0.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/apache/commons/commons-compress/1.26.0/commons-compress-1.26.0.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/apache/httpcomponents/httpclient/4.5.13/httpclient-4.5.13.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/apache/httpcomponents/httpcore/4.4.16/httpcore-4.4.16.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/apache/logging/log4j/log4j-api/2.22.1/log4j-api-2.22.1.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/apache/logging/log4j/log4j-core/2.22.1/log4j-core-2.22.1.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/apache/logging/log4j/log4j-slf4j2-impl/2.22.1/log4j-slf4j2-impl-2.22.1.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/jcraft/jorbis/0.0.17/jorbis-0.0.17.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/joml/joml/1.10.5/joml-1.10.5.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/lz4/lz4-java/1.8.0/lz4-java-1.8.0.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/net/fabricmc/intermediary/1.21.1/intermediary-1.21.1.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/ow2/asm/asm/9.9/asm-9.9.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/ow2/asm/asm-analysis/9.9/asm-analysis-9.9.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/ow2/asm/asm-commons/9.9/asm-commons-9.9.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/ow2/asm/asm-tree/9.9/asm-tree-9.9.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/org/ow2/asm/asm-util/9.9/asm-util-9.9.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/net/fabricmc/sponge-mixin/0.16.5+mixin.0.8.7/sponge-mixin-0.16.5+mixin.0.8.7.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/net/fabricmc/fabric-loader/0.17.3/fabric-loader-0.17.3.jar
+  /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/com/mojang/minecraft/1.21.1/minecraft-1.21.1-client.jar
+
+Native libraries:
+
+Mods:
+  [✔] architectury-13.0.8-fabric
+  [✔] cloth-config-15.0.140-fabric
+  [✔] fabric-3.22.1-1.21.1-alpha0
+  [✔] fabric-api-0.116.7+1.21.1
+  [✔] otyacraftenginerenewed-fabric-mc1.21.1-3.7.1-1.21.1-alpha0
+
+Params:
+  --username  --version 1.21.1 --gameDir /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/1.21.1/minecraft --assetsDir /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/assets --assetIndex 17 --uuid  --accessToken  --userType  --versionType release
+
+Window size: 854 x 480
+
+Launcher: standard
+
+Java Arguments:
+[-Xms512m, -Xmx8000m, -Duser.language=en]
+
+
+Minecraft process ID: 952
+
+
+[14:06:39] [main/INFO]: Loading Minecraft 1.21.1 with Fabric Loader 0.17.3
+[14:06:39] [main/INFO]: Loading 60 mods:
+	- architectury 13.0.8
+	- cloth-config 15.0.140
+	   \-- cloth-basic-math 0.6.1
+	- fabric-api 0.116.7+1.21.1
+	   |-- fabric-api-base 0.4.42+6573ed8c19
+	   |-- fabric-api-lookup-api-v1 1.6.71+b559734419
+	   |-- fabric-biome-api-v1 13.0.31+d527f9fd19
+	   |-- fabric-block-api-v1 1.1.0+0bc3503219
+	   |-- fabric-block-view-api-v2 1.0.11+ebb2264e19
+	   |-- fabric-blockrenderlayer-v1 1.1.52+0af3f5a719
+	   |-- fabric-client-tags-api-v1 1.1.15+6573ed8c19
+	   |-- fabric-command-api-v1 1.2.49+f71b366f19
+	   |-- fabric-command-api-v2 2.2.28+6ced4dd919
+	   |-- fabric-commands-v0 0.2.66+df3654b319
+	   |-- fabric-content-registries-v0 8.0.19+b559734419
+	   |-- fabric-convention-tags-v1 2.1.5+7f945d5b19
+	   |-- fabric-convention-tags-v2 2.11.1+a406e79519
+	   |-- fabric-crash-report-info-v1 0.2.29+0af3f5a719
+	   |-- fabric-data-attachment-api-v1 1.4.5+6116a37819
+	   |-- fabric-data-generation-api-v1 20.2.34+37516cd619
+	   |-- fabric-dimensions-v1 4.0.1+65213ef819
+	   |-- fabric-entity-events-v1 1.8.0+2b27e0a419
+	   |-- fabric-events-interaction-v0 0.7.13+ba9dae0619
+	   |-- fabric-game-rule-api-v1 1.0.53+6ced4dd919
+	   |-- fabric-item-api-v1 11.2.0+3b3cb2e819
+	   |-- fabric-item-group-api-v1 4.1.7+def88e3a19
+	   |-- fabric-key-binding-api-v1 1.0.47+0af3f5a719
+	   |-- fabric-keybindings-v0 0.2.45+df3654b319
+	   |-- fabric-lifecycle-events-v1 2.6.0+0865547519
+	   |-- fabric-loot-api-v2 3.0.15+3f89f5a519
+	   |-- fabric-loot-api-v3 1.0.3+3f89f5a519
+	   |-- fabric-message-api-v1 6.0.14+8aaf3aca19
+	   |-- fabric-model-loading-api-v1 2.1.0+b4d813fc19
+	   |-- fabric-networking-api-v1 4.3.0+c7469b2119
+	   |-- fabric-object-builder-api-v1 15.2.1+40875a9319
+	   |-- fabric-particles-v1 4.0.2+6573ed8c19
+	   |-- fabric-recipe-api-v1 5.0.15+2475392c19
+	   |-- fabric-registry-sync-v0 5.3.1+e3eddc2119
+	   |-- fabric-renderer-api-v1 3.4.1+b4d813fc19
+	   |-- fabric-renderer-indigo 1.7.1+c705a49c19
+	   |-- fabric-renderer-registries-v1 3.2.69+df3654b319
+	   |-- fabric-rendering-data-attachment-v1 0.3.49+73761d2e19
+	   |-- fabric-rendering-fluids-v1 3.1.6+1daea21519
+	   |-- fabric-rendering-v0 1.1.72+df3654b319
+	   |-- fabric-rendering-v1 5.1.0+ab4c25a019
+	   |-- fabric-resource-conditions-api-v1 4.3.0+8dc279b119
+	   |-- fabric-resource-loader-v0 1.3.1+5b5275af19
+	   |-- fabric-screen-api-v1 2.0.25+8b68f1c719
+	   |-- fabric-screen-handler-api-v1 1.3.90+b559734419
+	   |-- fabric-sound-api-v1 1.0.23+6573ed8c19
+	   |-- fabric-transfer-api-v1 5.4.3+c24bd99419
+	   \-- fabric-transitive-access-wideners-v1 6.2.0+45b9699719
+	- fabricloader 0.17.3
+	   \-- mixinextras 0.5.0
+	- iammusicplayer 3.22.1-1.21.1-alpha0-fabric
+	   \-- special-model-loader 1.3.0
+	        \-- de_javagl_obj 0.4.0
+	- java 21
+	- minecraft 1.21.1
+	- otyacraftenginerenewed 3.7.1-1.21.1-alpha0
+[14:06:39] [main/INFO]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/libraries/net/fabricmc/sponge-mixin/0.16.5+mixin.0.8.7/sponge-mixin-0.16.5+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[14:06:40] [main/INFO]: Compatibility level set to JAVA_16
+[14:06:40] [main/INFO]: Compatibility level set to JAVA_17
+[14:06:40] [main/INFO]: Compatibility level set to JAVA_21
+[14:06:42] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.0).
+[14:06:43] [Datafixer Bootstrap/INFO]: 226 Datafixer optimizations took 547 milliseconds
+[14:06:50] [Render thread/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[14:06:50] [Render thread/INFO]: Setting user: Mooo0042
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_sync
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_playlist_add
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_playlist_edit
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_playlist_change_authority
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_add
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_edit
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_ring_ready_result
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_ring_update_result
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:music_or_playlist_delete
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:multiple_music_add
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id iammusicplayer:hand_lid_cycle
+[14:06:51] [Render thread/INFO]: Initializing criteria triggers
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id otyacraftenginerenewed:block_entity_instruction
+[14:06:51] [Render thread/INFO]: Registering C2S receiver with id otyacraftenginerenewed:item_instruction
+[14:06:51] [Render thread/INFO]: Registering S2C receiver with id architectury:spawn_entity_packet
+[14:06:51] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+[14:06:52] [Render thread/INFO]: [STDERR]: SLF4J: No SLF4J providers were found.
+[14:06:52] [Render thread/INFO]: [STDERR]: SLF4J: Defaulting to no-operation (NOP) logger implementation
+[14:06:52] [Render thread/INFO]: [STDERR]: SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
+[14:06:52] [Render thread/INFO]: Registering S2C receiver with id iammusicplayer:music_sync
+[14:06:52] [Render thread/INFO]: Registering S2C receiver with id iammusicplayer:music_ring_ready
+[14:06:52] [Render thread/INFO]: Registering S2C receiver with id iammusicplayer:music_ring_state
+[14:06:52] [Render thread/INFO]: Registering S2C receiver with id otyacraftenginerenewed:block_entity_instruction_return
+[14:06:52] [Render thread/INFO]: Registering S2C receiver with id otyacraftenginerenewed:item_instruction_return
+[14:06:52] [Render thread/INFO]: Backend library: LWJGL version 3.3.3-snapshot
+[ALSOFT] (EE) Failed to connect PipeWire event context (errno: 112)
+[14:06:54] [Render thread/INFO]: Reloading ResourceManager: vanilla, fabric, cloth-config, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-blockrenderlayer-v1, fabric-client-tags-api-v1, fabric-command-api-v1, fabric-command-api-v2, fabric-commands-v0, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-keybindings-v0, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-renderer-registries-v1, fabric-rendering-data-attachment-v1, fabric-rendering-fluids-v1, fabric-rendering-v0, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-sound-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, iammusicplayer, otyacraftenginerenewed, special-model-loader
+[14:06:54] [Worker-Main-2/INFO]: Found unifont_all_no_pua-15.1.05.hex, loading
+[14:06:54] [Worker-Main-2/INFO]: Found unifont_jp_patch-15.1.05.hex, loading
+[14:06:56] [Worker-Main-3/WARN]: Unable to load model: 'otyacraftengine:base/block_entity' referenced from: iammusicplayer:item/cassette_tape_glass: java.io.FileNotFoundException: otyacraftengine:models/base/block_entity.json
+[14:06:56] [Worker-Main-3/WARN]: Unable to load model: 'otyacraftengine:base/block_entity_appearance' referenced from: iammusicplayer:item/boombox: java.io.FileNotFoundException: otyacraftengine:models/base/block_entity_appearance.json
+[14:06:56] [Render thread/INFO]: Music engine reloaded
+[14:06:56] [Render thread/WARN]: Missing sound for event: minecraft:item.goat_horn.play
+[14:06:56] [Render thread/WARN]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+[14:06:56] [Render thread/INFO]: OpenAL initialized on device   Analoges Stereo
+[14:06:56] [Render thread/INFO]: Sound engine started
+[14:06:57] [Render thread/INFO]: Created: 1024x512x4 minecraft:textures/atlas/blocks.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 1024x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[14:06:57] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
+[14:06:57] [Render thread/WARN]: Shader otyacraftenginerenewed_rendertype_simple_sprite_solid could not find uniform named IViewRotMat in the specified shader program.
+[14:06:57] [Render thread/WARN]: Shader otyacraftenginerenewed_rendertype_simple_sprite_cutout could not find uniform named IViewRotMat in the specified shader program.
+[14:06:57] [Render thread/WARN]: Shader otyacraftenginerenewed_rendertype_wave could not find uniform named IViewRotMat in the specified shader program.
+[14:06:57] [Render thread/WARN]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
+[14:07:03] [Render thread/INFO]: Loaded 1290 recipes
+[14:07:04] [Render thread/INFO]: Loaded 1399 advancements
+[14:07:04] [Render thread/INFO]: Applied 0 biome modifications to 0 of 64 new biomes in 1.322 ms
+[14:07:04] [Server thread/INFO]: Starting integrated minecraft server version 1.21.1
+[14:07:04] [Server thread/INFO]: Generating keypair
+[14:07:04] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[14:07:05] [Render thread/INFO]: Preparing spawn area: 0%
+[14:07:05] [Render thread/INFO]: Time elapsed: 433 ms
+[14:07:05] [Server thread/INFO]: Changing view distance to 12, from 10
+[14:07:05] [Server thread/INFO]: Changing simulation distance to 12, from 0
+[14:07:06] [Server thread/INFO]: Mooo0042[local:E:28c3d499] logged in with entity id 2 at (-5.5, -60.0, -0.5)
+[14:07:06] [Server thread/INFO]: Mooo0042 joined the game
+[14:07:06] [Render thread/INFO]: Loaded 2 advancements
+[14:07:12] [Render thread/ERROR]: Reported exception thrown!
+net.minecraft.class_148: Rendering Block Entity
+	at knot/net.minecraft.class_824.method_3554(class_824.java:111) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_824.method_3555(class_824.java:79) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_761.method_22710(class_761.java:1114) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_757.method_3188(class_757.java:1087) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_757.method_3192(class_757.java:850) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_310.method_1523(class_310.java:1285) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_310.method_1514(class_310.java:882) [client-intermediary.jar:?]
+	at knot/net.minecraft.client.main.Main.main(Main.java:256) [client-intermediary.jar:?]
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:506) [fabric-loader-0.17.3.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) [fabric-loader-0.17.3.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.17.3.jar:?]
+	at org.prismlauncher.launcher.impl.StandardLauncher.launch(StandardLauncher.java:105) [NewLaunch.jar:?]
+	at org.prismlauncher.EntryPoint.listen(EntryPoint.java:129) [NewLaunch.jar:?]
+	at org.prismlauncher.EntryPoint.main(EntryPoint.java:70) [NewLaunch.jar:?]
+Caused by: java.lang.NullPointerException
+	at java.base/java.util.Objects.requireNonNull(Objects.java:233) ~[?:?]
+	at knot/org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils.renderModel(OERenderUtils.java:471) ~[otyacraftenginerenewed-fabric-mc1.21.1-3.7.1-1.21.1-alpha0.jar:?]
+	at knot/org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.renderMusicManager(MusicManagerBlockEntityRenderer.java:46) ~[fabric-3.22.1-1.21.1-alpha0.jar:?]
+	at knot/org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.render(MusicManagerBlockEntityRenderer.java:33) ~[fabric-3.22.1-1.21.1-alpha0.jar:?]
+	at knot/org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.method_3569(MusicManagerBlockEntityRenderer.java:22) ~[fabric-3.22.1-1.21.1-alpha0.jar:?]
+	at knot/net.minecraft.class_824.method_23079(class_824.java:90) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_824.method_23081(class_824.java:79) ~[client-intermediary.jar:?]
+	at knot/net.minecraft.class_824.method_3554(class_824.java:104) ~[client-intermediary.jar:?]
+	... 13 more
+[14:07:12] [Server thread/INFO]: Stopping server
+[14:07:12] [Server thread/INFO]: Saving players
+[14:07:12] [Server thread/INFO]: Saving worlds
+[14:07:12] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[14:07:12] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[14:07:12] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[14:07:12] [Server thread/INFO]: ThreadedAnvilChunkStorage (New World (1)): All chunks are saved
+[14:07:12] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[14:07:12] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[14:07:12] [Server thread/INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+---- Minecraft Crash Report ----
+// I'm sorry, Dave.
+
+Time: 2025-11-01 14:07:13
+Description: Rendering Block Entity
+
+java.lang.NullPointerException: Rendering Block Entity
+	at java.base/java.util.Objects.requireNonNull(Objects.java:233)
+	at knot//org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils.renderModel(OERenderUtils.java:471)
+	at knot//org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.renderMusicManager(MusicManagerBlockEntityRenderer.java:46)
+	at knot//org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.render(MusicManagerBlockEntityRenderer.java:33)
+	at knot//org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.method_3569(MusicManagerBlockEntityRenderer.java:22)
+	at knot//net.minecraft.class_824.method_23079(class_824.java:90)
+	at knot//net.minecraft.class_824.method_23081(class_824.java:79)
+	at knot//net.minecraft.class_824.method_3554(class_824.java:104)
+	at knot//net.minecraft.class_824.method_3555(class_824.java:79)
+	at knot//net.minecraft.class_761.method_22710(class_761.java:1114)
+	at knot//net.minecraft.class_757.method_3188(class_757.java:1087)
+	at knot//net.minecraft.class_757.method_3192(class_757.java:850)
+	at knot//net.minecraft.class_310.method_1523(class_310.java:1285)
+	at knot//net.minecraft.class_310.method_1514(class_310.java:882)
+	at knot//net.minecraft.client.main.Main.main(Main.java:256)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:506)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at org.prismlauncher.launcher.impl.StandardLauncher.launch(StandardLauncher.java:105)
+	at org.prismlauncher.EntryPoint.listen(EntryPoint.java:129)
+	at org.prismlauncher.EntryPoint.main(EntryPoint.java:70)
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- Head --
+Thread: Render thread
+Stacktrace:
+	at java.base/java.util.Objects.requireNonNull(Objects.java:233)
+	at knot//org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils.renderModel(OERenderUtils.java:471)
+	at knot//org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.renderMusicManager(MusicManagerBlockEntityRenderer.java:46)
+	at knot//org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.render(MusicManagerBlockEntityRenderer.java:33)
+	at knot//org.modsauce.impr.client.renderer.blockentity.MusicManagerBlockEntityRenderer.method_3569(MusicManagerBlockEntityRenderer.java:22)
+	at knot//net.minecraft.class_824.method_23079(class_824.java:90)
+	at knot//net.minecraft.class_824.method_23081(class_824.java:79)
+	at knot//net.minecraft.class_824.method_3554(class_824.java:104)
+	at knot//net.minecraft.class_824.method_3555(class_824.java:79)
+	at knot//net.minecraft.class_761.method_22710(class_761.java:1114)
+	at knot//net.minecraft.class_757.method_3188(class_757.java:1087)
+
+-- Block Entity Details --
+Details:
+	Name: otyacraftenginerenewed:music_manager // org.modsauce.impr.blockentity.MusicManagerBlockEntity
+	Block: Block{iammusicplayer:music_manager}[facing=north,power=false,waterlogged=false]
+	Block location: World: (-5,-60,1), Section: (at 11,4,1 in -1,-4,0; chunk contains blocks -16,-64,0 to -1,319,15), Region: (-1,0; contains chunks -32,0 to -1,31, blocks -512,-64,0 to -1,319,511)
+	Block: Block{iammusicplayer:music_manager}[facing=north,power=false,waterlogged=false]
+	Block location: World: (-5,-60,1), Section: (at 11,4,1 in -1,-4,0; chunk contains blocks -16,-64,0 to -1,319,15), Region: (-1,0; contains chunks -32,0 to -1,31, blocks -512,-64,0 to -1,319,511)
+Stacktrace:
+	at knot//net.minecraft.class_824.method_3554(class_824.java:104)
+	at knot//net.minecraft.class_824.method_3555(class_824.java:79)
+	at knot//net.minecraft.class_761.method_22710(class_761.java:1114)
+	at knot//net.minecraft.class_757.method_3188(class_757.java:1087)
+	at knot//net.minecraft.class_757.method_3192(class_757.java:850)
+	at knot//net.minecraft.class_310.method_1523(class_310.java:1285)
+	at knot//net.minecraft.class_310.method_1514(class_310.java:882)
+	at knot//net.minecraft.client.main.Main.main(Main.java:256)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:506)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at org.prismlauncher.launcher.impl.StandardLauncher.launch(StandardLauncher.java:105)
+	at org.prismlauncher.EntryPoint.listen(EntryPoint.java:129)
+	at org.prismlauncher.EntryPoint.main(EntryPoint.java:70)
+
+-- Uptime --
+Details:
+	JVM uptime: 34.167s
+	Wall uptime: 21.626s
+	High-res time: 19.365s
+	Client ticks: 303 ticks / 15.150s
+Stacktrace:
+	at knot//net.minecraft.class_310.method_1587(class_310.java:2501)
+	at knot//net.minecraft.class_310.method_54580(class_310.java:949)
+	at knot//net.minecraft.class_310.method_1514(class_310.java:902)
+	at knot//net.minecraft.client.main.Main.main(Main.java:256)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:506)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at org.prismlauncher.launcher.impl.StandardLauncher.launch(StandardLauncher.java:105)
+	at org.prismlauncher.EntryPoint.listen(EntryPoint.java:129)
+	at org.prismlauncher.EntryPoint.main(EntryPoint.java:70)
+
+-- Affected level --
+Details:
+	All players: 1 total; [class_746['Mooo0042'/2, l='ClientLevel', x=-5.50, y=-60.00, z=-0.50]]
+	Chunk stats: 961, 600
+	Level dimension: minecraft:overworld
+	Level spawn location: World: (0,-60,0), Section: (at 0,4,0 in 0,-4,0; chunk contains blocks 0,-64,0 to 15,319,15), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,-64,0 to 511,319,511)
+	Level time: 610 game time, 610 day time
+	Server brand: fabric
+	Server type: Integrated singleplayer server
+	Tracked entity count: 13
+
+-- Last reload --
+Details:
+	Reload number: 1
+	Reload reason: initial
+	Finished: Yes
+	Packs: vanilla, fabric, cloth-config, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-blockrenderlayer-v1, fabric-client-tags-api-v1, fabric-command-api-v1, fabric-command-api-v2, fabric-commands-v0, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-keybindings-v0, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-renderer-registries-v1, fabric-rendering-data-attachment-v1, fabric-rendering-fluids-v1, fabric-rendering-v0, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-sound-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, iammusicplayer, otyacraftenginerenewed, special-model-loader
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.1
+	Minecraft Version ID: 1.21.1
+	Operating System: Linux (amd64) version 6.17.6-arch1-1
+	Java Version: 21.0.3, Microsoft
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode), Microsoft
+	Memory: 104810192 bytes (99 MiB) / 947912704 bytes (904 MiB) up to 8388608000 bytes (8000 MiB)
+	CPUs: 4
+	Processor Vendor: GenuineIntel
+	Processor Name: Intel(R) Core(TM) i5-6400 CPU @ 2.70GHz
+	Identifier: Intel64 Family 6 Model 94 Stepping 3
+	Microarchitecture: Skylake (Client)
+	Frequency (GHz): 2.70
+	Number of physical packages: 1
+	Number of physical CPUs: 4
+	Number of logical CPUs: 4
+	Graphics card #0 name: GM107 [GeForce GTX 750]
+	Graphics card #0 vendor: NVIDIA Corporation (0x10de)
+	Graphics card #0 VRAM (MiB): 288.00
+	Graphics card #0 deviceId: 0x1381
+	Graphics card #0 versionInfo: unknown
+	Virtual memory max (MiB): 12064.95
+	Virtual memory used (MiB): 18172.45
+	Swap memory total (MiB): 4096.00
+	Swap memory used (MiB): 3637.40
+	Space in storage for jna.tmpdir (MiB): <path not set>
+	Space in storage for org.lwjgl.system.SharedLibraryExtractPath (MiB): <path not set>
+	Space in storage for io.netty.native.workdir (MiB): <path not set>
+	Space in storage for java.io.tmpdir (MiB): available: 1589.46, total: 1593.79
+	Space in storage for workdir (MiB): available: 17264.08, total: 467346.75
+	JVM Flags: 2 total; -Xms512m -Xmx8000m
+	Fabric Mods: 
+		architectury: Architectury 13.0.8
+		cloth-config: Cloth Config v15 15.0.140
+			cloth-basic-math: cloth-basic-math 0.6.1
+		fabric-api: Fabric API 0.116.7+1.21.1
+			fabric-api-base: Fabric API Base 0.4.42+6573ed8c19
+			fabric-api-lookup-api-v1: Fabric API Lookup API (v1) 1.6.71+b559734419
+			fabric-biome-api-v1: Fabric Biome API (v1) 13.0.31+d527f9fd19
+			fabric-block-api-v1: Fabric Block API (v1) 1.1.0+0bc3503219
+			fabric-block-view-api-v2: Fabric BlockView API (v2) 1.0.11+ebb2264e19
+			fabric-blockrenderlayer-v1: Fabric BlockRenderLayer Registration (v1) 1.1.52+0af3f5a719
+			fabric-client-tags-api-v1: Fabric Client Tags 1.1.15+6573ed8c19
+			fabric-command-api-v1: Fabric Command API (v1) 1.2.49+f71b366f19
+			fabric-command-api-v2: Fabric Command API (v2) 2.2.28+6ced4dd919
+			fabric-commands-v0: Fabric Commands (v0) 0.2.66+df3654b319
+			fabric-content-registries-v0: Fabric Content Registries (v0) 8.0.19+b559734419
+			fabric-convention-tags-v1: Fabric Convention Tags 2.1.5+7f945d5b19
+			fabric-convention-tags-v2: Fabric Convention Tags (v2) 2.11.1+a406e79519
+			fabric-crash-report-info-v1: Fabric Crash Report Info (v1) 0.2.29+0af3f5a719
+			fabric-data-attachment-api-v1: Fabric Data Attachment API (v1) 1.4.5+6116a37819
+			fabric-data-generation-api-v1: Fabric Data Generation API (v1) 20.2.34+37516cd619
+			fabric-dimensions-v1: Fabric Dimensions API (v1) 4.0.1+65213ef819
+			fabric-entity-events-v1: Fabric Entity Events (v1) 1.8.0+2b27e0a419
+			fabric-events-interaction-v0: Fabric Events Interaction (v0) 0.7.13+ba9dae0619
+			fabric-game-rule-api-v1: Fabric Game Rule API (v1) 1.0.53+6ced4dd919
+			fabric-item-api-v1: Fabric Item API (v1) 11.2.0+3b3cb2e819
+			fabric-item-group-api-v1: Fabric Item Group API (v1) 4.1.7+def88e3a19
+			fabric-key-binding-api-v1: Fabric Key Binding API (v1) 1.0.47+0af3f5a719
+			fabric-keybindings-v0: Fabric Key Bindings (v0) 0.2.45+df3654b319
+			fabric-lifecycle-events-v1: Fabric Lifecycle Events (v1) 2.6.0+0865547519
+			fabric-loot-api-v2: Fabric Loot API (v2) 3.0.15+3f89f5a519
+			fabric-loot-api-v3: Fabric Loot API (v3) 1.0.3+3f89f5a519
+			fabric-message-api-v1: Fabric Message API (v1) 6.0.14+8aaf3aca19
+			fabric-model-loading-api-v1: Fabric Model Loading API (v1) 2.1.0+b4d813fc19
+			fabric-networking-api-v1: Fabric Networking API (v1) 4.3.0+c7469b2119
+			fabric-object-builder-api-v1: Fabric Object Builder API (v1) 15.2.1+40875a9319
+			fabric-particles-v1: Fabric Particles (v1) 4.0.2+6573ed8c19
+			fabric-recipe-api-v1: Fabric Recipe API (v1) 5.0.15+2475392c19
+			fabric-registry-sync-v0: Fabric Registry Sync (v0) 5.3.1+e3eddc2119
+			fabric-renderer-api-v1: Fabric Renderer API (v1) 3.4.1+b4d813fc19
+			fabric-renderer-indigo: Fabric Renderer - Indigo 1.7.1+c705a49c19
+			fabric-renderer-registries-v1: Fabric Renderer Registries (v1) 3.2.69+df3654b319
+			fabric-rendering-data-attachment-v1: Fabric Rendering Data Attachment (v1) 0.3.49+73761d2e19
+			fabric-rendering-fluids-v1: Fabric Rendering Fluids (v1) 3.1.6+1daea21519
+			fabric-rendering-v0: Fabric Rendering (v0) 1.1.72+df3654b319
+			fabric-rendering-v1: Fabric Rendering (v1) 5.1.0+ab4c25a019
+			fabric-resource-conditions-api-v1: Fabric Resource Conditions API (v1) 4.3.0+8dc279b119
+			fabric-resource-loader-v0: Fabric Resource Loader (v0) 1.3.1+5b5275af19
+			fabric-screen-api-v1: Fabric Screen API (v1) 2.0.25+8b68f1c719
+			fabric-screen-handler-api-v1: Fabric Screen Handler API (v1) 1.3.90+b559734419
+			fabric-sound-api-v1: Fabric Sound API (v1) 1.0.23+6573ed8c19
+			fabric-transfer-api-v1: Fabric Transfer API (v1) 5.4.3+c24bd99419
+			fabric-transitive-access-wideners-v1: Fabric Transitive Access Wideners (v1) 6.2.0+45b9699719
+		fabricloader: Fabric Loader 0.17.3
+			mixinextras: MixinExtras 0.5.0
+		iammusicplayer: Iam Music Player 3.22.1-1.21.1-alpha0-fabric
+			special-model-loader: Special Model Loader 1.3.0
+				de_javagl_obj: obj 0.4.0
+		java: OpenJDK 64-Bit Server VM 21
+		minecraft: Minecraft 1.21.1
+		otyacraftenginerenewed: Otyacraft Engine Renewed 3.7.1-1.21.1-alpha0
+	Launched Version: 1.21.1
+	Launcher name: PrismLauncher
+	Backend library: LWJGL version 3.3.3-snapshot
+	Backend API: NVIDIA GeForce GTX 750/PCIe/SSE2 GL version 3.2.0 NVIDIA 580.95.05, NVIDIA Corporation
+	Window size: 869x474
+	GFLW Platform: x11
+	GL Caps: Using framebuffer using OpenGL 3.2
+	GL debug messages: 
+	Is Modded: Definitely; Client brand changed to 'fabric'; Server brand changed to 'fabric'
+	Universe: 400921fb54442d18
+	Type: Integrated Server (map_client.txt)
+	Graphics mode: fancy
+	Render Distance: 12/12 chunks
+	Resource Packs: vanilla, fabric, cloth-config, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-blockrenderlayer-v1, fabric-client-tags-api-v1, fabric-command-api-v1, fabric-command-api-v2, fabric-commands-v0, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-keybindings-v0, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-renderer-registries-v1, fabric-rendering-data-attachment-v1, fabric-rendering-fluids-v1, fabric-rendering-v0, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-sound-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, iammusicplayer, otyacraftenginerenewed, special-model-loader
+	Current Language: en_us
+	Locale: en_DE
+	System encoding: UTF-8
+	File encoding: UTF-8
+	CPU: 4x Intel(R) Core(TM) i5-6400 CPU @ 2.70GHz
+	Server Running: true
+	Player Count: 1 / 8; [class_3222['Mooo0042'/2, l='ServerLevel[New World]', x=-5.50, y=-60.00, z=-0.50]]
+	Active Data Packs: vanilla, fabric, fabric-convention-tags-v2, iammusicplayer
+	Available Data Packs: bundle, fabric, fabric-convention-tags-v2, iammusicplayer, trade_rebalance, vanilla
+	Enabled Feature Flags: minecraft:vanilla
+	World Generation: Stable
+	World Seed: 2771180843676089401
+#@!@# Game crashed! Crash report saved to: #@!@# /home/toast/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/1.21.1/minecraft/crash-reports/crash-2025-11-01_14.07.13-client.txt
+Der Prozess wurde mit Status 255 beendet.

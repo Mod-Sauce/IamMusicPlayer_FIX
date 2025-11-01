@@ -1,9 +1,9 @@
 package org.modsauce.impr.data;
 
 import org.modsauce.impr.data.advancements.IMPAdvancementProviderWrapper;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.DataProviderWrapper;
-import dev.felnull.otyacraftengine.data.provider.DirectCopyProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.DataProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.provider.DirectCopyProviderWrapper;
 import net.minecraft.data.PackOutput;
 
 import java.nio.file.Paths;

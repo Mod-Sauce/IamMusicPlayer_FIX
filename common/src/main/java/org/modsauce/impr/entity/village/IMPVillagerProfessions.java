@@ -9,7 +9,7 @@ import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.block.IMPBlocks;
 import org.modsauce.impr.item.IMPItems;
 import org.modsauce.impr.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.util.OERegisterUtils;
+import org.modsauce.otyacraftenginerenewed.util.OERegisterUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -27,7 +27,7 @@ public class IMPVillagerProfessions {
     public static final RegistrySupplier<VillagerProfession> DJ = register("dj", IMPPoiType.DJ, SoundEvents.LANTERN_PLACE);
 
     private static RegistrySupplier<VillagerProfession> register(String name, Supplier<PoiType> poiType, SoundEvent soundEvent) {
-        return VILLAGER_PROFESSIONS.register(name, () -> new VillagerProfession(new ResourceLocation(IamMusicPlayer.MODID, name).toString(), holder -> holder.value().equals(poiType.get()), holder -> holder.value().equals(poiType.get()), ImmutableSet.of(), ImmutableSet.of(), soundEvent));
+        return VILLAGER_PROFESSIONS.register(name, () -> new VillagerProfession(ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, name).toString(), holder -> holder.value().equals(poiType.get()), holder -> holder.value().equals(poiType.get()), ImmutableSet.of(), ImmutableSet.of(), soundEvent));
     }
 
     public static void init() {
@@ -48,7 +48,8 @@ public class IMPVillagerProfessions {
         registerSelling(DJ.get(), 2, Items.REDSTONE, 12, 15, 2);
         registerSelling(DJ.get(), 3, Items.JUKEBOX, 1, 5, 20);
 
-        TradeRegistry.registerTradeForWanderingTrader(true, new SimpleTrade(new ItemStack(Items.EMERALD, 42), ItemStack.EMPTY, IMPItemUtil.createKamesutaAntenna(), 1, 10, 0.05f));
+        // TODO: Fix SimpleTrade constructor for 1.21 - signature changed
+        // TradeRegistry.registerTradeForWanderingTrader(true, new SimpleTrade(new net.minecraft.world.item.trading.ItemCost(Items.EMERALD, 42), ItemStack.EMPTY, IMPItemUtil.createKamesutaAntenna(), 1, 10, 0.05f));
     }
 
     public static void registerBuying(VillagerProfession profession, int level, ItemLike item, int emeraldCost, int numberOfItems, int maxUses, int villagerXp) {

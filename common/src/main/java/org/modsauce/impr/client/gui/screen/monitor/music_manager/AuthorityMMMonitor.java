@@ -12,10 +12,10 @@ import org.modsauce.impr.client.gui.screen.MusicManagerScreen;
 import org.modsauce.impr.music.resource.AuthorityInfo;
 import org.modsauce.impr.music.resource.MusicPlayList;
 import org.modsauce.impr.networking.IMPPackets;
-import dev.felnull.otyacraftengine.client.gui.components.RadioButton;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.networking.existence.BlockEntityExistence;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.RadioButton;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class AuthorityMMMonitor extends MusicManagerMonitor {
-    private static final ResourceLocation AUTHORITY_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/authority.png");
+    private static final ResourceLocation AUTHORITY_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/authority.png");
     private static final Component BACK_TEXT = Component.translatable("gui.back");
     private static final Component EXPULSION_BUTTON_TEXT = Component.translatable("imp.button.expulsion").withStyle(ChatFormatting.DARK_RED);
     private static final Component CANT_CHANGE_AUTHORITY = Component.translatable("imp.text.cantChangeAuthority");
@@ -145,7 +145,7 @@ public class AuthorityMMMonitor extends MusicManagerMonitor {
         if (playerID == null) return;
         var ps = getSelectedMusicPlayList();
         if (ps != null)
-            NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_CHANGE_AUTHORITY, new IMPPackets.MusicPlayListChangeAuthorityMessage(ps.getUuid(), playerID, type, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toFBB());
+            NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_CHANGE_AUTHORITY, new IMPPackets.MusicPlayListChangeAuthorityMessage(ps.getUuid(), playerID, type, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toRFBB());
     }
 
     protected AuthorityInfo.AuthorityType getAuthorityType(UUID playerId) {

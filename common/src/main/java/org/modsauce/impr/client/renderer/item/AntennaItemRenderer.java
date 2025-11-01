@@ -3,8 +3,8 @@ package org.modsauce.impr.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.modsauce.impr.client.model.IMPModels;
-import dev.felnull.otyacraftengine.client.renderer.item.BEWLItemRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -24,6 +24,11 @@ public class AntennaItemRenderer implements BEWLItemRenderer {
         BakedModel antennaModel = IMPModels.ANTENNA.get();
         BakedModel antennaTopModel = IMPModels.ANTENNA_TOP.get();
         BakedModel antennaRootModel = IMPModels.ANTENNA_ROOT.get();
+
+        // TODO: Fix for 1.21 - Models might not be loaded if special-model-loader LOAD_SCOPE is not registered
+        if (antennaModel == null || antennaTopModel == null || antennaRootModel == null) {
+            return; // Skip rendering if models are not loaded
+        }
 
         float ws = 0.025f / 2f;
 

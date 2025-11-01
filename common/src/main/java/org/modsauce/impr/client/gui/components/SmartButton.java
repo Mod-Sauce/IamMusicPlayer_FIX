@@ -1,7 +1,7 @@
 package org.modsauce.impr.client.gui.components;
 
 import org.modsauce.impr.client.gui.IIMPSmartRender;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

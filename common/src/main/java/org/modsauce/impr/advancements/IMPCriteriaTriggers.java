@@ -1,15 +1,23 @@
 package org.modsauce.impr.advancements;
 
-import net.minecraft.advancements.CriteriaTriggers;
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
+import org.modsauce.impr.IamMusicPlayer;
+import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.core.registries.Registries;
 
 public class IMPCriteriaTriggers {
-    public static final AddMusicTrigger ADD_MUSIC = new AddMusicTrigger();
-    public static final WriteCassetteTapeTrigger WRITE_CASSETTE_TAPE = new WriteCassetteTapeTrigger();
-    public static final ListenToMusicTrigger LISTEN_TO_MUSIC = new ListenToMusicTrigger();
+    public static final DeferredRegister<CriterionTrigger<?>> TRIGGER_TYPES =
+            DeferredRegister.create(IamMusicPlayer.MODID, Registries.TRIGGER_TYPE);
+
+    public static final RegistrySupplier<AddMusicTrigger> ADD_MUSIC =
+            TRIGGER_TYPES.register("add_music", AddMusicTrigger::new);
+    public static final RegistrySupplier<WriteCassetteTapeTrigger> WRITE_CASSETTE_TAPE =
+            TRIGGER_TYPES.register("write_cassette_tape", WriteCassetteTapeTrigger::new);
+    public static final RegistrySupplier<ListenToMusicTrigger> LISTEN_TO_MUSIC =
+            TRIGGER_TYPES.register("listen_to_music", ListenToMusicTrigger::new);
 
     public static void init() {
-        CriteriaTriggers.register(ADD_MUSIC);
-        CriteriaTriggers.register(WRITE_CASSETTE_TAPE);
-        CriteriaTriggers.register(LISTEN_TO_MUSIC);
+        TRIGGER_TYPES.register();
     }
 }

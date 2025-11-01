@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import org.modsauce.impr.blockentity.MusicManagerBlockEntity;
 import org.modsauce.impr.client.gui.components.SmartButton;
 import org.modsauce.impr.client.gui.screen.MusicManagerScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;

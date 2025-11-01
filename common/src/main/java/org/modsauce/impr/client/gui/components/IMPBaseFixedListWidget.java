@@ -2,8 +2,8 @@ package org.modsauce.impr.client.gui.components;
 
 import org.modsauce.impr.client.gui.IIMPSmartRender;
 import org.modsauce.impr.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
-import dev.felnull.otyacraftengine.client.gui.TextureRegion;
-import dev.felnull.otyacraftengine.client.gui.components.FixedListWidget;
+import org.modsauce.otyacraftenginerenewed.client.gui.TextureRegion;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

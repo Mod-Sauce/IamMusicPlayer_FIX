@@ -1,7 +1,7 @@
 package org.modsauce.impr.music.resource;
 
 import org.modsauce.impr.util.IMPNbtUtil;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;

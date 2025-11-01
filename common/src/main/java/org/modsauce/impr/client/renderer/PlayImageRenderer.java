@@ -5,8 +5,8 @@ import dev.felnull.fnjl.util.FNMath;
 import dev.felnull.fnjl.util.FNURLUtil;
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.music.resource.ImageInfo;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.client.util.OETextureUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OETextureUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
@@ -16,8 +16,8 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 public class PlayImageRenderer {
-    private static final ResourceLocation MISSING_YOUTUBE_THUMBNAIL_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/image/missing_youtube_thumbnail.png");
-    private static final ResourceLocation MISSING_SOUND_CLOUD_THUMBNAIL_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/image/missing_sound_cloud_artwork.png");
+    private static final ResourceLocation MISSING_YOUTUBE_THUMBNAIL_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/image/missing_youtube_thumbnail.png");
+    private static final ResourceLocation MISSING_SOUND_CLOUD_THUMBNAIL_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/image/missing_sound_cloud_artwork.png");
     private static final PlayImageRenderer INSTANCE = new PlayImageRenderer();
     private static final String YOUTUBE_THUMBNAIL_URL = "https://i.ytimg.com/vi/%s/hqdefault.jpg";
     private static final Pattern YOUTUBE_THUMBNAIL_URL_REGEX = Pattern.compile("https://i.ytimg.com/vi/.+/hqdefault.jpg");

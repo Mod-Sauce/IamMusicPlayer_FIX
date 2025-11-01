@@ -1,7 +1,7 @@
 package org.modsauce.impr.client.gui.components;
 
 import org.modsauce.impr.music.resource.MusicPlayList;
-import dev.felnull.otyacraftengine.client.gui.components.FixedListWidget;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

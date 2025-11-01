@@ -1,10 +1,11 @@
 package org.modsauce.impr.block;
 
+import com.mojang.serialization.MapCodec;
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.blockentity.CassetteDeckBlockEntity;
 import org.modsauce.impr.blockentity.IMPBlockEntities;
-import dev.felnull.otyacraftengine.shape.bundle.DirectionVoxelShapesBundle;
-import dev.felnull.otyacraftengine.util.OEVoxelShapeUtils;
+import org.modsauce.otyacraftenginerenewed.shape.bundle.DirectionVoxelShapesBundle;
+import org.modsauce.otyacraftenginerenewed.util.OEVoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
@@ -18,10 +19,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class CassetteDeckBlock extends IMPBaseEntityBlock {
-    private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "cassette_deck"), BoomboxBlock.class));
+    public static final MapCodec<CassetteDeckBlock> CODEC = simpleCodec(CassetteDeckBlock::new);
+    private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "cassette_deck"), BoomboxBlock.class));
 
     protected CassetteDeckBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends CassetteDeckBlock> codec() {
+        return CODEC;
     }
 
     @Nullable

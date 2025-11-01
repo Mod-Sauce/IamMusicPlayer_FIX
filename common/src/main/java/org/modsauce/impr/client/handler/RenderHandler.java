@@ -8,7 +8,7 @@ import org.modsauce.impr.block.IMPBlocks;
 import org.modsauce.impr.client.gui.overlay.MusicLinesOverlay;
 import org.modsauce.impr.client.renderer.item.hand.BoomboxHandRenderer;
 import org.modsauce.impr.item.BoomboxItem;
-import dev.felnull.otyacraftengine.client.event.MoreRenderEvent;
+import org.modsauce.otyacraftenginerenewed.client.event.MoreRenderEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,13 +25,15 @@ public class RenderHandler {
     public static void init() {
         MoreRenderEvent.RENDER_ITEM_IN_HAND.register(RenderHandler::onRenderItemInHand);
         MoreRenderEvent.RENDER_ARM_WITH_ITEM.register(RenderHandler::onRenderArmWithItem);
-        ClientGuiEvent.RENDER_HUD.register(RenderHandler::renderHud);
+        // TODO: Fix for 1.21 - DeltaTracker parameter instead of float
+        // ClientGuiEvent.RENDER_HUD.register(RenderHandler::renderHud);
     }
 
-    private static void renderHud(GuiGraphics guiGraphics, float tickDelta) {
+    // TODO: Fix for 1.21 - DeltaTracker parameter instead of float
+    /*private static void renderHud(GuiGraphics guiGraphics, float tickDelta) {
         if (IamMusicPlayer.getConfig().showMusicLines)
             MUSIC_LINES_OVERLAY.render(guiGraphics, tickDelta);
-    }
+    }*/
 
     private static EventResult onRenderItemInHand(PoseStack poseStack, MultiBufferSource multiBufferSource, InteractionHand hand, int packedLight, float partialTicks, float interpolatedPitch, float swingProgress, float equipProgress, ItemStack stack) {
         if (stack.is(IMPBlocks.BOOMBOX.get().asItem())) {

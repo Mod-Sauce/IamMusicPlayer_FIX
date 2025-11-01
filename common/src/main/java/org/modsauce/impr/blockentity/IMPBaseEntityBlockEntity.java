@@ -1,9 +1,11 @@
 package org.modsauce.impr.blockentity;
 
 import org.modsauce.impr.block.IMPBaseEntityBlock;
-import dev.felnull.otyacraftengine.blockentity.OEBaseContainerBlockEntity;
+import org.modsauce.otyacraftenginerenewed.blockentity.OEBaseContainerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,5 +31,12 @@ public abstract class IMPBaseEntityBlockEntity extends OEBaseContainerBlockEntit
             return null;
         }
         return super.onInstruction(player, name, data);
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+        if (packet.getTag() != null) {
+            loadToUpdateTag(packet.getTag());
+        }
     }
 }

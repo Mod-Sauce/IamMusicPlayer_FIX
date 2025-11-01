@@ -3,8 +3,8 @@ package org.modsauce.impr.util;
 import org.modsauce.impr.music.resource.AuthorityInfo;
 import org.modsauce.impr.music.resource.Music;
 import org.modsauce.impr.music.resource.MusicPlayList;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 

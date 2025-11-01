@@ -12,8 +12,8 @@ import org.modsauce.impr.client.music.media.IMPMusicMedias;
 import org.modsauce.impr.client.util.YoutubeUtil;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicSource;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.util.FlagThread;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ImportYoutubePlayListBaseMMMonitor extends MusicManagerMonitor {
-    private static final ResourceLocation IMPORT_YOUTUBE_PLAY_LIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/import_youtube_play_list.png");
+    private static final ResourceLocation IMPORT_YOUTUBE_PLAY_LIST_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/import_youtube_play_list.png");
     private static final Component BACK_TEXT = Component.translatable("gui.back");
     private static final Component LOADING_TEXT = Component.translatable("imp.text.playlistLoading");
     private final List<ImportYoutubePlayListMMMonitor.YoutubePlayListEntry> youtubePlayListEntries = new ArrayList<>();

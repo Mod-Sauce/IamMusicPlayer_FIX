@@ -1,8 +1,8 @@
 package org.modsauce.impr.data;
 
 import org.modsauce.impr.entity.village.IMPPoiType;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.PoiTypeTagProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.PoiTypeTagProviderWrapper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.PoiTypeTags;

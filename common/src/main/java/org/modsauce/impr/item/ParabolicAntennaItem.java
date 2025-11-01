@@ -1,13 +1,12 @@
 package org.modsauce.impr.item;
 
-import dev.felnull.otyacraftengine.item.EquipmentItem;
+import org.modsauce.otyacraftenginerenewed.item.EquipmentItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class ParabolicAntennaItem extends RadioAntennaItem implements EquipmentI
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> list, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, List<Component> list, TooltipFlag tooltipFlag) {
         list.add(DESC);
     }
 }

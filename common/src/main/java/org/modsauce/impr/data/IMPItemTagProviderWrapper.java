@@ -2,10 +2,10 @@ package org.modsauce.impr.data;
 
 import org.modsauce.impr.item.IMPItemTags;
 import org.modsauce.impr.item.IMPItems;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.BlockTagProviderWrapper;
-import dev.felnull.otyacraftengine.data.provider.ItemTagProviderWrapper;
-import dev.felnull.otyacraftengine.tag.PlatformItemTags;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.BlockTagProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.provider.ItemTagProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.tag.PlatformItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import org.jetbrains.annotations.NotNull;

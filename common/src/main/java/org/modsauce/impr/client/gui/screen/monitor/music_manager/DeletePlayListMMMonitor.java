@@ -5,7 +5,7 @@ import org.modsauce.impr.blockentity.MusicManagerBlockEntity;
 import org.modsauce.impr.client.gui.screen.MusicManagerScreen;
 import org.modsauce.impr.music.resource.MusicPlayList;
 import org.modsauce.impr.networking.IMPPackets;
-import dev.felnull.otyacraftengine.networking.existence.BlockEntityExistence;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public class DeletePlayListMMMonitor extends DeleteBaseMMMonitor {
     @Override
     public void onDelete() {
         if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock)
-            NetworkManager.sendToServer(IMPPackets.MUSIC_OR_PLAYLIST_DELETE, new IMPPackets.MusicOrPlayListDeleteMessage(getSelectedPlayList(musicManagerBlock), UUID.randomUUID(), BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), false).toFBB());
+            NetworkManager.sendToServer(IMPPackets.MUSIC_OR_PLAYLIST_DELETE, new IMPPackets.MusicOrPlayListDeleteMessage(getSelectedPlayList(musicManagerBlock), UUID.randomUUID(), BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), false).toRFBB());
     }
 
     @Override

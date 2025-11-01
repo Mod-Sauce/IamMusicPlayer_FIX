@@ -2,9 +2,9 @@ package org.modsauce.impr.client.gui.components;
 
 import org.modsauce.impr.client.renderer.PlayImageRenderer;
 import org.modsauce.impr.music.resource.Music;
-import dev.felnull.otyacraftengine.client.gui.components.FixedListWidget;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;

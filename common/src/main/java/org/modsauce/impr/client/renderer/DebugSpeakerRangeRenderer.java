@@ -133,8 +133,9 @@ public class DebugSpeakerRangeRenderer {
         float a = (float) FastColor.ARGB32.alpha(color) / 255f;
 
         var pose = poseStack.last();
-        vertexConsumer.vertex(pose.pose(), stX + x, stY + y, stZ + z).color(r, g, b, a).normal(pose.normal(), nx, ny, nz).endVertex();
-        vertexConsumer.vertex(pose.pose(), enX + x, enY + y, enZ + z).color(r, g, b, a).normal(pose.normal(), nx, ny, nz).endVertex();
+        // TODO: Fix for 1.21 - vertex() method signature changed
+        vertexConsumer.addVertex(pose.pose(), stX + x, stY + y, stZ + z).setColor(r, g, b, a).setNormal(pose, nx, ny, nz);
+        vertexConsumer.addVertex(pose.pose(), enX + x, enY + y, enZ + z).setColor(r, g, b, a).setNormal(pose, nx, ny, nz);
     }
 
     private static Vec3 getListenerPos() {

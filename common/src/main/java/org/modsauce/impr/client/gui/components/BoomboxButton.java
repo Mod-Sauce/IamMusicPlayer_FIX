@@ -2,7 +2,7 @@ package org.modsauce.impr.client.gui.components;
 
 import org.modsauce.impr.block.BoomboxData;
 import org.modsauce.impr.client.gui.screen.BoomboxScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.function.BooleanSupplier;

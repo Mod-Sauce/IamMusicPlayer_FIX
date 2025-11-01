@@ -9,8 +9,8 @@ import org.modsauce.impr.client.gui.components.VolumeWidget;
 import org.modsauce.impr.client.gui.screen.BoomboxScreen;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicSource;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -18,8 +18,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class PlayBackBaseBMonitor extends BoomboxMonitor {
-    protected static final ResourceLocation PLAYING_BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/playing.png");
-    protected static final ResourceLocation PLAYING_IMAGE_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/playing_image.png");
+    protected static final ResourceLocation PLAYING_BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/playing.png");
+    protected static final ResourceLocation PLAYING_IMAGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/playing_image.png");
     private VolumeWidget volumeWidget;
     private PlayBackControlWidget playBackControlWidget;
 

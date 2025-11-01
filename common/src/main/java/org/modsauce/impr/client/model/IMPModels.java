@@ -2,9 +2,9 @@ package org.modsauce.impr.client.model;
 
 import org.modsauce.impr.IMPHoliday;
 import org.modsauce.impr.IamMusicPlayer;
-import dev.felnull.otyacraftengine.client.callpoint.ModelRegister;
-import dev.felnull.otyacraftengine.client.model.ModelCollectiveRegister;
-import dev.felnull.otyacraftengine.client.model.ModelHolder;
+import org.modsauce.otyacraftenginerenewed.client.callpoint.ModelRegister;
+import org.modsauce.otyacraftenginerenewed.client.model.ModelCollectiveRegister;
+import org.modsauce.otyacraftenginerenewed.client.model.ModelHolder;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -59,6 +59,6 @@ public class IMPModels {
     }
 
     private static ResourceLocation modLoc(String name) {
-        return new ResourceLocation(IamMusicPlayer.MODID, name);
+        return ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, name);
     }
 }

@@ -7,8 +7,8 @@ import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.client.model.IMPModels;
 import org.modsauce.impr.integration.PatchouliIntegration;
 import org.modsauce.impr.item.ManualItem;
-import dev.felnull.otyacraftengine.client.renderer.item.BEWLItemRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -37,6 +37,12 @@ public class ManualItemRenderer implements BEWLItemRenderer {
     @Override
     public void render(ItemStack stack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource multiBufferSource, float f, int light, int overlay) {
         var model = IMPModels.MANUAL.get();
+
+        // TODO: Fix for 1.21 - Models might not be loaded if special-model-loader LOAD_SCOPE is not registered
+        if (model == null) {
+            return; // Skip rendering if model is not loaded
+        }
+
         var vc = ItemRenderer.getFoilBufferDirect(multiBufferSource, Sheets.solidBlockSheet(), true, stack.hasFoil()); //multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
         float par = Mth.lerp(f, openProgressO, openProgress) / 10f;
         poseStack.pushPose();
@@ -77,6 +83,7 @@ public class ManualItemRenderer implements BEWLItemRenderer {
 
     private void renderTurning(PoseStack poseStack, MultiBufferSource multiBufferSource, VertexConsumer vc, int light, int overlay) {
         var model = IMPModels.MANUAL_TURNING.get();
+        if (model == null) return; // Skip if model not loaded
         poseStack.pushPose();
         OERenderUtils.renderModel(poseStack, vc, model, light, overlay);
         renderText(poseStack, multiBufferSource, FELNULL_DEV_TEXT, light, 9f, 15.75f, 0.4f, false, 0);

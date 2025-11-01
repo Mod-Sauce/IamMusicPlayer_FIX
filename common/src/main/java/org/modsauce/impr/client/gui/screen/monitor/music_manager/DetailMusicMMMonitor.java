@@ -8,7 +8,7 @@ import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.Music;
 import org.modsauce.impr.music.resource.MusicPlayList;
 import org.modsauce.impr.music.resource.MusicSource;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;

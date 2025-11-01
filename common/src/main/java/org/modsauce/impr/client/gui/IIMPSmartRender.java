@@ -5,7 +5,7 @@ import org.modsauce.impr.client.gui.components.PlayBackControlWidget;
 import org.modsauce.impr.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import org.modsauce.impr.client.renderer.PlayImageRenderer;
 import org.modsauce.impr.music.resource.ImageInfo;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;

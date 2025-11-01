@@ -3,7 +3,7 @@ package org.modsauce.impr.blockentity;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import org.modsauce.impr.block.IMPBlocks;
-import dev.felnull.otyacraftengine.OtyacraftEngine;
+import org.modsauce.otyacraftenginerenewed.OtyacraftEngine;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;

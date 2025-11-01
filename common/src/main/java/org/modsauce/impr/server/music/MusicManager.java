@@ -54,7 +54,7 @@ public class MusicManager {
 
     public void addMusicToPlayList(ServerPlayer player, UUID playlistId, Music music) {
         addMusicToPlayList(player.server, playlistId, music);
-        IMPCriteriaTriggers.ADD_MUSIC.trigger(player);
+        IMPCriteriaTriggers.ADD_MUSIC.get().trigger(player);
     }
 
     public void addMusicToPlayList(MinecraftServer server, UUID playlistId, Music music) {

@@ -27,7 +27,7 @@ public class IMPItemUtil {
 
     public static ItemStack createKamesutaAntenna() {
         var st = new ItemStack(IMPItems.PARABOLIC_ANTENNA.get());
-        st.setHoverName(Component.literal("Kamesuta").withStyle(ChatFormatting.GREEN).withStyle(Style.EMPTY.withItalic(false)));
+        st.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, Component.literal("Kamesuta").withStyle(ChatFormatting.GREEN).withStyle(Style.EMPTY.withItalic(false)));
         return st;
     }
 }

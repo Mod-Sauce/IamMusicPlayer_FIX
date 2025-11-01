@@ -2,7 +2,7 @@ package org.modsauce.impr.client.renderer.item;
 
 import org.modsauce.impr.block.IMPBlocks;
 import org.modsauce.impr.item.IMPItems;
-import dev.felnull.otyacraftengine.client.renderer.item.ItemRendererRegister;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.ItemRendererRegister;
 
 public class IMPItemRenderers {
     public static ManualItemRenderer manualItemRenderer;

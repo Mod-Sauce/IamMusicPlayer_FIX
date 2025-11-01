@@ -4,11 +4,12 @@ import org.modsauce.impr.block.BoomboxBlock;
 import org.modsauce.impr.block.BoomboxData;
 import org.modsauce.impr.block.IMPBlocks;
 import org.modsauce.impr.blockentity.BoomboxBlockEntity;
+import org.modsauce.impr.component.IMPDataComponents;
 import org.modsauce.impr.handler.CommonHandler;
 import org.modsauce.impr.server.music.ringer.IMusicRinger;
 import org.modsauce.impr.server.music.ringer.MusicRingManager;
-import dev.felnull.otyacraftengine.item.IInstructionItem;
-import dev.felnull.otyacraftengine.item.ItemContainer;
+import org.modsauce.otyacraftenginerenewed.item.IInstructionItem;
+import org.modsauce.otyacraftenginerenewed.item.ItemContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -89,7 +90,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     @Override
     public void onDestroyed(@NotNull ItemEntity itemEntity) {
         if (this.getBlock() instanceof BoomboxBlock) {
-            ItemUtils.onContainerDestroyed(itemEntity, getContainItem(itemEntity.getItem()).stream());
+            ItemUtils.onContainerDestroyed(itemEntity, getContainItem(itemEntity.getItem()));
         }
         super.onDestroyed(itemEntity);
     }
@@ -143,14 +144,16 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     }
 
     public static CompoundTag getBoomboxTag(ItemStack stack) {
-        return stack.getTag() != null ? stack.getTag().getCompound("BoomboxTag") : null;
+        return stack.get(IMPDataComponents.BOOMBOX_DATA.get());
     }
 
     public static CompoundTag getOrCreateBoomboxTag(ItemStack stack) {
-        var tag = stack.getOrCreateTag();
-        if (!tag.contains("BoomboxTag"))
-            tag.put("BoomboxTag", new CompoundTag());
-        return getBoomboxTag(stack);
+        CompoundTag tag = stack.get(IMPDataComponents.BOOMBOX_DATA.get());
+        if (tag == null) {
+            tag = new CompoundTag();
+            stack.set(IMPDataComponents.BOOMBOX_DATA.get(), tag);
+        }
+        return tag;
     }
 
     public static BoomboxData getData(ItemStack stack) {
@@ -194,11 +197,12 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
             public void dataUpdate(BoomboxData data) {
                 setData(stack, data);
             }
-        });
+        }, null);
     }
 
     public static void setData(ItemStack stack, BoomboxData data) {
-        getOrCreateBoomboxTag(stack).put("BoomBoxData", data.save(new CompoundTag(), true, true));
+        // TODO: This needs proper registry access - for now using null may cause issues with ItemStack serialization
+        getOrCreateBoomboxTag(stack).put("BoomBoxData", data.save(new CompoundTag(), true, true, null));
     }
 
     public static boolean isPowered(ItemStack itemStack) {
@@ -286,7 +290,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
             setTransferProgressOld(itemStack, 10);
         }
         if (blockEntity.hasCustomName())
-            itemStack.setHoverName(blockEntity.getCustomName());
+            itemStack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, blockEntity.getCustomName());
         setRingerUUID(itemStack, UUID.randomUUID());
         return itemStack;
     }

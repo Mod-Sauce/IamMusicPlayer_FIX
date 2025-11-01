@@ -13,9 +13,9 @@ import org.modsauce.impr.client.gui.screen.MusicManagerScreen;
 import org.modsauce.impr.client.renderer.PlayImageRenderer;
 import org.modsauce.impr.client.util.FileChooserUtils;
 import org.modsauce.impr.music.resource.ImageInfo;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.util.FlagThread;
-import dev.felnull.otyacraftengine.util.OEImageUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
+import org.modsauce.otyacraftenginerenewed.util.OEImageUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -39,7 +39,7 @@ import java.util.List;
 
 public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
     private static final Gson GSON = new Gson();
-    private static final ResourceLocation SET_IMAGE_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/image_set_base.png");
+    private static final ResourceLocation SET_IMAGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/image_set_base.png");
     private static final Component IMAGE_TEXT = Component.translatable("imp.text.image");
     private static final Component NO_IMAGE_TEXT = Component.translatable("imp.text.noImage");
     private static final Component DROP_INFO_TEXT = Component.translatable("imp.text.dropInfo");

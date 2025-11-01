@@ -1,7 +1,7 @@
 package org.modsauce.impr.inventory;
 
 import org.modsauce.impr.inventory.slot.CassetteTapeSlot;
-import dev.felnull.otyacraftengine.inventory.OEBEBaseMenu;
+import org.modsauce.otyacraftenginerenewed.inventory.OEBEBaseMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;

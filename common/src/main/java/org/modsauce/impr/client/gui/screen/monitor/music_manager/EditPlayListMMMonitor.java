@@ -6,7 +6,7 @@ import org.modsauce.impr.client.gui.screen.MusicManagerScreen;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicPlayList;
 import org.modsauce.impr.networking.IMPPackets;
-import dev.felnull.otyacraftengine.networking.existence.BlockEntityExistence;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,7 @@ public class EditPlayListMMMonitor extends SavedPlayListBaseMMMonitor {
         var initAuthType = getInitialAuthorityType();
         var invitePlayers = getInvitePlayers();
         if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock)
-            NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_EDIT, new IMPPackets.MusicPlayListMessage(musicManagerBlock.getSelectedPlayList(mc.player), name, imageInfo, pubType == PublishingType.PUBLIC, initAuthType == InitialAuthorityType.MEMBER, invitePlayers, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), new ArrayList<>()).toFBB());
+            NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_EDIT, new IMPPackets.MusicPlayListMessage(musicManagerBlock.getSelectedPlayList(mc.player), name, imageInfo, pubType == PublishingType.PUBLIC, initAuthType == InitialAuthorityType.MEMBER, invitePlayers, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), new ArrayList<>()).toRFBB());
         return true;
     }
 

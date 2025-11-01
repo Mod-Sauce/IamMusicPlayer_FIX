@@ -25,16 +25,16 @@
     "fabric-datagen": [
       "org.modsauce.impr.fabric.data.IamMusicPlayerDataGeneratorFabric"
     ],
-    "otyacraftengine_client": [
+    "otyacraftenginerenewed_client": [
       "org.modsauce.impr.client.entrypoint.IMPOEClientEntryPoint"
     ]
   },
   "mixins": ["iammusicplayer-common.mixins.json"],
   "depends": {
     "fabric": "*",
-    "minecraft": "=1.20.1",
-    "architectury": ">=9.2.14",
-    "cloth-config2": ">=11.1.136",
-    "otyacraftengine": ">=3.7.1-1.20.1"
+    "minecraft": ">=1.21.1",
+    "architectury": ">=13.0.0",
+    "cloth-config2": ">=15.0.0",
+    "otyacraftenginerenewed": ">=3.7.1-1.21.1"
   }
 }

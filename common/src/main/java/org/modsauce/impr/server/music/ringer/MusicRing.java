@@ -5,7 +5,7 @@ import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.advancements.IMPCriteriaTriggers;
 import org.modsauce.impr.music.tracker.MusicTrackerEntry;
 import org.modsauce.impr.networking.IMPPackets;
-import dev.felnull.otyacraftengine.advancement.ModInvolvementTrigger;
+import org.modsauce.otyacraftenginerenewed.advancement.ModInvolvementTrigger;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -184,18 +184,18 @@ public class MusicRing {
         private void sendFirstPackets() {
             for (UUID firstWaitPlayer : firstWaitPlayers) {
                 if (getLevel().getPlayerByUUID(firstWaitPlayer) instanceof ServerPlayer serverPlayer)
-                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_READY, new IMPPackets.MusicReadyMessage(infoUUID, ringerUUID, getRinger().getRingerMusicSource(), getMusicTracker(getRinger()).saveToTag(), getRingerPosition()).toFBB());
+                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_READY, new IMPPackets.MusicReadyMessage(infoUUID, ringerUUID, getRinger().getRingerMusicSource(), getMusicTracker(getRinger()).saveToTag(), getRingerPosition()).toRFBB());
             }
         }
 
         private void sendStopPackets(UUID player) {
             if (getLevel().getPlayerByUUID(player) instanceof ServerPlayer serverPlayer)
-                NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.STOP).toFBB());
+                NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.STOP).toRFBB());
         }
 
         private void sendMiddleStartPacket(UUID player) {
             if (getLevel().getPlayerByUUID(player) instanceof ServerPlayer serverPlayer) {
-                NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_READY, new IMPPackets.MusicReadyMessage(infoUUID, ringerUUID, getRinger().getRingerMusicSource(), getMusicTracker(getRinger()).saveToTag(), getRingerPosition()).toFBB());
+                NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_READY, new IMPPackets.MusicReadyMessage(infoUUID, ringerUUID, getRinger().getRingerMusicSource(), getMusicTracker(getRinger()).saveToTag(), getRingerPosition()).toRFBB());
                 advancement(serverPlayer);
             }
         }
@@ -212,7 +212,7 @@ public class MusicRing {
             if (notWait) {
                 if (middleLoadPlayers.contains(id)) {
                     if (result) {
-                        NetworkManager.sendToPlayer(player, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.PLAY, getRinger().isRingerStream() ? 0 : elapsed, getMusicTracker(getRinger()).saveToTag()).toFBB());
+                        NetworkManager.sendToPlayer(player, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.PLAY, getRinger().isRingerStream() ? 0 : elapsed, getMusicTracker(getRinger()).saveToTag()).toRFBB());
                         listenPlayers.add(id);
                     } else {
                         failurePlayers.put(id, System.currentTimeMillis());
@@ -233,7 +233,7 @@ public class MusicRing {
         private void startReadyWaitPlayers() {
             for (UUID pl : firstReadyPlayers) {
                 if (getLevel().getPlayerByUUID(pl) instanceof ServerPlayer serverPlayer) {
-                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.PLAY, 0, getMusicTracker(getRinger()).saveToTag()).toFBB());
+                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.PLAY, 0, getMusicTracker(getRinger()).saveToTag()).toRFBB());
                     advancement(serverPlayer);
                 }
             }
@@ -258,11 +258,11 @@ public class MusicRing {
         private void sendUpdate() {
             for (UUID player : listenPlayers) {
                 if (getLevel().getPlayerByUUID(player) instanceof ServerPlayer serverPlayer)
-                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.UPDATE, 0, getMusicTracker(getRinger()).saveToTag()).toFBB());
+                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.UPDATE, 0, getMusicTracker(getRinger()).saveToTag()).toRFBB());
             }
             for (UUID player : middleLoadPlayers) {
                 if (getLevel().getPlayerByUUID(player) instanceof ServerPlayer serverPlayer)
-                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.UPDATE, 0, getMusicTracker(getRinger()).saveToTag()).toFBB());
+                    NetworkManager.sendToPlayer(serverPlayer, IMPPackets.MUSIC_RING_STATE, new IMPPackets.MusicRingStateMessage(ringerUUID, infoUUID, IMPPackets.MusicRingStateType.UPDATE, 0, getMusicTracker(getRinger()).saveToTag()).toRFBB());
             }
         }
 
@@ -327,7 +327,7 @@ public class MusicRing {
         }
 
         private void advancement(ServerPlayer player) {
-            IMPCriteriaTriggers.LISTEN_TO_MUSIC.trigger(player, getRinger().isRingerStream(), getRinger().isRingerRemote(), isKamesuta());
+            IMPCriteriaTriggers.LISTEN_TO_MUSIC.get().trigger(player, getRinger().isRingerStream(), getRinger().isRingerRemote(), isKamesuta());
             ModInvolvementTrigger.trigger(player, IamMusicPlayer.MODID);
         }
 

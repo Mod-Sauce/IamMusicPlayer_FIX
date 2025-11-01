@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ManualItem extends Item {
-    public static final ResourceLocation MANUAL_BOOK = new ResourceLocation(IamMusicPlayer.MODID, "manual");
+    public static final ResourceLocation MANUAL_BOOK = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "manual");
     private static final Component INVALID_ITEM = Component.translatable("item.iammusicplayer.invalid_item.desc").withStyle(ChatFormatting.DARK_RED);
     private static final MutableComponent INVALID_ITEM_PATCHOULI = Component.translatable("item.iammusicplayer.invalid_item.patchouli.desc");
     private static final MutableComponent INVALID_ITEM_PATCHOULI_CONFIG = Component.translatable("item.iammusicplayer.invalid_item.patchouli.config.desc");
@@ -45,7 +45,7 @@ public class ManualItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> list, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack itemStack, Item.TooltipContext context, List<Component> list, TooltipFlag tooltipFlag) {
         if (!PatchouliIntegration.INSTANCE.isEnable()) {
             list.add(INVALID_ITEM);
             list.add((PatchouliIntegration.INSTANCE.isConfigEnabled() ? INVALID_ITEM_PATCHOULI : INVALID_ITEM_PATCHOULI_CONFIG).withStyle(ChatFormatting.GRAY));

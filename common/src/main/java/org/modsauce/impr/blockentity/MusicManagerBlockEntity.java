@@ -6,8 +6,8 @@ import org.modsauce.impr.music.resource.AuthorityInfo;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicSource;
 import org.modsauce.impr.server.music.MusicManager;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -153,14 +153,14 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         OENbtUtils.readUUIDTagMap(tag, "PlayerData", playerData);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         OENbtUtils.writeUUIDTagMap(tag, "PlayerData", playerData);
     }
 
@@ -630,6 +630,13 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
     @Override
     public @NotNull NonNullList<ItemStack> getItems() {
         return items;
+    }
+
+    @Override
+    public void setItems(NonNullList<ItemStack> items) {
+        for (int i = 0; i < items.size() && i < this.items.size(); i++) {
+            this.items.set(i, items.get(i));
+        }
     }
 
     public static enum MonitorType {

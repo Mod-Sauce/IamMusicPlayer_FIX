@@ -2,12 +2,12 @@ package org.modsauce.impr.forge.handler;
 
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.data.IamMusicPlayerDataGenerator;
-import dev.felnull.otyacraftengine.forge.data.CrossDataGeneratorAccesses;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import org.modsauce.otyacraftenginerenewed.neoforge.data.CrossDataGeneratorAccesses;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber(modid = IamMusicPlayer.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = IamMusicPlayer.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class DataGenHandler {
     @SubscribeEvent
     public static void onDataGen(GatherDataEvent event) {

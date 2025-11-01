@@ -10,9 +10,9 @@ import org.modsauce.impr.client.gui.screen.monitor.music_manager.MusicManagerMon
 import org.modsauce.impr.client.lava.LavaPlayerManager;
 import org.modsauce.impr.music.resource.ImageInfo;
 import org.modsauce.impr.music.resource.MusicSource;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.util.FlagThread;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -21,8 +21,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class RadioSelectBMonitor extends BoomboxMonitor {
-    private static final ResourceLocation RADIO_SELECT_BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/radio_select.png");
-    private static final ResourceLocation RADIO_SELECT_IMAGE_BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/radio_select_image.png");
+    private static final ResourceLocation RADIO_SELECT_BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/radio_select.png");
+    private static final ResourceLocation RADIO_SELECT_IMAGE_BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/radio_select_image.png");
     private static final Component RADIO_CHECKING_TEXT = Component.translatable("imp.text.radioChecking");
     private static final Component ENTER_STREAM_TEXT = Component.translatable("imp.text.enterStream");
     private EditBox radioUrlEditBox;
