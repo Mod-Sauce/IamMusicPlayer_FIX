@@ -1,53 +1,52 @@
 modLoader = "javafml"
-loaderVersion = "47.4.0"
+loaderVersion = "[4.0,)"
 issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
 [[mods]]
-modId = "iammusicplayer"
-version = "${version}-forge"
+modId = "iammusicplayer_renewed"
+version = "${version}-neoforge"
 displayName = "Iam Music Player Renewed"
 displayURL = "https://mod-sauce.github.io/impr.html"
-updateJSONURL = ""
 authors = "Us3r0, Shadowbee27"
-credits = "Mod-Sauce & contributers"
+credits = "Mod-Sauce & contributors"
 description = '''
 Add a boombox that can play music.
 The ikisugi music player mod...
 '''
 logoFile = "logo.png"
 
-[[dependencies.iammusicplayer]]
-modId = "forge"
+[[dependencies.iammusicplayer_renewed]]
+modId = "neoforge"
 mandatory = true
-versionRange = "47.4.0"
+versionRange = "[21.1.213,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.iammusicplayer]]
+[[dependencies.iammusicplayer_renewed]]
 modId = "minecraft"
 mandatory = true
-versionRange = "1.20.1"
+versionRange = "[1.21.1,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.iammusicplayer]]
+[[dependencies.iammusicplayer_renewed]]
 modId = "architectury"
 mandatory = true
-versionRange = "9.2.14"
+versionRange = "[13.0.8,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.iammusicplayer]]
+[[dependencies.iammusicplayer_renewed]]
 modId = "cloth_config"
 mandatory = true
-versionRange = "11.1.136"
+versionRange = "[15.0.140,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.iammusicplayer]]
-modId = "otyacraftengine"
+[[dependencies.iammusicplayer_renewed]]
+modId = "otyacraftenginerenewed"
 mandatory = true
-versionRange = "3.7.1-1.20.1"
+versionRange = "[3.7.1-1.21.1-alpha0,)"
 ordering = "NONE"
 side = "BOTH"

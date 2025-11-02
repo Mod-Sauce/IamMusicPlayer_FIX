@@ -16,9 +16,6 @@ dependencies {
 
     implementation "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
 
-    /*implementation("com.github.walkyst:lavaplayer-fork:${rootProject.lava_version}") {
-        exclude group: 'com.sedmelluq', module: 'lavaplayer-natives'
-    }*/
     implementation("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
