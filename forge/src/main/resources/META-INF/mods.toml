@@ -10,11 +10,11 @@ displayName = "Iam Music Player Renewed"
 displayURL = "https://modrinth.com/mod/iam-music-player-renewed"
 updateJSONURL = ""
 authors = "Mooo0042, Shadowbee27"
-credits = "Mod-Sauce Dev's"
-description = '''
+credits = "Mod-Sauce Devs"
+description = """
 Add a boombox that can play music.
 The ikisugi music player mod...
-'''
+"""
 logoFile = "logo.png"
 
 [modproperties.iammusicplayer]
