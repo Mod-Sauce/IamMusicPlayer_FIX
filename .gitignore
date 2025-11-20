@@ -20,8 +20,5 @@ classes/
 .vscode
 .settings
 *.launch
-<<<<<<< HEAD
 *.factorypath
 .env
-=======
->>>>>>> d280ea9d6dbd59ebb8265d858bbb1f575aeb0cf5

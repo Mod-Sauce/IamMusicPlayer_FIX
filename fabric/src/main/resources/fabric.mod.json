@@ -16,12 +16,8 @@
   "icon": "assets/iammusicplayer/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "org.modsauce.impr.fabric.IamMusicPlayerFabric"
-    ],
-    "client": [
-      "org.modsauce.impr.fabric.client.IamMusicPlayerClientFabric"
-    ],
+    "main": ["org.modsauce.impr.fabric.IamMusicPlayerFabric"],
+    "client": ["org.modsauce.impr.fabric.client.IamMusicPlayerClientFabric"],
     "fabric-datagen": [
       "org.modsauce.impr.fabric.data.IamMusicPlayerDataGeneratorFabric"
     ],
@@ -32,7 +28,7 @@
   "mixins": ["iammusicplayer-common.mixins.json"],
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.21.1",
+    "minecraft": "=1.21.1",
     "architectury": ">=13.0.0",
     "cloth-config2": ">=15.0.0",
     "otyacraftenginerenewed": ">=3.7.1-1.21.1"
