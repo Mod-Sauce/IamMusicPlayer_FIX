@@ -3,15 +3,28 @@ package dev.felnull.imp.explatform.client.fabric;
 import com.sonicether.soundphysics.SoundPhysics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class IMPSoundPhysicsRemasteredExpectPlatformImpl {
+
+  private static final Logger LOGGER = LogManager.getLogger(
+    IMPSoundPhysicsRemasteredExpectPlatformImpl.class
+  );
 
   public static void setDefaultEnvironment(int sourceID) {
     SoundPhysics.setDefaultEnvironment(sourceID);
   }
 
-  public static void setLastSoundCategoryAndName(SoundSource sc, ResourceLocation name) {
-    SoundPhysics.setLastSoundCategoryAndName(sc, name);
+  public static void setLastSoundCategoryAndName(
+    SoundSource sc,
+    ResourceLocation name
+  ) {
+    try {
+      SoundPhysics.setLastSoundCategoryAndName(sc, name);
+    } catch (NoSuchMethodError e) {
+      LOGGER.error("Failed to load soundphysics intigration, due to: " + e);
+    }
   }
 
   public static void onPlaySound(
