@@ -52,13 +52,13 @@ allprojects {
             url = "https://maven.felnull.dev"
         }
         maven {
-            url = 'https://m2.dv8tion.net/releases'
+            url = "https://m2.dv8tion.net/releases"
         }
         maven {
-            url = 'https://jitpack.io'
+            url = "https://jitpack.io"
         }
         maven {
-            url = 'https://maven.blamejared.com'
+            url = "https://maven.blamejared.com"
         }
         maven {
             url = "https://api.modrinth.com/maven"
