@@ -1,4 +1,4 @@
-package dev.felnull.imp.explatform;
+/*package dev.felnull.imp.explatform;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.resources.ResourceLocation;
@@ -16,3 +16,4 @@ public class IMPPatchouliExpectPlatform {
         throw new AssertionError();
     }
 }
+*/

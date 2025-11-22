@@ -12,14 +12,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin {
-    @Shadow
-    public abstract ItemStack getItem();
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;tick()V", ordinal = 0))
-    private void tick(CallbackInfo ci) {
-        if (IamMusicPlayer.getConfig().dropItemRing && getItem().getItem() instanceof BoomboxItem) {
-            var ths = (ItemEntity) (Object) this;
-            BoomboxItem.tick(ths.level(), ths, getItem(), true);
-        }
+  @Shadow
+  public abstract ItemStack getItem();
+
+  @Inject(
+    method = "tick",
+    at = @At(
+      value = "INVOKE",
+      target = "Lnet/minecraft/world/entity/Entity;tick()V",
+      ordinal = 0
+    )
+  )
+  private void tick(CallbackInfo ci) {
+    if (
+      IamMusicPlayer.getConfig().dropItemRing &&
+      getItem().getItem() instanceof BoomboxItem
+    ) {
+      var ths = (ItemEntity) (Object) this;
+      BoomboxItem.tick(ths.level(), ths, getItem(), true);
     }
+  }
 }

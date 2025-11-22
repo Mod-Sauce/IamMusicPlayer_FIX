@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "47.4.0"
+loaderVersion = "47.4.10"
 issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
@@ -20,7 +20,7 @@ logoFile = "logo.png"
 [[dependencies.iammusicplayer]]
 modId = "forge"
 mandatory = true
-versionRange = "47.4.0"
+versionRange = ["47.4.0","47.4.10"]
 ordering = "NONE"
 side = "BOTH"
 

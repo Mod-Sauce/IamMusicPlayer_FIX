@@ -6,7 +6,7 @@ import dev.felnull.otyacraftengine.client.renderer.item.ItemRendererRegister;
 
 public class IMPItemRenderers {
 
-  public static ManualItemRenderer manualItemRenderer;
+  //public static ManualItemRenderer manualItemRenderer;
 
   public static void init() {
     ItemRendererRegister.register(
@@ -30,7 +30,7 @@ public class IMPItemRenderers {
       new AntennaItemRenderer()
     );
 
-    manualItemRenderer = new ManualItemRenderer();
+    //manualItemRenderer = new ManualItemRenderer();
     //ItemRendererRegister.register(IMPItems.MANUAL, manualItemRenderer);
   }
 }
