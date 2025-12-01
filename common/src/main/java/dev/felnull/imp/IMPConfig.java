@@ -18,6 +18,12 @@ public class IMPConfig implements ConfigData {
   public boolean spatial = true;
 
   @ConfigEntry.Category("client")
+  public int CONNECTION_TIMEOUT = 10000;
+
+  @ConfigEntry.Category("client")
+  public int READ_TIMEOUT = 30000;
+
+  @ConfigEntry.Category("client")
   public int sampleRate = 44100;
 
   @ConfigEntry.Category("client")

@@ -36,7 +36,7 @@ public class LavaNativeManager {
   );
   private static final Gson GSON = new Gson();
   private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-  private static final String NATIVES_VERSION = "2.2.3";
+  public static final String NATIVES_VERSION = "2.2.3";
   private static final String HASH_FILE_NAME = "hash.json";
   private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
   private static final int READ_TIMEOUT = 30000; // 30 seconds
