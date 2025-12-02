@@ -13,7 +13,7 @@ jobs:
         with:
           fetch-depth: 200
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: useblacksmith/setup-java@v5
         with:
           java-version: 21

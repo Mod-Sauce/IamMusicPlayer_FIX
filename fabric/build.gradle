@@ -1,7 +1,5 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "8.1.1"
-//    id 'com.matthewprenger.cursegradle' version '1.4.0'
-//    id "com.modrinth.minotaur" version "2.8.0"
 }
 
 architectury {
@@ -157,111 +155,15 @@ components.java {
         skip()
     }
 }
-/*
 publishing {
-    publications {
-        mavenFabric(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            from components.java
-            pom {
-                name = 'IamMusicPlayer'
-                description = 'The ikisugi music player mod.'
-                licenses {
-                    license {
-                        name = 'GNU Lesser General Public License v3.0'
-                        url = 'https://www.gnu.org/licenses/lgpl-3.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'MORIMORI0317'
-                        name = 'MORIMORI0317'
-                    }
-                    developer {
-                        id = 'FelNull'
-                        name = 'TeamFelNull'
-                        email = 'teamfelnull@felnull.dev'
-                    }
-                }
-            }
-        }
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = "https://maven.pkg.github.com/Mod-Sauce/IamMusicPlayer_FIX"
+      credentials {
+        username = System.getenv("Shadowbee27")
+        password = System.getenv("IMPR_TOKEN_SHADOWBEE")
+      }
     }
-
-    repositories {
-        maven {
-            url "${project.maven_put_url}"
-            credentials {
-                username = "felnull"
-                password = "${project.maven_put_pass}" != '' ? "${project.maven_put_pass}" : System.getenv('mavenpassword')
-            }
-        }
-    }
+  }
 }
-
-curseforge {
-    if (System.getenv('curesforgeapikey') != null && "${project.curesforge_id}" != '') {
-        apiKey = System.getenv('curesforgeapikey')
-        project {
-            id = "${rootProject.curesforge_id}"
-
-            changelogType = 'markdown'
-            changelog = file('../LATEST_CHANGELOG.md')
-
-            releaseType = "${rootProject.release_type}"
-            addGameVersion "${rootProject.minecraft_version}"
-            addGameVersion 'Java 17'
-            addGameVersion "Fabric"
-            addGameVersion "Quilt"
-
-            project.support_versions.split(",").each {
-                String version -> addGameVersion version
-            }
-
-            relations {
-                requiredDependency "fabric-api"
-                requiredDependency "cloth-config"
-                requiredDependency "architectury-api"
-                requiredDependency "otyacraft-engine"
-                //      optionalDependency "patchouli-fabric"
-                embeddedLibrary "special-model-loader"
-            }
-
-            mainArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")) {
-                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Fabric"
-            }
-
-            addArtifact(file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}-sources.jar")) {
-                displayName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Fabric-sources"
-            }
-            afterEvaluate {
-                uploadTask.dependsOn("build")
-            }
-        }
-    }
-    options {
-        forgeGradleIntegration = false
-    }
-}
-
-if (System.getenv('modrinthapikey') != null && "${modrinth_id}" != '') {
-    modrinth {
-        token = System.getenv('modrinthapikey')
-        projectId = "${rootProject.modrinth_id}"
-        versionName = "${rootProject.mod_display_name}-${rootProject.minecraft_version}-${project.mod_version}-Fabric"
-        versionNumber = "${rootProject.minecraft_version}-${project.mod_version}-Fabric"
-        versionType = "${project.release_type}"
-        uploadFile = file("${project.buildDir}/libs/${rootProject.archives_base_name}-${project.name}-mc${rootProject.minecraft_version}-${project.mod_version}.jar")
-        gameVersions = List.of(project.support_versions.split(","))
-        loaders = ["fabric", "quilt"]
-        dependencies {
-            required.project("P7dR8mSH")//Fabric API
-            required.project("9s6osm5g")//Cloth Config API
-            required.project("lhGA9TYQ")//Architectury API
-            required.project("iu3upNjC")//Otyacraft Engine
-            //  optional.project("nU0bVIaL")//Patchouli
-            embedded.project("ajFw7VkX")//Special Model Loader
-        }
-        changelog = file('../LATEST_CHANGELOG.md').text
-    }
-}
-*/
