@@ -1,0 +1,28 @@
+name: Publish package to GitHub Packages
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: blacksmith-8vcpu-ubuntu-2404
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: useblacksmith/setup-java@v5
+        with:
+          java-version: 21
+          distribution: zulu
+          cache: gradle
+
+      - uses: gradle/actions/wrapper-validation@v4
+
+      - name: Publish package
+        run: ./gradlew publish
+        env:
+          IMPR_TOKEN_SHADOWBEE: ${{ secrets.IMPR_TOKEN_SHADOWBEE }}
