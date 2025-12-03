@@ -25,4 +25,4 @@ jobs:
       - name: Publish package
         run: ./gradlew publish
         env:
-          GITHUB_TOKEN: ${{ secrets.IMPR_TOKEN_SHADOWBEE }}
+          IMPR_TOKEN_SHADOWBEE: ${{ secrets.IMPR_TOKEN_SHADOWBEE }}
