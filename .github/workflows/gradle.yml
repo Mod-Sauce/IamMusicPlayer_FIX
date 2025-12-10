@@ -9,12 +9,12 @@ jobs:
     runs-on: debian
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout
         with:
           fetch-depth: 200
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java
         with:
           java-version: 17
           distribution: zulu
@@ -27,7 +27,7 @@ jobs:
           key: "${{ runner.os }}-gradle-${{ hashFiles('**/libs.versions.*', '**/*.gradle*', '**/gradle-wrapper.properties') }}"
           restore-keys: "${{ runner.os }}-gradle-"
 
-      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/wrapper-validation
 
       - run: chmod +x ./gradlew
 
@@ -37,14 +37,14 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
 
       - name: Upload Build Artifacts forge
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact
         with:
           name: IamMusicPlayerRenewedForge
           path: forge/build/libs
           compression-level: 9
 
       - name: Upload Build Artifacts fabric
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact
         with:
           name: IamMusicPlayerRenewedFabric
           path: fabric/build/libs
