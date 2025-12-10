@@ -50,14 +50,3 @@ jobs:
           path: fabric/build/libs
           compression-level: 9
           
-      - name: Install GitHub CLI
-        if: failure()
-        run: sudo apt update && sudo apt install -y gh
-          output=$(find logs -type f -name '*.txt' -exec tail -n 100 {} \; | sed 's/"/\\"/g' | head -c 1800)
-
-          payload="{\"content\": \"❌ **Build failed!**\n\`\`\`\n$output\n\`\`\`\"}"
-
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "$payload" \
-               "$DISCORD_WEBHOOK_URL"
