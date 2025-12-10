@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, ProfUmbridge, debian]
+    runs-on: debian
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
