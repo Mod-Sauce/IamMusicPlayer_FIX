@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "iammusicplayer",
+  "id": "iammusicplayer_renewed",
   "version": "${version}-fabric",
   "name": "Iam Music Player",
   "description": "Add a music player that you can listen to with multiple players.\nThe ikisugi music player mod...",
@@ -13,7 +13,7 @@
     "issues": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
   },
   "license": "GNU LGPLv3",
-  "icon": "assets/iammusicplayer/icon.png",
+  "icon": "assets/iammusicplayer_renewed/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": ["org.modsauce.impr.fabric.IamMusicPlayerFabric"],

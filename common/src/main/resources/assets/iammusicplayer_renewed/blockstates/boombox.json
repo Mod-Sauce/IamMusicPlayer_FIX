@@ -1,33 +1,63 @@
 {
   "variants": {
-    "facing=east,power=true": {
-      "model": "iammusicplayer:block/boombox/boombox_on",
+    "facing=east,power=true,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on",
       "y": 90
     },
-    "facing=north,power=true": {
-      "model": "iammusicplayer:block/boombox/boombox_on"
+    "facing=north,power=true,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on"
     },
-    "facing=south,power=true": {
-      "model": "iammusicplayer:block/boombox/boombox_on",
+    "facing=south,power=true,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on",
       "y": 180
     },
-    "facing=west,power=true": {
-      "model": "iammusicplayer:block/boombox/boombox_on",
+    "facing=west,power=true,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on",
       "y": 270
     },
-    "facing=east,power=false": {
-      "model": "iammusicplayer:block/boombox/boombox_off",
+    "facing=east,power=false,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off",
       "y": 90
     },
-    "facing=north,power=false": {
-      "model": "iammusicplayer:block/boombox/boombox_off"
+    "facing=north,power=false,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off"
     },
-    "facing=south,power=false": {
-      "model": "iammusicplayer:block/boombox/boombox_off",
+    "facing=south,power=false,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off",
       "y": 180
     },
-    "facing=west,power=false": {
-      "model": "iammusicplayer:block/boombox/boombox_off",
+    "facing=west,power=false,raise=true": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off",
+      "y": 270
+    },
+    "facing=east,power=true,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on",
+      "y": 90
+    },
+    "facing=north,power=true,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on"
+    },
+    "facing=south,power=true,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on",
+      "y": 180
+    },
+    "facing=west,power=true,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_on",
+      "y": 270
+    },
+    "facing=east,power=false,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off",
+      "y": 90
+    },
+    "facing=north,power=false,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off"
+    },
+    "facing=south,power=false,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off",
+      "y": 180
+    },
+    "facing=west,power=false,raise=false": {
+      "model": "iammusicplayer_renewed:block/boombox/boombox_off",
       "y": 270
     }
   }

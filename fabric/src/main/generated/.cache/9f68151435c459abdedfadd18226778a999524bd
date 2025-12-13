@@ -1,4 +1,4 @@
-// 1.21.1	2025-11-12T17:07:40.091099431	Iam Music Player/Block Loot Tables
+// 1.21.1	2025-12-13T16:06:49.631137481	Iam Music Player/Block Loot Tables
 f97f73a53cba457f04a01370edfd70d1ed20e21f data/iammusicplayer_renewed/loot_table/blocks/music_manager.json
-90f8fed76c3775680a2497c0b50e937f114905bf data/iammusicplayer_renewed/loot_table/blocks/cassette_deck.json
 7386361eb7d01365600c3881e6f82a56516cb304 data/iammusicplayer_renewed/loot_table/blocks/boombox.json
+90f8fed76c3775680a2497c0b50e937f114905bf data/iammusicplayer_renewed/loot_table/blocks/cassette_deck.json

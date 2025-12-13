@@ -1,6 +1,6 @@
 {
-  "parent": "iammusicplayer:block/cassette_deck/cassette_deck_base",
+  "parent": "iammusicplayer_renewed:block/cassette_deck/cassette_deck_base",
   "textures": {
-    "1": "iammusicplayer:block/cassette_deck/cassette_deck_off"
+    "1": "iammusicplayer_renewed:block/cassette_deck/cassette_deck_off"
   }
 }

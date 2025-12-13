@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
   	"textures": {
-    	"0": "iammusicplayer:block/music_manager/music_manager",
-    	"particle": "iammusicplayer:block/music_manager/music_manager"
+    	"0": "iammusicplayer_renewed:block/music_manager/music_manager",
+    	"particle": "iammusicplayer_renewed:block/music_manager/music_manager"
 	},
 	"elements": [
 		{

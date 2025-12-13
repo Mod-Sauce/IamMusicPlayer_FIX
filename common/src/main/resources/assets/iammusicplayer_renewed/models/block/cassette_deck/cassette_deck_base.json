@@ -1,8 +1,8 @@
 {
   "credit": "Made with Blockbench",
   "textures": {
-    "0": "iammusicplayer:block/cassette_deck/cassette_deck",
-    "particle": "iammusicplayer:block/cassette_deck/cassette_deck"
+    "0": "iammusicplayer_renewed:block/cassette_deck/cassette_deck",
+    "particle": "iammusicplayer_renewed:block/cassette_deck/cassette_deck"
   },
   "elements": [
     {

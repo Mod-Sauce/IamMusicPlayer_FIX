@@ -1,6 +1,7 @@
 package org.modsauce.impr.networking;
 
 import dev.architectury.networking.NetworkManager;
+import dev.architectury.platform.Platform;
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.client.handler.ClientMessageHandler;
 import org.modsauce.impr.music.resource.*;
@@ -51,9 +52,11 @@ public class IMPPackets {
     }
 
     public static void clientInit() {
-        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_SYNC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicSyncResponseMessage(new MusicSyncResponseMessage(friendlyByteBuf), packetContext));
-        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_READY, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingReadyResponseMessage(new MusicReadyMessage(friendlyByteBuf), packetContext));
-        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_STATE, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingStateResponseMessage(new MusicRingStateMessage(friendlyByteBuf), packetContext));
+        // S2C Packets - Only register on client side to avoid Fabric networking issues
+        // The server doesn't need to register S2C receivers, only the client does
+        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_SYNC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicSyncResponseMessage(new MusicSyncResponseMessage((RegistryFriendlyByteBuf) friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_READY, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingReadyResponseMessage(new MusicReadyMessage((RegistryFriendlyByteBuf) friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_STATE, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingStateResponseMessage(new MusicRingStateMessage((RegistryFriendlyByteBuf) friendlyByteBuf), packetContext));
     }
 
     public static class LidCycleMessage implements PacketMessage {
