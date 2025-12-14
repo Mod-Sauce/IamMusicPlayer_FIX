@@ -1,0 +1,21 @@
+name: Mod Build
+on:
+  - pull_request
+  - push
+  - workflow_dispatch
+
+jobs:
+  build:
+    runs-on: debian
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 200
+      - name: Setup Java 17 & Java 21
+        run: |
+          sudo apt update
+          sudo apt install openjdk-21-jdk
+          sudo apt install openjdk-17-jdk
+      - name: Build
+        run: ./gradlew clean build

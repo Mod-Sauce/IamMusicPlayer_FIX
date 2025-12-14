@@ -6,62 +6,63 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.clients.Music;
-import dev.lavalink.youtube.clients.skeleton.Client;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.vehicle.Minecart;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import net.minecraft.network.chat.Component;
 
 public class YoutubeMusicMedia extends LavaPlayerBaseMusicMedia {
-    private static final Component YT_ENTER_TEXT = Component.translatable("imp.text.enterText.youtube");
 
-    protected YoutubeMusicMedia(String name) {
-        super(name);
+  private static final Component YT_ENTER_TEXT = Component.translatable(
+    "imp.text.enterText.youtube"
+  );
+
+  protected YoutubeMusicMedia(String name) {
+    super(name);
+  }
+
+  @Override
+  public void registerSourceManager(AudioPlayerManager audioPlayerManager) {
+    // FIXME 開発環境でForgeが起動できない
+    audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+  }
+
+  @Override
+  public boolean match(AudioTrack track) {
+    return track.getSourceManager() instanceof YoutubeAudioSourceManager;
+  }
+
+  @Override
+  public boolean isSearchable() {
+    return true;
+  }
+
+  @Override
+  protected ImageInfo createThumbnail(AudioTrack track) {
+    return new ImageInfo(
+      ImageInfo.ImageType.YOUTUBE_THUMBNAIL,
+      track.getIdentifier()
+    );
+  }
+
+  @Override
+  public List<MusicMediaResult> search(String searchText) {
+    if (searchText.isEmpty()) return new ArrayList<>();
+
+    var lm = LavaPlayerManager.getInstance();
+    List<AudioTrack> tracks;
+
+    try {
+      tracks = lm.searchYoutube(searchText);
+    } catch (ExecutionException | InterruptedException e) {
+      return ImmutableList.of();
     }
 
-    @Override
-    public void registerSourceManager(AudioPlayerManager audioPlayerManager) {
-        // FIXME 開発環境でForgeが起動できない
-        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
-    }
+    return tracks.stream().map(this::createResult).toList();
+  }
 
-    @Override
-    public boolean match(AudioTrack track) {
-        return track.getSourceManager() instanceof YoutubeAudioSourceManager;
-    }
-
-    @Override
-    public boolean isSearchable() {
-        return true;
-    }
-
-    @Override
-    protected ImageInfo createThumbnail(AudioTrack track) {
-        return new ImageInfo(ImageInfo.ImageType.YOUTUBE_THUMBNAIL, track.getIdentifier());
-    }
-
-    @Override
-    public List<MusicMediaResult> search(String searchText) {
-        if (searchText.isEmpty())
-            return new ArrayList<>();
-
-        var lm = LavaPlayerManager.getInstance();
-        List<AudioTrack> tracks;
-
-        try {
-            tracks = lm.searchYoutube(searchText);
-        } catch (ExecutionException | InterruptedException e) {
-            return ImmutableList.of();
-        }
-
-        return tracks.stream().map(this::createResult).toList();
-    }
-
-    @Override
-    public Component getEnterText() {
-        return YT_ENTER_TEXT;
-    }
+  @Override
+  public Component getEnterText() {
+    return YT_ENTER_TEXT;
+  }
 }

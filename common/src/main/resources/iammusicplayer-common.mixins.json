@@ -3,13 +3,13 @@
   "package": "dev.felnull.imp.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
-  "client": [
+"client": [
     "client.DebugScreenOverlayMixin",
-    "client.LevelRendererMixin",
+    "client.LevelRendererMixin", 
     "client.SoundEngineMixin",
     "client.SoundOptionsScreenMixin"
   ],
-  "mixins": ["ItemEntityMixin", "ParrotMixin"],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   }
