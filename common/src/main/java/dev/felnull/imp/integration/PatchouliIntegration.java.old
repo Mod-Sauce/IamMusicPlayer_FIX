@@ -1,4 +1,4 @@
-package dev.felnull.imp.integration;
+/*package dev.felnull.imp.integration;
 
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.explatform.IMPPatchouliExpectPlatform;
@@ -27,3 +27,4 @@ public class PatchouliIntegration extends BaseIntegration {
         return IMPPatchouliExpectPlatform.getOpenBookGui();
     }
 }
+*/

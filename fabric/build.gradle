@@ -49,9 +49,8 @@ configurations {
 }
 
 repositories {
-    maven { url "https://maven.terraformersmc.com/releases/" }//modmenu
+    maven { url = "https://maven.terraformersmc.com/releases/" }//modmenu
       mavenCentral()
-  maven { url "https://jitpack.io" } // For com.github.walkyst.JAADec-fork:jaadec-ext-aac & ibxm-fork:com.github.walkyst:ibxm-fork
 }
 
 dependencies {
@@ -60,8 +59,8 @@ dependencies {
 
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive = false }
 
     modApi "dev.felnull:otyacraftengine-fabric:${rootProject.oe_version}"
 
@@ -71,12 +70,12 @@ dependencies {
 
     modApi "dev.felnull:special-model-loader:1.2.0"
     include "dev.felnull:special-model-loader:1.2.0"
-    modApi "curse.maven:sound-physics-remastered-535489:${rootProject.sound_physics_remastered_fabric}"
+    modApi "maven.modrinth:sound-physics-remastered:${rootProject.sound_physics_remastered_fabric}"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
-    shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
+    shadowIn("dev.lavalink.youtube:v2:${rootProject.yt_src}")
 
     shadowIn "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"

@@ -22,7 +22,7 @@ dependencies {
     implementation("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
-    implementation("dev.lavalink.youtube:v2:${rootProject.lavalink}")
+    implementation("dev.lavalink.youtube:v2:${rootProject.yt_src}")
 
     implementation "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
     implementation 'com.mpatric:mp3agic:0.9.1'

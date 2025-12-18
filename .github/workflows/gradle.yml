@@ -16,7 +16,7 @@ jobs:
       - name: Set up JDK 17
         uses: useblacksmith/setup-java@v5
         with:
-          java-version: 17
+          java-version: 21
           distribution: zulu
           cache: gradle
 
@@ -49,26 +49,3 @@ jobs:
           name: IamMusicPlayerRenewedFabric
           path: fabric/build/libs
           compression-level: 9
-          
-      - name: Install GitHub CLI
-        if: failure()
-        run: sudo apt update && sudo apt install -y gh
-
-      - name: Dump logs and notify Discord
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.IAMLOGGER }}
-        run: |
-          mkdir logs
-          gh run download $GITHUB_RUN_ID -D logs
-
-          # Extract the last 100 lines from all logs (or change as needed)
-          output=$(find logs -type f -name '*.txt' -exec tail -n 100 {} \; | sed 's/"/\\"/g' | head -c 1800)
-
-          payload="{\"content\": \"❌ **Build failed!**\n\`\`\`\n$output\n\`\`\`\"}"
-
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "$payload" \
-               "$DISCORD_WEBHOOK_URL"

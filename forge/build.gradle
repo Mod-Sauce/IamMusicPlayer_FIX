@@ -45,7 +45,7 @@ dependencies {
 
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
     modApi "dev.felnull:otyacraftengine-forge:${rootProject.oe_version}"
@@ -53,7 +53,7 @@ dependencies {
     modApi "me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-forge:${rootProject.rei_version}"
 
-    modApi "curse.maven:ctm-535489:${rootProject.sound_physics_remastered_forge}"
+    modApi "maven.modrinth:sound-physics-remastered:${rootProject.sound_physics_remastered_forge}"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
@@ -63,7 +63,7 @@ dependencies {
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
     shadowIn 'com.mpatric:mp3agic:0.9.1'
 
-    shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
+    shadowIn("dev.lavalink.youtube:v2:${rootProject.yt_src}")
 }
 
 processResources {
