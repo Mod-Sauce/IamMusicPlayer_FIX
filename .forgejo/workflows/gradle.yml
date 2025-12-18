@@ -11,7 +11,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@main
         with:
+<<<<<<< HEAD
           fetch-depth: 200
+=======
+          fetch-depth: 20
+>>>>>>> 3.23.1-1.20.1-mixinfix
       - name: Setup Java 17 & Java 21
         run: |
           sudo apt update

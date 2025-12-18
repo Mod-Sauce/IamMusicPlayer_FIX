@@ -1,7 +1,7 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
-    id 'org.jetbrains.changelog' version "2.0.0"
+    id "dev.architectury.loom" version "1.11-SNAPSHOT" apply false
+    id "org.jetbrains.changelog" version "2.0.0"
 }
 
 architectury {
@@ -34,6 +34,7 @@ subprojects {
         }
 }
 
+
 allprojects {
     apply plugin: "java"
     apply plugin: "architectury-plugin"
@@ -50,6 +51,9 @@ allprojects {
                 username = repsyUsername
                 password = repsyPassword
             }
+        }
+        maven {
+          url =  "https://maven.parchmentmc.org"
         }
         maven {
             url = "https://maven.felnull.dev"
