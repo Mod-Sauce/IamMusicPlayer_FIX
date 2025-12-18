@@ -12,8 +12,8 @@ body:
       label: Already reported ? *
       description: Before opening a new bug report, please take a moment to search through the current open and closed issues to check if it already exists.
       options:
-      - label: I have searched the existing open and closed issues.
-        required: true
+        - label: I have searched the existing open and closed issues.
+          required: true
 
   - type: dropdown
     id: type
@@ -36,6 +36,7 @@ body:
         - "3.22.0-alpha.7"
         - "3.22.0-alpha.6"
         - "3.22.0-alpha.5"
+        - "3.23"
         - "Other"
     validations:
       required: true
