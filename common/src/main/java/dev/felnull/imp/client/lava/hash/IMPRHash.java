@@ -2,18 +2,24 @@ package dev.felnull.imp.client.lava.hash;
 
 import dev.felnull.fnjl.os.OSs;
 import dev.felnull.fnjl.os.OSs.Type;
+import dev.felnull.imp.IMPConfig;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.LavaNativeManager;
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.json.*;
 
 public class IMPRHash {
-
-  private static final int READ_TIMEOUT = 30000; // 30 seconds
-  private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
 
   private static final Logger LOGGER = LogManager.getLogger(IMPRHash.class);
 
@@ -29,19 +35,21 @@ public class IMPRHash {
     if (os == Type.MAC) {
       return Mac(os, arch);
     } else {
-      LOGGER.error("Your os is {}, with is unsuported", os);
+      LOGGER.error("Your os is {}, with is unsupported", os);
       return false;
     }
   }
 
-  private boolean Linux(Type os, String arch) {
+  private boolean Linux(@NotNull Type os, String arch) {
     String hash = HashUnix(os.toString(), Optional.of(arch));
+    Path file_path = Paths.get(
+      IamMusicPlayer.getConfig().IMPRFolder,
+      IamMusicPlayer.getConfig().lavaNativesFolder,
+      os.toString(),
+      arch
+    );
     String file_hash = ""; // TODO!
-    if (hash == file_hash) {
-      return true;
-    } else {
-      return false;
-    }
+    return Objects.equals(hash, file_hash);
   }
 
   private boolean Mac(Type os, String arch) {
@@ -85,26 +93,20 @@ public class IMPRHash {
   }
 
   private String GetHash(String url) throws Exception {
-    HttpURLConnection connection = (HttpURLConnection) new URI(url)
-      .toURL()
-      .openConnection();
-    connection.setConnectTimeout(CONNECTION_TIMEOUT);
-    connection.setReadTimeout(READ_TIMEOUT);
-    connection.setRequestProperty("User-Agent", "IamMusicPlayer");
-
-    int responseCode = connection.getResponseCode();
-    if (responseCode != 200) {
-      throw new IOException(
-        "Failed to download manifest. HTTP response code: " + responseCode
+    try {
+      HttpClient client = HttpClient.newHttpClient();
+      HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .GET()
+        .build();
+      HttpResponse<String> response = client.send(
+        request,
+        HttpResponse.BodyHandlers.ofString()
       );
-    }
-
-    try (
-      BufferedReader reader = new BufferedReader(
-        new InputStreamReader(connection.getInputStream())
-      )
-    ) {
-      return String.valueOf(reader);
+      return response.body();
+    } catch (Exception e) {
+      LOGGER.fatal("Something Failed during hash download: " + e);
+      return null;
     }
   }
 }

@@ -1,5 +1,7 @@
 package dev.felnull.imp;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
@@ -30,6 +32,12 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("client")
   public String lavaPlayerNativesURL =
     "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
+
+  @ConfigEntry.Category("client")
+  public String IMPRFolder = "iammusicplayerrenewed";
+
+  @ConfigEntry.Category("client")
+  public String lavaNativesFolder = "lavaplayer_natives";
 
   @ConfigEntry.Category("client")
   public boolean hideDisplaySprite = false;
