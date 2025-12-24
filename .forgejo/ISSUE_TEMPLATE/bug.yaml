@@ -3,7 +3,6 @@ description: Something is not working right
 title: "[Bug]: "
 labels: ["bug"]
 assignees:
-  - Fr4gm3nt3d_sh
   - shadowbee
 
 body:
