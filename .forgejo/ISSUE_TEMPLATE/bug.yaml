@@ -3,8 +3,8 @@ description: Something is not working right
 title: "[Bug]: "
 labels: ["bug"]
 assignees:
-  - Mooo0042
-  - Shadowbee27
+  - Fr4gm3nt3d_sh
+  - Shadowbee
 
 body:
   - type: checkboxes
