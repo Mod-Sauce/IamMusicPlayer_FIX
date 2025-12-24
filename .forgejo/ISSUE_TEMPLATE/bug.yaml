@@ -2,8 +2,7 @@ name: Bug Report (Codeberg)
 description: Something is not working right
 title: "[Bug]: "
 labels: ["bug"]
-assignees:
-  - shadowbee
+assignees: [Fr4gm3nt3d_sh, shadowbee]
 
 body:
   - type: checkboxes
