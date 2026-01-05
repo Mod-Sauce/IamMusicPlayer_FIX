@@ -33,6 +33,10 @@ public class IMPConfig implements ConfigData {
   public String lavaPlayerNativesURL =
     "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
 
+  @ConfigEntry.Category("cleint")
+  public String hashBaseUrl =
+    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/";
+
   @ConfigEntry.Category("client")
   public String IMPRFolder = "iammusicplayerrenewed";
 

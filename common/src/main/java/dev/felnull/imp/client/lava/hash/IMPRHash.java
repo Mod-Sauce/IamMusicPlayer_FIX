@@ -2,10 +2,8 @@ package dev.felnull.imp.client.lava.hash;
 
 import dev.felnull.fnjl.os.OSs;
 import dev.felnull.fnjl.os.OSs.Type;
-import dev.felnull.imp.IMPConfig;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.LavaNativeManager;
-import java.io.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,7 +15,6 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.json.*;
 
 public class IMPRHash {
 
@@ -63,10 +60,9 @@ public class IMPRHash {
   private String HashUnix(String os, Optional<String> arch) {
     String natives_version = LavaNativeManager.NATIVES_VERSION;
     String hash_folder = "/hash-" + natives_version;
-    String hash_url = ""; // TODO!
     if (arch.isPresent()) {
       String full_url =
-        hash_url +
+        IamMusicPlayer.getConfig().hashBaseUrl +
         hash_folder +
         natives_version +
         "/" +
@@ -82,7 +78,12 @@ public class IMPRHash {
       }
     } else {
       String full_url =
-        hash_url + hash_folder + natives_version + "/" + os + ".hash";
+        IamMusicPlayer.getConfig().hashBaseUrl +
+        hash_folder +
+        natives_version +
+        "/" +
+        os +
+        ".hash";
       try {
         return GetHash(full_url);
       } catch (Exception e) {
