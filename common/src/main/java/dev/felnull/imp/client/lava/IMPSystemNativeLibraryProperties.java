@@ -43,8 +43,7 @@ public class IMPSystemNativeLibraryProperties
       natName,
       sys.formatLibraryName(libraryName)
     );
-    // if (!ret)
-    //     throw new UnsatisfiedLinkError("Failed to load the library");
+    if (!ret) throw new UnsatisfiedLinkError("Failed to load the library");
     var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);
     LOGGER.info(
       "The path for lava loader is: " + p.toAbsolutePath().toString()

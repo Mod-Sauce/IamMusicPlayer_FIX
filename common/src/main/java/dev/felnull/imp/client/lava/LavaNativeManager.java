@@ -2,9 +2,7 @@ package dev.felnull.imp.client.lava;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.felnull.fnjl.util.FNDataUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.hash.IMPRHash;
 import java.io.*;
@@ -18,13 +16,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,7 +34,7 @@ public class LavaNativeManager {
   );
   private static final Gson GSON = new Gson();
   private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-  public static final String NATIVES_VERSION = "2.2.4";
+  public static final String NATIVES_VERSION = "2.2.6";
   private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
   private static final int READ_TIMEOUT = 30000; // 30 seconds
   private static final int DOWNLOAD_RETRY_COUNT = 3;
