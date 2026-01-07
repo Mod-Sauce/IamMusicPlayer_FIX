@@ -66,4 +66,8 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("debug")
   public boolean showSpeakerRange = false;
+
+  @ConfigEntry.Category("internal")
+  @ConfigEntry.Gui.Excluded
+  public String configVersion = "";
 }

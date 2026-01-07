@@ -1,6 +1,7 @@
 package dev.felnull.imp.explatform.client;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 
 public class IMPSoundPhysicsRemasteredExpectPlatform {
@@ -10,7 +11,7 @@ public class IMPSoundPhysicsRemasteredExpectPlatform {
     }
 
     @ExpectPlatform
-    public static void setLastSoundCategoryAndName(SoundSource sc, String name) {
+    public static void setLastSoundCategoryAndName(SoundSource sc, ResourceLocation name) {
         throw new AssertionError();
     }
 
