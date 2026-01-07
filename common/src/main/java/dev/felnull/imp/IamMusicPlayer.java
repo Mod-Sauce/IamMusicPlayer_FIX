@@ -23,7 +23,6 @@ import org.apache.logging.log4j.Logger;
 public class IamMusicPlayer {
 
     public static final String MODID = "iammusicplayer";
-    public static final String FORK_VERSION = "3.23.1-1.20.1-renewed";
     public static final String CONFIG_VERSION = "1";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Supplier<String> MODNAME = Suppliers.memoize(() ->
@@ -54,7 +53,7 @@ public class IamMusicPlayer {
         if (
             CONFIG.configVersion == null ||
             CONFIG.configVersion.isEmpty() ||
-            !CONFIG.configVersion.equals(FORK_VERSION)
+            !CONFIG.configVersion.equals(CONFIG_VERSION)
         ) {
             LOGGER.info(
                 "First launch of IamMusicPlayer Renewed fork detected or config version mismatch. Resetting config to defaults..."
