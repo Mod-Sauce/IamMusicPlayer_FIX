@@ -8,6 +8,7 @@ import net.fabricmc.api.ClientModInitializer;
 public class IamMusicPlayerClientFabric implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        ResourcePackHandler.init();
         IamMusicPlayerClient.init();
         SpecialModelLoaderEvents.LOAD_SCOPE.register(loc -> IamMusicPlayer.MODID.equals(loc.getNamespace()));
     }
