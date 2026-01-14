@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Mod-Sauce
+    url: https://mod-sauce.codeberg.page/
+    about: Visit the Mod-Sauce Website
+  - name: Discord
+    url: https://discord.gg/VNrzdd5ErJ
+    about: Visit the Mod-Sauce Discord
+  - name: Telegram
+    url: https://t.me/modsauceofficial
+    about: Message us over Telegram
