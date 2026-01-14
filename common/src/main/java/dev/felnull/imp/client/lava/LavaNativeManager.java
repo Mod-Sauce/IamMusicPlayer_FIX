@@ -2,10 +2,9 @@ package dev.felnull.imp.client.lava;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.felnull.fnjl.util.FNDataUtil;
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.lava.hash.IMPRHash;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -15,14 +14,13 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,8 +34,7 @@ public class LavaNativeManager {
   );
   private static final Gson GSON = new Gson();
   private static final LavaNativeManager INSTANCE = new LavaNativeManager();
-  public static final String NATIVES_VERSION = "2.2.3";
-  private static final String HASH_FILE_NAME = "hash.json";
+  public static final String NATIVES_VERSION = "2.2.6";
   private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
   private static final int READ_TIMEOUT = 30000; // 30 seconds
   private static final int DOWNLOAD_RETRY_COUNT = 3;
@@ -133,7 +130,9 @@ public class LavaNativeManager {
    * @return true if download and extraction succeeded
    */
   private boolean downloadAndExtractNatives(String osAndArch) throws Exception {
-    Path nativesDir = LavaPlayerLoader.getNaiveLibraryFolder().resolve(
+    Path nativesDir = Paths.get(
+      IamMusicPlayer.getConfig().IMPRFolder,
+      IamMusicPlayer.getConfig().lavaNativesFolder,
       osAndArch
     );
     File nativesDirFile = nativesDir.toFile();
@@ -187,14 +186,6 @@ public class LavaNativeManager {
         "Download URL not found for " + osAndArch
       );
     }
-
-    // Create hash.json file
-    JsonObject hashJson = new JsonObject();
-    hashJson.add("hash", platformJson.get("hash"));
-    Files.writeString(
-      nativesDir.resolve(HASH_FILE_NAME),
-      GSON.toJson(hashJson)
-    );
 
     // Download and extract natives archive
     String downloadUrl = platformJson.get("url").getAsString();
@@ -494,37 +485,6 @@ public class LavaNativeManager {
         .filter(f -> !f.getName().startsWith("."))
         .collect(Collectors.toList());
 
-      // 3. Find hash.json
-      Optional<File> hashFile = relevantFiles
-        .stream()
-        .filter(f -> f.getName().equals(HASH_FILE_NAME))
-        .findAny();
-
-      if (hashFile.isEmpty()) {
-        LOGGER.error("Missing {} in directory: {}", HASH_FILE_NAME, directory);
-        return false;
-      }
-
-      // 4. Parse hash.json
-      JsonObject hashJson;
-      try (
-        BufferedReader reader = new BufferedReader(
-          new InputStreamReader(new FileInputStream(hashFile.get()))
-        )
-      ) {
-        hashJson = GSON.fromJson(reader, JsonObject.class);
-      }
-
-      // 5. Verify hash.json format
-      if (!hashJson.has("hash")) {
-        LOGGER.error("{} missing required field 'hash'", HASH_FILE_NAME);
-        return false;
-      }
-
-      // 6. Remove hash.json from the list for validation
-      relevantFiles.remove(hashFile.get());
-
-      // 7. Filter native libraries based on current OS
       List<File> nativeLibs = filterNativeLibrariesForCurrentOS(relevantFiles);
 
       if (nativeLibs.isEmpty()) {
@@ -538,8 +498,8 @@ public class LavaNativeManager {
       );
 
       // 8. Validate hashes
-      JsonElement hashElement = hashJson.get("hash");
-      return validateHashes(hashElement, nativeLibs);
+      IMPRHash imprhash = new IMPRHash();
+      return imprhash.FileIsValid();
     } catch (Exception e) {
       LOGGER.error(
         "Unexpected error during native libraries integrity check: {}",
@@ -548,120 +508,6 @@ public class LavaNativeManager {
       );
       return false;
     }
-  }
-
-  /**
-   * Validates native libraries against provided hash
-   *
-   * @param hashElement JsonElement containing hash information
-   * @param nativeLibs List of native library files
-   * @return true if all hashes match
-   */
-  private boolean validateHashes(
-    JsonElement hashElement,
-    List<File> nativeLibs
-  ) {
-    // Case 1: Single hash string for a single file
-    if (hashElement.isJsonPrimitive()) {
-      if (nativeLibs.isEmpty()) {
-        LOGGER.error("No native library files found to validate against hash");
-        return false;
-      }
-
-      if (nativeLibs.size() > 1) {
-        LOGGER.warn(
-          "Primitive hash provided but {} files found (expected 1). Validating first file only.",
-          nativeLibs.size()
-        );
-      }
-
-      File targetFile = nativeLibs.get(0);
-      String expectedHash = hashElement.getAsString();
-      String actualHash = calculateMD5Hash(targetFile.toPath());
-
-      if (!expectedHash.equals(actualHash)) {
-        LOGGER.error(
-          "Hash mismatch for {}: expected {}, got {}",
-          targetFile.getName(),
-          expectedHash,
-          actualHash
-        );
-        return false;
-      }
-
-      LOGGER.debug("Hash validated successfully for {}", targetFile.getName());
-      return true;
-    }
-
-    // Case 2: Object with hashes for multiple files
-    if (hashElement.isJsonObject()) {
-      JsonObject hashesObject = hashElement.getAsJsonObject();
-
-      // Create a map of filenames to files
-      Map<String, File> filesByName = nativeLibs
-        .stream()
-        .collect(Collectors.toMap(File::getName, f -> f));
-
-      // Validate each hash entry
-      for (Map.Entry<String, JsonElement> entry : hashesObject.entrySet()) {
-        String filename = entry.getKey();
-        String expectedHash = entry.getValue().getAsString();
-
-        File file = filesByName.get(filename);
-        if (file == null) {
-          LOGGER.error("Expected file {} not found", filename);
-          return false;
-        }
-
-        String actualHash = calculateMD5Hash(file.toPath());
-        if (!expectedHash.equals(actualHash)) {
-          LOGGER.error(
-            "Hash mismatch for {}: expected {}, got {}",
-            filename,
-            expectedHash,
-            actualHash
-          );
-          return false;
-        }
-
-        LOGGER.debug("Hash validated successfully for {}", filename);
-      }
-
-      // Check for extra files not in hash object
-      Set<String> expectedFiles = new HashSet<>(hashesObject.keySet());
-      Set<String> actualFiles = new HashSet<>(filesByName.keySet());
-
-      if (!expectedFiles.equals(actualFiles)) {
-        Set<String> extraFiles = new HashSet<>(actualFiles);
-        extraFiles.removeAll(expectedFiles);
-
-        if (!extraFiles.isEmpty()) {
-          LOGGER.warn("Found extra files not in hash.json: {}", extraFiles);
-        }
-
-        Set<String> missingFiles = new HashSet<>(expectedFiles);
-        missingFiles.removeAll(actualFiles);
-
-        if (!missingFiles.isEmpty()) {
-          LOGGER.error(
-            "Missing files that should be present according to hash.json: {}",
-            missingFiles
-          );
-          return false;
-        }
-      }
-
-      LOGGER.debug("All hashes validated successfully");
-      return true;
-    }
-
-    // Invalid hash format
-    LOGGER.error(
-      "Invalid 'hash' format in {} (expected string or object). Found: {}",
-      HASH_FILE_NAME,
-      hashElement
-    );
-    return false;
   }
 
   /**
@@ -683,24 +529,6 @@ public class LavaNativeManager {
         return false;
       })
       .collect(Collectors.toList());
-  }
-
-  /**
-   * Calculates MD5 hash of a file
-   *
-   * @param path Path to the file
-   * @return MD5 hash as a hex string
-   */
-  private String calculateMD5Hash(Path path) {
-    try {
-      byte[] hash = FNDataUtil.createMD5Hash(Files.readAllBytes(path));
-      return new String(Hex.encodeHex(hash));
-    } catch (IOException | NoSuchAlgorithmException e) {
-      throw new UncheckedIOException(
-        "Failed to calculate MD5 hash for " + path,
-        new IOException(e)
-      );
-    }
   }
 
   /**
@@ -740,7 +568,38 @@ public class LavaNativeManager {
   private boolean isUnixSystem() {
     String os = System.getProperty("os.name").toLowerCase();
     return os.contains("nix") || os.contains("nux") || os.contains("mac");
-  }
+  } // 3. Find hash.json
+
+  // Optional<File> hashFile = relevantFiles
+  //   .stream()
+  //   .filter(f -> f.getName().equals(HASH_FILE_NAME))
+  //   .findAny();
+
+  // if (hashFile.isEmpty()) {
+  //   LOGGER.error("Missing {} in directory: {}", HASH_FILE_NAME, directory);
+  //   return false;
+  // }
+
+  // // 4. Parse hash.json
+  // JsonObject hashJson;
+  // try (
+  //   BufferedReader reader = new BufferedReader(
+  //     new InputStreamReader(new FileInputStream(hashFile.get()))
+  //   )
+  // ) {
+  //   hashJson = GSON.fromJson(reader, JsonObject.class);
+  // }
+
+  // // 5. Verify hash.json format
+  // if (!hashJson.has("hash")) {
+  //   LOGGER.error("{} missing required field 'hash'", HASH_FILE_NAME);
+  //   return false;
+  // }
+
+  // // 6. Remove hash.json from the list for validation
+  // relevantFiles.remove(hashFile.get());
+
+  // 7. Filter native libraries based on current OS
 
   /**
    * Shuts down the download executor service

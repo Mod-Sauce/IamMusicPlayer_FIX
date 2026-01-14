@@ -31,6 +31,16 @@ public class IMPConfig implements ConfigData {
   public String lavaPlayerNativesURL =
     "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
 
+  @ConfigEntry.Category("cleint")
+  public String hashBaseUrl =
+    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
+
+  @ConfigEntry.Category("client")
+  public String IMPRFolder = "iammusicplayerrenewed";
+
+  @ConfigEntry.Category("client")
+  public String lavaNativesFolder = "lavaplayer_natives";
+
   @ConfigEntry.Category("client")
   public boolean hideDisplaySprite = false;
 
@@ -54,4 +64,8 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("debug")
   public boolean showSpeakerRange = false;
+
+  @ConfigEntry.Category("internal")
+  @ConfigEntry.Gui.Excluded
+  public String configVersion = "";
 }

@@ -17,13 +17,24 @@ import dev.felnull.imp.server.handler.ServerHandler;
 import dev.felnull.imp.server.handler.ServerMusicHandler;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class IamMusicPlayer {
+
     public static final String MODID = "iammusicplayer";
-    private static final Supplier<String> MODNAME = Suppliers.memoize(() -> Platform.getMod(MODID).getName());
-    private static final IMPConfig CONFIG = AutoConfig.register(IMPConfig.class, Toml4jConfigSerializer::new).getConfig();
+    public static final String CONFIG_VERSION = "1";
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Supplier<String> MODNAME = Suppliers.memoize(() ->
+        Platform.getMod(MODID).getName()
+    );
+    private static final IMPConfig CONFIG = AutoConfig.register(
+        IMPConfig.class,
+        Toml4jConfigSerializer::new
+    ).getConfig();
 
     public static void init() {
+        checkAndResetConfig();
         IMPPackets.init();
         IMPCreativeModeTabs.init();
         IMPItems.init();
@@ -36,6 +47,51 @@ public class IamMusicPlayer {
         ServerMusicHandler.init();
         ServerHandler.init();
         CommonHandler.init();
+    }
+
+    private static void checkAndResetConfig() {
+        if (
+            CONFIG.configVersion == null ||
+            CONFIG.configVersion.isEmpty() ||
+            !CONFIG.configVersion.equals(CONFIG_VERSION)
+        ) {
+            LOGGER.info(
+                "First launch of IamMusicPlayer Renewed fork detected or config version mismatch. Resetting config to defaults..."
+            );
+
+            // Reset all config values to defaults
+            CONFIG.volume = 1f;
+            CONFIG.maxPlayCont = 8;
+            CONFIG.spatial = true;
+            CONFIG.sampleRate = 44100;
+            CONFIG.useYoutubeDownloader = true;
+            CONFIG.relayServerURL =
+                "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
+            CONFIG.lavaPlayerNativesURL =
+                "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
+            CONFIG.hashBaseUrl =
+                "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/";
+            CONFIG.IMPRFolder = "iammusicplayerrenewed";
+            CONFIG.lavaNativesFolder = "lavaplayer_natives";
+            CONFIG.hideDisplaySprite = false;
+            CONFIG.hideDecorativeAntenna = false;
+            CONFIG.maxWaitTime = 1000 * 10;
+            CONFIG.retryTime = 1000 * 3;
+            CONFIG.dropItemRing = true;
+            CONFIG.soundPhysicsRemasteredIntegration = true;
+            CONFIG.showMusicLines = false;
+            CONFIG.showSpeakerRange = false;
+
+            // Update config version
+            CONFIG.configVersion = CONFIG_VERSION;
+
+            // Save the config
+            AutoConfig.getConfigHolder(IMPConfig.class).save();
+
+            LOGGER.info(
+                "Config has been reset to defaults for IamMusicPlayer Renewed."
+            );
+        }
     }
 
     public static void setup() {
