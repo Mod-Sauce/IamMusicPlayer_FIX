@@ -146,13 +146,13 @@ public class IMPRHash {
     Path file_path_lib = Paths.get(
       IamMusicPlayer.getConfig().IMPRFolder,
       IamMusicPlayer.getConfig().lavaNativesFolder,
-      "windows-" + normalizedArch,
+      "win-" + normalizedArch,
       "libmpg123-0.dll"
     );
     Path file_path_connector = Paths.get(
       IamMusicPlayer.getConfig().IMPRFolder,
       IamMusicPlayer.getConfig().lavaNativesFolder,
-      "windows-" + normalizedArch,
+      "win-" + normalizedArch,
       "connector.dll"
     );
     String hash_lib = HashWinLib(os.toString(), arch);
