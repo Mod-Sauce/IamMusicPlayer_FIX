@@ -24,10 +24,12 @@ public class IMPConfig implements ConfigData {
     public boolean useYoutubeDownloader = true;
 
     @ConfigEntry.Category("client")
-    public String relayServerURL = "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
+    public String relayServerURL =
+        "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
 
     @ConfigEntry.Category("client")
-    public String lavaPlayerNativesURL = "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
+    public String lavaPlayerNativesURL =
+        "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
 
     @ConfigEntry.Category("client")
     public boolean hideDisplaySprite = false;
@@ -56,4 +58,8 @@ public class IMPConfig implements ConfigData {
 
     @ConfigEntry.Category("debug")
     public boolean showSpeakerRange = false;
+
+    @ConfigEntry.Category("internal")
+    @ConfigEntry.Gui.Excluded
+    public String configVersion = "1";
 }
