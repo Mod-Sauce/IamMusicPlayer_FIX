@@ -1,5 +1,10 @@
 package org.modsauce.impr.data.advancements;
 
+import java.util.function.Consumer;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.modsauce.impr.IamMusicPlayer;
 import org.modsauce.impr.advancements.AddMusicTrigger;
 import org.modsauce.impr.advancements.ListenToMusicTrigger;
@@ -10,20 +15,16 @@ import org.modsauce.impr.util.IMPItemUtil;
 import org.modsauce.otyacraftenginerenewed.advancement.ModInvolvementTrigger;
 import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
 import org.modsauce.otyacraftenginerenewed.data.provider.AdvancementSubProviderWrapper;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-
-import java.util.function.Consumer;
 
 public class IMPAdvancements extends AdvancementSubProviderWrapper {
-    protected IMPAdvancements(CrossDataGeneratorAccess crossDataGeneratorAccess) {
-        super(crossDataGeneratorAccess);
-    }
 
-    // TODO: Fix for 1.21 - Advancement API changed to use AdvancementHolder
-    /*@Override
+  protected IMPAdvancements(CrossDataGeneratorAccess crossDataGeneratorAccess) {
+    super(crossDataGeneratorAccess);
+  }
+
+  // NOTE: Advancement generation is currently disabled for 1.21 due to changes in the Advancement API (use of AdvancementHolder).
+  // The original implementation is retained below, commented out, for reference and for when a port to the new API is implemented.
+  /*@Override
     public void generate(Consumer<Advancement> advancementConsumer) {
         Advancement root = Advancement.Builder.advancement()
                 .display(IMPBlocks.BOOMBOX.get(), Component.translatable("advancements.iammusicplayer.root.title"), Component.translatable("advancements.iammusicplayer.root.description"), ResourceLocation.fromNamespaceAndPath("iammusicplayer:textures/gui/advancements/backgrounds/imp.png"), AdvancementType.TASK, false, false, false)
@@ -61,8 +62,10 @@ public class IMPAdvancements extends AdvancementSubProviderWrapper {
                 .save(advancementConsumer, ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, IamMusicPlayer.MODID + "/listen_to_kamesuta").toString());
     }*/
 
-    @Override
-    public void generate(Consumer<net.minecraft.advancements.AdvancementHolder> advancementConsumer) {
-        // TODO: Implement advancement generation for 1.21
-    }
+  @Override
+  public void generate(
+    Consumer<net.minecraft.advancements.AdvancementHolder> advancementConsumer
+  ) {
+    // TODO: Implement advancement generation for 1.21
+  }
 }

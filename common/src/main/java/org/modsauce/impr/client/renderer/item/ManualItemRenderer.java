@@ -3,12 +3,6 @@ package org.modsauce.impr.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.architectury.platform.Platform;
-import org.modsauce.impr.IamMusicPlayer;
-import org.modsauce.impr.client.model.IMPModels;
-import org.modsauce.impr.integration.PatchouliIntegration;
-import org.modsauce.impr.item.ManualItem;
-import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
-import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -17,94 +11,221 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.impr.IamMusicPlayer;
+import org.modsauce.impr.client.model.IMPModels;
+import org.modsauce.impr.integration.PatchouliIntegration;
+import org.modsauce.impr.item.ManualItem;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class ManualItemRenderer implements BEWLItemRenderer {
-    private static final Minecraft mc = Minecraft.getInstance();
-    private static final Component FELNULL_DEV_TEXT = Component.literal("FelNull DEV");
-    private static final Component MANUAL_TEXT = Component.translatable("imp.text.manual");
-    private static final Component COVER_INFO_TEXT = Component.translatable("imp.text.manual.coverInfo");
-    private final Component MOD_NAME_TEXT;
-    private final Component MOD_VERSION_TEXT;
-    private int openProgress;
-    private int openProgressO;
 
-    public ManualItemRenderer() {
-        var mod = Platform.getMod(IamMusicPlayer.MODID);
-        this.MOD_NAME_TEXT = Component.literal(mod.getName());
-        this.MOD_VERSION_TEXT = Component.literal("v" + mod.getVersion());
+  private static final Minecraft mc = Minecraft.getInstance();
+  private static final Component FELNULL_DEV_TEXT = Component.literal(
+    "FelNull DEV"
+  );
+  private static final Component MANUAL_TEXT = Component.translatable(
+    "imp.text.manual"
+  );
+  private static final Component COVER_INFO_TEXT = Component.translatable(
+    "imp.text.manual.coverInfo"
+  );
+  private final Component MOD_NAME_TEXT;
+  private final Component MOD_VERSION_TEXT;
+  private int openProgress;
+  private int openProgressO;
+
+  public ManualItemRenderer() {
+    var mod = Platform.getMod(IamMusicPlayer.MODID);
+    this.MOD_NAME_TEXT = Component.literal(mod.getName());
+    this.MOD_VERSION_TEXT = Component.literal("v" + mod.getVersion());
+  }
+
+  @Override
+  public void render(
+    ItemStack stack,
+    ItemDisplayContext displayContext,
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    float f,
+    int light,
+    int overlay
+  ) {
+    var model = IMPModels.MANUAL.get();
+
+    // NOTE: For 1.21 the special-model-loader API changed and model loading scope may not be registered at the same time
+    // these renderers run. We keep the null-check below to safely skip rendering if a model isn't available yet.
+    // Action item: investigate registering an equivalent "load scope" during client initialization (or adapting to
+    // the new special-model-loader API) so models are guaranteed to be present when renderers run.
+    if (model == null) {
+      return; // Skip rendering if model is not loaded
     }
 
-    @Override
-    public void render(ItemStack stack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource multiBufferSource, float f, int light, int overlay) {
-        var model = IMPModels.MANUAL.get();
-
-        // TODO: Fix for 1.21 - Models might not be loaded if special-model-loader LOAD_SCOPE is not registered
-        if (model == null) {
-            return; // Skip rendering if model is not loaded
-        }
-
-        var vc = ItemRenderer.getFoilBufferDirect(multiBufferSource, Sheets.solidBlockSheet(), true, stack.hasFoil()); //multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
-        float par = Mth.lerp(f, openProgressO, openProgress) / 10f;
-        poseStack.pushPose();
-        if (displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
-            OERenderUtils.poseTrans16(poseStack, 11, 0, 0);
-            OERenderUtils.poseRotateZ(poseStack, -25 * par);
-            OERenderUtils.poseTrans16(poseStack, -11, 0, 0);
-        }
-
-        OERenderUtils.renderModel(poseStack, vc, model, light, overlay);
-
-        if (displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
-            OERenderUtils.poseTrans16(poseStack, 0, 0.125 * par, 0);
-            OERenderUtils.poseTrans16(poseStack, 10, 0.125, 0);
-            OERenderUtils.poseRotateZ(poseStack, -135 * par);
-            OERenderUtils.poseTrans16(poseStack, -10, -0.125, 0);
-        }
-
-        OERenderUtils.poseTrans16(poseStack, 0, 0.125, 0);
-        renderTurning(poseStack, multiBufferSource, vc, light, overlay);
-        poseStack.popPose();
+    var vc = ItemRenderer.getFoilBufferDirect(
+      multiBufferSource,
+      Sheets.solidBlockSheet(),
+      true,
+      stack.hasFoil()
+    ); //multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
+    float par = Mth.lerp(f, openProgressO, openProgress) / 10f;
+    poseStack.pushPose();
+    if (displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
+      OERenderUtils.poseTrans16(poseStack, 11, 0, 0);
+      OERenderUtils.poseRotateZ(poseStack, -25 * par);
+      OERenderUtils.poseTrans16(poseStack, -11, 0, 0);
     }
 
-    public void tick() {
-        if (mc.level == null || mc.player == null) {
-            openProgress = 0;
-            openProgressO = 0;
-            return;
-        }
-        if (mc.isPaused()) return;
-        openProgressO = openProgress;
-        if (PatchouliIntegration.INSTANCE.isEnable() && ManualItem.MANUAL_BOOK.equals(PatchouliIntegration.INSTANCE.getOpenBookGui())) {
-            openProgress = Math.min(openProgress + 1, 10);
-        } else {
-            openProgress = Math.max(openProgress - 1, 0);
-        }
+    OERenderUtils.renderModel(poseStack, vc, model, light, overlay);
+
+    if (
+      displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ||
+      displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
+    ) {
+      OERenderUtils.poseTrans16(poseStack, 0, 0.125 * par, 0);
+      OERenderUtils.poseTrans16(poseStack, 10, 0.125, 0);
+      OERenderUtils.poseRotateZ(poseStack, -135 * par);
+      OERenderUtils.poseTrans16(poseStack, -10, -0.125, 0);
     }
 
-    private void renderTurning(PoseStack poseStack, MultiBufferSource multiBufferSource, VertexConsumer vc, int light, int overlay) {
-        var model = IMPModels.MANUAL_TURNING.get();
-        if (model == null) return; // Skip if model not loaded
-        poseStack.pushPose();
-        OERenderUtils.renderModel(poseStack, vc, model, light, overlay);
-        renderText(poseStack, multiBufferSource, FELNULL_DEV_TEXT, light, 9f, 15.75f, 0.4f, false, 0);
-        renderText(poseStack, multiBufferSource, MANUAL_TEXT, light, 4.225f / 2f, 15.75f, 0.54f, true, 0xFFFFFFFF);
-        renderText(poseStack, multiBufferSource, MOD_NAME_TEXT, light, 9.85f, 14.5f, 0.7f, false, 0);
-        renderText(poseStack, multiBufferSource, MOD_VERSION_TEXT, light, 9.85f, 13.5f, 0.4f, false, 0);
-        renderText(poseStack, multiBufferSource, COVER_INFO_TEXT, light, 11f / 2f, 12, 0.4f, true, 0);
-        poseStack.popPose();
-    }
+    OERenderUtils.poseTrans16(poseStack, 0, 0.125, 0);
+    renderTurning(poseStack, multiBufferSource, vc, light, overlay);
+    poseStack.popPose();
+  }
 
-    private void renderText(PoseStack poseStack, MultiBufferSource multiBufferSource, Component text, int light, float x, float y, float scale, boolean center, int color) {
-        poseStack.pushPose();
-        poseStack.translate(0, OERenderUtils.MIN_BREADTH, 0);
-        OERenderUtils.poseTrans16(poseStack, x, 0.125, y);
-        OERenderUtils.poseRotateX(poseStack, -90f);
-        OERenderUtils.poseRotateZ(poseStack, 180f);
-        if (center) {
-            OERenderUtils.renderCenterTextSprite(poseStack, multiBufferSource, text, 0, 0, 0, scale, 0, mc.font.lineHeight, color, light);
-        } else {
-            OERenderUtils.renderTextSprite(poseStack, multiBufferSource, text, 0, 0, 0, scale, 0, mc.font.lineHeight, color, light);
-        }
-        poseStack.popPose();
+  public void tick() {
+    if (mc.level == null || mc.player == null) {
+      openProgress = 0;
+      openProgressO = 0;
+      return;
     }
+    if (mc.isPaused()) return;
+    openProgressO = openProgress;
+    if (
+      PatchouliIntegration.INSTANCE.isEnable() &&
+      ManualItem.MANUAL_BOOK.equals(
+        PatchouliIntegration.INSTANCE.getOpenBookGui()
+      )
+    ) {
+      openProgress = Math.min(openProgress + 1, 10);
+    } else {
+      openProgress = Math.max(openProgress - 1, 0);
+    }
+  }
+
+  private void renderTurning(
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    VertexConsumer vc,
+    int light,
+    int overlay
+  ) {
+    var model = IMPModels.MANUAL_TURNING.get();
+    if (model == null) return; // Skip if model not loaded
+    poseStack.pushPose();
+    OERenderUtils.renderModel(poseStack, vc, model, light, overlay);
+    renderText(
+      poseStack,
+      multiBufferSource,
+      FELNULL_DEV_TEXT,
+      light,
+      9f,
+      15.75f,
+      0.4f,
+      false,
+      0
+    );
+    renderText(
+      poseStack,
+      multiBufferSource,
+      MANUAL_TEXT,
+      light,
+      4.225f / 2f,
+      15.75f,
+      0.54f,
+      true,
+      0xFFFFFFFF
+    );
+    renderText(
+      poseStack,
+      multiBufferSource,
+      MOD_NAME_TEXT,
+      light,
+      9.85f,
+      14.5f,
+      0.7f,
+      false,
+      0
+    );
+    renderText(
+      poseStack,
+      multiBufferSource,
+      MOD_VERSION_TEXT,
+      light,
+      9.85f,
+      13.5f,
+      0.4f,
+      false,
+      0
+    );
+    renderText(
+      poseStack,
+      multiBufferSource,
+      COVER_INFO_TEXT,
+      light,
+      11f / 2f,
+      12,
+      0.4f,
+      true,
+      0
+    );
+    poseStack.popPose();
+  }
+
+  private void renderText(
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    Component text,
+    int light,
+    float x,
+    float y,
+    float scale,
+    boolean center,
+    int color
+  ) {
+    poseStack.pushPose();
+    poseStack.translate(0, OERenderUtils.MIN_BREADTH, 0);
+    OERenderUtils.poseTrans16(poseStack, x, 0.125, y);
+    OERenderUtils.poseRotateX(poseStack, -90f);
+    OERenderUtils.poseRotateZ(poseStack, 180f);
+    if (center) {
+      OERenderUtils.renderCenterTextSprite(
+        poseStack,
+        multiBufferSource,
+        text,
+        0,
+        0,
+        0,
+        scale,
+        0,
+        mc.font.lineHeight,
+        color,
+        light
+      );
+    } else {
+      OERenderUtils.renderTextSprite(
+        poseStack,
+        multiBufferSource,
+        text,
+        0,
+        0,
+        0,
+        scale,
+        0,
+        mc.font.lineHeight,
+        color,
+        light
+      );
+    }
+    poseStack.popPose();
+  }
 }

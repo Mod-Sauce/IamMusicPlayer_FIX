@@ -1,30 +1,34 @@
 package org.modsauce.impr.data;
 
+import java.util.function.Consumer;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import org.modsauce.impr.block.IMPBlocks;
 import org.modsauce.impr.item.IMPItemTags;
 import org.modsauce.impr.item.IMPItems;
 import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
 import org.modsauce.otyacraftenginerenewed.data.provider.RecipeProviderWrapper;
 import org.modsauce.otyacraftenginerenewed.tag.PlatformItemTags;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-
-import java.util.function.Consumer;
 
 public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
 
-    public IMPRecipeProviderWrapper(PackOutput packOutput, CrossDataGeneratorAccess crossDataGeneratorAccess) {
-        super(packOutput, crossDataGeneratorAccess);
-    }
+  public IMPRecipeProviderWrapper(
+    PackOutput packOutput,
+    CrossDataGeneratorAccess crossDataGeneratorAccess
+  ) {
+    super(packOutput, crossDataGeneratorAccess);
+  }
 
-    // TODO: Fix for 1.21 - TriggerInstance to Criterion conversion needed
-    /*@Override
+  // NOTE: Legacy recipe generation retained for reference.
+  // The recipe provider API changed in 1.21; TriggerInstance-based criteria must be migrated to the new Criterion/Advancement API.
+  // Keep the implementation below commented out as a reference for a future migration to the 1.21 recipe/criterion API.
+  /*@Override
     public void generateRecipe(RecipeOutput exporter, RecipeProviderAccess providerAccess) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, IMPItems.MANUAL.get())
                 .requires(Items.BOOK)
@@ -105,8 +109,11 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                 .save(exporter);
     }*/
 
-    @Override
-    public void generateRecipe(Consumer<RecipeOutput> exporter, RecipeProviderAccess providerAccess) {
-        // TODO: Implement recipe generation for 1.21
-    }
+  @Override
+  public void generateRecipe(
+    Consumer<RecipeOutput> exporter,
+    RecipeProviderAccess providerAccess
+  ) {
+    // TODO: Implement recipe generation for 1.21
+  }
 }
