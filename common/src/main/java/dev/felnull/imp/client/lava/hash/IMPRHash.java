@@ -162,8 +162,9 @@ public class IMPRHash {
     String file_hash_lib = "";
     if (Files.exists(file_path_lib) && Files.exists(file_path_connector)) {
       file_hash_lib = calculateMD5Hash(file_path_lib);
+      file_hash_connector = calculateMD5Hash(file_path_connector);
       LOGGER.info("File of hash lib is: " + file_hash_lib);
-      LOGGER.info("File hash of connector is: " + file_hash_lib);
+      LOGGER.info("File hash of connector is: " + file_hash_connector);
     } else {
       LOGGER.fatal("File dosen't exist");
       return false;
