@@ -1,8 +1,8 @@
 package dev.felnull.imp.client.gui.screen;
 
 import dev.felnull.imp.blockentity.IMPBaseEntityBlockEntity;
-import dev.felnull.otyacraftengine.client.gui.screen.OEBEContainerBasedScreen;
-import dev.felnull.otyacraftengine.inventory.OEBEBaseMenu;
+import org.modsauce.otyacraftenginerenewed.client.gui.screen.OEBEContainerBasedScreen;
+import org.modsauce.otyacraftenginerenewed.inventory.OEBEBaseMenu;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;

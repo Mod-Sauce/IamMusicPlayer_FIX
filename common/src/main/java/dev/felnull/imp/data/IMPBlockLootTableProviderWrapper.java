@@ -1,8 +1,8 @@
 package dev.felnull.imp.data;
 
 import dev.felnull.imp.block.IMPBlocks;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.BlockLootTableProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.BlockLootTableProviderWrapper;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.level.block.Block;

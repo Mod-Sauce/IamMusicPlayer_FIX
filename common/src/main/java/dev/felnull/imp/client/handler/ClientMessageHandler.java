@@ -21,7 +21,7 @@ public class ClientMessageHandler {
                 case STOP -> MusicRingerEngineConnector.stop(message.uuid());
                 case UPDATE -> {
                     var ret = MusicRingerEngineConnector.update(message.uuid(), IMPMusicTrackerFactory.loadByTag(message.tracker()));
-                    NetworkManager.sendToServer(IMPPackets.MUSIC_RING_UPDATE_RESULT, new IMPPackets.MusicRingUpdateResultMessage(message.uuid(), message.waitId(), ret).toFBB());
+                    NetworkManager.sendToServer(IMPPackets.MUSIC_RING_UPDATE_RESULT, new IMPPackets.MusicRingUpdateResultMessage(message.uuid(), message.waitId(), ret).toRFBB());
                 }
             }
         });
@@ -30,7 +30,7 @@ public class ClientMessageHandler {
     public static void onMusicRingReadyResponseMessage(IMPPackets.MusicReadyMessage message, NetworkManager.PacketContext packetContext) {
         packetContext.queue(() -> {
             MusicRingerEngineConnector.load(message.uuid(), IMPMusicTrackerFactory.loadByTag(message.tracker()), message.source(), message.position(), (success, time, error, retry) -> {
-                NetworkManager.sendToServer(IMPPackets.MUSIC_RING_READY_RESULT, new IMPPackets.MusicRingReadyResultMessage(message.waitId(), message.uuid(), success, retry, time).toFBB());
+                NetworkManager.sendToServer(IMPPackets.MUSIC_RING_READY_RESULT, new IMPPackets.MusicRingReadyResultMessage(message.waitId(), message.uuid(), success, retry, time).toRFBB());
             });
         });
     }

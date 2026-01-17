@@ -2,12 +2,12 @@ package dev.felnull.imp.inventory;
 
 import dev.felnull.imp.inventory.slot.AntennaSlot;
 import dev.felnull.imp.inventory.slot.CassetteTapeSlot;
-import dev.felnull.otyacraftengine.inventory.OEItemBEBaseMenu;
-import dev.felnull.otyacraftengine.item.location.PlayerItemLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.inventory.OEItemBEBaseMenu;
+import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocation;
 
 public class BoomboxMenu extends OEItemBEBaseMenu {
 

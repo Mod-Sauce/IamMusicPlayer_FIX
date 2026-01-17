@@ -19,16 +19,16 @@ import dev.felnull.imp.entity.IRingerPartyParrot;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
-import dev.felnull.otyacraftengine.client.event.ClientEvent;
-import dev.felnull.otyacraftengine.client.gui.TextureRegion;
-import dev.felnull.otyacraftengine.client.gui.components.IconButton;
-import dev.felnull.otyacraftengine.event.MoreEntityEvent;
-import dev.felnull.otyacraftengine.item.location.HandItemLocation;
+import org.modsauce.otyacraftenginerenewed.client.event.ClientEvent;
+import org.modsauce.otyacraftenginerenewed.client.gui.TextureRegion;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.IconButton;
+import org.modsauce.otyacraftenginerenewed.event.MoreEntityEvent;
+import org.modsauce.otyacraftenginerenewed.item.location.HandItemLocation;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SoundOptionsScreen;
+import net.minecraft.client.gui.screens.options.SoundOptionsScreen;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -109,7 +109,7 @@ public class ClientHandler {
           new IMPPackets.LidCycleMessage(
             bu,
             new HandItemLocation(InteractionHand.MAIN_HAND)
-          ).toFBB()
+          ).toRFBB()
         );
       }
       return EventResult.interruptFalse();

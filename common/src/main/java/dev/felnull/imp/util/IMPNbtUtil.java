@@ -3,8 +3,8 @@ package dev.felnull.imp.util;
 import dev.felnull.imp.music.resource.AuthorityInfo;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicPlayList;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 

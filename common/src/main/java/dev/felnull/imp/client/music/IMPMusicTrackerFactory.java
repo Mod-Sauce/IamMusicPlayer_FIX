@@ -1,8 +1,8 @@
 package dev.felnull.imp.client.music;
 
 import dev.felnull.imp.music.tracker.*;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +34,7 @@ public class IMPMusicTrackerFactory {
     public static MusicTracker loadByTag(CompoundTag tag) {
         if (tag.isEmpty())
             return null;
-        var id = new ResourceLocation(tag.getString("trackerId"));
+        var id = ResourceLocation.withDefaultNamespace(tag.getString("trackerId"));
         return TagSerializable.loadSavedTag(tag.getCompound("tracker"), create(id));
     }
 

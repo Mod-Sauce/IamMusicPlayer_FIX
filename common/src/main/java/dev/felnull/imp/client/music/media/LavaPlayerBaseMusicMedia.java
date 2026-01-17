@@ -18,7 +18,7 @@ public abstract class LavaPlayerBaseMusicMedia implements MusicMedia {
     protected LavaPlayerBaseMusicMedia(String name) {
         this.name = name;
         this.componentName = Component.translatable("imp.loaderType." + name);
-        var il = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/loader_types/" + name + ".png");
+        var il = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/loader_types/" + name + ".png");
         this.icon = il;
     }
 

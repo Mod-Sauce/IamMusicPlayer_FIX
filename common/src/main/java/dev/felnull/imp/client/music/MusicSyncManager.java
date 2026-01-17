@@ -80,7 +80,7 @@ public class MusicSyncManager {
 
     private void sendRequest(IMPPackets.MusicSyncType type, UUID uuid) {
         if (uuid == null) return;
-        NetworkManager.sendToServer(IMPPackets.MUSIC_SYNC, new IMPPackets.MusicSyncRequestMessage(type, uuid).toFBB());
+        NetworkManager.sendToServer(IMPPackets.MUSIC_SYNC, new IMPPackets.MusicSyncRequestMessage(type, uuid).toRFBB());
     }
 
     public static record PlayListInfo(int playerCount, int playListCount, int musicCount) {

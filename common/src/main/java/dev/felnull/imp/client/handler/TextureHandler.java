@@ -2,7 +2,7 @@ package dev.felnull.imp.client.handler;
 
 import dev.architectury.event.EventResult;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
-import dev.felnull.otyacraftengine.client.event.TextureEvent;
+import org.modsauce.otyacraftenginerenewed.client.event.TextureEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class TextureHandler {

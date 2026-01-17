@@ -1,6 +1,6 @@
-// 1.20.1	2026-01-07T18:43:01.063167202	Iam Music Player/Tags for minecraft:item
-d2eb0460d1d9d60aff3395c79a1a358dbc9e6c6c data/c/tags/items/redstone_blocks.json
-5f0f7ba3308b1e0bdf7a4b9f0befc505fcb9e035 data/iammusicplayer/tags/items/cassette_tape.json
-989b799a247e595b14e76a145d6ff3566337b58f data/c/tags/items/iron_nuggets.json
-383b6896255a4c530bfa27e483d4a987fe0dae89 data/c/tags/items/stone.json
-cfa612cb64f7e213d984ca4431202690f594df8a data/c/tags/items/ender_pearls.json
+// 1.21.1	2026-01-17T16:08:42.3299091	Iam Music Player/Tags for minecraft:item
+8c4603792263de771b44aee19f8f9239b6210fdb data\c\tags\item\ender_pearls.json
+82a5ce9d51d09b093be2c4b1934357352e43f3b5 data\c\tags\item\redstone_blocks.json
+a600f08f3b82ea64e2da4220752cea0537967e95 data\c\tags\item\iron_nuggets.json
+2ac3107b22ac83cf5cc32b064704081df9b10858 data\iammusicplayer\tags\item\cassette_tape.json
+aca4342942c8457824c43981822296d4dd9ac448 data\c\tags\item\stone.json

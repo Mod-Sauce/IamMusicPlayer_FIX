@@ -8,7 +8,7 @@ import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.client.gui.components.LoopControlWidget;
 import dev.felnull.imp.client.gui.components.PlayProgressWidget;
 import dev.felnull.imp.client.gui.screen.BoomboxScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;

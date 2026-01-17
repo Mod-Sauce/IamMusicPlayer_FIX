@@ -6,12 +6,13 @@ import dev.felnull.imp.music.resource.AuthorityInfo;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.music.MusicManager;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -21,6 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.util.*;
 
@@ -153,14 +156,14 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         OENbtUtils.readUUIDTagMap(tag, "PlayerData", playerData);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         OENbtUtils.writeUUIDTagMap(tag, "PlayerData", playerData);
     }
 
@@ -174,6 +177,11 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
     public void loadToUpdateTag(CompoundTag tag) {
         super.loadToUpdateTag(tag);
         OENbtUtils.readUUIDTagMap(tag, "SyncPlayerData", playerData);
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) {
+        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag());
     }
 
     @Nullable
@@ -630,6 +638,11 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
     @Override
     public @NotNull NonNullList<ItemStack> getItems() {
         return items;
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> nonNullList) {
+        items = nonNullList;
     }
 
     public static enum MonitorType {

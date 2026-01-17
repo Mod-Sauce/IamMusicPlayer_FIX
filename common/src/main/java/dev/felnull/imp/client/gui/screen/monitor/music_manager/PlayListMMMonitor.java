@@ -13,8 +13,8 @@ import dev.felnull.imp.client.music.MusicSyncManager;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicPlayList;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class PlayListMMMonitor extends MusicManagerMonitor {
-    private static final ResourceLocation PLAY_LIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/play_list.png");
+    private static final ResourceLocation PLAY_LIST_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/play_list.png");
     private static final Component ADD_PLAYLIST_TEXT = Component.translatable("imp.button.addPlaylist");
     private static final Component ADD_MUSIC_TEXT = Component.translatable("imp.button.addMusic");
     private static final Component SORT_TYPE_NAME_TEXT = Component.translatable("imp.sortType." + SortButton.SortType.NAME.getName());

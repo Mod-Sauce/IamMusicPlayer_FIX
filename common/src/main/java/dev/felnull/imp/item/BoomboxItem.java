@@ -7,8 +7,12 @@ import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.handler.CommonHandler;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
-import dev.felnull.otyacraftengine.item.IInstructionItem;
-import dev.felnull.otyacraftengine.item.ItemContainer;
+import dev.felnull.imp.util.IMPNBTItemUtil;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import org.modsauce.otyacraftenginerenewed.item.IInstructionItem;
+import org.modsauce.otyacraftenginerenewed.item.ItemContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -89,7 +93,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     @Override
     public void onDestroyed(@NotNull ItemEntity itemEntity) {
         if (this.getBlock() instanceof BoomboxBlock) {
-            ItemUtils.onContainerDestroyed(itemEntity, getContainItem(itemEntity.getItem()).stream());
+            ItemUtils.onContainerDestroyed(itemEntity, getContainItem(itemEntity.getItem()).stream().toList());
         }
         super.onDestroyed(itemEntity);
     }
@@ -143,11 +147,11 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     }
 
     public static CompoundTag getBoomboxTag(ItemStack stack) {
-        return stack.getTag() != null ? stack.getTag().getCompound("BoomboxTag") : null;
+        return IMPNBTItemUtil.getTag(stack) != null ? IMPNBTItemUtil.getTag(stack).getCompound("BoomboxTag") : null;
     }
 
     public static CompoundTag getOrCreateBoomboxTag(ItemStack stack) {
-        var tag = stack.getOrCreateTag();
+        var tag = IMPNBTItemUtil.getOrCreateTag(stack);
         if (!tag.contains("BoomboxTag"))
             tag.put("BoomboxTag", new CompoundTag());
         return getBoomboxTag(stack);
@@ -286,7 +290,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
             setTransferProgressOld(itemStack, 10);
         }
         if (blockEntity.hasCustomName())
-            itemStack.setHoverName(blockEntity.getCustomName());
+            itemStack.set(DataComponents.ITEM_NAME, blockEntity.getCustomName());
         setRingerUUID(itemStack, UUID.randomUUID());
         return itemStack;
     }

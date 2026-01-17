@@ -3,14 +3,14 @@ package dev.felnull.imp.client.gui.components;
 import dev.architectury.utils.value.IntValue;
 import dev.felnull.imp.client.gui.IIMPSmartRender;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.function.BooleanSupplier;
 
@@ -52,7 +52,7 @@ public class VolumeWidget extends AbstractWidget implements IIMPSmartRender {
     }
 
     @Override
-    public boolean mouseScrolled(double d, double e, double f) {
+    public boolean mouseScrolled(double d, double e, double f, double g) {
         float mv = 1;
         if (OEClientUtils.isKeyInput(mc.options.keyShift))
             mv *= 10;

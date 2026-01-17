@@ -20,7 +20,7 @@ public class SoundPhysicsRemasteredAudio {
         if (time - lastUpdate < 100 && (lastPos != null && lastPos.distanceTo(soundPos) < 1D))
             return;
 
-        IMPSoundPhysicsRemasteredExpectPlatform.setLastSoundCategoryAndName(SoundSource.MASTER, new ResourceLocation("iammusicplayer"));
+        IMPSoundPhysicsRemasteredExpectPlatform.setLastSoundCategoryAndName(SoundSource.MASTER, ResourceLocation.withDefaultNamespace("iammusicplayer"));
         IMPSoundPhysicsRemasteredExpectPlatform.onPlaySound(soundPos.x(), soundPos.y(), soundPos.z(), source);
 
         lastUpdate = time;

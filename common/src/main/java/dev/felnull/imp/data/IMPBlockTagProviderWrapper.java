@@ -1,8 +1,8 @@
 package dev.felnull.imp.data;
 
 import dev.felnull.imp.block.IMPBlocks;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.BlockTagProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.BlockTagProviderWrapper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;

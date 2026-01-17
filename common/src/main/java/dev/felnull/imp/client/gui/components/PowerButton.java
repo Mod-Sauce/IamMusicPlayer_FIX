@@ -3,6 +3,7 @@ package dev.felnull.imp.client.gui.components;
 import dev.felnull.imp.client.gui.screen.IMPBaseContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -15,7 +16,7 @@ public class PowerButton extends ImageButton {
     private final int textureHeight;
 
     public PowerButton(IMPBaseContainerScreen<?> screen, int x, int y, int width, int height, int xTexStart, int yTexStart, ResourceLocation resourceLocation, int textureWidth, int textureHeight) {
-        super(x, y, width, height, xTexStart, yTexStart, height, resourceLocation, textureWidth, textureHeight, button -> onPower(screen), Component.translatable("imp.button.power"));
+        super(x, y, width, height, new WidgetSprites(resourceLocation, resourceLocation), button -> onPower(screen), Component.translatable("imp.button.power"));
         this.screen = screen;
         this.resourceLocation = resourceLocation;
         this.xTexStart = xTexStart;

@@ -10,8 +10,8 @@ import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.media.MusicMedia;
 import dev.felnull.imp.music.resource.MusicSource;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -20,8 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MusicBaseMMMonitor extends ImageNameBaseMMMonitor {
-    private static final ResourceLocation ADD_MUSIC_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/add_music.png");
-    private static final ResourceLocation SHOW_MUSIC_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/show_music.png");
+    private static final ResourceLocation ADD_MUSIC_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/add_music.png");
+    private static final ResourceLocation SHOW_MUSIC_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/show_music.png");
     private static final Component PLAYBACK_CONTROL_TEXT = Component.translatable("imp.button.playbackControl");
     protected static final Component MUSIC_SOURCE_TEXT = Component.translatable("imp.text.musicSource");
     private static final Component PLAYBACK_NON_PROGRESS_TEXT = Component.translatable("--:--/--:--");

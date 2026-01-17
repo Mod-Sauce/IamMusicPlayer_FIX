@@ -6,12 +6,13 @@ import dev.felnull.imp.client.handler.ClientMessageHandler;
 import dev.felnull.imp.music.resource.*;
 import dev.felnull.imp.server.handler.ServerMessageHandler;
 import dev.felnull.imp.util.IMPNbtUtil;
-import dev.felnull.otyacraftengine.item.location.PlayerItemLocation;
-import dev.felnull.otyacraftengine.item.location.PlayerItemLocations;
-import dev.felnull.otyacraftengine.networking.PacketMessage;
-import dev.felnull.otyacraftengine.networking.existence.BlockEntityExistence;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocation;
+import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocations;
+import org.modsauce.otyacraftenginerenewed.networking.PacketMessage;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -21,19 +22,19 @@ import java.util.List;
 import java.util.UUID;
 
 public class IMPPackets {
-    public static final ResourceLocation MUSIC_SYNC = new ResourceLocation(IamMusicPlayer.MODID, "music_sync");
-    public static final ResourceLocation MUSIC_PLAYLIST_ADD = new ResourceLocation(IamMusicPlayer.MODID, "music_playlist_add");
-    public static final ResourceLocation MUSIC_PLAYLIST_EDIT = new ResourceLocation(IamMusicPlayer.MODID, "music_playlist_edit");
-    public static final ResourceLocation MUSIC_PLAYLIST_CHANGE_AUTHORITY = new ResourceLocation(IamMusicPlayer.MODID, "music_playlist_change_authority");
-    public static final ResourceLocation MUSIC_ADD = new ResourceLocation(IamMusicPlayer.MODID, "music_add");
-    public static final ResourceLocation MUSIC_EDIT = new ResourceLocation(IamMusicPlayer.MODID, "music_edit");
-    public static final ResourceLocation MUSIC_OR_PLAYLIST_DELETE = new ResourceLocation(IamMusicPlayer.MODID, "music_or_playlist_delete");
-    public static final ResourceLocation MUSIC_RING_READY = new ResourceLocation(IamMusicPlayer.MODID, "music_ring_ready");
-    public static final ResourceLocation MUSIC_RING_READY_RESULT = new ResourceLocation(IamMusicPlayer.MODID, "music_ring_ready_result");
-    public static final ResourceLocation MUSIC_RING_STATE = new ResourceLocation(IamMusicPlayer.MODID, "music_ring_state");
-    public static final ResourceLocation MUSIC_RING_UPDATE_RESULT = new ResourceLocation(IamMusicPlayer.MODID, "music_ring_update_result");
-    public static final ResourceLocation MULTIPLE_MUSIC_ADD = new ResourceLocation(IamMusicPlayer.MODID, "multiple_music_add");
-    public static final ResourceLocation HAND_LID_CYCLE = new ResourceLocation(IamMusicPlayer.MODID, "hand_lid_cycle");
+    public static final ResourceLocation MUSIC_SYNC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_sync");
+    public static final ResourceLocation MUSIC_PLAYLIST_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_add");
+    public static final ResourceLocation MUSIC_PLAYLIST_EDIT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_edit");
+    public static final ResourceLocation MUSIC_PLAYLIST_CHANGE_AUTHORITY = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_change_authority");
+    public static final ResourceLocation MUSIC_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_add");
+    public static final ResourceLocation MUSIC_EDIT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_edit");
+    public static final ResourceLocation MUSIC_OR_PLAYLIST_DELETE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_or_playlist_delete");
+    public static final ResourceLocation MUSIC_RING_READY = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_ready");
+    public static final ResourceLocation MUSIC_RING_READY_RESULT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_ready_result");
+    public static final ResourceLocation MUSIC_RING_STATE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_state");
+    public static final ResourceLocation MUSIC_RING_UPDATE_RESULT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_update_result");
+    public static final ResourceLocation MULTIPLE_MUSIC_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "multiple_music_add");
+    public static final ResourceLocation HAND_LID_CYCLE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "hand_lid_cycle");
 
     public static void init() {
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_SYNC, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicSyncRequestMessage(new MusicSyncRequestMessage(friendlyByteBuf), packetContext));
@@ -70,7 +71,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.boomboxId);
             buf.writeNbt(PlayerItemLocations.saveToTag(this.itemLocation));
             return buf;
@@ -98,7 +99,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(playlist);
             buf.writeUUID(player);
             buf.writeUtf(authorityType.getName());
@@ -126,7 +127,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.playlist);
             buf.writeNbt(IMPNbtUtil.writeMusics(new CompoundTag(), "Musics", musics));
             this.blockEntityExistence.write(buf);
@@ -155,7 +156,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.playListID);
             buf.writeUUID(this.musicID);
             this.blockEntityExistence.write(buf);
@@ -171,7 +172,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(uuid);
             buf.writeUUID(waitId);
             buf.writeEnum(ringResponseStateType);
@@ -199,7 +200,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.uuid);
             buf.writeUUID(this.waitId);
             buf.writeInt(this.state);
@@ -218,7 +219,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(uuid);
             buf.writeUUID(waitId);
             buf.writeEnum(stateType);
@@ -252,7 +253,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(waitID);
             buf.writeUUID(uuid);
             buf.writeBoolean(result);
@@ -269,7 +270,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.waitId);
             buf.writeUUID(this.uuid);
             buf.writeNbt(this.source.createSavedTag());
@@ -318,7 +319,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             return null;
         }
     }*/
@@ -357,7 +358,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.uuid);
             buf.writeUUID(this.playlist);
             buf.writeUtf(this.name);
@@ -412,7 +413,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.uuid);
             buf.writeUtf(this.name);
             var tag = new CompoundTag();
@@ -450,7 +451,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeInt(syncType.ordinal());
             buf.writeUUID(syncId);
             buf.writeNbt(IMPNbtUtil.writeMusicPlayLists(new CompoundTag(), "PlayLists", playLists));
@@ -473,7 +474,7 @@ public class IMPPackets {
         }
 
         @Override
-        public FriendlyByteBuf toFBB(FriendlyByteBuf buf) {
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeInt(syncType.ordinal());
             buf.writeUUID(syncId);
             return buf;

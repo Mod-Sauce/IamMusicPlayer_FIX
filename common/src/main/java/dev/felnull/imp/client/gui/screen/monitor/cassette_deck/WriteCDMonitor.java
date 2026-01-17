@@ -12,8 +12,8 @@ import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicPlayList;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class WriteCDMonitor extends CassetteDeckMonitor {
-    protected static final ResourceLocation WRITE_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/write.png");
+    protected static final ResourceLocation WRITE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/write.png");
     private SmartButton backButton;
     private SmartButton writeButton;
     private final List<MusicPlayList> musicPlayLists = new ArrayList<>();

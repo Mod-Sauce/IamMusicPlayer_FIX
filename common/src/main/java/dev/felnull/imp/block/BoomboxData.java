@@ -8,9 +8,8 @@ import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,6 +22,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,6 @@ public class BoomboxData {
     private int parabolicAntennaProgress;
     private int antennaProgressOld;
     private int antennaProgress;
-    private ItemStack oldCassetteTape = ItemStack.EMPTY;
     private boolean oldCassetteTapeFlg;
     private boolean changeCassetteTape;
     private boolean playing;
@@ -284,7 +284,6 @@ public class BoomboxData {
     }
 
     public void onCassetteTapeChange(ItemStack newItem, ItemStack oldItem) {
-        if (!oldCassetteTapeFlg) this.oldCassetteTape = oldItem.copy();
         oldCassetteTapeFlg = false;
 
         if (!isRadio()) {
@@ -296,7 +295,6 @@ public class BoomboxData {
     }
 
     public void setOldCassetteTape(ItemStack oldCassetteTape) {
-        this.oldCassetteTape = oldCassetteTape;
         this.oldCassetteTapeFlg = true;
         update();
     }
@@ -335,7 +333,7 @@ public class BoomboxData {
 
         if (absolutely || sync) {
             tag.putBoolean("ChangeCassetteTape", this.changeCassetteTape);
-            tag.put("OldCassetteTape", this.oldCassetteTape.save(new CompoundTag()));
+//            tag.put("OldCassetteTape", this.oldCassetteTape.save(provider));
             tag.putBoolean("OldCassetteTapeFlg", oldCassetteTapeFlg);
             tag.putBoolean("LoadingMusic", this.loadingMusic);
             tag.putBoolean("RadioStartFlg", this.radioStartFlg);
@@ -379,7 +377,7 @@ public class BoomboxData {
 
         if (absolutely || sync) {
             this.changeCassetteTape = tag.getBoolean("ChangeCassetteTape");
-            this.oldCassetteTape = ItemStack.of(tag.getCompound("OldCassetteTape"));
+//            this.oldCassetteTape = ItemStack.parse(provider, tag.getCompound("OldCassetteTape")).orElse(ItemStack.EMPTY);
             this.oldCassetteTapeFlg = tag.getBoolean("OldCassetteTapeFlg");
             this.loadingMusic = tag.getBoolean("LoadingMusic");
             this.radioStartFlg = tag.getBoolean("RadioStartFlg");
@@ -543,9 +541,9 @@ public class BoomboxData {
     }
 
 
-    public ItemStack getOldCassetteTape() {
-        return oldCassetteTape;
-    }
+//    public ItemStack getOldCassetteTape() {
+//        return oldCassetteTape;
+//    }
 
     public void setMonitorType(MonitorType monitorType) {
         this.monitorType = monitorType;

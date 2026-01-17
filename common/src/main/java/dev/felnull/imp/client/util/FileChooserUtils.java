@@ -1,7 +1,7 @@
 package dev.felnull.imp.client.util;
 
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OENativeUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OENativeUtils;
 import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.Nullable;
 

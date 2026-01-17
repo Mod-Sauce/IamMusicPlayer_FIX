@@ -1,59 +1,46 @@
 package dev.felnull.imp.advancements;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.felnull.imp.IamMusicPlayer;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public class WriteCassetteTapeTrigger extends SimpleCriterionTrigger<WriteCassetteTapeTrigger.TriggerInstance> {
-    private static final ResourceLocation ID = new ResourceLocation(IamMusicPlayer.MODID, "write_cassette_tape");
-
-    /*@Override
-    protected TriggerInstance createInstance(JsonObject jsonObject, EntityPredicate.Composite composite, DeserializationContext deserializationContext) {
-        ItemPredicate itemPredicate = ItemPredicate.fromJson(jsonObject.get("item"));
-        return new TriggerInstance(composite, itemPredicate);
-    }*/
-    @Override
-    protected TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate contextAwarePredicate, DeserializationContext deserializationContext) {
-        ItemPredicate itemPredicate = ItemPredicate.fromJson(jsonObject.get("item"));
-        return new TriggerInstance(contextAwarePredicate, itemPredicate);
-    }
 
     public void trigger(ServerPlayer serverPlayer, ItemStack itemStack) {
         this.trigger(serverPlayer, (triggerInstance) -> triggerInstance.matches(itemStack));
     }
 
     @Override
-    public ResourceLocation getId() {
-        return ID;
+    public @NotNull Codec<TriggerInstance> codec() {
+        return TriggerInstance.CODEC;
     }
 
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ItemPredicate item;
-
-        public TriggerInstance(ContextAwarePredicate contextAwarePredicate, ItemPredicate itemPredicat) {
-            super(ID, contextAwarePredicate);
-            this.item = itemPredicat;
-        }
-
-
+    public record TriggerInstance(Optional<ContextAwarePredicate> player, ItemPredicate itemPredicate) implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(triggerInstanceInstance -> triggerInstanceInstance.group(
+                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
+                ItemPredicate.CODEC.fieldOf("item").forGetter(TriggerInstance::itemPredicate))
+                .apply(triggerInstanceInstance, TriggerInstance::new)
+        );
         public boolean matches(ItemStack itemStack) {
-            return item.matches(itemStack);
-        }
-
-        @Override
-        public JsonObject serializeToJson(SerializationContext serializationContext) {
-            JsonObject jsonObject = super.serializeToJson(serializationContext);
-            if (this.item != null)
-                jsonObject.add("item", this.item.serializeToJson());
-            return jsonObject;
+            return itemPredicate.test(itemStack);
         }
 
         public static TriggerInstance writeCassetteTape() {
-            return new TriggerInstance(ContextAwarePredicate.ANY, null);
+            return new TriggerInstance(Optional.empty(), null);
+        }
+
+        @Override
+        public @NotNull Optional<ContextAwarePredicate> player() {
+            return player;
         }
     }
 }

@@ -1,18 +1,18 @@
 package dev.felnull.imp.client.gui.components;
 
-import dev.felnull.otyacraftengine.client.gui.components.FixedListWidget;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.List;
 import java.util.UUID;
 
 public class PlayersFixedListWidget extends IMPBaseFixedListWidget<UUID> {
-    public PlayersFixedListWidget(int x, int y, int width, int height, @NotNull Component message, int entryShowCount, @NotNull List<UUID> entryList, @Nullable PressEntry<UUID> onPressEntry, @Nullable FixedListWidget<UUID> old) {
+    public PlayersFixedListWidget(int x, int y, int width, int height, @NotNull Component message, int entryShowCount, @NotNull List<UUID> entryList, @Nullable FixedListWidget.PressEntry<UUID> onPressEntry, @Nullable FixedListWidget<UUID> old) {
         super(x, y, width, height, message, entryShowCount, entryList, n -> {
             var str = OEClientUtils.getPlayerNameByUUID(n).orElseGet(n::toString);
             return Component.literal(str);

@@ -8,7 +8,8 @@ import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.overlay.MusicLinesOverlay;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.item.BoomboxItem;
-import dev.felnull.otyacraftengine.client.event.MoreRenderEvent;
+import net.minecraft.client.DeltaTracker;
+import org.modsauce.otyacraftenginerenewed.client.event.MoreRenderEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -28,9 +29,9 @@ public class RenderHandler {
         ClientGuiEvent.RENDER_HUD.register(RenderHandler::renderHud);
     }
 
-    private static void renderHud(GuiGraphics guiGraphics, float tickDelta) {
+    private static void renderHud(GuiGraphics guiGraphics, DeltaTracker tickDelta) {
         if (IamMusicPlayer.getConfig().showMusicLines)
-            MUSIC_LINES_OVERLAY.render(guiGraphics, tickDelta);
+            MUSIC_LINES_OVERLAY.render(guiGraphics, tickDelta.getGameTimeDeltaTicks());
     }
 
     private static EventResult onRenderItemInHand(PoseStack poseStack, MultiBufferSource multiBufferSource, InteractionHand hand, int packedLight, float partialTicks, float interpolatedPitch, float swingProgress, float equipProgress, ItemStack stack) {

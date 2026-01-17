@@ -1,45 +1,40 @@
 package dev.felnull.imp.advancements;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.felnull.imp.IamMusicPlayer;
-import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
-public class AddMusicTrigger extends SimpleCriterionTrigger<AddMusicTrigger.TriggerInstance> {
-    private static final ResourceLocation ID = new ResourceLocation(IamMusicPlayer.MODID, "add_music");
+import java.util.Optional;
 
-   /* @Override
-    protected TriggerInstance createInstance(JsonObject jsonObject, EntityPredicate.Composite composite, DeserializationContext deserializationContext) {
-        return new TriggerInstance(composite);
-    }*/
-
-    @Override
-    protected TriggerInstance createInstance(JsonObject jsonObject, ContextAwarePredicate contextAwarePredicate, DeserializationContext deserializationContext) {
-        return new TriggerInstance(contextAwarePredicate);
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
+public class AddMusicTrigger extends SimpleCriterionTrigger<AddMusicTrigger.TriggerInstance>{
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "add_music");
 
     public void trigger(ServerPlayer serverPlayer) {
         this.trigger(serverPlayer, (triggerInstance) -> true);
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
+    @Override
+    public @NotNull Codec<TriggerInstance> codec() {
+        return TriggerInstance.CODEC;
+    }
 
-
-        public TriggerInstance(ContextAwarePredicate contextAwarePredicate) {
-            super(ID, contextAwarePredicate);
+    @SuppressWarnings("all")
+    public static record TriggerInstance(Optional<ContextAwarePredicate> player) implements SimpleInstance {
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player)).apply(instance, TriggerInstance::new));
+        public static TriggerInstance addMusic() {
+            return new TriggerInstance(Optional.empty());
         }
 
-        public static TriggerInstance addMusic() {
-            return new TriggerInstance(ContextAwarePredicate.ANY);
+        @Override
+        public Optional<ContextAwarePredicate> player() {
+            return Optional.empty();
         }
     }
 }

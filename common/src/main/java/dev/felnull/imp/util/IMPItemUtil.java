@@ -4,6 +4,7 @@ import dev.felnull.imp.item.CassetteTapeItem;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.item.RadioAntennaItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +28,7 @@ public class IMPItemUtil {
 
     public static ItemStack createKamesutaAntenna() {
         var st = new ItemStack(IMPItems.PARABOLIC_ANTENNA.get());
-        st.setHoverName(Component.literal("Kamesuta").withStyle(ChatFormatting.GREEN).withStyle(Style.EMPTY.withItalic(false)));
+        st.set(DataComponents.ITEM_NAME, Component.literal("Kamesuta").withStyle(ChatFormatting.GREEN).withStyle(Style.EMPTY.withItalic(false)));
         return st;
     }
 }

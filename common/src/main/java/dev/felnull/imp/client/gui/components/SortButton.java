@@ -3,11 +3,11 @@ package dev.felnull.imp.client.gui.components;
 import dev.felnull.imp.client.gui.IIMPSmartRender;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.music.resource.IIMPComparable;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.Comparator;
 import java.util.List;

@@ -10,8 +10,8 @@ import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.client.gui.screen.OEItemBEContainerBasedScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.gui.screen.OEItemBEContainerBasedScreen;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
-    public static final ResourceLocation BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/boombox/boombox_base.png");
-    public static final ResourceLocation EMPTY_CASSETTE_TAPE_SLOT = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/slot/cassette_tape_slot.png");
-    public static final ResourceLocation EMPTY_ANTENNA_SLOT = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/slot/antenna_slot.png");
+    public static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/boombox_base.png");
+    public static final ResourceLocation EMPTY_CASSETTE_TAPE_SLOT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/slot/cassette_tape_slot.png");
+    public static final ResourceLocation EMPTY_ANTENNA_SLOT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/slot/antenna_slot.png");
     private final Map<BoomboxData.MonitorType, BoomboxMonitor> monitors = new HashMap<>();
     protected BoomboxMonitor monitor;
     public long lastNoAntenna;

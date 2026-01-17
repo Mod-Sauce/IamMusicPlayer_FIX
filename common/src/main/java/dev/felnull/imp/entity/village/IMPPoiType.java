@@ -5,7 +5,7 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import dev.felnull.fnjl.util.FNDataUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
-import dev.felnull.otyacraftengine.util.OERegisterUtils;
+import org.modsauce.otyacraftenginerenewed.util.OERegisterUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;

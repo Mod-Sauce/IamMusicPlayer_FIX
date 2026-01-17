@@ -11,9 +11,12 @@ import dev.felnull.imp.server.music.ringer.IBoomboxRinger;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
 import dev.felnull.imp.util.IMPItemUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +31,7 @@ import java.util.UUID;
 
 public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoomboxRinger {
     private final BoomboxData boomboxData;
-    private final NonNullList<ItemStack> items = NonNullList.withSize(2, ItemStack.EMPTY);
+    private NonNullList<ItemStack> items = NonNullList.withSize(2, ItemStack.EMPTY);
     private final UUID ringerUUID = UUID.randomUUID();
 
     public BoomboxBlockEntity(BlockPos blockPos, BlockState blockState) {
@@ -114,24 +117,24 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     }
 
     @Override
-    protected Component getDefaultName() {
+    protected @NotNull Component getDefaultName() {
         return IMPBlocks.BOOMBOX.get().getName();
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory) {
+    protected @NotNull AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory) {
         return new BoomboxMenu(i, inventory, this, getBlockPos(), ItemStack.EMPTY, null);
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         this.boomboxData.load(tag.getCompound("BoomBoxData"), false, false);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.put("BoomBoxData", this.boomboxData.save(new CompoundTag(), false, false));
     }
 
@@ -161,6 +164,11 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     }
 
     @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) {
+        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag());
+    }
+
+    @Override
     public boolean canPlaceItem(int i, ItemStack itemStack) {
         return (i == 0 && IMPItemUtil.isCassetteTape(itemStack)) || (i == 1 && IMPItemUtil.isAntenna(itemStack));
     }
@@ -168,6 +176,11 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     @Override
     public @NotNull NonNullList<ItemStack> getItems() {
         return items;
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> nonNullList) {
+        items = nonNullList;
     }
 
     public void setRaisedHandleState(boolean raised) {

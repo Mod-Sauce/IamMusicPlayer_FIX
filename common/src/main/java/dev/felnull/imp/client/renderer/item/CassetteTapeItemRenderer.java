@@ -7,9 +7,10 @@ import dev.felnull.imp.client.model.IMPModels;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import dev.felnull.imp.item.CassetteTapeItem;
 import dev.felnull.imp.music.resource.Music;
-import dev.felnull.otyacraftengine.client.model.ModelHolder;
-import dev.felnull.otyacraftengine.client.renderer.item.BEWLItemRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import net.minecraft.core.component.DataComponents;
+import org.modsauce.otyacraftenginerenewed.client.model.ModelHolder;
+import org.modsauce.otyacraftenginerenewed.client.renderer.item.BEWLItemRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class CassetteTapeItemRenderer implements BEWLItemRenderer {
     private static final Minecraft mc = Minecraft.getInstance();
@@ -120,9 +122,9 @@ public class CassetteTapeItemRenderer implements BEWLItemRenderer {
         if (stack.getItem() instanceof CassetteTapeItem) {
             CassetteTapeItem.BaseType type = ((CassetteTapeItem) stack.getItem()).getType();
             ModelHolder holder = IMPModels.CASSETTE_TAPE_BASE_NORMAL_MODEL;
-            int color = ((CassetteTapeItem) stack.getItem()).hasCustomColor(stack) ? ((CassetteTapeItem) stack.getItem()).getColor(stack) : 0x1a1a1a;
+            int color = stack.has(DataComponents.DYED_COLOR) ? Objects.requireNonNull(stack.get(DataComponents.DYED_COLOR)).rgb() : 0x1a1a1a;
             if (type == CassetteTapeItem.BaseType.GLASS) {
-                holder = ((CassetteTapeItem) stack.getItem()).hasCustomColor(stack) ? IMPModels.CASSETTE_TAPE_BASE_GLASS_COLOR_MODEL : IMPModels.CASSETTE_TAPE_BASE_GLASS_MODEL;
+                holder = stack.has(DataComponents.DYED_COLOR) ? IMPModels.CASSETTE_TAPE_BASE_GLASS_COLOR_MODEL : IMPModels.CASSETTE_TAPE_BASE_GLASS_MODEL;
                 ivb = ItemRenderer.getFoilBufferDirect(multiBufferSource, Sheets.translucentCullBlockSheet(), true, stack.hasFoil());//multiBufferSource.getBuffer(Sheets.translucentCullBlockSheet());
             }
             BakedModel bakedModel = holder.get();

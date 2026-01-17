@@ -33,7 +33,6 @@ public class IamMusicPlayerClient {
         configInit();
         LavaPlayerLoader.init();
         IMPPackets.clientInit();
-        ClientHandler.init();
         RenderHandler.init();
         TextureHandler.init();
         IMPBlockEntityRenderers.init();
@@ -47,6 +46,8 @@ public class IamMusicPlayerClient {
         IMPMusicLoaders.init();
         IMPMusicTrackerFactory.init();
         LavaPlayerManager.getInstance().reload();
+
+        ClientHandler.init();
     }
 
     private static void configInit() {

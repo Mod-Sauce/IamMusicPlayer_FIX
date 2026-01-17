@@ -13,16 +13,16 @@ import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonit
 import dev.felnull.imp.item.CassetteTapeItem;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class PlaybackCDMonitor extends CassetteDeckMonitor {
-    protected static final ResourceLocation PLAYBACK_BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/playback.png");
-    protected static final ResourceLocation PLAYBACK_IMAGE_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/playback_image.png");
+    protected static final ResourceLocation PLAYBACK_BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/playback.png");
+    protected static final ResourceLocation PLAYBACK_IMAGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/playback_image.png");
     private static final Component NO_CASSETTE_TAPE_TEXT = Component.translatable("imp.text.noCassetteTape");
     private static final Component NO_MUSIC_CASSETTE_TAPE_TEXT = Component.translatable("imp.text.noMusicCassetteTape");
     private static final Component LOADING_MUSIC_TEXT = Component.translatable("imp.text.musicLoading");

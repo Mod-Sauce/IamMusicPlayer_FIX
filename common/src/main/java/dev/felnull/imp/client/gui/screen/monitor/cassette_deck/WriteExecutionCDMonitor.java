@@ -8,8 +8,8 @@ import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.CassetteDeckScreen;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.music.resource.Music;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -17,8 +17,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class WriteExecutionCDMonitor extends CassetteDeckMonitor {
-    private static final ResourceLocation WRITE_EXECUTION_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/write_execution.png");
-    private static final ResourceLocation WRITE_EXECUTION_NO_IMAGE_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/write_execution_no_image.png");
+    private static final ResourceLocation WRITE_EXECUTION_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/write_execution.png");
+    private static final ResourceLocation WRITE_EXECUTION_NO_IMAGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/cassette_deck/monitor/write_execution_no_image.png");
     private static final MutableComponent WRITING_TEXT = Component.translatable("imp.text.writing");
     private SmartButton backButton;
 

@@ -9,8 +9,8 @@ import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.media.MusicMedia;
 import dev.felnull.imp.client.music.media.MusicMediaResult;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.util.FlagThread;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchMusicMMMonitor extends MusicManagerMonitor {
-    private static final ResourceLocation SEARCH_MUSIC_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/search_music.png");
+    private static final ResourceLocation SEARCH_MUSIC_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/search_music.png");
     private static final Component SEARCHING_TEXT = Component.translatable("imp.text.searching");
     private final List<MusicMediaResult> searchMusics = new ArrayList<>();
     private SearchMusicsFixedListWidget searchMusicsFixedButtonsList;

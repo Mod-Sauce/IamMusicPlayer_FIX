@@ -13,9 +13,9 @@ import dev.felnull.imp.music.resource.AuthorityInfo;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicPlayList;
 import dev.felnull.imp.networking.IMPPackets;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.networking.existence.BlockEntityExistence;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class DetailPlayListMMMonitor extends PlayListBaseMMMonitor {
-    private static final ResourceLocation DETAIL_PLAY_LIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/detail_play_list.png");
+    private static final ResourceLocation DETAIL_PLAY_LIST_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/detail_play_list.png");
     private static final Component MEMBER_TEXT = Component.translatable("imp.text.member");
     private static final Component EDIT_TEXT = Component.translatable("imp.button.edit");
     private static final Component AUTHORITY_TEXT = Component.translatable("imp.button.authority");
@@ -61,7 +61,7 @@ public class DetailPlayListMMMonitor extends PlayListBaseMMMonitor {
 
         this.exitButton = this.addRenderWidget(new SmartButton(getStartX() + width - 5 - 87, getStartY() + 180, 87, 15, EXIT_TEXT, n -> {
             if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock)
-                NetworkManager.sendToServer(IMPPackets.MUSIC_OR_PLAYLIST_DELETE, new IMPPackets.MusicOrPlayListDeleteMessage(getSelectedPlayList(musicManagerBlock), UUID.randomUUID(), BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), false).toFBB());
+                NetworkManager.sendToServer(IMPPackets.MUSIC_OR_PLAYLIST_DELETE, new IMPPackets.MusicOrPlayListDeleteMessage(getSelectedPlayList(musicManagerBlock), UUID.randomUUID(), BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), false).toRFBB());
         }));
         this.exitButton.visible = !canDelete();
 

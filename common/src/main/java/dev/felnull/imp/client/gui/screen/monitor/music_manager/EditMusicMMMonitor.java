@@ -6,7 +6,7 @@ import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.networking.IMPPackets;
-import dev.felnull.otyacraftengine.networking.existence.BlockEntityExistence;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +27,7 @@ public class EditMusicMMMonitor extends SavedMusicBaseMMMonitor {
     public boolean done(ImageInfo imageInfo, String name) {
         var mid = getSelectedMusicRaw();
         if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock && mid != null && musicManagerBlock.getSelectedPlayList(mc.player) != null)
-            NetworkManager.sendToServer(IMPPackets.MUSIC_EDIT, new IMPPackets.MusicMessage(mid, musicManagerBlock.getSelectedPlayList(mc.player), name, "", imageInfo, MusicSource.EMPTY, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toFBB());
+            NetworkManager.sendToServer(IMPPackets.MUSIC_EDIT, new IMPPackets.MusicMessage(mid, musicManagerBlock.getSelectedPlayList(mc.player), name, "", imageInfo, MusicSource.EMPTY, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toRFBB());
         return true;
     }
 

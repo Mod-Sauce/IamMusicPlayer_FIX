@@ -2,7 +2,7 @@ package dev.felnull.imp.mixin.client;
 
 import dev.felnull.imp.client.IamMusicPlayerClient;
 import net.minecraft.client.OptionInstance;
-import net.minecraft.client.gui.screens.SoundOptionsScreen;
+import net.minecraft.client.gui.screens.options.SoundOptionsScreen;
 import org.apache.commons.lang3.ArrayUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

@@ -13,9 +13,9 @@ import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.networking.IMPPackets;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.networking.existence.BlockEntityExistence;
-import dev.felnull.otyacraftengine.util.FlagThread;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -169,7 +169,7 @@ public class AddMusicMMMonitor extends SavedMusicBaseMMMonitor {
     public boolean done(ImageInfo imageInfo, String name) {
         var ms = getMusicSource();
         if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock && musicManagerBlock.getSelectedPlayList(mc.player) != null)
-            NetworkManager.sendToServer(IMPPackets.MUSIC_ADD, new IMPPackets.MusicMessage(musicManagerBlock.getSelectedPlayList(mc.player), name, getMusicAuthor(), imageInfo, ms, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toFBB());
+            NetworkManager.sendToServer(IMPPackets.MUSIC_ADD, new IMPPackets.MusicMessage(musicManagerBlock.getSelectedPlayList(mc.player), name, getMusicAuthor(), imageInfo, ms, BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toRFBB());
         return true;
     }
 

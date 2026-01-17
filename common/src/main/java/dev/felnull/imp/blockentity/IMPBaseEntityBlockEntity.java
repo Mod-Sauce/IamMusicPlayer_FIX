@@ -1,12 +1,12 @@
 package dev.felnull.imp.blockentity;
 
 import dev.felnull.imp.block.IMPBaseEntityBlock;
-import dev.felnull.otyacraftengine.blockentity.OEBaseContainerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.modsauce.otyacraftenginerenewed.blockentity.OEBaseContainerBlockEntity;
 
 public abstract class IMPBaseEntityBlockEntity extends OEBaseContainerBlockEntity {
     protected IMPBaseEntityBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {

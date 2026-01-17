@@ -1,6 +1,6 @@
 package dev.felnull.imp.item;
 
-import dev.felnull.otyacraftengine.item.EquipmentItem;
+import org.modsauce.otyacraftenginerenewed.item.EquipmentItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,7 +24,7 @@ public class ParabolicAntennaItem extends RadioAntennaItem implements EquipmentI
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> list, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list, TooltipFlag tooltipFlag) {
         list.add(DESC);
     }
 }

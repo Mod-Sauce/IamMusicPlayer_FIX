@@ -11,8 +11,8 @@ import dev.felnull.imp.client.model.IMPModels;
 import dev.felnull.imp.client.renderer.item.AntennaItemRenderer;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.client.renderer.blockentity.AbstractBlockEntityRenderer;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.client.renderer.blockentity.AbstractBlockEntityRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -47,8 +47,8 @@ public class BoomboxBlockEntityRenderer extends AbstractBlockEntityRenderer<Boom
         var antenna = data.getAntenna();
         float parabolicAntennaRoted = data.getParabolicAntennaProgress(f);
         float antennaPar = data.getAntennaProgress(f) / 30f;
-        boolean changeCassetteTape = data.isChangeCassetteTape();
-        var oldCassetteTape = data.getOldCassetteTape();
+//        boolean changeCassetteTape = data.isChangeCassetteTape();
+//        var oldCassetteTape = data.getOldCassetteTape();
 
         var handleM = IMPModels.BOOMBOX_HANDLE.get();
         var lidM = IMPModels.BOOMBOX_LID.get();
@@ -61,7 +61,7 @@ public class BoomboxBlockEntityRenderer extends AbstractBlockEntityRenderer<Boom
             poseStack.pushPose();
             OERenderUtils.poseTrans16(poseStack, 7.7, 3.225, 6);
             OERenderUtils.poseScaleAll(poseStack, 0.72f);
-            mc.getItemRenderer().renderStatic(changeCassetteTape ? oldCassetteTape : cassetteTape, ItemDisplayContext.FIXED, i, j, poseStack, multiBufferSource, mc.level, 0);
+            mc.getItemRenderer().renderStatic(cassetteTape, ItemDisplayContext.FIXED, i, j, poseStack, multiBufferSource, mc.level, 0);
             poseStack.popPose();
         }
 

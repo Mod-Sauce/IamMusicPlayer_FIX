@@ -1,6 +1,6 @@
 package dev.felnull.imp.music;
 
-import dev.felnull.otyacraftengine.util.OENbtUtils;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.nbt.CompoundTag;
 
 /**

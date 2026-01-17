@@ -9,11 +9,11 @@ import dev.felnull.imp.client.gui.components.PlayersFixedListWidget;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.components.SmartRadioButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
-import dev.felnull.otyacraftengine.client.gui.components.RadioButton;
-import dev.felnull.otyacraftengine.client.util.OEClientUtils;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.util.FlagThread;
-import dev.felnull.otyacraftengine.util.OEPlayerUtils;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.RadioButton;
+import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
+import org.modsauce.otyacraftenginerenewed.util.OEPlayerUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public abstract class SavedPlayListBaseMMMonitor extends PlayListBaseMMMonitor {
-    private static final ResourceLocation CREATE_PLAYLIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/create_play_list.png");
+    private static final ResourceLocation CREATE_PLAYLIST_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/create_play_list.png");
     private static final Component INVITE_TEXT = Component.translatable("imp.text.invite");
     private static final Component INVITE_PLAYER_BY_MCID_OR_UUID_TEXT = Component.translatable("imp.text.invitePlayerByMCIDOrUUID");
     private static final Component UNINVITED_TEXT = Component.translatable("imp.text.uninvited");

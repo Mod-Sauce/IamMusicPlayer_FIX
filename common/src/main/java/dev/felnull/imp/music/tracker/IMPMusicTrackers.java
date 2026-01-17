@@ -11,9 +11,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 public class IMPMusicTrackers {
-    public static final ResourceLocation FIXED_TRACKER = new ResourceLocation(IamMusicPlayer.MODID, "fixed");
-    public static final ResourceLocation ENTITY_TRACKER = new ResourceLocation(IamMusicPlayer.MODID, "entity");
-    public static final ResourceLocation PLAYER_TRACKER = new ResourceLocation(IamMusicPlayer.MODID, "player");
+    public static final ResourceLocation FIXED_TRACKER = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "fixed");
+    public static final ResourceLocation ENTITY_TRACKER = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "entity");
+    public static final ResourceLocation PLAYER_TRACKER = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "player");
 
     public static MusicTrackerEntry createFixedTracker(Vec3 position, float volume, float range, int channel, SpatialType spatialType) {
         return new MusicTrackerEntry(FIXED_TRACKER, new FixedMusicTracker(new MusicSpeakerInfo(position, volume, range, new MusicSpeakerFixedInfo(channel, spatialType))));

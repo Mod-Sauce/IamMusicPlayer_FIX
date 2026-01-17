@@ -1,8 +1,8 @@
 package dev.felnull.imp.data;
 
 import dev.felnull.imp.data.advancements.IMPAdvancementProviderWrapper;
-import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
-import dev.felnull.otyacraftengine.data.provider.DataProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
+import org.modsauce.otyacraftenginerenewed.data.provider.DataProviderWrapper;
 import java.nio.file.Paths;
 
 public class IamMusicPlayerDataGenerator {
@@ -22,6 +22,6 @@ public class IamMusicPlayerDataGenerator {
     access.addProviderWrapper(IMPPoiTypeTagProviderWrapper::new);
     //access.addProviderWrapper(packOutput -> new DirectCopyProviderWrapper(packOutput, PackOutput.Target.DATA_PACK, "patchouli_books", access));
     access.addProviderWrapper(IMPBlockLootTableProviderWrapper::new);
-    access.addProviderWrapper(IMPAdvancementProviderWrapper::new);
+//    access.addProviderWrapper(IMPAdvancementProviderWrapper::new); // todo:没修好
   }
 }

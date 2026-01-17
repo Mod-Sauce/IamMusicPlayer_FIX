@@ -1,10 +1,6 @@
 package dev.felnull.imp.item;
 
 import dev.felnull.imp.inventory.BoomboxMenu;
-import dev.felnull.otyacraftengine.item.ItemContainer;
-import dev.felnull.otyacraftengine.item.location.HandItemLocation;
-import dev.felnull.otyacraftengine.item.location.PlayerItemLocation;
-import dev.felnull.otyacraftengine.util.OEMenuUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -12,6 +8,10 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.modsauce.otyacraftenginerenewed.item.ItemContainer;
+import org.modsauce.otyacraftenginerenewed.item.location.HandItemLocation;
+import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocation;
+import org.modsauce.otyacraftenginerenewed.util.OEMenuUtil;
 
 import java.util.function.Function;
 

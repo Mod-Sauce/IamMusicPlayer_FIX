@@ -10,6 +10,7 @@ import dev.felnull.imp.entity.village.IMPPoiType;
 import dev.felnull.imp.entity.village.IMPVillagerProfessions;
 import dev.felnull.imp.handler.CommonHandler;
 import dev.felnull.imp.inventory.IMPMenus;
+import dev.felnull.imp.item.IMPComponents;
 import dev.felnull.imp.item.IMPCreativeModeTabs;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.networking.IMPPackets;
@@ -35,8 +36,8 @@ public class IamMusicPlayer {
 
     public static void init() {
         checkAndResetConfig();
-        IMPPackets.init();
         IMPCreativeModeTabs.init();
+        IMPComponents.init();
         IMPItems.init();
         IMPBlocks.init();
         IMPBlockEntities.init();
@@ -47,6 +48,7 @@ public class IamMusicPlayer {
         ServerMusicHandler.init();
         ServerHandler.init();
         CommonHandler.init();
+        IMPPackets.init();
     }
 
     private static void checkAndResetConfig() {

@@ -11,12 +11,13 @@ import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
 import dev.felnull.imp.util.IMPItemUtil;
-import dev.felnull.otyacraftengine.server.level.TagSerializable;
-import dev.felnull.otyacraftengine.util.OENbtUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -31,6 +32,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -131,8 +134,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         this.lidOpen = tag.getBoolean("LidOpen");
         if (this.lidOpen)
             lidOpenProgress = getLidOpenProgressAll();
@@ -149,8 +152,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.putBoolean("LidOpen", this.lidOpen);
         tag.putString("Monitor", monitor.getName());
         OENbtUtils.readUUIDMap(tag, "PlayerSelectPlaylists", playerSelectPlaylists);
@@ -169,7 +172,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     public void saveToUpdateTag(CompoundTag tag) {
         super.saveToUpdateTag(tag);
         tag.putBoolean("LidOpen", this.lidOpen);
-        tag.put("OldCassetteTape", this.oldCassetteTape.save(new CompoundTag()));
+        tag.put("OldCassetteTape", this.oldCassetteTape.save(level == null ? null : level.registryAccess(),
+                new CompoundTag()));
         tag.putBoolean("ChangeCassetteTape", this.changeCassetteTape);
         tag.putString("Monitor", monitor.getName());
 
@@ -191,7 +195,9 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     public void loadToUpdateTag(CompoundTag tag) {
         super.loadToUpdateTag(tag);
         this.lidOpen = tag.getBoolean("LidOpen");
-        this.oldCassetteTape = ItemStack.of(tag.getCompound("OldCassetteTape"));
+        this.oldCassetteTape = ItemStack.parse(
+                level == null ? null : level.registryAccess(),
+                tag.getCompound("OldCassetteTape")).orElse(ItemStack.EMPTY);
         this.changeCassetteTape = tag.getBoolean("ChangeCassetteTape");
         this.monitor = MonitorType.getByName(tag.getString("Monitor"));
 
@@ -209,6 +215,11 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
         this.position = tag.getLong("Position");
         this.loop = tag.getBoolean("Loop");
         this.loadingMusic = tag.getBoolean("LoadingMusic");
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) {
+        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag());
     }
 
     @Override
@@ -331,6 +342,11 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     @Override
     public NonNullList<ItemStack> getItems() {
         return items;
+    }
+
+    @Override
+    protected void setItems(NonNullList<ItemStack> nonNullList) {
+        items = nonNullList;
     }
 
     @Override

@@ -2,8 +2,8 @@ package dev.felnull.imp.client.gui.components;
 
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.client.gui.screen.BoomboxScreen;
-import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
