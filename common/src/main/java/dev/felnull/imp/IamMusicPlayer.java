@@ -70,7 +70,7 @@ public class IamMusicPlayer {
             CONFIG.lavaPlayerNativesURL =
                 "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
             CONFIG.hashBaseUrl =
-                "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/";
+                "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
             CONFIG.IMPRFolder = "iammusicplayerrenewed";
             CONFIG.lavaNativesFolder = "lavaplayer_natives";
             CONFIG.hideDisplaySprite = false;
