@@ -21,3 +21,4 @@ classes/
 .settings
 *.launch
 .env
+*.cache
