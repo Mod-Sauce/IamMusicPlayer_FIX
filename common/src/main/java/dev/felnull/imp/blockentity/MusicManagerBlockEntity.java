@@ -168,20 +168,20 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
     }
 
     @Override
-    public void saveToUpdateTag(CompoundTag tag) {
-        super.saveToUpdateTag(tag);
+    public void saveToUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.saveToUpdateTag(tag, lookupProvider);
         OENbtUtils.writeUUIDTagMap(tag, "SyncPlayerData", playerData);
     }
 
     @Override
-    public void loadToUpdateTag(CompoundTag tag) {
-        super.loadToUpdateTag(tag);
+    public void loadToUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.loadToUpdateTag(tag, lookupProvider);
         OENbtUtils.readUUIDTagMap(tag, "SyncPlayerData", playerData);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) {
-        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag());
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket, HolderLookup.Provider lookupProvider) {
+        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag(), lookupProvider);
     }
 
     @Nullable

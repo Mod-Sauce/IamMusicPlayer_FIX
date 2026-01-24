@@ -10,6 +10,7 @@ import dev.felnull.imp.server.music.ringer.MusicRingManager;
 import dev.felnull.imp.util.IMPNBTItemUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.ItemContainerContents;
 import org.modsauce.otyacraftenginerenewed.item.IInstructionItem;
 import org.modsauce.otyacraftenginerenewed.item.ItemContainer;
 import net.minecraft.core.BlockPos;
@@ -122,12 +123,20 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
             setTransferProgressOld(stack, getTransferProgress(stack));
             setTransferProgress(stack, getTransferProgress(stack) + (power ? 1 : -1));
         }
+        var p = level.registryAccess();
+        if(!stack.has(DataComponents.CONTAINER)) {
+            // 临时的解决方案
+            var l = NonNullList.withSize(2, ItemStack.EMPTY);
+            l.set(0, BoomboxItem.getCassetteTape(stack, p));
+            l.set(1, BoomboxItem.getAntenna(stack, p));
+            stack.set(DataComponents.CONTAINER,
+                    ItemContainerContents.fromItems(l));
+        }
     }
 
     @Override
     protected boolean updateCustomBlockEntityTag(@NotNull BlockPos blockPos, Level level, @Nullable Player player, @NotNull ItemStack itemStack, @NotNull BlockState blockState) {
-        var server = level.getServer();
-        if (server != null) {
+        if (!level.isClientSide) {
             var be = level.getBlockEntity(blockPos);
             if (be instanceof BoomboxBlockEntity boomboxBlockEntity) {
                 boomboxBlockEntity.setByItem(itemStack);
@@ -156,6 +165,18 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
             tag.put("BoomboxTag", new CompoundTag());
         IMPNBTItemUtil.saveTag(stack, tag);
         return getBoomboxTag(stack);
+    }
+
+    public static CompoundTag getBaseTag(ItemStack stack){
+        return IMPNBTItemUtil.getTag(stack);
+    }
+
+    public static CompoundTag getOrCreateBaseTag(ItemStack stack){
+        return IMPNBTItemUtil.getOrCreateTag(stack);
+    }
+
+    public static void saveBaseTag(ItemStack stack, CompoundTag tag){
+        IMPNBTItemUtil.saveTag(stack, tag);
     }
 
     public static void saveWithParent(ItemStack stack, CompoundTag tag){
@@ -223,7 +244,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     public static void setPower(ItemStack itemStack, boolean power) {
         var tag = getOrCreateBoomboxTag(itemStack);
         tag.putBoolean("Power", power);
-        IMPNBTItemUtil.saveTag(itemStack, tag);
+        saveWithParent(itemStack, tag);
     }
 
     public static int getTransferProgress(ItemStack stack) {

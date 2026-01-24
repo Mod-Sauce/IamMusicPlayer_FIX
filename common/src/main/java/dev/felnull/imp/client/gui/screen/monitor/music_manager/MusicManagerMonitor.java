@@ -25,6 +25,8 @@ public abstract class MusicManagerMonitor extends Monitor<MusicManagerBlockEntit
     protected static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/background.png");
     public static final ResourceLocation WIDGETS_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/widgets.png");
     public static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/base.png");
+    private static final WidgetSprites CLOSE_BUTTON = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "close_button"), ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "close_button_hover"));
+    private static final WidgetSprites BACK_BUTTON = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "back_button"), ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "back_button_hover"));
     protected boolean header = true;
     private final MusicManagerBlockEntity.MonitorType type;
     private final MusicManagerScreen screen;
@@ -39,10 +41,10 @@ public abstract class MusicManagerMonitor extends Monitor<MusicManagerBlockEntit
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
         if (header && getParentType() != null) {
-            addRenderWidget(new ImageButton(getStartX() + 356, getStartY(), 14, 10, new WidgetSprites(WIDGETS_TEXTURE, WIDGETS_TEXTURE), n -> {
+            addRenderWidget(new ImageButton(getStartX() + 356, getStartY(), 14, 10, CLOSE_BUTTON, n -> {
                 insMonitor(MusicManagerBlockEntity.MonitorType.PLAY_LIST);
             }, Component.translatable("imp.button.close")));
-            addRenderWidget(new ImageButton(getStartX() + 342, getStartY(), 14, 10, new WidgetSprites(WIDGETS_TEXTURE, WIDGETS_TEXTURE), n -> {
+            addRenderWidget(new ImageButton(getStartX() + 342, getStartY(), 14, 10, BACK_BUTTON, n -> {
                 onBackParent();
                 insMonitor(getParentType());
             }, Component.translatable("imp.button.backScreen")));

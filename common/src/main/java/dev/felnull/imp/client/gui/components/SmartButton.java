@@ -52,8 +52,9 @@ public class SmartButton extends IMPButton implements IIMPSmartRender {
         if (!hideText)
             drawSmartText(guiGraphics, getMessage(), getX() + fx, getY() + fy);
 
-        /*if (this.isHoveredOrFocused())
-            this.renderToolTip(poseStack, mx, my);*/
+        if (this.isHoveredOrFocused() && getTooltip() != null)
+            guiGraphics.renderTooltip(mc.font, getTooltip().toCharSequence(mc), i, j);
+
     }
 
     public void setIcon(ResourceLocation location, int stX, int stY, int w, int h) {

@@ -169,8 +169,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
-    public void saveToUpdateTag(CompoundTag tag) {
-        super.saveToUpdateTag(tag);
+    public void saveToUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.saveToUpdateTag(tag, lookupProvider);
         tag.putBoolean("LidOpen", this.lidOpen);
         if(!oldCassetteTape.isEmpty())
             tag.put("OldCassetteTape", this.oldCassetteTape.save(level == null ? null : level.registryAccess(),
@@ -193,8 +193,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
-    public void loadToUpdateTag(CompoundTag tag) {
-        super.loadToUpdateTag(tag);
+    public void loadToUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        super.loadToUpdateTag(tag, lookupProvider);
         this.lidOpen = tag.getBoolean("LidOpen");
         if(tag.contains("OldCassetteTape"))
             this.oldCassetteTape = ItemStack.parse(
@@ -220,8 +220,8 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) {
-        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag());
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket, HolderLookup.Provider lookupProvider) {
+        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag(), lookupProvider);
     }
 
     @Override

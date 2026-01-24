@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -152,20 +153,22 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
 
 
     @Override
-    public void saveToUpdateTag(CompoundTag tag) {
-        super.saveToUpdateTag(tag);
+    public void saveToUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveToUpdateTag(tag, registries);
         tag.put("BoomBoxData", this.boomboxData.save(new CompoundTag(), false, true));
+        ContainerHelper.saveAllItems(tag, this.getItems(), registries);
     }
 
     @Override
-    public void loadToUpdateTag(CompoundTag tag) {
-        super.loadToUpdateTag(tag);
+    public void loadToUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadToUpdateTag(tag, registries);
         this.boomboxData.load(tag.getCompound("BoomBoxData"), false, true);
+        ContainerHelper.loadAllItems(tag, this.getItems(), registries);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket) {
-        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag());
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket clientboundBlockEntityDataPacket, HolderLookup.Provider lookupProvider) {
+        loadToUpdateTag(clientboundBlockEntityDataPacket.getTag(), lookupProvider);
     }
 
     @Override
@@ -250,6 +253,7 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
         var p = level.registryAccess();
         setItemNoUpdate(0, BoomboxItem.getCassetteTape(stack, p));
         setItemNoUpdate(1, BoomboxItem.getAntenna(stack, p));
+//        setItems(NonNullList.of(BoomboxItem.getCassetteTape(stack, p), BoomboxItem.getAntenna(stack, p)));
         setBoomboxData(BoomboxItem.getData(stack, p));
         setPower(BoomboxItem.isPowered(stack));
         if (BoomboxItem.getTransferProgress(stack) == 0) {
@@ -257,5 +261,6 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
             boomboxData.setHandleRaisedProgress(boomboxData.getHandleRaisedMax());
             boomboxData.setHandleRaisedProgressOld(boomboxData.getHandleRaisedMax());
         }
+        setChanged();
     }
 }
