@@ -10,6 +10,7 @@ import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.util.IMPItemUtil;
+import net.minecraft.client.Minecraft;
 import org.modsauce.otyacraftenginerenewed.client.gui.screen.OEItemBEContainerBasedScreen;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
@@ -168,7 +169,7 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
             if (getBlockEntity() instanceof BoomboxBlockEntity boomboxBlockEntity)
                 return boomboxBlockEntity.getBoomboxData();
         }
-        return BoomboxItem.getData(getItem());
+        return BoomboxItem.getData(getItem(), Minecraft.getInstance().level.registryAccess());
     }
 
     public void insMonitor(BoomboxData.MonitorType monitorType) {

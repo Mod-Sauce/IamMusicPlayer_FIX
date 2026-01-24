@@ -34,7 +34,7 @@ public class IMPMusicTrackerFactory {
     public static MusicTracker loadByTag(CompoundTag tag) {
         if (tag.isEmpty())
             return null;
-        var id = ResourceLocation.withDefaultNamespace(tag.getString("trackerId"));
+        var id = ResourceLocation.parse(tag.getString("trackerId"));
         return TagSerializable.loadSavedTag(tag.getCompound("tracker"), create(id));
     }
 

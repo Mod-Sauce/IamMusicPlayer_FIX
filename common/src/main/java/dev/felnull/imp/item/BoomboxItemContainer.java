@@ -2,6 +2,7 @@ package dev.felnull.imp.item;
 
 import dev.felnull.imp.inventory.BoomboxMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
@@ -17,8 +18,8 @@ import java.util.function.Function;
 
 public class BoomboxItemContainer extends ItemContainer {
 
-    public BoomboxItemContainer(ItemStack itemStack, PlayerItemLocation location, int size, String tagName, Function<Player, Boolean> valid) {
-        super(itemStack, location, size, tagName, valid);
+    public BoomboxItemContainer(ItemStack itemStack, PlayerItemLocation location, int size, String tagName, Function<Player, Boolean> valid, HolderLookup.Provider provider) {
+        super(itemStack, location, size, tagName, valid, provider);
     }
 
     @Override
@@ -26,7 +27,7 @@ public class BoomboxItemContainer extends ItemContainer {
         if (i == 0) {
             var old = getItem(0).copy();
             var ret = super.removeItem(i, j);
-            var data = BoomboxItem.getData(getItemStack());
+            var data = BoomboxItem.getData(getItemStack(), provider);
             data.setOldCassetteTape(old);
             return ret;
         }
@@ -36,23 +37,23 @@ public class BoomboxItemContainer extends ItemContainer {
     @Override
     public void setItem(int i, ItemStack stack) {
         if (i == 0) {
-            var data = BoomboxItem.getData(getItemStack());
+            var data = BoomboxItem.getData(getItemStack(), provider);
             data.onCassetteTapeChange(stack, data.getCassetteTape());
         }
         super.setItem(i, stack);
     }
 
-    public static void openContainer(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+    public static void openContainer(ServerPlayer player, InteractionHand hand, ItemStack stack, HolderLookup.Provider provider) {
         var loc = new HandItemLocation(hand);
-        OEMenuUtil.openItemMenu(player, createBoomboxMenuProvider(stack, loc, 2, "BoomboxItems", BoomboxMenu::new), loc, stack, 2);
+        OEMenuUtil.openItemMenu(player, createBoomboxMenuProvider(stack, loc, 2, "BoomboxItems", BoomboxMenu::new, provider), loc, stack, 2);
     }
 
-    private static MenuProvider createBoomboxMenuProvider(ItemStack stack, PlayerItemLocation location, int size, String tagName, MenuFactory factory) {
+    private static MenuProvider createBoomboxMenuProvider(ItemStack stack, PlayerItemLocation location, int size, String tagName, MenuFactory factory, HolderLookup.Provider provider) {
         var con = new BoomboxItemContainer(stack, location, size, tagName, player -> {
             if (location.getItem(player).isEmpty() || stack.isEmpty())
                 return false;
             return location.getItem(player) == stack;
-        });
+        }, provider);
         return new SimpleMenuProvider((i, inventory, player1) -> factory.createMenu(i, inventory, con, BlockPos.ZERO, stack, location), stack.getHoverName());
     }
 }

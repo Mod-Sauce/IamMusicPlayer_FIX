@@ -264,7 +264,7 @@ public class LavaNativeManager {
    * Downloads a file from URL with retry logic
    *
    * @param url URL to download from
-   * @param targetDir Directory to save the downloaded file
+   * @param targetDir Directory to saveWithParent the downloaded file
    * @return Path to the downloaded temporary file
    */
   private Path downloadWithRetry(URL url, Path targetDir) throws Exception {
@@ -309,7 +309,7 @@ public class LavaNativeManager {
    * Downloads a file from URL using NIO channels for better performance
    *
    * @param url URL to download from
-   * @param destination Path to save the file to
+   * @param destination Path to saveWithParent the file to
    */
   private void downloadFile(URL url, Path destination) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();

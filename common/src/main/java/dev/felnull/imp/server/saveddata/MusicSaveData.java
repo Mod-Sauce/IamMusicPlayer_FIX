@@ -6,6 +6,7 @@ import dev.felnull.imp.music.resource.MusicPlayList;
 import dev.felnull.imp.server.handler.ServerMessageHandler;
 import dev.felnull.imp.util.IMPNbtUtil;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.util.datafix.DataFixTypes;
 import org.modsauce.otyacraftenginerenewed.server.level.saveddata.OEBaseSavedData;
 import org.modsauce.otyacraftenginerenewed.server.util.OESaveDataUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -22,7 +23,11 @@ public class MusicSaveData extends OEBaseSavedData {
     }
 
     public static MusicSaveData get(MinecraftServer server) {
-        return OESaveDataUtils.getSaveData(server, "imp_music_data", MusicSaveData::new);
+        return OESaveDataUtils.getSaveData(server, "imp_music_data", factory());
+    }
+
+    public static Factory<MusicSaveData> factory(){
+        return createFactory(MusicSaveData::new, MusicSaveData::load, DataFixTypes.LEVEL);
     }
 
     @Override
@@ -32,17 +37,18 @@ public class MusicSaveData extends OEBaseSavedData {
         return tag;
     }
 
-    @Override
-    public void load(CompoundTag tag) {
-        playLists.clear();
+    public static MusicSaveData load(CompoundTag tag, HolderLookup.Provider provider) {
+        var data = new MusicSaveData();
+        data.playLists.clear();
         List<MusicPlayList> pls = new ArrayList<>();
         IMPNbtUtil.readMusicPlayLists(tag, "PlayLists", pls);
-        pls.forEach(pl -> playLists.put(pl.getUuid(), pl));
+        pls.forEach(pl -> data.playLists.put(pl.getUuid(), pl));
 
-        musics.clear();
+        data.musics.clear();
         List<Music> ms = new ArrayList<>();
         IMPNbtUtil.readMusics(tag, "Musics", ms);
-        ms.forEach(m -> musics.put(m.getUuid(), m));
+        ms.forEach(m -> data.musics.put(m.getUuid(), m));
+        return data;
     }
 
     public Map<UUID, Music> getMusics() {

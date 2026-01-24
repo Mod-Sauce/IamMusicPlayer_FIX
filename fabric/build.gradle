@@ -9,20 +9,23 @@ architectury {
     fabric()
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs += [
-                    'src/main/generated'
-            ]
-        }
-    }
-}
+//sourceSets {
+//    main {
+//        resources {
+//            srcDirs += [
+//                    'src/main/generated'
+//            ]
+//        }
+//    }
+//}
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
-    mixin { useLegacyMixinAp = true }
+    mixin {
+//        useLegacyMixinAp = true  fuck
+        defaultRefmapName = "iammusicplayer-common.refmap.json"
+    }
 
     runs {
         datagen {
@@ -36,7 +39,7 @@ loom {
         }
     }
 }
-assemble.dependsOn runDatagen
+//assemble.dependsOn runDatagen
 
 configurations {
     common
@@ -133,6 +136,10 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set("dev-shadow")
+    from('build/resources/main') {
+        include '**/*.refmap.json'
+        include '**/*.mixins.json'
+    }
 }
 
 remapJar {

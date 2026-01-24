@@ -9,7 +9,6 @@ import dev.felnull.imp.server.music.ringer.IMusicRinger;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
 import dev.felnull.imp.util.IMPNBTItemUtil;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import org.modsauce.otyacraftenginerenewed.item.IInstructionItem;
 import org.modsauce.otyacraftenginerenewed.item.ItemContainer;
@@ -62,7 +61,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
                 setPower(itemStack, !isPowered(itemStack));
         } else if (isPowered(itemStack) && getTransferProgress(itemStack) == 10) {
             if (!level.isClientSide())
-                BoomboxItemContainer.openContainer((ServerPlayer) player, interactionHand, itemStack);
+                BoomboxItemContainer.openContainer((ServerPlayer) player, interactionHand, itemStack, level.registryAccess());
 
             return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
         }
@@ -78,7 +77,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
                 if (player.isCrouching())
                     setPower(itemStack, !isPowered(itemStack));
                 else if (getTransferProgress(itemStack) == 10)
-                    BoomboxItemContainer.openContainer((ServerPlayer) player, blockPlaceContext.getHand(), itemStack);
+                    BoomboxItemContainer.openContainer((ServerPlayer) player, blockPlaceContext.getHand(), itemStack, blockPlaceContext.getLevel().registryAccess());
             }
             return InteractionResult.FAIL;
         }
@@ -92,8 +91,9 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
 
     @Override
     public void onDestroyed(@NotNull ItemEntity itemEntity) {
+        var p = itemEntity.level().registryAccess();
         if (this.getBlock() instanceof BoomboxBlock) {
-            ItemUtils.onContainerDestroyed(itemEntity, getContainItem(itemEntity.getItem()).stream().toList());
+            ItemUtils.onContainerDestroyed(itemEntity, getContainItem(itemEntity.getItem(), p).stream().toList());
         }
         super.onDestroyed(itemEntity);
     }
@@ -113,7 +113,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
 
         if (musicOnly) return;
 
-        var data = getData(stack);
+        var data = getData(stack, level.registryAccess());
         data.tick(level);
         setData(stack, data);
 
@@ -154,19 +154,26 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
         var tag = IMPNBTItemUtil.getOrCreateTag(stack);
         if (!tag.contains("BoomboxTag"))
             tag.put("BoomboxTag", new CompoundTag());
+        IMPNBTItemUtil.saveTag(stack, tag);
         return getBoomboxTag(stack);
     }
 
-    public static BoomboxData getData(ItemStack stack) {
+    public static void saveWithParent(ItemStack stack, CompoundTag tag){
+        var newTag = new CompoundTag();
+        newTag.put("BoomboxTag", tag);
+        IMPNBTItemUtil.saveTag(stack, newTag);
+    }
+
+    public static BoomboxData getData(ItemStack stack, HolderLookup.Provider provider) {
         return new BoomboxData(getBoomboxTag(stack), new BoomboxData.DataAccess() {
             @Override
             public ItemStack getCassetteTape() {
-                return BoomboxItem.getCassetteTape(stack);
+                return BoomboxItem.getCassetteTape(stack, provider);
             }
 
             @Override
             public ItemStack getAntenna() {
-                return BoomboxItem.getAntenna(stack);
+                return BoomboxItem.getAntenna(stack, provider);
             }
 
             @Override
@@ -191,7 +198,7 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
 
             @Override
             public void setCassetteTape(ItemStack cassette) {
-                BoomboxItem.setCassetteTape(stack, cassette);
+                BoomboxItem.setCassetteTape(stack, cassette, provider);
             }
 
             @Override
@@ -202,7 +209,9 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     }
 
     public static void setData(ItemStack stack, BoomboxData data) {
-        getOrCreateBoomboxTag(stack).put("BoomBoxData", data.save(new CompoundTag(), true, true));
+        var tag = getOrCreateBoomboxTag(stack);
+        tag.put("BoomBoxData", data.save(new CompoundTag(), true, true));
+        saveWithParent(stack, tag);
     }
 
     public static boolean isPowered(ItemStack itemStack) {
@@ -212,7 +221,9 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     }
 
     public static void setPower(ItemStack itemStack, boolean power) {
-        getOrCreateBoomboxTag(itemStack).putBoolean("Power", power);
+        var tag = getOrCreateBoomboxTag(itemStack);
+        tag.putBoolean("Power", power);
+        IMPNBTItemUtil.saveTag(itemStack, tag);
     }
 
     public static int getTransferProgress(ItemStack stack) {
@@ -220,7 +231,9 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     }
 
     public static void setTransferProgress(ItemStack stack, int num) {
-        getOrCreateBoomboxTag(stack).putInt("Transfer", Mth.clamp(num, 0, 10));
+        var tag = getOrCreateBoomboxTag(stack);
+        tag.putInt("Transfer", Mth.clamp(num, 0, 10));
+        saveWithParent(stack, tag);
     }
 
     public static int getTransferProgressOld(ItemStack stack) {
@@ -228,7 +241,9 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     }
 
     public static void setTransferProgressOld(ItemStack stack, int num) {
-        getOrCreateBoomboxTag(stack).putInt("TransferOld", Mth.clamp(num, 0, 10));
+        var tag = getOrCreateBoomboxTag(stack);
+        tag.putInt("TransferOld", Mth.clamp(num, 0, 10));
+        saveWithParent(stack, tag);
     }
 
     public static float getTransferProgress(ItemStack stack, float partialTicks) {
@@ -242,43 +257,47 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
     }
 
     public static void setRingerUUID(ItemStack stack, UUID id) {
-        getOrCreateBoomboxTag(stack).putUUID("Identification", id);
+        var tag = getOrCreateBoomboxTag(stack);
+        tag.putUUID("Identification", id);
+        saveWithParent(stack, tag);
     }
 
-    public static NonNullList<ItemStack> getContainItem(ItemStack stack) {
+    public static NonNullList<ItemStack> getContainItem(ItemStack stack, HolderLookup.Provider provider) {
         NonNullList<ItemStack> stacks = NonNullList.withSize(2, ItemStack.EMPTY);
-        ItemContainer.loadItemList(stack, stacks, "BoomboxItems");
+        ItemContainer.loadItemList(stack, stacks, "BoomboxItems", provider);
         return stacks;
     }
 
-    public static void setContainItem(ItemStack stack, NonNullList<ItemStack> stacks) {
-        ItemContainer.saveItemList(stack, stacks, "BoomboxItems");
+    public static void setContainItem(ItemStack stack, NonNullList<ItemStack> stacks, HolderLookup.Provider provider) {
+        var tag = getOrCreateBoomboxTag(stack);
+        ItemContainer.saveItemList(stack, stacks, "BoomboxItems", provider);
+        saveWithParent(stack, tag);
     }
 
-    public static void setCassetteTape(ItemStack stack, ItemStack cassette) {
-        var itms = getContainItem(stack);
+    public static void setCassetteTape(ItemStack stack, ItemStack cassette, HolderLookup.Provider provider) {
+        var itms = getContainItem(stack, provider);
         itms.set(0, cassette);
-        setContainItem(stack, itms);
+        setContainItem(stack, itms, provider);
     }
 
-    public static ItemStack getCassetteTape(ItemStack stack) {
-        return getContainItem(stack).get(0);
+    public static ItemStack getCassetteTape(ItemStack stack, HolderLookup.Provider provider) {
+        return getContainItem(stack, provider).get(0);
     }
 
-    public static ItemStack getAntenna(ItemStack stack) {
-        return getContainItem(stack).get(1);
+    public static ItemStack getAntenna(ItemStack stack, HolderLookup.Provider provider) {
+        return getContainItem(stack, provider).get(1);
     }
 
     @Override
     public CompoundTag onInstruction(ItemStack itemStack, ServerPlayer player, String name, CompoundTag data) {
-        return BoomboxItem.getData(itemStack).onInstruction(player, name, data);
+        return BoomboxItem.getData(itemStack, player.getServer().registryAccess()).onInstruction(player, name, data);
     }
 
     public static ItemStack createByBE(BoomboxBlockEntity blockEntity, boolean stopMusic) {
         var itemStack = new ItemStack(IMPBlocks.BOOMBOX.get());
-        setContainItem(itemStack, blockEntity.getItems());
+        setContainItem(itemStack, blockEntity.getItems(), blockEntity.getLevel().registryAccess());
         setData(itemStack, blockEntity.getBoomboxData());
-        var d = getData(itemStack);
+        var d = getData(itemStack, blockEntity.getLevel().registryAccess());
         if (stopMusic) {
             d.setPlaying(false);
             d.setMusicPosition(0);

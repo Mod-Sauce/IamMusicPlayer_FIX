@@ -95,7 +95,7 @@ public class BoomboxEntityRinger implements IBoomboxRinger {
 
     @Override
     public @NotNull BoomboxData getRingerBoomboxData() {
-        return BoomboxItem.getData(getBoombox());
+        return BoomboxItem.getData(getBoombox(), entity.level().registryAccess());
     }
 
     public static boolean canRing(Entity entity) {

@@ -21,7 +21,7 @@ public class ServerMessageHandler {
             if (item.getItem() instanceof BoomboxItem) {
                 var id = BoomboxItem.getRingerUUID(item);
                 if (id == null || !id.equals(message.boomboxId)) return;
-                var data = BoomboxItem.getData(item);
+                var data = BoomboxItem.getData(item, packetContext.getPlayer().level().registryAccess());
                 data.cycleLidOpen(packetContext.getPlayer().level());
                 BoomboxItem.setData(item, data);
             }

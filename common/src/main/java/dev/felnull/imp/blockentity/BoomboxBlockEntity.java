@@ -247,9 +247,10 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
 
     public void setByItem(ItemStack stack) {
         setPower(BoomboxItem.isPowered(stack));
-        setItemNoUpdate(0, BoomboxItem.getCassetteTape(stack));
-        setItemNoUpdate(1, BoomboxItem.getAntenna(stack));
-        setBoomboxData(BoomboxItem.getData(stack));
+        var p = level.registryAccess();
+        setItemNoUpdate(0, BoomboxItem.getCassetteTape(stack, p));
+        setItemNoUpdate(1, BoomboxItem.getAntenna(stack, p));
+        setBoomboxData(BoomboxItem.getData(stack, p));
         setPower(BoomboxItem.isPowered(stack));
         if (BoomboxItem.getTransferProgress(stack) == 0) {
             boomboxData.setHandleRaising(true);

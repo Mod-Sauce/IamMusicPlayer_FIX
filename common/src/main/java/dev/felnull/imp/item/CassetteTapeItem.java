@@ -61,7 +61,9 @@ public class CassetteTapeItem extends Item{
     }
 
     public static ItemStack setMusic(ItemStack stack, Music music) {
-        IMPNBTItemUtil.getOrCreateTag(stack).put("Music", music.createSavedTag());
+        var tag = IMPNBTItemUtil.getOrCreateTag(stack);
+        tag.put("Music", music.createSavedTag());
+        IMPNBTItemUtil.saveTag(stack, tag);
         return stack;
     }
 
@@ -72,7 +74,9 @@ public class CassetteTapeItem extends Item{
     }
 
     public static ItemStack setTapePercentage(ItemStack stack, float par) {
-        IMPNBTItemUtil.getOrCreateTag(stack).putFloat("TapePercentage", par);
+        var tag = IMPNBTItemUtil.getOrCreateTag(stack);
+        tag.putFloat("TapePercentage", par);
+        IMPNBTItemUtil.saveTag(stack, tag);
         return stack;
     }
 

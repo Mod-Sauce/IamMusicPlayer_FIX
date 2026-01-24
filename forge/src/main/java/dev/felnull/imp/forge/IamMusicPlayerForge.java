@@ -1,22 +1,21 @@
 package dev.felnull.imp.forge;
 
-import dev.architectury.platform.forge.EventBuses;
 import dev.felnull.imp.IamMusicPlayer;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 @SuppressWarnings("Deprecated")
 @Mod(IamMusicPlayer.MODID)
 public class IamMusicPlayerForge {
 
-  public IamMusicPlayerForge() {
-    EventBuses.registerModEventBus(
-      IamMusicPlayer.MODID,
-      FMLJavaModLoadingContext.get().getModEventBus()
-    );
+  public IamMusicPlayerForge(IEventBus eventBus) {
+//    EventBuses.registerModEventBus(
+//      IamMusicPlayer.MODID,
+//      eventBus
+//    ); // todo:whyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
     IamMusicPlayer.init();
-    FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+    eventBus.addListener(this::setup);
   }
 
   private void setup(FMLCommonSetupEvent e) {
