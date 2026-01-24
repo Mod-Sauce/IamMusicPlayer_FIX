@@ -1,0 +1,105 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
+}
+
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
+
+
+configurations {
+    common
+    shadowCommon
+    shadowIn
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+    shadowCommon.extendsFrom shadowIn
+}
+
+dependencies {
+    neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
+    modApi "dev.architectury:architectury-neoforge:${rootProject.architectury_version}"
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
+
+    modApi "org.modsauce:otyacraftenginerenewed-neoforge:${rootProject.oe_version}"
+    modApi "me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}"
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${rootProject.rei_version}"
+    modApi "maven.modrinth:sound-physics-remastered:neoforge-${rootProject.sound_physics_remastered}"
+
+    shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
+        exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
+    }
+    shadowIn "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
+    shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
+    shadowIn "com.mpatric:mp3agic:0.9.1"
+    shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier.set("dev-shadow")
+
+    // relocations here (all your relocate calls)
+    mergeServiceFiles {
+        relocate 'javax.ws.rs.ext', 'dev.felnull.imp.include.javax.ws.rs.ext'
+        relocate 'org.glassfish.jersey.internal.spi', 'dev.felnull.imp.include.org.glassfish.jersey.internal.spi'
+    }
+    relocate 'org.json', 'dev.felnull.imp.include.org.json'
+    relocate 'org.slf4j', 'dev.felnull.imp.include.org.slf4j'
+    relocate 'certificates', 'dev.felnull.imp.include.certificates'
+    relocate 'com.fasterxml', 'dev.felnull.imp.include.com.fasterxml'
+    relocate 'org.jsoup', 'dev.felnull.imp.include.org.jsoup'
+    relocate 'natives', 'dev.felnull.imp.include.natives'
+    relocate 'mozilla', 'dev.felnull.imp.include.mozilla'
+    relocate 'net.iharder', 'dev.felnull.imp.include.net.iharder'
+    relocate 'com.sedmelluq.lava', 'dev.felnull.imp.include.com.sedmelluq.lava'
+    relocate 'org.apache.http', 'dev.felnull.imp.include.org.apache.http'
+    relocate('org.apache.commons', 'dev.felnull.imp.include.org.apache.commons') {
+        include 'org.apache.commons.logging.**'
+        include 'org.apache.commons.io.**'
+        include 'org.apache.commons.codec.**'
+    }
+    relocate 'com.github', 'dev.felnull.imp.include.com.github'
+    relocate 'com.alibaba', 'dev.felnull.imp.include.com.alibaba'
+    relocate 'dev.felnull.fnjl', 'dev.felnull.imp.include.dev.felnull.fnjl'
+    relocate 'com.mpatric', 'dev.felnull.imp.include.com.mpatric'
+    relocate('com.sedmelluq.discord.lavaplayer', 'dev.felnull.imp.include.com.sedmelluq.discord.lavaplayer') {
+        exclude 'com.sedmelluq.discord.lavaplayer.natives.**'
+    }
+
+    relocate 'ibxm', 'dev.felnull.imp.include.ibxm'
+    relocate 'net.sourceforge.jaad', 'dev.felnull.imp.include.net.sourceforge.jaad'
+    relocate 'org.mozilla.javascript', 'dev.felnull.imp.include.org.mozilla.javascript'
+    relocate 'org.mozilla.classfile', 'dev.felnull.imp.include.org.mozilla.classfile'
+    relocate 'dev.lavalink.youtube', 'dev.felnull.imp.include.dev.lavalink.youtube'
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set(null)
+}
+
+jar {
+    archiveClassifier.set("dev")
+}
+
+sourcesJar {
+    dependsOn project(":common").tasks.named("sourcesJar")
+    from zipTree(project(":common").tasks.named("sourcesJar").get().archiveFile)
+}
