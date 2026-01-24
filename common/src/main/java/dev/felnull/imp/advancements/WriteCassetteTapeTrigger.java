@@ -5,8 +5,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.felnull.imp.IamMusicPlayer;
 import net.minecraft.advancements.critereon.*;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +26,7 @@ public class WriteCassetteTapeTrigger extends SimpleCriterionTrigger<WriteCasset
     }
 
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, ItemPredicate itemPredicate) implements SimpleCriterionTrigger.SimpleInstance {
+    public record TriggerInstance(Optional<ContextAwarePredicate> player, @NotNull ItemPredicate itemPredicate) implements SimpleCriterionTrigger.SimpleInstance {
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(triggerInstanceInstance -> triggerInstanceInstance.group(
                 EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
                 ItemPredicate.CODEC.fieldOf("item").forGetter(TriggerInstance::itemPredicate))
@@ -35,7 +37,9 @@ public class WriteCassetteTapeTrigger extends SimpleCriterionTrigger<WriteCasset
         }
 
         public static TriggerInstance writeCassetteTape() {
-            return new TriggerInstance(Optional.empty(), null);
+            return new TriggerInstance(Optional.empty(), ItemPredicate.Builder
+                    .item().of(TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "cassette_tape")))
+                    .build());
         }
 
         @Override

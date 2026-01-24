@@ -33,8 +33,8 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                         RecipeCategory.MISC,
                         IMPItems.CASSETTE_TAPE.get()
                 )
-                .requires(PlatformItemTags.ironNuggets().getKey())
-                .requires(PlatformItemTags.stone().getKey())
+                .requires(PlatformItemTags.ironNuggets())
+                .requires(PlatformItemTags.stone())
                 .requires(PlatformItemTags.redstoneDusts())
                 .requires(Items.DRIED_KELP)
                 .unlockedBy(
@@ -47,7 +47,7 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                         RecipeCategory.MISC,
                         IMPItems.CASSETTE_TAPE_GLASS.get()
                 )
-                .requires(PlatformItemTags.ironNuggets().getKey())
+                .requires(PlatformItemTags.ironNuggets())
                 .requires(PlatformItemTags.glassBlocks())
                 .requires(PlatformItemTags.redstoneDusts())
                 .requires(Items.DRIED_KELP)
@@ -91,7 +91,7 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, IMPBlocks.BOOMBOX.get())
-                .define('T', PlatformItemTags.ironNuggets().getKey())
+                .define('T', PlatformItemTags.ironNuggets())
                 .define('I', PlatformItemTags.ironIngots())
                 .define('N', Items.NOTE_BLOCK)
                 .define('J', Items.JUKEBOX)
