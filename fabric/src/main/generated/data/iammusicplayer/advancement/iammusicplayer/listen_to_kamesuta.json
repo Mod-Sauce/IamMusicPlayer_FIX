@@ -1,0 +1,36 @@
+{
+  "parent": "iammusicplayer:iammusicplayer/listen_to_remote_music",
+  "criteria": {
+    "listen_to_kamesuta": {
+      "conditions": {
+        "kamesuta": true,
+        "radio": false,
+        "remote": false
+      },
+      "trigger": "minecraft:listen_to_music"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.iammusicplayer.listen_to_kamesuta.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "components": {
+        "minecraft:item_name": "{\"color\":\"green\",\"italic\":false,\"text\":\"Kamesuta\"}"
+      },
+      "count": 1,
+      "id": "iammusicplayer:parabolic_antenna"
+    },
+    "title": {
+      "translate": "advancements.iammusicplayer.listen_to_kamesuta.title"
+    }
+  },
+  "requirements": [
+    [
+      "listen_to_kamesuta"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
