@@ -172,8 +172,9 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     public void saveToUpdateTag(CompoundTag tag) {
         super.saveToUpdateTag(tag);
         tag.putBoolean("LidOpen", this.lidOpen);
-        tag.put("OldCassetteTape", this.oldCassetteTape.save(level == null ? null : level.registryAccess(),
-                new CompoundTag()));
+        if(!oldCassetteTape.isEmpty())
+            tag.put("OldCassetteTape", this.oldCassetteTape.save(level == null ? null : level.registryAccess(),
+                    new CompoundTag()));
         tag.putBoolean("ChangeCassetteTape", this.changeCassetteTape);
         tag.putString("Monitor", monitor.getName());
 
@@ -195,9 +196,10 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
     public void loadToUpdateTag(CompoundTag tag) {
         super.loadToUpdateTag(tag);
         this.lidOpen = tag.getBoolean("LidOpen");
-        this.oldCassetteTape = ItemStack.parse(
-                level == null ? null : level.registryAccess(),
-                tag.getCompound("OldCassetteTape")).orElse(ItemStack.EMPTY);
+        if(tag.contains("OldCassetteTape"))
+            this.oldCassetteTape = ItemStack.parse(
+                    level == null ? null : level.registryAccess(),
+                    tag.getCompound("OldCassetteTape")).orElse(ItemStack.EMPTY);
         this.changeCassetteTape = tag.getBoolean("ChangeCassetteTape");
         this.monitor = MonitorType.getByName(tag.getString("Monitor"));
 
