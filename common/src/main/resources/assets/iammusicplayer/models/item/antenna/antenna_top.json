@@ -1,5 +1,5 @@
 {
-  "loader": "forge:obj",
+  "loader": "neoforge:obj",
   "model": "iammusicplayer:models/item/antenna/antenna_top.obj",
   "flip_v": true,
   "emissive_ambient": false

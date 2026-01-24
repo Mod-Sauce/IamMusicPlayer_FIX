@@ -1,5 +1,5 @@
 {
-  "parent": "otyacraftengine:base/block_entity_appearance",
+  "parent": "otyacraftenginerenewed:base/block_entity_appearance",
   "display": {
     "thirdperson_righthand": {
       "rotation": [
