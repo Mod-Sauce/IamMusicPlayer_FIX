@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "antenna",
+  "key": {
+    "B": {
+      "item": "minecraft:iron_block"
+    },
+    "E": {
+      "tag": "forge:ender_pearls"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "IEI",
+    "I I",
+    " B "
+  ],
+  "result": {
+    "item": "iammusicplayer:parabolic_antenna"
+  },
+  "show_notification": true
+}
