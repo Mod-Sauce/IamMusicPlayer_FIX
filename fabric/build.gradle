@@ -22,7 +22,10 @@ sourceSets {
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
-    mixin { useLegacyMixinAp = true }
+    mixin {
+//        useLegacyMixinAp = true  fuck
+        defaultRefmapName = "iammusicplayer-common.refmap.json"
+    }
 
     runs {
         datagen {
@@ -49,7 +52,7 @@ configurations {
 }
 
 repositories {
-    maven { url = "https://maven.terraformersmc.com/releases/" }//modmenu
+    maven { url "https://maven.terraformersmc.com/releases/" }//modmenu
     mavenCentral()
 }
 
@@ -59,23 +62,23 @@ dependencies {
 
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive = false }
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modApi "dev.felnull:otyacraftengine-fabric:${rootProject.oe_version}"
+    modApi files("../../OtyacraftEngineRenewed/fabric/build/libs/otyacraftenginerenewed-fabric-mc1.21.1-3.7.2-1.21.1-alpha1.jar")
 
     modApi "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
     modApi "me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rootProject.rei_version}"
 
-    modApi "dev.felnull:special-model-loader:1.2.0"
-    include "dev.felnull:special-model-loader:1.2.0"
-    modApi "maven.modrinth:sound-physics-remastered:${rootProject.sound_physics_remastered_fabric}"
+    modApi "dev.felnull:special-model-loader:1.3.0"
+    include "dev.felnull:special-model-loader:1.3.0"
+    modApi "maven.modrinth:sound-physics-remastered:fabric-${rootProject.sound_physics_remastered}"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
-    shadowIn("dev.lavalink.youtube:v2:${rootProject.yt_src}")
+    shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
 
     shadowIn "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
@@ -133,7 +136,10 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set("dev-shadow")
-    archiveFileName.set("IMPR-Fabric-${project.version}-${rootProject.minecraft_version}-dev-shadow.jar")
+    from('build/resources/main') {
+        include '**/*.refmap.json'
+        include '**/*.mixins.json'
+    }
 }
 
 remapJar {
@@ -141,7 +147,6 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier.set(null)
-    archiveFileName.set("IMPR-Fabric-${project.version}-${rootProject.minecraft_version}.jar")
 }
 
 jar {
@@ -152,7 +157,6 @@ sourcesJar {
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
-    archiveFileName.set("IMPR-Fabric-${project.version}-${rootProject.minecraft_version}-sources.jar")
 }
 
 components.java {
