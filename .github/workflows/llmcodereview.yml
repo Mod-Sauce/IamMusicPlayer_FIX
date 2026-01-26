@@ -79,11 +79,22 @@ jobs:
               html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
               html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
               html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
-              html = html.replace(/\n\n/g, '</p><p>');
+              html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+              html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
               html = html.replace(/^- (.*?)$/gm, '<li>$1</li>');
-              html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-              html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+              html = html.replace(/^(\d+)\. (.*?)$/gm, '<li>$2</li>');
+              html = html.replace(/(<li>.*?<\/li>)/s, '<ul>$1</ul>');
+              html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+              html = html.replace(/```[\s\S]*?```/g, (match) => '<pre><code>' + escapeHtml(match.replace(/```/g, '')) + '</code></pre>');
+              html = html.replace(/\n\n+/g, '</p><p>');
+              html = html.replace(/\n/g, '<br>');
               html = '<p>' + html + '</p>';
+              html = html.replace(/<p><h/g, '<h');
+              html = html.replace(/<\/h\d><\/p>/g, '</h\\d>');
+              html = html.replace(/<p><ul>/g, '<ul>');
+              html = html.replace(/<\/ul><\/p>/g, '</ul>');
+              html = html.replace(/<p><pre>/g, '<pre>');
+              html = html.replace(/<\/pre><\/p>/g, '</pre>');
               return html;
             };
 
