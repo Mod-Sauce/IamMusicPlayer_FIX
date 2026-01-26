@@ -146,12 +146,21 @@ jobs:
 
             const files = fs.readdirSync("reports").filter(f => f.startsWith("report-") && f.endsWith(".html")).sort().reverse();
 
-            let cardsHtml = files.map(file => {
+            let cardsHtml = "";
+            files.forEach(file => {
               const timeStr = file.replace("report-", "").replace(".html", "");
-              const date = new Date(timeStr.replace(/-/g, ":").replace(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{3})Z/, "$1-$2-$3T$4:$5:$6.$7Z"));
-              const displayName = date.toLocaleString();
-              return '<a href="./' + file + '" class="review-card"><h3>📝 Review</h3><p class="date">' + displayName + '</p></a>';
-            }).join("");
+              const parts = timeStr.split("T");
+              const dateParts = parts[0].split("-");
+              const timeParts = parts[1].split("-");
+              const year = dateParts[0];
+              const month = dateParts[1];
+              const day = dateParts[2];
+              const hour = timeParts[0];
+              const min = timeParts[1];
+              const sec = timeParts[2];
+              const displayName = day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
+              cardsHtml += '<a href="./' + file + '" class="review-card"><h3>📝 Review</h3><p class="date">' + displayName + '</p></a>';
+            });
 
             index = index.replace('<div class="reviews-grid" id="reviews"></div>', '<div class="reviews-grid">' + cardsHtml + '</div>');
             fs.writeFileSync(indexPath, index);
