@@ -38,7 +38,7 @@ jobs:
             const diff = await git.diff(["HEAD~1"]);
 
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
             const prompt = `You are a code review expert. Analyze the following git diff and provide a detailed but concise code review.
 
