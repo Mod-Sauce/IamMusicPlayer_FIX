@@ -58,7 +58,7 @@ Be constructive and specific. For each issue, explain:
 Return the review in clean, well-formatted markdown with sections and code blocks.
 
 Git Diff:
-\`\`\`
+\`\`\`diff
 ${diff}
 \`\`\``;
 
