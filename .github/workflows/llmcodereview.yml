@@ -1,0 +1,123 @@
+name: Gemini Code Report
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_dispatch: # manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  gemini-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm install @google/generative-ai simple-git
+
+      - name: Run Gemini analysis
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node <<'EOF'
+          import { GoogleGenerativeAI } from "@google/generative-ai";
+          import simpleGit from "simple-git";
+          import fs from "fs";
+
+          const git = simpleGit();
+          const diff = await git.diff(["HEAD~1"]);
+
+          const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+          const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+          const prompt = `
+          Analyze the following git diff.
+          List:
+          - Issues found
+          - Severity
+          - Proposed fixes
+
+          Return clean markdown.
+          Diff:
+          ${diff}
+          `;
+
+          const result = await model.generateContent(prompt);
+          const report = result.response.text();
+
+          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+          const reportName = `report-${timestamp}.html`;
+
+          const html = `
+          <html>
+            <head>
+              <title>${reportName}</title>
+              <style>
+                body { font-family: sans-serif; padding: 2rem; }
+                pre { white-space: pre-wrap; }
+              </style>
+            </head>
+            <body>
+              <h1>Gemini Code Report</h1>
+              <p>${new Date().toUTCString()}</p>
+              <pre>${report}</pre>
+            </body>
+          </html>
+          `;
+
+          fs.writeFileSync(reportName, html);
+
+          let index = "";
+          if (fs.existsSync("report.html")) {
+            index = fs.readFileSync("report.html", "utf8");
+          } else {
+            index = `
+            <html>
+              <head>
+                <title>Reports</title>
+              </head>
+              <body>
+                <h1>Gemini Reports</h1>
+                <div id="reports"></div>
+              </body>
+            </html>
+            `;
+          }
+
+          // Add new report link at the top of reports
+          const button = `<p><a href="./${reportName}">${reportName}</a></p>`;
+          index = index.replace(
+            '<div id="reports">',
+            `<div id="reports">\n${button}`
+          );
+
+          fs.writeFileSync("report.html", index);
+
+          console.log("=== Gemini Conclusion ===");
+          console.log(report);
+          EOF
+
+      - name: Commit and push reports to GitHub Pages
+        run: |
+          git config user.name "gemini-bot"
+          git config user.email "gemini@actions"
+          git add report*.html report.html
+          git commit -m "Add Gemini code report" || echo "No changes to commit"
+          
+          # Add GitHub Pages repo as remote
+          git remote add pages https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Mod-Sauce/mod-sauce.github.io.git
+          
+          # Push to main branch
+          git push pages main
