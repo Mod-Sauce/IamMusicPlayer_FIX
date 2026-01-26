@@ -1,6 +1,6 @@
 steps:
   - name: build
-    image: eclipse-temurin:17.0.17_10-jdk-ubi10-minimal
+    image: amazoncorretto:17
     commands:
       - chmod +x gradlew
       - ./gradlew build
