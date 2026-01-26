@@ -28,6 +28,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
+          node <<'EOF'
           (async () => {
             const { GoogleGenerativeAI } = await import("@google/generative-ai");
             const simpleGit = (await import("simple-git")).default;
@@ -68,6 +69,7 @@ ${diff}
             const reportName = `report-${timestamp}.html`;
             const date = new Date();
 
+            // Full styled report HTML
             const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,6 +116,7 @@ ${report}
 
             fs.writeFileSync(reportName, html);
 
+            // Update index/report.html with latest report button
             let index = "";
             if (fs.existsSync("report.html")) {
               index = fs.readFileSync("report.html", "utf8");
@@ -159,6 +162,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             console.log("=== Gemini Code Review Complete ===");
             console.log(report);
           })();
+          EOF
 
       - name: Commit and push reports
         env:
