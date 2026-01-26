@@ -115,9 +115,13 @@ jobs:
           git config user.email "gemini@actions"
           git add report*.html report.html
           git commit -m "Add Gemini code report" || echo "No changes to commit"
-          
+
           # Add GitHub Pages repo as remote
           git remote add pages https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Mod-Sauce/mod-sauce.github.io.git
           
+          # Fetch main branch (create if missing)
+          git fetch pages main || git checkout --orphan main
+          git reset pages/main || true
+          
           # Push to main branch
-          git push pages main
+          git push pages HEAD:main --force
