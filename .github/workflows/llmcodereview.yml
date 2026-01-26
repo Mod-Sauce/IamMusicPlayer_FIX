@@ -64,6 +64,32 @@ jobs:
 
             const result = await model.generateContent(prompt);
             const report = result.response.text();
+            
+            // Escape HTML to prevent XSS
+            const escapeHtml = (text) => {
+              const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+              };
+              return text.replace(/[&<>"']/g, m => map[m]);
+            };
+            
+            // Convert markdown to HTML safely
+            const markdownToHtml = (md) => {
+              let html = escapeHtml(md);
+              html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+              html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+              html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+              html = html.replace(/\n\n/g, '</p><p>');
+              html = html.replace(/^- (.*?)$/gm, '<li>$1</li>');
+              html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+              html = html.replace(/\`(.*?)\`/g, '<code>$1</code>');
+              html = '<p>' + html + '</p>';
+              return html;
+            };
 
             const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
             const reportName = `report-${timestamp}.html`;
@@ -75,221 +101,221 @@ jobs:
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>Gemini Code Review</title>
-              <link rel="stylesheet" href="/style.css">
+              <link rel="stylesheet" href="../style.css">
               <style>
-                .container { 
-                  max-width: 900px; 
-                  margin: 2rem auto; 
+                .report-container { 
+                  max-width: 800px; 
+                  margin: 1.5rem auto; 
                   background: var(--bg-light); 
-                  border-radius: 8px; 
+                  border-radius: 6px; 
                   border: 1px solid var(--border);
                   overflow: hidden; 
                 }
-                .header { 
+                .report-header { 
                   background: var(--bg); 
                   color: var(--text); 
-                  padding: 3rem 2rem; 
+                  padding: 2rem 1.5rem; 
                   text-align: center; 
                   border-bottom: 1px solid var(--border);
                 }
-                .header h1 { 
-                  font-size: 2.5rem; 
-                  margin-bottom: 0.5rem; 
+                .report-header h1 { 
+                  font-size: 1.8rem; 
+                  margin-bottom: 0.3rem; 
                   font-weight: 700;
                   color: var(--primary);
                 }
-                .header p { 
-                  font-size: 1rem; 
+                .report-header p { 
+                  font-size: 0.9rem; 
                   color: var(--text-muted);
                 }
-                .timestamp { 
-                  font-size: 0.85rem; 
-                  margin-top: 1rem; 
+                .report-timestamp { 
+                  font-size: 0.75rem; 
+                  margin-top: 0.5rem; 
                   color: var(--text-muted);
                 }
-                .content { 
-                  padding: 2.5rem; 
+                .report-content { 
+                  padding: 1.5rem; 
+                  font-size: 0.95rem;
                 }
-                .content h2 { 
+                .report-content h2 { 
                   color: var(--primary); 
-                  margin-top: 2rem; 
-                  margin-bottom: 1rem; 
-                  font-size: 1.5rem; 
-                  border-left: 3px solid var(--primary); 
-                  padding-left: 1rem;
-                }
-                .content h3 { 
-                  color: var(--secondary); 
                   margin-top: 1.5rem; 
                   margin-bottom: 0.8rem; 
-                  font-size: 1.2rem; 
+                  font-size: 1.3rem; 
+                  border-left: 3px solid var(--primary); 
+                  padding-left: 0.8rem;
                 }
-                .content h4 {
-                  color: var(--text-muted);
-                  margin-top: 1rem;
-                  margin-bottom: 0.5rem;
-                  font-size: 1rem;
+                .report-content h3 { 
+                  color: var(--secondary); 
+                  margin-top: 1rem; 
+                  margin-bottom: 0.5rem; 
+                  font-size: 1.1rem; 
                 }
-                .content p { 
-                  margin-bottom: 1rem; 
+                .report-content p { 
+                  margin-bottom: 0.8rem; 
                   color: var(--text);
                 }
-                .content ul, .content ol { 
-                  margin-left: 2rem; 
-                  margin-bottom: 1rem; 
+                .report-content ul { 
+                  margin-left: 1.5rem; 
+                  margin-bottom: 0.8rem; 
                 }
-                .content li {
-                  margin-bottom: 0.5rem;
+                .report-content li {
+                  margin-bottom: 0.3rem;
                   color: var(--text);
                 }
-                .content code { 
+                .report-content code { 
                   background: var(--bg); 
-                  padding: 0.2rem 0.5rem; 
-                  border-radius: 4px; 
+                  padding: 0.15rem 0.4rem; 
+                  border-radius: 3px; 
                   font-family: 'Courier New', monospace; 
                   color: var(--secondary);
-                  font-size: 0.9em;
+                  font-size: 0.85em;
                 }
-                .content pre { 
+                .report-content pre { 
                   background: var(--bg-dark); 
                   color: var(--text); 
-                  padding: 1.5rem; 
-                  border-radius: 6px; 
+                  padding: 1rem; 
+                  border-radius: 4px; 
                   overflow-x: auto; 
-                  margin: 1rem 0; 
+                  margin: 0.8rem 0; 
                   font-family: 'Courier New', monospace; 
-                  font-size: 0.85rem;
+                  font-size: 0.8rem;
                   border: 1px solid var(--border);
                 }
-                .content pre code { 
-                  background: none; 
-                  padding: 0; 
-                  color: inherit; 
-                }
-                .footer { 
+                .report-footer { 
                   background: var(--bg); 
-                  padding: 1.5rem; 
+                  padding: 1rem; 
                   text-align: center; 
                   color: var(--text-muted); 
                   border-top: 1px solid var(--border);
-                  font-size: 0.9rem;
+                  font-size: 0.8rem;
                 }
-                .footer a { 
+                .report-footer a { 
                   color: var(--primary); 
                   text-decoration: none; 
                 }
-                .footer a:hover { 
+                .report-footer a:hover { 
                   color: var(--secondary);
-                }
-                @media (max-width: 768px) { 
-                  .header h1 { font-size: 1.8rem; }
-                  .content { padding: 1.5rem; }
                 }
               </style>
             </head>
             <body>
-              <div class="container">
-                <div class="header">
+              <div class="report-container">
+                <div class="report-header">
                   <h1>🔍 Code Review</h1>
-                  <p>Gemini Analysis Report</p>
-                  <p class="timestamp">${date.toUTCString()}</p>
+                  <p>Gemini Analysis</p>
+                  <p class="report-timestamp">${date.toUTCString()}</p>
                 </div>
-                <div class="content">
-                  ${report}
+                <div class="report-content">
+                  ${markdownToHtml(report)}
                 </div>
-                <div class="footer">
+                <div class="report-footer">
                   <p><a href="index.html">← Back to Reports</a></p>
                 </div>
               </div>
             </body>
             </html>`;
 
-            fs.writeFileSync(reportName, html);
+            // Create reports directory if it doesn't exist
+            if (!fs.existsSync("reports")) {
+              fs.mkdirSync("reports", { recursive: true });
+            }
 
+            fs.writeFileSync(\`reports/\${reportName}\`, html);
+
+            // Create or update index.html for reports
+            let indexPath = "reports/index.html";
             let index = "";
-            let reportsHTML = "";
-            
-            if (fs.existsSync("report.html")) {
-              index = fs.readFileSync("report.html", "utf8");
+
+            if (fs.existsSync(indexPath)) {
+              index = fs.readFileSync(indexPath, "utf8");
             } else {
-              index = `<!DOCTYPE html>
+              index = \`<!DOCTYPE html>
               <html lang="en" data-theme="dark">
               <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Code Reviews</title>
-                <link rel="stylesheet" href="/style.css">
+                <link rel="stylesheet" href="../style.css">
                 <style>
-                  .reports-container {
-                    max-width: 1200px;
-                    margin: 2rem auto;
-                    padding: 0 2rem;
+                  .reviews-container {
+                    max-width: 900px;
+                    margin: 1.5rem auto;
+                    padding: 0 1rem;
                   }
-                  .reports-header {
+                  .reviews-header {
                     text-align: center;
-                    margin-bottom: 3rem;
+                    margin-bottom: 2rem;
                   }
-                  .reports-header h1 {
-                    font-size: 2.5rem;
+                  .reviews-header h1 {
+                    font-size: 2rem;
                     color: var(--primary);
-                    margin-bottom: 0.5rem;
+                    margin-bottom: 0.3rem;
                   }
-                  .reports-header p {
+                  .reviews-header p {
                     color: var(--text-muted);
-                    font-size: 1rem;
+                    font-size: 0.95rem;
                   }
-                  .reports-grid {
+                  .reviews-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                    gap: 1.5rem;
+                    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                    gap: 1rem;
                   }
-                  .report-card {
+                  .review-card {
                     background: var(--bg-light);
                     border: 1px solid var(--border);
-                    border-radius: 8px;
-                    padding: 1.5rem;
+                    border-radius: 6px;
+                    padding: 1.2rem;
                     text-decoration: none;
                     color: inherit;
                     display: flex;
                     flex-direction: column;
                     transition: all 0.3s ease;
                   }
-                  .report-card:hover {
+                  .review-card:hover {
                     border-color: var(--primary);
                     background: var(--bg);
                   }
-                  .report-card h2 {
+                  .review-card h3 {
                     color: var(--primary);
-                    margin-bottom: 0.5rem;
-                    font-size: 1.2rem;
+                    margin-bottom: 0.3rem;
+                    font-size: 1rem;
                   }
-                  .report-card .date {
+                  .review-card .date {
                     color: var(--text-muted);
-                    font-size: 0.85rem;
+                    font-size: 0.8rem;
                   }
                   @media (max-width: 768px) {
-                    .reports-header h1 { font-size: 1.8rem; }
-                    .reports-grid {
+                    .reviews-header h1 { font-size: 1.5rem; }
+                    .reviews-grid {
                       grid-template-columns: 1fr;
                     }
                   }
                 </style>
               </head>
               <body>
-                <div class="reports-container">
-                  <div class="reports-header">
+                <div class="reviews-container">
+                  <div class="reviews-header">
                     <h1>Code Reviews</h1>
                     <p>Gemini-powered analysis reports</p>
                   </div>
-                  <div class="reports-grid" id="reports"></div>
+                  <div class="reviews-grid" id="reviews"></div>
                 </div>
               </body>
-              </html>`;
+              </html>\`;
             }
 
-            const button = `<a href="./${reportName}" class="report-card"><h2>📝 Report</h2><p class="date">${date.toUTCString()}</p></a>`;
-            index = index.replace('<div class="reports-grid" id="reports">', `<div class="reports-grid" id="reports">\n                  ${button}`);
-            fs.writeFileSync("report.html", index);
+            // Get all existing reports
+            const files = fs.readdirSync("reports").filter(f => f.startsWith("report-") && f.endsWith(".html"));
+            files.sort().reverse();
+
+            let cardsHtml = files.map(file => {
+              const displayName = file.replace("report-", "").replace(".html", "").replace(/[T-]/g, " ").trim();
+              return \`<a href="./ file\\" class="review-card"><h3>📝 Review</h3><p class="date">\${displayName}</p></a>\`;
+            }).join("\\n                  ");
+
+            index = index.replace('<div class="reviews-grid" id="reviews"></div>', \`<div class="reviews-grid">\${cardsHtml}</div>\`);
+            fs.writeFileSync(indexPath, index);
 
             console.log("=== Gemini Code Review Complete ===");
             console.log(report);
@@ -302,15 +328,14 @@ jobs:
         run: |
           git config user.name "gemini-bot"
           git config user.email "gemini@actions"
-          git add report*.html report.html
+          git add reports/
           git commit -m "Add Gemini code report" || echo "No changes to commit"
           mkdir -p /tmp/pages-repo
           cd /tmp/pages-repo
           git clone https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git .
-          cp -r $GITHUB_WORKSPACE/report*.html .
-          cp $GITHUB_WORKSPACE/report.html .
+          cp -r $GITHUB_WORKSPACE/reports .
           git config user.name "gemini-bot"
           git config user.email "gemini@actions"
-          git add report*.html report.html
+          git add reports/
           git commit -m "Add Gemini code report" || echo "No changes to commit"
           git push origin main
