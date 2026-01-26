@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "**"
-  workflow_dispatch:
+  workflow_dispatch: # manual trigger
 
 permissions:
   contents: write
@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm install @google/generative-ai simple-git
 
       - name: Run Gemini analysis
@@ -96,7 +96,7 @@ jobs:
             `;
           }
 
-          // Add new report link at the top of reports
+          // Add new report link at the top
           const button = `<p><a href="./${reportName}">${reportName}</a></p>`;
           index = index.replace(
             '<div id="reports">',
@@ -110,6 +110,8 @@ jobs:
           EOF
 
       - name: Commit and push reports to GitHub Pages
+        env:
+          GH_PAGES_PAT: ${{ secrets.GH_PAGES_PAT }}
         run: |
           git config user.name "gemini-bot"
           git config user.email "gemini@actions"
@@ -117,11 +119,11 @@ jobs:
           git commit -m "Add Gemini code report" || echo "No changes to commit"
 
           # Add GitHub Pages repo as remote
-          git remote add pages https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Mod-Sauce/mod-sauce.github.io.git
+          git remote add pages https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git
           
-          # Fetch main branch (create if missing)
+          # Fetch main branch or create if missing
           git fetch pages main || git checkout --orphan main
           git reset pages/main || true
           
-          # Push to main branch
+          # Push everything to main
           git push pages HEAD:main --force
