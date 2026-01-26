@@ -124,5 +124,10 @@ jobs:
           # Merge the fetched main into current branch (or create if it doesn't exist)
           git merge --allow-unrelated-histories pages/main -m "Merge reports" || true
           
+          # Resolve conflicts by keeping our version
+          git checkout --ours report.html
+          git add report.html
+          git commit --no-edit || true
+          
           # Push to the target repo
-          git push pages HEAD:main
+          git push "https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git" HEAD:main
