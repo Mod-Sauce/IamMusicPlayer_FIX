@@ -28,7 +28,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          node <<'EOF'
+          node --input-type=module <<'EOF'
           import { GoogleGenerativeAI } from "@google/generative-ai";
           import simpleGit from "simple-git";
           import fs from "fs";
