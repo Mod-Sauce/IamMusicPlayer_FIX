@@ -117,24 +117,18 @@ jobs:
           git add report*.html report.html
           git commit -m "Add Gemini code report" || echo "No changes to commit"
 
-          # Clear any cached credentials
-          git credential-osxkeychain erase 2>/dev/null || true
-          git credential reject <<EOF
-          protocol=https
-          host=github.com
-          EOF
-
-          # Add remote and fetch the target repo
-          git remote add pages "https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git"
-          git fetch pages main
+          # Clone the target repo to a temp directory
+          mkdir -p /tmp/pages-repo
+          cd /tmp/pages-repo
+          git clone https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git .
           
-          # Merge the fetched main into current branch (or create if it doesn't exist)
-          git merge --allow-unrelated-histories pages/main -m "Merge reports" || true
+          # Copy report files from source repo
+          cp -r $GITHUB_WORKSPACE/report*.html .
+          cp $GITHUB_WORKSPACE/report.html .
           
-          # Resolve conflicts by keeping our version
-          git checkout --ours report.html
-          git add report.html
-          git commit --no-edit || true
-          
-          # Push to the target repo with explicit credentials
-          git -c credential.helper= -c credential.helper='!f() { echo "username=x-access-token"; echo "password=${GH_PAGES_PAT}"; }; f' push pages HEAD:main
+          # Commit and push
+          git config user.name "gemini-bot"
+          git config user.email "gemini@actions"
+          git add report*.html report.html
+          git commit -m "Add Gemini code report" || echo "No changes to commit"
+          git push origin main
