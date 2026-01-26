@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "**"
-  workflow_dispatch: # manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -40,7 +40,7 @@ jobs:
           const diff = await git.diff(["HEAD~1"]);
 
           const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+          const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
           const prompt = `
           Analyze the following git diff.
