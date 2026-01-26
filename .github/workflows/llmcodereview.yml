@@ -75,13 +75,16 @@ jobs:
             };
             
             const markdownToHtml = (md) => {
-              let html = escapeHtml(md);
-              
-              // Code blocks first (before inline code)
-              html = html.replace(/```[\s\S]*?```/g, (match) => {
+              // Extract code blocks first and replace with placeholders
+              const codeBlocks = [];
+              let html = md.replace(/```[\s\S]*?```/g, (match) => {
                 const code = match.replace(/```/g, '').trim();
-                return '<pre><code>' + code + '</code></pre>';
+                const placeholder = '___CODE_BLOCK_' + codeBlocks.length + '___';
+                codeBlocks.push(code);
+                return placeholder;
               });
+              
+              html = escapeHtml(html);
               
               // Headers
               html = html.replace(/^##### (.*?)$/gm, '<h5>$1</h5>');
@@ -96,10 +99,10 @@ jobs:
               html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
               html = html.replace(/_(.*?)_/g, '<em>$1</em>');
               
-              // Inline code (after escaping)
+              // Inline code
               html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
               
-              // Lists - handle multiple consecutive items
+              // Lists
               html = html.replace(/^- (.*?)$/gm, '<li>$1</li>');
               html = html.replace(/^(\d+)\. (.*?)$/gm, '<li>$2</li>');
               html = html.replace(/(<li>.*?<\/li>)/s, (match) => {
@@ -116,9 +119,14 @@ jobs:
               html = html.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
               html = html.replace(/<p>(<ul>)/g, '$1');
               html = html.replace(/(<\/ul>)<\/p>/g, '$1');
-              html = html.replace(/<p>(<pre>)/g, '$1');
-              html = html.replace(/(<\/pre>)<\/p>/g, '$1');
+              html = html.replace(/<p>___CODE_BLOCK_/g, '___CODE_BLOCK_');
+              html = html.replace(/___<\/p>/g, '___');
               html = html.replace(/<p><\/p>/g, '');
+              
+              // Restore code blocks
+              codeBlocks.forEach((code, i) => {
+                html = html.replace('___CODE_BLOCK_' + i + '___', '<pre><code>' + escapeHtml(code) + '</code></pre>');
+              });
               
               return html;
             };
