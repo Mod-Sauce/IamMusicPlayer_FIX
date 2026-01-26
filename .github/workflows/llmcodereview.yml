@@ -27,7 +27,8 @@ jobs:
       - name: Run Gemini analysis
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: node > /dev/null << 'NODEJS'
+        run: |
+          node << 'NODEJS'
           (async () => {
             const { GoogleGenerativeAI } = await import("@google/generative-ai");
             const simpleGit = (await import("simple-git")).default;
