@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "**"
-  workflow_dispatch: # manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -96,7 +96,6 @@ jobs:
             `;
           }
 
-          // Add new report link at the top
           const button = `<p><a href="./${reportName}">${reportName}</a></p>`;
           index = index.replace(
             '<div id="reports">',
@@ -115,15 +114,16 @@ jobs:
         run: |
           git config user.name "gemini-bot"
           git config user.email "gemini@actions"
+
           git add report*.html report.html
           git commit -m "Add Gemini code report" || echo "No changes to commit"
 
-          # Add GitHub Pages repo as remote
+          # Use the classic PAT token to push
           git remote add pages https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git
           
-          # Fetch main branch or create if missing
+          # Fetch main branch if it exists, or create orphan branch if repo is empty
           git fetch pages main || git checkout --orphan main
           git reset pages/main || true
-          
-          # Push everything to main
+
+          # Push changes
           git push pages HEAD:main --force
