@@ -95,7 +95,7 @@ jobs:
             const reportName = `report-${timestamp}.html`;
             const date = new Date();
 
-            const html = `<!DOCTYPE html>
+            const html = "<!DOCTYPE html>
             <html lang="en" data-theme="dark">
             <head>
               <meta charset="UTF-8">
@@ -272,8 +272,8 @@ jobs:
 
             let cardsHtml = files.map(file => {
               const displayName = file.replace("report-", "").replace(".html", "").replace(/[T-]/g, " ").trim();
-              return \`<a href="./ file\\" class="review-card"><h3>📝 Review</h3><p class="date">\${displayName}</p></a>\`;
-            }).join("\\n                  ");
+              return '<a href="./' + file + '" class="review-card"><h3>📝 Review</h3><p class="date">' + displayName + '</p></a>';
+            }).join("\n                  ");
 
             index = index.replace('<div class="reviews-grid" id="reviews"></div>', \`<div class="reviews-grid">\${cardsHtml}</div>\`);
             fs.writeFileSync(indexPath, index);
