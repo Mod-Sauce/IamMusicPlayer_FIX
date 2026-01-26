@@ -221,7 +221,11 @@ jobs:
               fs.mkdirSync("reports", { recursive: true });
             }
 
-            fs.writeFileSync(\`reports/\${reportName}\`, html);
+            if (!fs.existsSync("reports")) {
+              fs.mkdirSync("reports", { recursive: true });
+            }
+            
+            fs.writeFileSync("reports/" + reportName, html);
 
             // Create or update index.html for reports
             let indexPath = "reports/index.html";
@@ -311,10 +315,10 @@ jobs:
 
             let cardsHtml = files.map(file => {
               const displayName = file.replace("report-", "").replace(".html", "").replace(/[T-]/g, " ").trim();
-              return \`<a href="./ file\\" class="review-card"><h3>📝 Review</h3><p class="date">\${displayName}</p></a>\`;
-            }).join("\\n                  ");
+              return '<a href="./' + file + '" class="review-card"><h3>📝 Review</h3><p class="date">' + displayName + '</p></a>';
+            }).join("\n                  ");
 
-            index = index.replace('<div class="reviews-grid" id="reviews"></div>', \`<div class="reviews-grid">\${cardsHtml}</div>\`);
+            index = index.replace('<div class="reviews-grid"></div>', '<div class="reviews-grid">' + cardsHtml + '</div>');
             fs.writeFileSync(indexPath, index);
 
             console.log("=== Gemini Code Review Complete ===");
