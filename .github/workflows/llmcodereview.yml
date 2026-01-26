@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "**"
-  workflow_dispatch:
+  workflow_dispatch: # allow manual trigger
 
 jobs:
   gemini-report:
@@ -28,7 +28,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          node <<'NODEJS'
+          node <<'EOF'
 (async () => {
   const { GoogleGenerativeAI } = await import("@google/generative-ai");
   const simpleGit = (await import("simple-git")).default;
@@ -160,7 +160,7 @@ ${diff}
   console.log("=== Gemini Code Review Complete ===");
   console.log(report);
 })();
-NODEJS
+EOF
 
       - name: Commit and push reports
         env:
