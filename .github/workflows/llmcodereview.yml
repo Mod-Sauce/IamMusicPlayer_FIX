@@ -28,19 +28,19 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          node << 'NODEJS'
-          (async () => {
-            const { GoogleGenerativeAI } = await import("@google/generative-ai");
-            const simpleGit = (await import("simple-git")).default;
-            const fs = await import("fs");
-            
-            const git = simpleGit();
-            const diff = await git.diff(["HEAD~1"]);
-            
-            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-            
-            const prompt = `You are a code review expert. Analyze the following git diff and provide a detailed code review.
+          node <<'NODEJS'
+(async () => {
+  const { GoogleGenerativeAI } = await import("@google/generative-ai");
+  const simpleGit = (await import("simple-git")).default;
+  const fs = await import("fs");
+
+  const git = simpleGit();
+  const diff = await git.diff(["HEAD~1"]);
+
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  const prompt = `You are a code review expert. Analyze the following git diff and provide a detailed code review.
 
 Focus on:
 - Potential bugs or logical errors in the NEW code
@@ -61,15 +61,15 @@ Git Diff:
 \`\`\`
 ${diff}
 \`\`\``;
-            
-            const result = await model.generateContent(prompt);
-            const report = result.response.text();
-            
-            const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-            const reportName = `report-${timestamp}.html`;
-            const date = new Date();
-            
-            const html = `<!DOCTYPE html>
+
+  const result = await model.generateContent(prompt);
+  const report = result.response.text();
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const reportName = `report-${timestamp}.html`;
+  const date = new Date();
+
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -112,14 +112,14 @@ ${diff}
   </div>
 </body>
 </html>`;
-            
-            fs.writeFileSync(reportName, html);
-            
-            let index = "";
-            if (fs.existsSync("report.html")) {
-              index = fs.readFileSync("report.html", "utf8");
-            } else {
-              index = `<!DOCTYPE html>
+
+  fs.writeFileSync(reportName, html);
+
+  let index = "";
+  if (fs.existsSync("report.html")) {
+    index = fs.readFileSync("report.html", "utf8");
+  } else {
+    index = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -150,17 +150,17 @@ ${diff}
   </div>
 </body>
 </html>`;
-            }
-            
-            const button = `<a href="./${reportName}" class="report-card"><h2>📝 Code Review Report</h2><p class="date">${date.toUTCString()}</p></a>`;
-            index = index.replace('<div class="reports-grid" id="reports">', `<div class="reports-grid" id="reports">\n${button}`);
-            
-            fs.writeFileSync("report.html", index);
-            
-            console.log("=== Gemini Code Review Complete ===");
-            console.log(report);
-          })();
-        NODEJS
+  }
+
+  const button = `<a href="./${reportName}" class="report-card"><h2>📝 Code Review Report</h2><p class="date">${date.toUTCString()}</p></a>`;
+  index = index.replace('<div class="reports-grid" id="reports">', `<div class="reports-grid" id="reports">\n${button}`);
+
+  fs.writeFileSync("report.html", index);
+
+  console.log("=== Gemini Code Review Complete ===");
+  console.log(report);
+})();
+NODEJS
 
       - name: Commit and push reports
         env:
