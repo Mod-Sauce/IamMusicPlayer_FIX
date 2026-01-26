@@ -76,25 +76,50 @@ jobs:
             
             const markdownToHtml = (md) => {
               let html = escapeHtml(md);
+              
+              // Code blocks first (before inline code)
+              html = html.replace(/```[\s\S]*?```/g, (match) => {
+                const code = match.replace(/```/g, '').trim();
+                return '<pre><code>' + code + '</code></pre>';
+              });
+              
+              // Headers
+              html = html.replace(/^##### (.*?)$/gm, '<h5>$1</h5>');
+              html = html.replace(/^#### (.*?)$/gm, '<h4>$1</h4>');
               html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
               html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
               html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+              
+              // Bold and italic
               html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+              html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
               html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+              html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+              
+              // Inline code (after escaping)
+              html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+              
+              // Lists - handle multiple consecutive items
               html = html.replace(/^- (.*?)$/gm, '<li>$1</li>');
               html = html.replace(/^(\d+)\. (.*?)$/gm, '<li>$2</li>');
-              html = html.replace(/(<li>.*?<\/li>)/s, '<ul>$1</ul>');
-              html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-              html = html.replace(/```[\s\S]*?```/g, (match) => '<pre><code>' + escapeHtml(match.replace(/```/g, '')) + '</code></pre>');
+              html = html.replace(/(<li>.*?<\/li>)/s, (match) => {
+                return '<ul>' + match + '</ul>';
+              });
+              
+              // Paragraphs
               html = html.replace(/\n\n+/g, '</p><p>');
-              html = html.replace(/\n/g, '<br>');
+              html = html.replace(/\n(?!<)/g, '<br>');
               html = '<p>' + html + '</p>';
-              html = html.replace(/<p><h/g, '<h');
-              html = html.replace(/<\/h\d><\/p>/g, '</h\\d>');
-              html = html.replace(/<p><ul>/g, '<ul>');
-              html = html.replace(/<\/ul><\/p>/g, '</ul>');
-              html = html.replace(/<p><pre>/g, '<pre>');
-              html = html.replace(/<\/pre><\/p>/g, '</pre>');
+              
+              // Clean up nested tags
+              html = html.replace(/<p>(<h[1-6]>)/g, '$1');
+              html = html.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
+              html = html.replace(/<p>(<ul>)/g, '$1');
+              html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+              html = html.replace(/<p>(<pre>)/g, '$1');
+              html = html.replace(/(<\/pre>)<\/p>/g, '$1');
+              html = html.replace(/<p><\/p>/g, '');
+              
               return html;
             };
 
@@ -122,7 +147,9 @@ jobs:
             const files = fs.readdirSync("reports").filter(f => f.startsWith("report-") && f.endsWith(".html")).sort().reverse();
 
             let cardsHtml = files.map(file => {
-              const displayName = file.replace("report-", "").replace(".html", "").replace(/[T-]/g, " ").trim();
+              const timeStr = file.replace("report-", "").replace(".html", "");
+              const date = new Date(timeStr.replace(/-/g, ":").replace(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})-(\d{3})Z/, "$1-$2-$3T$4:$5:$6.$7Z"));
+              const displayName = date.toLocaleString();
               return '<a href="./' + file + '" class="review-card"><h3>📝 Review</h3><p class="date">' + displayName + '</p></a>';
             }).join("");
 
