@@ -6,9 +6,6 @@ on:
       - "**"
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   gemini-report:
     runs-on: ubuntu-latest
@@ -108,7 +105,7 @@ jobs:
           console.log(report);
           EOF
 
-      - name: Commit and push reports to GitHub Pages
+      - name: Commit and push reports
         env:
           GH_PAGES_PAT: ${{ secrets.GH_PAGES_PAT }}
         run: |
@@ -118,12 +115,8 @@ jobs:
           git add report*.html report.html
           git commit -m "Add Gemini code report" || echo "No changes to commit"
 
-          # Use the classic PAT token to push
+          # Push using the PAT
           git remote add pages https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git
-          
-          # Fetch main branch if it exists, or create orphan branch if repo is empty
           git fetch pages main || git checkout --orphan main
           git reset pages/main || true
-
-          # Push changes
           git push pages HEAD:main --force
