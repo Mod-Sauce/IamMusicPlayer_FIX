@@ -9,6 +9,8 @@ on:
 jobs:
   gemini-report:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -115,8 +117,12 @@ jobs:
           git add report*.html report.html
           git commit -m "Add Gemini code report" || echo "No changes to commit"
 
-          # Push using the PAT
-          git remote add pages https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git
-          git fetch pages main || git checkout --orphan main
-          git reset pages/main || true
-          git push pages HEAD:main --force
+          # Add remote and fetch the target repo
+          git remote add pages "https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git"
+          git fetch pages main
+          
+          # Merge the fetched main into current branch (or create if it doesn't exist)
+          git merge --allow-unrelated-histories pages/main -m "Merge reports" || true
+          
+          # Push to the target repo
+          git push pages HEAD:main
