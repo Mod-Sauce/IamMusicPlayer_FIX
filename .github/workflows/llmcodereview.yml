@@ -78,24 +78,24 @@ jobs:
             };
             
             const markdownToHtml = (md) => {
-              // Extract code blocks and inline code first
               const codeBlocks = [];
               const inlineCode = [];
               
+              // Extract code blocks FIRST - don't escape them yet
               let html = md.replace(/```[\s\S]*?```/g, (match) => {
                 const code = match.substring(3, match.length - 3).trim();
-                const idx = codeBlocks.length;
                 codeBlocks.push(code);
-                return '\n__CODEBLOCK' + idx + '__\n';
+                return 'XYZCODEBLOCX' + (codeBlocks.length - 1) + 'XYZCODEBLOCX';
               });
               
+              // Extract inline code
               html = html.replace(/`[^`]+`/g, (match) => {
                 const code = match.substring(1, match.length - 1);
-                const idx = inlineCode.length;
                 inlineCode.push(code);
-                return '__INLINE' + idx + '__';
+                return 'XYZINLINEX' + (inlineCode.length - 1) + 'XYZINLINEX';
               });
               
+              // NOW escape the remaining HTML
               html = escapeHtml(html);
               
               // Headers
@@ -105,7 +105,7 @@ jobs:
               html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
               html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
               
-              // Bold only (no italics)
+              // Bold only
               html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
               html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
               
@@ -126,19 +126,19 @@ jobs:
               html = html.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
               html = html.replace(/<p>(<ul>)/g, '$1');
               html = html.replace(/(<\/ul>)<\/p>/g, '$1');
-              html = html.replace(/<p>\n__CODEBLOCK/g, '\n__CODEBLOCK');
-              html = html.replace(/__CODEBLOCK\d+__\n<\/p>/g, (match) => match.replace('<\/p>', ''));
+              html = html.replace(/<p>XYZCODEBLOCX/g, 'XYZCODEBLOCX');
+              html = html.replace(/XYZCODEBLOCX<\/p>/g, 'XYZCODEBLOCX');
               html = html.replace(/<p><\/p>/g, '');
               
               // Restore inline code
-              inlineCode.forEach((code, i) => {
-                html = html.replace(new RegExp('__INLINE' + i + '__', 'g'), '<code>' + escapeHtml(code) + '</code>');
-              });
+              for (let i = 0; i < inlineCode.length; i++) {
+                html = html.split('XYZINLINEX' + i + 'XYZINLINEX').join('<code>' + escapeHtml(inlineCode[i]) + '</code>');
+              }
               
               // Restore code blocks
-              codeBlocks.forEach((code, i) => {
-                html = html.replace(new RegExp('\n?__CODEBLOCK' + i + '__\n?', 'g'), '<pre><code>' + escapeHtml(code) + '</code></pre>');
-              });
+              for (let i = 0; i < codeBlocks.length; i++) {
+                html = html.split('XYZCODEBLOCX' + i + 'XYZCODEBLOCX').join('<pre><code>' + escapeHtml(codeBlocks[i]) + '</code></pre>');
+              }
               
               return html;
             };
@@ -147,7 +147,7 @@ jobs:
             const reportName = "report-" + timestamp + ".html";
             const date = new Date();
 
-            const html = '<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Gemini Code Review</title><link rel="stylesheet" href="../style.css"><style>.report-container { max-width: 800px; margin: 1.5rem auto; background: var(--bg-light); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }.report-header { background: var(--bg); color: var(--text); padding: 2rem 1.5rem; text-align: center; border-bottom: 1px solid var(--border); }.report-header h1 { font-size: 2rem; margin-bottom: 0.3rem; font-weight: 700; color: var(--primary); }.report-header p { font-size: 1rem; color: var(--text-muted); }.report-timestamp { font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-muted); }.report-content { padding: 1.5rem; font-size: 1rem; line-height: 1.6; }.report-content h1 { font-size: 1.8rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.8rem; border-left: 3px solid var(--primary); padding-left: 0.8rem; }.report-content h2 { font-size: 1.6rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.8rem; border-left: 3px solid var(--primary); padding-left: 0.8rem; }.report-content h3 { font-size: 1.3rem; color: var(--secondary); margin-top: 1rem; margin-bottom: 0.5rem; }.report-content h4 { font-size: 1.1rem; color: var(--secondary); margin-top: 0.8rem; margin-bottom: 0.4rem; }.report-content p { margin-bottom: 0.8rem; color: var(--text); }.report-content ul { margin-left: 1.5rem; margin-bottom: 0.8rem; }.report-content li { margin-bottom: 0.3rem; color: var(--text); }.report-content code { background: var(--bg); padding: 0.15rem 0.4rem; border-radius: 3px; font-family: monospace; color: var(--secondary); font-size: 0.95em; }.report-content pre { background: var(--bg-dark); color: var(--text); padding: 1rem; border-radius: 4px; overflow-x: auto; margin: 0.8rem 0; font-family: monospace; font-size: 0.9rem; border: 1px solid var(--border); }.report-footer { background: var(--bg); padding: 1rem; text-align: center; color: var(--text-muted); border-top: 1px solid var(--border); font-size: 0.9rem; }.report-footer a { color: var(--primary); text-decoration: none; }.report-footer a:hover { color: var(--secondary); }</style></head><body><div class="report-container"><div class="report-header"><h1>🔍 Code Review</h1><p>Gemini Analysis</p><p class="report-timestamp">' + date.toUTCString() + '</p></div><div class="report-content">' + markdownToHtml(report) + '</div><div class="report-footer"><p><a href="index.html">← Back to Reports</a></p></div></div></body></html>';
+            const html = '<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Gemini Code Review</title><link rel="stylesheet" href="../style.css"><style>.report-container { max-width: 800px; margin: 1.5rem auto; background: var(--bg-light); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }.report-header { background: var(--bg); color: var(--text); padding: 2rem 1.5rem; text-align: center; border-bottom: 1px solid var(--border); }.report-header h1 { font-size: 2rem; margin-bottom: 0.3rem; font-weight: 700; color: var(--primary); }.report-header p { font-size: 1rem; color: var(--text-muted); }.report-timestamp { font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-muted); }.report-content { padding: 1.5rem; font-size: 0.95rem; line-height: 1.6; }.report-content h1 { font-size: 1.8rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.8rem; border-left: 3px solid var(--primary); padding-left: 0.8rem; }.report-content h2 { font-size: 1.6rem; color: var(--primary); margin-top: 1.5rem; margin-bottom: 0.8rem; border-left: 3px solid var(--primary); padding-left: 0.8rem; }.report-content h3 { font-size: 1.3rem; color: var(--secondary); margin-top: 1rem; margin-bottom: 0.5rem; }.report-content h4 { font-size: 1.1rem; color: var(--secondary); margin-top: 0.8rem; margin-bottom: 0.4rem; }.report-content p { margin-bottom: 0.8rem; color: var(--text); }.report-content ul { margin-left: 1.5rem; margin-bottom: 0.8rem; }.report-content li { margin-bottom: 0.3rem; color: var(--text); }.report-content code { background: var(--bg); padding: 0.15rem 0.4rem; border-radius: 3px; font-family: monospace; color: var(--secondary); font-size: 0.95em; }.report-content pre { background: var(--bg-dark); color: var(--text); padding: 1rem; border-radius: 4px; overflow-x: auto; margin: 0.8rem 0; font-family: monospace; font-size: 0.9rem; border: 1px solid var(--border); }.report-footer { background: var(--bg); padding: 1rem; text-align: center; color: var(--text-muted); border-top: 1px solid var(--border); font-size: 0.9rem; }.report-footer a { color: var(--primary); text-decoration: none; }.report-footer a:hover { color: var(--secondary); }</style></head><body><div class="report-container"><div class="report-header"><h1>🔍 Code Review</h1><p>Gemini Analysis</p><p class="report-timestamp">' + date.toUTCString() + '</p></div><div class="report-content">' + markdownToHtml(report) + '</div><div class="report-footer"><p><a href="index.html">← Back to Reports</a></p></div></div></body></html>';
 
             if (!fs.existsSync("reports")) {
               fs.mkdirSync("reports", { recursive: true });
