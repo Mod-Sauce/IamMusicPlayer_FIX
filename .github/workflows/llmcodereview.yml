@@ -117,6 +117,13 @@ jobs:
           git add report*.html report.html
           git commit -m "Add Gemini code report" || echo "No changes to commit"
 
+          # Clear any cached credentials
+          git credential-osxkeychain erase 2>/dev/null || true
+          git credential reject <<EOF
+          protocol=https
+          host=github.com
+          EOF
+
           # Add remote and fetch the target repo
           git remote add pages "https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git"
           git fetch pages main
@@ -129,5 +136,5 @@ jobs:
           git add report.html
           git commit --no-edit || true
           
-          # Push to the target repo
-          git push "https://x-access-token:${GH_PAGES_PAT}@github.com/Mod-Sauce/mod-sauce.github.io.git" HEAD:main
+          # Push to the target repo with explicit credentials
+          git -c credential.helper= -c credential.helper='!f() { echo "username=x-access-token"; echo "password=${GH_PAGES_PAT}"; }; f' push pages HEAD:main
