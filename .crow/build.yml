@@ -1,0 +1,9 @@
+steps:
+  - name: build
+    image: eclipse-temurin:17.0.17_10-jdk-ubi10-minimal
+    commands:
+      - chmod +x gradlew
+      - ./gradlew build
+when:
+  - event:
+      - manual
