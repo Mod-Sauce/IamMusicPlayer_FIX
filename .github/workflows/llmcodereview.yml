@@ -25,11 +25,10 @@ jobs:
         run: npm install @google/generative-ai simple-git
 
       - name: Create analysis script
-        run: |
-          cat > analyze.mjs << 'SCRIPT'
-          import { GoogleGenerativeAI } from "@google/generative-ai";
-          import simpleGit from "simple-git";
-          import fs from "fs";
+        run: cat > analyze.mjs << 'SCRIPT'
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import simpleGit from "simple-git";
+import fs from "fs";
 
           const git = simpleGit();
           const diff = await git.diff(["HEAD~1"]);
