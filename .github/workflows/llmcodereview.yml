@@ -24,11 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm install @google/generative-ai simple-git
 
-      - name: Run Gemini analysis
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Create analysis script
         run: |
-          node --input-type=module <<'EOF'
+          cat > analyze.mjs << 'SCRIPT'
           import { GoogleGenerativeAI } from "@google/generative-ai";
           import simpleGit from "simple-git";
           import fs from "fs";
@@ -382,7 +380,12 @@ ${diff}
 
           console.log("=== Gemini Code Review Complete ===");
           console.log(report);
-          EOF
+          SCRIPT
+
+      - name: Run Gemini analysis
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node analyze.mjs
 
       - name: Commit and push reports
         env:
