@@ -1,6 +1,6 @@
 steps:
   - name: build
-    image: amazoncorretto:17
+    image: amazoncorretto:21
     commands:
       - chmod +x gradlew
       - ./gradlew build
