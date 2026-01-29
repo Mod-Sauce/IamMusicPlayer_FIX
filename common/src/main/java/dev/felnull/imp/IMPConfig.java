@@ -67,5 +67,5 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("internal")
   @ConfigEntry.Gui.Excluded
-  public String configVersion = "";
+  public String configVersion = "1";
 }
