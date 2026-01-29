@@ -6,6 +6,9 @@ import dev.felnull.fnjl.util.FNDataUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.LavaNativeManager;
 import java.io.*;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -14,7 +17,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Objects;
+
+import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -316,7 +322,17 @@ public class IMPRHash {
 
     private String GetHash(String url) throws Exception {
         try {
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newBuilder().proxy(new ProxySelector() {
+                @Override
+                public List<Proxy> select(URI uri) {
+                    return List.of(NetMusicUtil.getSystemProxy());
+                }
+
+                @Override
+                public void connectFailed(URI uri, SocketAddress socketAddress, IOException e) {
+
+                }
+            }).build();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()

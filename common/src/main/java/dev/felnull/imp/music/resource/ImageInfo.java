@@ -68,8 +68,7 @@ public class ImageInfo implements TagSerializable {
         URL("url"),
         PLAYER_FACE("player_face"),
         YOUTUBE_THUMBNAIL("youtube_thumbnail"),
-        SOUND_CLOUD_ARTWORK("sound_cloud_artwork"),
-        NETEASE_CLOUD_MUSIC_PICTURE("netease_cloud_music_picture");
+        SOUND_CLOUD_ARTWORK("sound_cloud_artwork");
         private final String name;
 
         private ImageType(String name) {

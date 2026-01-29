@@ -156,14 +156,12 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     public void saveToUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveToUpdateTag(tag, registries);
         tag.put("BoomBoxData", this.boomboxData.save(new CompoundTag(), false, true));
-        ContainerHelper.saveAllItems(tag, this.getItems(), registries);
     }
 
     @Override
     public void loadToUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadToUpdateTag(tag, registries);
         this.boomboxData.load(tag.getCompound("BoomBoxData"), false, true);
-        ContainerHelper.loadAllItems(tag, this.getItems(), registries);
     }
 
     @Override

@@ -10,11 +10,13 @@ public class IMPMusicMedias {
     public static final YoutubeMusicMedia YOUTUBE = new YoutubeMusicMedia("youtube");
     public static final SoundCloudMusicMedia SOUNDCLOUD = new SoundCloudMusicMedia("soundcloud");
     public static final HttpMusicMedia HTTP = new HttpMusicMedia("http");
+    public static final NeteaseMusicMedia NETEASE_MUSIC = new NeteaseMusicMedia("netease");
 
     public static void init() {
         register("youtube", YOUTUBE);
         register("soundcloud", SOUNDCLOUD);
         register("http", HTTP);
+        register("netease", NETEASE_MUSIC);
     }
 
     public static void register(String name, MusicMedia media) {

@@ -6,9 +6,7 @@ import com.google.gson.JsonObject;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.hash.IMPRHash;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -21,6 +19,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -262,7 +262,7 @@ public class LavaNativeManager {
         URL manifestUrl = new URI(manifestUrlString).toURL();
 
         HttpURLConnection connection =
-                (HttpURLConnection) manifestUrl.openConnection();
+                (HttpURLConnection) manifestUrl.openConnection(NetMusicUtil.getSystemProxy());
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
         connection.setReadTimeout(READ_TIMEOUT);
         connection.setRequestProperty("User-Agent", "IamMusicPlayer");
@@ -346,7 +346,7 @@ public class LavaNativeManager {
      */
     private void downloadFile(URL url, Path destination) throws IOException {
         LOGGER.info("Opening connection to: {}", url);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection(NetMusicUtil.getSystemProxy());
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
         connection.setReadTimeout(READ_TIMEOUT);
         connection.setRequestProperty("User-Agent", "IamMusicPlayer");

@@ -124,14 +124,13 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
             setTransferProgress(stack, getTransferProgress(stack) + (power ? 1 : -1));
         }
         var p = level.registryAccess();
-        if(!stack.has(DataComponents.CONTAINER)) {
-            // 临时的解决方案
-            var l = NonNullList.withSize(2, ItemStack.EMPTY);
-            l.set(0, BoomboxItem.getCassetteTape(stack, p));
-            l.set(1, BoomboxItem.getAntenna(stack, p));
-            stack.set(DataComponents.CONTAINER,
-                    ItemContainerContents.fromItems(l));
-        }
+
+        // 临时的解决方案
+        var l = NonNullList.withSize(2, ItemStack.EMPTY);
+        l.set(0, BoomboxItem.getCassetteTape(stack, p));
+        l.set(1, BoomboxItem.getAntenna(stack, p));
+        stack.set(DataComponents.CONTAINER,
+                ItemContainerContents.fromItems(l));
     }
 
     @Override
