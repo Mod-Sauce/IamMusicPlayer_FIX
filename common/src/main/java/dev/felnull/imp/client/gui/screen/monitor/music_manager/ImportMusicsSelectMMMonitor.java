@@ -16,6 +16,11 @@ public class ImportMusicsSelectMMMonitor extends ImportSelectBaseMMMonitor {
     }
 
     @Override
+    public @NotNull MusicManagerBlockEntity.MonitorType getImportNeteaseMonitor() {
+        return MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST_MUSICS;
+    }
+
+    @Override
     protected @Nullable MusicManagerBlockEntity.MonitorType getParentType() {
         return MusicManagerBlockEntity.MonitorType.ADD_MUSIC;
     }

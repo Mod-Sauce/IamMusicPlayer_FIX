@@ -98,6 +98,8 @@ public abstract class MusicManagerMonitor extends Monitor<MusicManagerBlockEntit
         registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT, ImportMusicsSelectMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST_MUSICS, ImportYoutubePlayListMusicsMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.AUTHORITY, AuthorityMMMonitor::new);
+        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST_MUSICS, ImportNetEasePlayListMusicsMMMonitor::new);
+        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST, ImportNetEasePlayListMMMonitor::new);
     }
 
     public MusicManagerScreen getScreen() {

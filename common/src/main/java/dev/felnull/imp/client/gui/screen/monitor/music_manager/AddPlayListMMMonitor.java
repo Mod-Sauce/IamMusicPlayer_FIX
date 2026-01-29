@@ -54,7 +54,7 @@ public class AddPlayListMMMonitor extends MusicManagerMonitor {
 
         this.addOnlinePlayListButton = addRenderWidget(new SmartButton(getStartX() + 91, getStartY() + 189, 122, 9, ONLINE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.ADD_ONLINE_PLAY_LIST)));
         this.addOnlinePlayListButton.setIcon(WIDGETS_TEXTURE, 83, 14, 5, 5);
-        this.addOnlinePlayListButton.active = false;
+        this.addOnlinePlayListButton.active = false; // 根本没写是吧，fuckQ
 
         this.playlistSortButton = addRenderWidget(new SortButton.SortTypeButton(getStartX() + 213, getStartY() + 189, n -> updateList(), false, getScreen()));
         this.playlistOrderButton = addRenderWidget(new SortButton.OrderTypeButton(getStartX() + 222, getStartY() + 189, n -> updateList(), false, getScreen()));

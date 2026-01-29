@@ -22,6 +22,6 @@ public class IamMusicPlayerDataGenerator {
     access.addProviderWrapper(IMPPoiTypeTagProviderWrapper::new);
     //access.addProviderWrapper(packOutput -> new DirectCopyProviderWrapper(packOutput, PackOutput.Target.DATA_PACK, "patchouli_books", access));
     access.addProviderWrapper(IMPBlockLootTableProviderWrapper::new);
-    access.addProviderWrapper(IMPAdvancementProviderWrapper::new); // todo:没修好
+    access.addProviderWrapper(IMPAdvancementProviderWrapper::new);
   }
 }

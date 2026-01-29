@@ -2,19 +2,27 @@ package dev.felnull.imp.client.music.netmusic;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import dev.felnull.imp.client.music.loader.IMPMusicLoaders;
+import dev.felnull.imp.client.music.media.IMPMusicMedias;
+import dev.felnull.imp.client.music.netmusic.api.ExtraMusicList;
 import dev.felnull.imp.client.music.netmusic.api.WebApi;
+import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicSong;
+import dev.felnull.imp.music.resource.ImageInfo;
+import dev.felnull.imp.music.resource.Music;
+import dev.felnull.imp.music.resource.MusicSource;
+import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class NetMusicUtil {
     public static final WebApi WEB_API = new WebApi(HashMap.newHashMap(0));
@@ -108,6 +116,56 @@ public class NetMusicUtil {
         var album = song.get("album");
         // 大力出奇迹.png
         return new URL((String) ((Map<String, Object>)album).get("picUrl"));
+    }
+
+    public static List<Music> getMusicList(long id) throws Exception {
+        // 从网络音乐机里拿的代码
+        var SONGS = new ArrayList<Music>();
+        NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
+        int count = pojo.getPlayList().getTracks().size();
+        int size = Math.min(pojo.getPlayList().getTrackIds().size(), 114514);
+        if (count < size) {
+            // ids过多时会无法解析，这里分开解析
+            long[] ids = new long[size - count];
+
+            for(int i = count; i < size; ++i) {
+                ids[i - count] = pojo.getPlayList().getTrackIds().get(i).getId();
+            }
+
+            if(ids.length <= 100){
+                String extraTrackInfo = WEB_API.songs(ids);
+                ExtraMusicList extra = GSON.fromJson(extraTrackInfo, ExtraMusicList.class);
+                pojo.getPlayList().getTracks().addAll(extra.getTracks());
+            }else{
+                int batchSize = 100;
+                for(int i = 0; i < ids.length; i += batchSize){
+                    int end = Math.min(i + batchSize, ids.length);
+                    long[] batchIds = Arrays.copyOfRange(ids, i, end);
+                    String extraTrackInfo = WEB_API.songs(batchIds);
+                    ExtraMusicList extra = GSON.fromJson(extraTrackInfo, ExtraMusicList.class);
+                    pojo.getPlayList().getTracks().addAll(extra.getTracks());
+                }
+            }
+        }
+        for(NetEaseMusicList.Track track : pojo.getPlayList().getTracks()) {
+            var musicSource = new MusicSource(IMPMusicMedias.NETEASE_MUSIC.getName(), String.valueOf(track.getId()), track.getDuration());
+
+            ImageInfo imageInfo = new ImageInfo(ImageInfo.ImageType.URL, track.getAlbum().getPicUrl());
+            SONGS.add(new Music(UUID.randomUUID(),
+                    track.getName(),
+                    String.join("、", track.getArtists()),
+                    musicSource,
+                    imageInfo,
+                    Objects.requireNonNull(Minecraft.getInstance().player).getGameProfile().getId(),
+                    System.currentTimeMillis()));
+        }
+        return SONGS;
+    }
+
+    public static NetEaseMusicList.PlayList getMusicListInfo(long id) throws Exception {
+        // 从网络音乐机里拿的代码
+        NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
+        return pojo.getPlayList();
     }
 
     public static Proxy getSystemProxy() {
