@@ -1,3 +1,7 @@
+when:
+  - event:
+      - manual
+
 steps:
   - name: build
     image: amazoncorretto:21
@@ -12,12 +16,22 @@ steps:
     
   - name: package-and-upload
     image: alpine:latest
+    environment:
+      NEXTCLOUD_URL:
+        from_secret: nextcloud_url
+      NEXTCLOUD_USERNAME:
+        from_secret: nextcloud_username
+      NEXTCLOUD_PASSWORD:
+        from_secret: nextcloud_password
+      NEXTCLOUD_SHARE_USER1:
+        from_secret: nextcloud_share_user1
+      NEXTCLOUD_SHARE_USER2:
+        from_secret: nextcloud_share_user2
     commands:
       # Install dependencies
       - apk add --no-cache curl jq libxml2-utils zip
       
       # Set variables
-      - NEXTCLOUD_URL="${NEXTCLOUD_URL}"
       - WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
       - FOLDER_PATH="builds/${MOD_VERSION}"
       
@@ -83,14 +97,3 @@ steps:
       - upload_loader "fabric" "fabric/build/libs"
       - upload_loader "forge" "forge/build/libs"
       - upload_loader "neoforge" "neoforge/build/libs"
-      
-    
-    secrets: 
-      - nextcloud_url
-      - nextcloud_username
-      - nextcloud_password
-      - nextcloud_share_user1
-      - nextcloud_share_user2
-    
-    when:
-      - event: [manual]
