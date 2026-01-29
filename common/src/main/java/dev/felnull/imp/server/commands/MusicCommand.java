@@ -33,10 +33,10 @@ public class MusicCommand {
 
             src.sendSuccess(() -> Component.translatable("commands.imp.ringer.info.all", rngs.size(), rngs.stream().filter(MusicRingerAccess::isPlaying).count()), false);
         } else {
-            var name = level.dimension().location();
+            var name = level.dimension().location().toString();
             var rngs = IamMusicPlayerAPI.getInstance().getRingers(level);
 
-            src.sendSuccess(() -> Component.translatable("commands.imp.ringer.info", rngs.size(), rngs.stream().filter(MusicRingerAccess::isPlaying).count()), false);
+            src.sendSuccess(() -> Component.translatable("commands.imp.ringer.info", rngs.size(), rngs.stream().filter(MusicRingerAccess::isPlaying).count(), name), false);
         }
         return 1;
     }
@@ -50,14 +50,14 @@ public class MusicCommand {
             } else {
                 src.sendSuccess(() -> Component.translatable("commands.imp.ringer.list.all"), false);
                 for (MusicRingerAccess ringer : ringers) {
-                    src.sendSuccess(() -> Component.translatable("commands.imp.ringer.list.all.entry" + (ringer.isPlaying() ? ".playing" : ""), ringer.getName(), createPosComponent(ringer.getSpatialPosition(), ringer.getServerLevel()), ringer.getServerLevel().dimension().location()), false);
+                    src.sendSuccess(() -> Component.translatable("commands.imp.ringer.list.all.entry" + (ringer.isPlaying() ? ".playing" : ""), ringer.getName(), createPosComponent(ringer.getSpatialPosition(), ringer.getServerLevel()), ringer.getServerLevel().dimension().location().toString()), false);
                 }
             }
         } else {
             if (ringers.isEmpty()) {
-                src.sendFailure(Component.translatable("commands.imp.ringer.list.notFound", level.dimension().location()));
+                src.sendFailure(Component.translatable("commands.imp.ringer.list.notFound", level.dimension().location().toString()));
             } else {
-                src.sendSuccess(() -> Component.translatable("commands.imp.ringer.list", level.dimension().location()), false);
+                src.sendSuccess(() -> Component.translatable("commands.imp.ringer.list", level.dimension().location().toString()), false);
                 for (MusicRingerAccess ringer : ringers) {
                     src.sendSuccess(() -> Component.translatable("commands.imp.ringer.list.entry" + (ringer.isPlaying() ? ".playing" : ""), ringer.getName(), createPosComponent(ringer.getSpatialPosition(), ringer.getServerLevel())), false);
                 }

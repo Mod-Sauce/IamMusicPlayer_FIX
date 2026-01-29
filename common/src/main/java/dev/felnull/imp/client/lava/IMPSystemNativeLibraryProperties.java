@@ -4,6 +4,10 @@ import com.sedmelluq.lava.common.natives.NativeLibraryProperties;
 import com.sedmelluq.lava.common.natives.architecture.DefaultOperatingSystemTypes;
 import com.sedmelluq.lava.common.natives.architecture.SystemType;
 import java.util.function.Predicate;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.*;
 
 public class IMPSystemNativeLibraryProperties
@@ -43,7 +47,15 @@ public class IMPSystemNativeLibraryProperties
       natName,
       sys.formatLibraryName(libraryName)
     );
-    if (!ret) throw new UnsatisfiedLinkError("Failed to load the library");
+    if (!ret) {
+        Minecraft.getInstance().getToasts().addToast(SystemToast.multiline(
+                Minecraft.getInstance(),
+                SystemToast.SystemToastId.NARRATOR_TOGGLE,
+                Component.translatable("imp.text.lava.failed1"),
+                Component.translatable("imp.text.lava.failed2")
+        ));
+        throw new UnsatisfiedLinkError("Failed to load the library");
+    };
     var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);
     LOGGER.info(
       "The path for lava loader is: " + p.toAbsolutePath().toString()

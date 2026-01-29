@@ -282,5 +282,18 @@
   "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player Renewed",
   "_comment.other": "Other",
   "modmenu.descriptionTranslation.iammusicplayer": "Add a music player that you can listen to with multiple players.\nThe ikisugi music player mod...",
-  "_comment.la": "Last"
+  "_comment.la": "Last",
+
+  "text.autoconfig.iammusicplayer.category.netease": "NetEase Cloud Music",
+  "text.autoconfig.iammusicplayer.option.enableNetease": "Enable NetEase Cloud Music",
+  "text.autoconfig.iammusicplayer.option.neteaseCookie": "NetEase Cloud Music Cookie",
+  "text.autoconfig.iammusicplayer.option.hashBaseUrl": "Support Library Hash Fetch URL",
+  "text.autoconfig.iammusicplayer.option.IMPRFolder": "IAM Data Folder",
+  "text.autoconfig.iammusicplayer.option.lavaNativesFolder": "Support Library Folder",
+  "text.autoconfig.iammusicplayer.option.errorLog": "Error Log",
+  "imp.text.lava.failed1": "Lava Player failed to load",
+  "imp.text.lava.failed2": "This will cause music playback to fail, please check your network",
+  "imp.button.importNeteasePlayList": "Import NetEase Cloud Music Playlist",
+  "imp.monitor.music_manager.import_netease_play_list_musics": "Import music from NetEase Cloud Music Playlist",
+  "imp.monitor.music_manager.import_netease_play_list": "Import NetEase Cloud Music Playlist"
 }

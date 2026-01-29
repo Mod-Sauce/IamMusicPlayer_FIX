@@ -5,7 +5,7 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 @Config(name = IamMusicPlayer.MODID)
-@Config.Gui.Background("textures/block/note_block.png")
+@Config.Gui.Background("cloth-config2:transparent")
 public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("client")
@@ -31,7 +31,7 @@ public class IMPConfig implements ConfigData {
   public String lavaPlayerNativesURL =
     "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
 
-  @ConfigEntry.Category("cleint")
+  @ConfigEntry.Category("client")
   public String hashBaseUrl =
     "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
 
@@ -65,7 +65,13 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("debug")
   public boolean showSpeakerRange = false;
 
-  @ConfigEntry.Category("internal")
+  @ConfigEntry.Category("client")
   @ConfigEntry.Gui.Excluded
   public String configVersion = "1";
+
+  @ConfigEntry.Category("netease")
+  public boolean enableNetease = true;
+
+  @ConfigEntry.Category("netease")
+  public String neteaseCookie = "";
 }

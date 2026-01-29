@@ -3,13 +3,12 @@ package dev.felnull.imp.client.music.media;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
 
 public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
     protected NeteaseMusicMedia(String name) {
@@ -23,17 +22,18 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public Component getMediaName() {
-        return Component.literal("网易云");
+        return Component.translatable("imp.loaderType.neteasecloudmusic");
     }
 
     @Override
     public Component getEnterText() {
-        return Component.literal("歌曲ID……");
+        return Component.translatable("imp.text.enterText.neteasecloudmusic");
     }
 
     @Override
     public ResourceLocation getIcon() {
-        return null;
+        return ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID,
+                "textures/gui/container/music_manager/loader_types/neteasecloudmusic.png");
     }
 
     @Override
@@ -43,6 +43,7 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public MusicMediaResult load(String sourceName) throws Exception {
+        if(!IamMusicPlayer.getConfig().enableNetease)return null;
         long id;
         try {
             id = Long.parseLong(sourceName);

@@ -2,9 +2,10 @@ package dev.felnull.imp.client.music.netmusic;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import dev.felnull.imp.client.music.loader.IMPMusicLoaders;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.netmusic.api.ExtraMusicList;
+import dev.felnull.imp.client.music.netmusic.api.NetEaseMusic;
 import dev.felnull.imp.client.music.netmusic.api.WebApi;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicSong;
@@ -14,18 +15,16 @@ import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.*;
 import java.util.*;
 
 public class NetMusicUtil {
-    public static final WebApi WEB_API = new WebApi(HashMap.newHashMap(0));
+    public static final WebApi WEB_API = new NetEaseMusic().getApi();
     public static final Logger LOGGER = LogManager.getLogger(NetMusicUtil.class);
     private static final Gson GSON = new Gson();
     public static URL resolveRedirect(URL originalUrl, int maxRedirects, Map<String, String> headers) throws IOException {
@@ -80,9 +79,15 @@ public class NetMusicUtil {
     }
 
     public static URL getNetMusicUrl(long id){
+        updateCookie();
         final String baseURL = "https://music.163.com/song/media/outer/url?id=%d.mp3";
+        String url = String.format(baseURL, id);
+        if(!IamMusicPlayer.getConfig().neteaseCookie.isEmpty()){
+            var url1 = LoginNeedUtil.pasteVIPUrl(id);
+            if(url1 != null)url = url1;
+        }
         try{
-            return resolveRedirect(URL.of(new URI(String.format(baseURL, id)), null), WEB_API.getRequestPropertyData());
+            return resolveRedirect(URL.of(new URI(url), null), WEB_API.getRequestPropertyData());
         }catch (Exception e){
             return null;
         }
@@ -101,12 +106,20 @@ public class NetMusicUtil {
 
     @Nullable
     public static String getNetMusicJson(long id){
+        updateCookie();
         try {
             return WEB_API.song(id);
         } catch (IOException e) {
             LOGGER.debug("获取音乐错误：", e);
             return null;
         }
+    }
+
+    private static void updateCookie(){
+        if(IamMusicPlayer.getConfig().neteaseCookie.isEmpty())return;
+        var cookie = IamMusicPlayer.getConfig().neteaseCookie;
+        if(!cookie.contains("os=pc"))cookie = cookie + ";appver=3.1.6;os=pc";
+        WEB_API.getRequestPropertyData().put("Cookie", cookie);
     }
 
     @SuppressWarnings("all")
@@ -120,6 +133,7 @@ public class NetMusicUtil {
 
     public static List<Music> getMusicList(long id) throws Exception {
         // 从网络音乐机里拿的代码
+        updateCookie();
         var SONGS = new ArrayList<Music>();
         NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
         int count = pojo.getPlayList().getTracks().size();

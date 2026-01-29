@@ -1,6 +1,7 @@
 package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
@@ -20,7 +21,9 @@ public class AddOnlinePlayListMMMonitor extends MusicManagerMonitor {
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
         addRenderWidget(new SmartButton(getStartX() + (width - 270) / 2, getStartY() + (height - 15) / 2 + 15, 270, 15, IMPORT_YOUTUBE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST)));
-        addRenderWidget(new SmartButton(getStartX() + (width - 270) / 2, getStartY() + (height - 15) / 2 - 15, 270, 15, IMPORT_NETEASE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST)));
+        var button = new SmartButton(getStartX() + (width - 270) / 2, getStartY() + (height - 15) / 2 - 15, 270, 15, IMPORT_NETEASE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST));
+        button.active = IamMusicPlayer.getConfig().enableNetease;
+        addRenderWidget(button);
     }
 
     @Override
