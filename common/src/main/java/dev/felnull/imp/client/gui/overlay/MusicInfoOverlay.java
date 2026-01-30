@@ -16,7 +16,7 @@ public class MusicInfoOverlay {
         var data = getPlayerData();
         if(data == null){return;}
         musicInfoWidget.setData(data);
-        musicInfoWidget.setMusic(data.getSelectedMusic());
+        musicInfoWidget.setMusic(data.getSelectedMusic() == null ? data.getCassetteTapeMusic() : data.getSelectedMusic());
         musicInfoWidget.render(guiGraphics, 0, 0, tickDelta);
     }
 

@@ -79,6 +79,7 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float d) {
+        if(music == null || data == null)return;
         OERenderUtils.drawFill(guiGraphics.pose(), getX(), getY(), width + getX(), height + getY(),
                 0xFFDCDCDC);
         OERenderUtils.drawFill(guiGraphics.pose(), getX() + 1, getY() + 1, width + getX() - 1, height + getY() - 1, 0xFFFFFFFF);
@@ -88,8 +89,6 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
         poseStack.translate(0, mc.font.lineHeight + 3, OERenderUtils.MIN_BREADTH * 2);
         OERenderUtils.drawTexture(PLAYING_BG_TEXTURE, poseStack, getX(), getY(), 0f, 0f, width, baseHeight, width, baseHeight);
         poseStack.popPose();
-
-        if(music == null || data == null)return;
 
         if (!music.getImage().isEmpty()) {
             poseStack.pushPose();
