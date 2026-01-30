@@ -29,7 +29,7 @@ public class ContinuousWidget extends AbstractWidget implements IIMPSmartRender 
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
-        drawSmartCenterText(guiGraphics, Component.translatable("imp.text.continuous", continuousTypeValue.get().getComponent()), getX() + width / 2f - 10, getY() + 2, isHoveredOrFocused() ? 0XFF007F06 : 0XFF115D0E);
+        drawSmartCenterText(guiGraphics, continuousTypeValue.get().getComponent(), getX() + width / 2f, getY() + 2, isHoveredOrFocused() ? 0XFF007F06 : 0XFF115D0E);
     }
 
     @Override

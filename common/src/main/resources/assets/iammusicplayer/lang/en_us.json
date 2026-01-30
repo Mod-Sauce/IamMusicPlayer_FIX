@@ -201,7 +201,6 @@
   "imp.text.deleteWarning": "%s' will be lost forever! (A long time!)",
   "imp.text.cantChangeAuthority": "You can't change authority",
   "imp.text.radioChecking": "Checking...",
-  "imp.text.continuous": "Playback Mode: %s",
   "imp.text.continuous.none": "None",
   "imp.text.continuous.order": "Order",
   "imp.text.continuous.random": "Random",
