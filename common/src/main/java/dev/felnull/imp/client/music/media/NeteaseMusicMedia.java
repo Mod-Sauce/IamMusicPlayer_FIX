@@ -54,7 +54,7 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
         var data = NetMusicUtil.getNetMusicJson(id);
         var infoData = NetMusicUtil.getNetMusicSongData(data);
         if(infoData == null)return null;
-        var name = IamMusicPlayer.getConfig().withTransName ?
+        var name = IamMusicPlayer.getConfig().withTransName && !infoData.getTransName().isEmpty() ?
                 String.format("%s(%s)", infoData.getName(), infoData.getTransName()) :
                 infoData.getName();
         var author = String.join("、", infoData.getArtists());
