@@ -201,6 +201,7 @@
   "imp.text.deleteWarning": "%s' will be lost forever! (A long time!)",
   "imp.text.cantChangeAuthority": "You can't change authority",
   "imp.text.radioChecking": "Checking...",
+  "imp.text.continuous": "Playback Mode: %s",
   "imp.text.continuous.none": "None",
   "imp.text.continuous.order": "Order",
   "imp.text.continuous.random": "Random",
@@ -295,5 +296,8 @@
   "imp.text.lava.failed2": "This will cause music playback to fail, please check your network",
   "imp.button.importNeteasePlayList": "Import NetEase Cloud Music Playlist",
   "imp.monitor.music_manager.import_netease_play_list_musics": "Import music from NetEase Cloud Music Playlist",
-  "imp.monitor.music_manager.import_netease_play_list": "Import NetEase Cloud Music Playlist"
+  "imp.monitor.music_manager.import_netease_play_list": "Import NetEase Cloud Music Playlist",
+  "text.autoconfig.iammusicplayer.category.hud": "HUD",
+  "text.autoconfig.iammusicplayer.option.withTransName": "Add translations for music names",
+  "text.autoconfig.iammusicplayer.option.enableMusicInfoHUD": "Enable Music Info HUD"
 }

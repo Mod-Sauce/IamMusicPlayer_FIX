@@ -5,6 +5,7 @@ import dev.architectury.event.EventResult;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
+import dev.felnull.imp.client.gui.overlay.MusicInfoOverlay;
 import dev.felnull.imp.client.gui.overlay.MusicLinesOverlay;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.item.BoomboxItem;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class RenderHandler {
     private static final MusicLinesOverlay MUSIC_LINES_OVERLAY = new MusicLinesOverlay();
+    private static final MusicInfoOverlay MUSIC_INFO_OVERLAY = new MusicInfoOverlay();
 
     public static void init() {
         MoreRenderEvent.RENDER_ITEM_IN_HAND.register(RenderHandler::onRenderItemInHand);
@@ -32,6 +34,8 @@ public class RenderHandler {
     private static void renderHud(GuiGraphics guiGraphics, DeltaTracker tickDelta) {
         if (IamMusicPlayer.getConfig().showMusicLines)
             MUSIC_LINES_OVERLAY.render(guiGraphics, tickDelta.getGameTimeDeltaTicks());
+        if(IamMusicPlayer.getConfig().enableMusicInfoHUD)
+            MUSIC_INFO_OVERLAY.render(guiGraphics, tickDelta.getGameTimeDeltaTicks());
     }
 
     private static EventResult onRenderItemInHand(PoseStack poseStack, MultiBufferSource multiBufferSource, InteractionHand hand, int packedLight, float partialTicks, float interpolatedPitch, float swingProgress, float equipProgress, ItemStack stack) {

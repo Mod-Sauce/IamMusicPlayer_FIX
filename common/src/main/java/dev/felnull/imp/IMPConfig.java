@@ -73,5 +73,11 @@ public class IMPConfig implements ConfigData {
   public boolean enableNetease = true;
 
   @ConfigEntry.Category("netease")
+  public boolean withTransName = true;
+
+  @ConfigEntry.Category("netease")
   public String neteaseCookie = "";
+
+  @ConfigEntry.Category("hud")
+  public boolean enableMusicInfoHUD = true;
 }

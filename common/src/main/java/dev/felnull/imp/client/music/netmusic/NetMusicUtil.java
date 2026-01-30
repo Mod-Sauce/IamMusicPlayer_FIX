@@ -10,18 +10,25 @@ import dev.felnull.imp.client.music.netmusic.api.WebApi;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicSong;
 import dev.felnull.imp.music.resource.ImageInfo;
+import dev.felnull.imp.music.resource.Lyric;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
+import it.unimi.dsi.fastutil.floats.Float2ObjectArrayMap;
+import it.unimi.dsi.fastutil.floats.Float2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.floats.Float2ObjectSortedMap;
 import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import oshi.util.tuples.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NetMusicUtil {
     public static final WebApi WEB_API = new NetEaseMusic().getApi();
@@ -180,6 +187,51 @@ public class NetMusicUtil {
         // 从网络音乐机里拿的代码
         NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
         return pojo.getPlayList();
+    }
+
+    @SuppressWarnings("all")
+    public static Lyric getLyric(String json){
+        var data = (Map<String, Object>)GSON.fromJson(json, new TypeToken<Map<String, Object>>(){}.getType());
+        var lrc = (String)((Map<String, Object>)data.get("lrc")).get("lyric");
+        var transformlLrc = "";
+        if(data.containsKey("tlyric")){
+            transformlLrc = (String)((Map<String, Object>)data.get("tlyric")).get("lyric");
+        }
+        if(lrc.isEmpty()){
+            return null;
+        }
+        Float2ObjectSortedMap<String> lyricMap;
+        Float2ObjectSortedMap<String> transformLyricMap = null;
+        if(!transformlLrc.isEmpty()){
+            transformLyricMap = new Float2ObjectLinkedOpenHashMap<>();
+            for(String part: transformlLrc.split("\n")){
+                var p = getLyricPair(part);
+                if(p != null){transformLyricMap.put(p.getA(), p.getB());}
+            }
+        }
+        lyricMap = new Float2ObjectLinkedOpenHashMap<>();
+        for(String part: lrc.split("\n")){
+            var p = getLyricPair(part);
+            if(p != null){lyricMap.put(p.getA(), p.getB());}
+        }
+        return new Lyric(lyricMap, transformLyricMap);
+    }
+
+    private static Pair<Float, String> getLyricPair(String input){
+        Pattern pattern = Pattern.compile("^\\[(\\d+):(\\d+)[.:](\\d+)](.*)$");
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            int minutes = Integer.parseInt(matcher.group(1));
+            int seconds = Integer.parseInt(matcher.group(2));
+            int milliseconds = Integer.parseInt(matcher.group(3));
+            String text = matcher.group(4);
+
+            // 计算总秒数（带小数）
+            float totalSeconds = minutes * 60 + seconds + milliseconds / 1000f;
+            return new Pair<>(totalSeconds, text.trim());
+        }
+        return null;
     }
 
     public static Proxy getSystemProxy() {
