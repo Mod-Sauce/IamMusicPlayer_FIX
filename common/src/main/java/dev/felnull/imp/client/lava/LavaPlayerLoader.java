@@ -20,7 +20,9 @@ public class LavaPlayerLoader {
   public static void init() {
     NativeLibraryLoader[] loaders = null;
     try {
-      var f = ConnectorNativeLibLoader.class.getDeclaredField("loaders");
+      var f = ConnectorNativeLibLoader.class.getDeclaredField(
+        "loaders"
+      );
       f.setAccessible(true);
       loaders = (NativeLibraryLoader[]) f.get(null);
     } catch (Exception ex) {
@@ -48,7 +50,9 @@ public class LavaPlayerLoader {
     String libraryName,
     Predicate<SystemType> systemFilter
   ) {
-    var bp = new IMPResourceNativeLibraryBinaryProvider(classLoaderSample);
+    var bp = new IMPResourceNativeLibraryBinaryProvider(
+      classLoaderSample
+    );
     return new NativeLibraryLoader(
       libraryName,
       systemFilter,

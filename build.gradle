@@ -40,17 +40,11 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
-//    archivesName = rootProject.archives_base_name
     version = rootProject.mod_version
-    //group = rootProject.maven_group
 
     repositories {
         maven {
-            url = repsyUrl
-            credentials {
-                username = repsyUsername
-                password = repsyPassword
-            }
+            url = "https://codeberg.org/api/packages/Mod-Sauce/maven"
         }
         maven {
           url =  "https://maven.parchmentmc.org"

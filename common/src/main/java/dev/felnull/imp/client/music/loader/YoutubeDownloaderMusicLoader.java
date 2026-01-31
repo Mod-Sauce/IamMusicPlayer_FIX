@@ -7,31 +7,38 @@ import dev.felnull.imp.music.resource.MusicSource;
 import org.jetbrains.annotations.NotNull;
 
 public class YoutubeDownloaderMusicLoader extends LavaMusicLoader {
-    @Override
-    protected boolean isSupportMedia(MusicSource source) {
-        return IMPMusicMedias.YOUTUBE.getName().equals(source.getLoaderType());
-    }
 
-    @Override
-    public void tryLoad(@NotNull MusicSource source) throws Exception {
-        if (!IamMusicPlayer.getConfig().useYoutubeDownloader)
-            throw new RuntimeException("YoutubeDownloader is disabled in config");
-        super.tryLoad(source);
-    }
+  @Override
+  protected boolean isSupportMedia(MusicSource source) {
+    return IMPMusicMedias.YOUTUBE.getName().equals(
+      source.getLoaderType()
+    );
+  }
 
-    @Override
-    protected String wrappedIdentifier(MusicSource source) throws Exception {
-        if (source.isLive())
-            return null;
+  @Override
+  public void tryLoad(@NotNull MusicSource source) throws Exception {
+    if (
+      !IamMusicPlayer.getConfig().useYoutubeDownloader
+    ) throw new RuntimeException(
+      "YoutubeDownloader is disabled in config"
+    );
+    super.tryLoad(source);
+  }
 
-        var url = YoutubeUtil.getYoutubeRawURL(source.getIdentifier());
-        if (url == null)
-            throw new RuntimeException("Failed to get Youtube URL");
-        return url;
-    }
+  @Override
+  protected String wrappedIdentifier(MusicSource source)
+    throws Exception {
+    if (source.isLive()) return null;
 
-    @Override
-    public int priority() {
-        return 1;
-    }
+    var url = YoutubeUtil.getYoutubeRawURL(source.getIdentifier());
+    if (url == null) throw new RuntimeException(
+      "Failed to get Youtube URL"
+    );
+    return url;
+  }
+
+  @Override
+  public int priority() {
+    return 1;
+  }
 }

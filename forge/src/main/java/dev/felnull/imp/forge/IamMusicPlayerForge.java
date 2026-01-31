@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@SuppressWarnings("Deprecated")
+@SuppressWarnings("removal")
 @Mod(IamMusicPlayer.MODID)
 public class IamMusicPlayerForge {
 
@@ -16,7 +16,9 @@ public class IamMusicPlayerForge {
       FMLJavaModLoadingContext.get().getModEventBus()
     );
     IamMusicPlayer.init();
-    FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+    FMLJavaModLoadingContext.get()
+      .getModEventBus()
+      .addListener(this::setup);
   }
 
   private void setup(FMLCommonSetupEvent e) {

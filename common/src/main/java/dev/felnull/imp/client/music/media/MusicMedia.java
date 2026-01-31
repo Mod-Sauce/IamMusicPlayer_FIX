@@ -1,35 +1,36 @@
 package dev.felnull.imp.client.music.media;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * 音楽の再生メディア
  */
 public interface MusicMedia {
-    Component getMediaName();
+  Component getMediaName();
 
-    Component getEnterText();
+  Component getEnterText();
 
-    ResourceLocation getIcon();
+  ResourceLocation getIcon();
 
-    boolean isSearchable();
+  boolean isSearchable();
 
-    MusicMediaResult load(String sourceName) throws Exception;
+  MusicMediaResult load(String sourceName) throws Exception;
 
-    default List<MusicMediaResult> search(String searchText) {
-        return new ArrayList<>();
+  default List<MusicMediaResult> search(String searchText) {
+    return new ArrayList<>();
+  }
+
+  default String getName() {
+    for (Map.Entry<
+      String,
+      MusicMedia
+    > entry : IMPMusicMedias.MEDIAS.entrySet()) {
+      if (entry.getValue().equals(this)) return entry.getKey();
     }
-
-    default String getName() {
-        for (Map.Entry<String, MusicMedia> entry : IMPMusicMedias.MEDIAS.entrySet()) {
-            if (entry.getValue().equals(this))
-                return entry.getKey();
-        }
-        return null;
-    }
+    return null;
+  }
 }

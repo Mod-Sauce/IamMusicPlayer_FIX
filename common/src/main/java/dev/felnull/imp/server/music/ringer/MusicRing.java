@@ -15,7 +15,8 @@ public class MusicRing {
 
   private final ServerLevel level;
   private final Map<UUID, IMusicRinger> ringers = new HashMap<>();
-  private final Map<UUID, RingedPlayerInfos> playerInfos = new HashMap<>();
+  private final Map<UUID, RingedPlayerInfos> playerInfos =
+    new HashMap<>();
   private final Set<UUID> waitRingers = new HashSet<>();
   private long baseTime;
   private long pauseTime = -1;
@@ -34,91 +35,95 @@ public class MusicRing {
   }
 
   protected void tick() {
-      var stopRingers = new ArrayList<UUID>();
-  
-      // Capture current ring time once at start for better consistency in logs
-      long startTime = getTime();
-      LOGGER.debug(
-        "MusicRing.tick start - lastTime: {}, startTime: {}, ringers: {}",
-        lastTime,
-        startTime,
-        ringers.size()
-      );
-  
-      for (IMusicRinger ringer : ringers.values()) {
-        var uuid = ringer.getRingerUUID();
-        
-        // ADD THIS CHECK: Stop ringer if it no longer exists OR has changed dimensions
-        if (!ringer.exists() || ringer.getRingerLevel() != this.level) {
-          stopRingers.add(uuid);
+    var stopRingers = new ArrayList<UUID>();
+
+    // Capture current ring time once at start for better consistency in logs
+    long startTime = getTime();
+    LOGGER.debug(
+      "MusicRing.tick start - lastTime: {}, startTime: {}, ringers: {}",
+      lastTime,
+      startTime,
+      ringers.size()
+    );
+
+    for (IMusicRinger ringer : ringers.values()) {
+      var uuid = ringer.getRingerUUID();
+
+      // ADD THIS CHECK: Stop ringer if it no longer exists OR has changed dimensions
+      if (!ringer.exists() || ringer.getRingerLevel() != this.level) {
+        stopRingers.add(uuid);
+      } else {
+        var ms = ringer.getRingerMusicSource();
+        if (ms == null || !ringer.isRingerPlaying()) {
+          ringer.setRingerPlaying(false);
+          stopRingingPlayer(uuid);
         } else {
-          var ms = ringer.getRingerMusicSource();
-          if (ms == null || !ringer.isRingerPlaying()) {
-            ringer.setRingerPlaying(false);
-            stopRingingPlayer(uuid);
-          } else {
-            var rpi = playerInfos.get(uuid);
-            if (rpi == null) {
-              rpi = new RingedPlayerInfos(uuid, startTime);
-              rpi.sendFirstPackets();
-              playerInfos.put(uuid, rpi);
-              waitRingers.add(uuid);
-              LOGGER.debug(
-                "Added RingedPlayerInfos for {} at time {}",
-                uuid,
-                startTime
+          var rpi = playerInfos.get(uuid);
+          if (rpi == null) {
+            rpi = new RingedPlayerInfos(uuid, startTime);
+            rpi.sendFirstPackets();
+            playerInfos.put(uuid, rpi);
+            waitRingers.add(uuid);
+            LOGGER.debug(
+              "Added RingedPlayerInfos for {} at time {}",
+              uuid,
+              startTime
+            );
+          }
+
+          if (rpi.tick(startTime)) {
+            waitRingers.remove(uuid);
+            long currentTime = getTime();
+            long eq = currentTime - lastTime;
+            long prevPos = ringer.getRingerPosition();
+            boolean isStream = ringer.isRingerStream();
+            long duration = ms != null ? ms.getDuration() : 0;
+            LOGGER.debug(
+              "Updating ringer {}: prevPos={}, duration={}, isStream={}, lastTime={}, currentTime={}, eq={}",
+              uuid,
+              prevPos,
+              duration,
+              isStream,
+              lastTime,
+              currentTime,
+              eq
+            );
+
+            if (duration >= prevPos + eq || isStream) {
+              var sc = ringer.getRingerMusicSource();
+              long newPos = clamp(
+                prevPos + eq,
+                0,
+                sc != null ? sc.getDuration() : 0
               );
-            }
-  
-            if (rpi.tick(startTime)) {
-              waitRingers.remove(uuid);
-              long currentTime = getTime();
-              long eq = currentTime - lastTime;
-              long prevPos = ringer.getRingerPosition();
-              boolean isStream = ringer.isRingerStream();
-              long duration = ms != null ? ms.getDuration() : 0;
+              ringer.setRingerPosition(newPos);
               LOGGER.debug(
-                "Updating ringer {}: prevPos={}, duration={}, isStream={}, lastTime={}, currentTime={}, eq={}",
+                "Set ringer {} position -> {}",
                 uuid,
-                prevPos,
-                duration,
-                isStream,
-                lastTime,
-                currentTime,
-                eq
+                newPos
               );
-  
-              if (duration >= prevPos + eq || isStream) {
-                var sc = ringer.getRingerMusicSource();
-                long newPos = clamp(
-                  prevPos + eq,
-                  0,
-                  sc != null ? sc.getDuration() : 0
-                );
-                ringer.setRingerPosition(newPos);
-                LOGGER.debug("Set ringer {} position -> {}", uuid, newPos);
+            } else {
+              ringer.setRingerPosition(0);
+              ringer.ringerEnd();
+              LOGGER.debug(
+                "Ringer {} reached end; looping? {}",
+                uuid,
+                ringer.isRingerLoop()
+              );
+              if (ringer.isRingerLoop()) {
+                stopRingingPlayer(uuid);
               } else {
-                ringer.setRingerPosition(0);
-                ringer.ringerEnd();
-                LOGGER.debug(
-                  "Ringer {} reached end; looping? {}",
-                  uuid,
-                  ringer.isRingerLoop()
-                );
-                if (ringer.isRingerLoop()) {
-                  stopRingingPlayer(uuid);
-                } else {
-                  ringer.setRingerPlaying(false);
-                }
+                ringer.setRingerPlaying(false);
               }
             }
           }
         }
       }
-      stopRingers.forEach(this::stopRinger);
-      lastTime = getTime();
-      LOGGER.debug("MusicRing.tick end - new lastTime: {}", lastTime);
     }
+    stopRingers.forEach(this::stopRinger);
+    lastTime = getTime();
+    LOGGER.debug("MusicRing.tick end - new lastTime: {}", lastTime);
+  }
 
   public static long clamp(long value, long max, long min) {
     return value < max ? max : Math.min(value, min);
@@ -133,7 +138,6 @@ public class MusicRing {
       ringer.getRingerUUID(),
       ringer
     );
-    //System.out.println("add: " + ringer.getRingerUUID() + ", " + ringer);
   }
 
   public boolean hasRinger(UUID ringer) {
@@ -173,7 +177,6 @@ public class MusicRing {
   }
 
   protected void stopRinger(UUID ringer) {
-    //System.out.println("stop: " + ringer + ", " + ringers.get(ringer));
     ringers.remove(ringer);
     waitRingers.remove(ringer);
     if (playerInfos.containsKey(ringer)) {
@@ -192,8 +195,6 @@ public class MusicRing {
 
   private MusicTrackerEntry getMusicTracker(IMusicRinger ringer) {
     return ringer.getRingerTracker();
-    //   return new MusicTrackerEntry(tr.location(), tr.tracker());
-    //        return new MusicPlaybackInfo(tr.getKey(), tr.getValue(), ringer.isRingerMute() ? 0 : ringer.getRingerVolume(), ringer.isRingerMute() ? 0 : ringer.getRingerRange());
   }
 
   protected void onUpdate(
@@ -273,7 +274,8 @@ public class MusicRing {
 
     private void sendStopPackets(UUID player) {
       if (
-        getLevel().getPlayerByUUID(player) instanceof ServerPlayer serverPlayer
+        getLevel().getPlayerByUUID(player) instanceof
+          ServerPlayer serverPlayer
       ) NetworkManager.sendToPlayer(
         serverPlayer,
         IMPPackets.MUSIC_RING_STATE,
@@ -287,7 +289,8 @@ public class MusicRing {
 
     private void sendMiddleStartPacket(UUID player) {
       if (
-        getLevel().getPlayerByUUID(player) instanceof ServerPlayer serverPlayer
+        getLevel().getPlayerByUUID(player) instanceof
+          ServerPlayer serverPlayer
       ) {
         NetworkManager.sendToPlayer(
           serverPlayer,
@@ -355,7 +358,8 @@ public class MusicRing {
     private void startReadyWaitPlayers() {
       for (UUID pl : firstReadyPlayers) {
         if (
-          getLevel().getPlayerByUUID(pl) instanceof ServerPlayer serverPlayer
+          getLevel().getPlayerByUUID(pl) instanceof
+            ServerPlayer serverPlayer
         ) {
           NetworkManager.sendToPlayer(
             serverPlayer,
@@ -382,9 +386,6 @@ public class MusicRing {
         if (
           state != IMPPackets.MusicRingResponseStateType.PLAYING
         ) listenPlayers.remove(id);
-
-        //    if (state == IMPPackets.MusicRingResponseStateType.LOADING)
-        //        sendStopPackets(id);
       }
 
       if (middleLoadPlayers.contains(id)) {
@@ -438,7 +439,8 @@ public class MusicRing {
             if (!isFailureCoolDown(id)) {
               nl.add(id);
               if (
-                !listenPlayers.contains(id) && !middleLoadPlayers.contains(id)
+                !listenPlayers.contains(id) &&
+                !middleLoadPlayers.contains(id)
               ) {
                 sendMiddleStartPacket(id);
                 middleLoadPlayers.add(id);
@@ -448,11 +450,15 @@ public class MusicRing {
         }
 
         for (UUID listenPlayer : listenPlayers) {
-          if (!nl.contains(listenPlayer)) sendStopPackets(listenPlayer);
+          if (!nl.contains(listenPlayer)) sendStopPackets(
+            listenPlayer
+          );
         }
 
         for (UUID middleLoadPlayer : middleLoadPlayers) {
-          if (!nl.contains(middleLoadPlayer)) sendStopPackets(middleLoadPlayer);
+          if (!nl.contains(middleLoadPlayer)) sendStopPackets(
+            middleLoadPlayer
+          );
         }
 
         listenPlayers.clear();
@@ -534,7 +540,9 @@ public class MusicRing {
         Math.sqrt(
           player.distanceToSqr(getRinger().getRingerSpatialPosition())
         ) <=
-        (getRinger().isRingerMute() ? 0 : (getRinger().getRingerRange() + 30))
+        (getRinger().isRingerMute()
+          ? 0
+          : (getRinger().getRingerRange() + 30))
       );
     }
 

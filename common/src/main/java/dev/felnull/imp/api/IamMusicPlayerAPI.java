@@ -1,10 +1,9 @@
 package dev.felnull.imp.api;
 
 import dev.felnull.imp.impl.IamMusicPlayerAPIImpl;
+import java.util.Collection;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Unmodifiable;
-
-import java.util.Collection;
 
 /**
  * IamMusicPlayerのAPI
@@ -16,26 +15,26 @@ import java.util.Collection;
  * @since 3.17
  */
 public interface IamMusicPlayerAPI {
-    static IamMusicPlayerAPI getInstance() {
-        return IamMusicPlayerAPIImpl.INSTANCE;
-    }
+  static IamMusicPlayerAPI getInstance() {
+    return IamMusicPlayerAPIImpl.INSTANCE;
+  }
 
-    /**
-     * 現在存在する音源を取得
-     * サーバー側でのみ呼び出し可能
-     *
-     * @return 音源
-     */
-    @Unmodifiable
-    Collection<MusicRingerAccess> getRingers();
+  /**
+   * 現在存在する音源を取得
+   * サーバー側でのみ呼び出し可能
+   *
+   * @return 音源
+   */
+  @Unmodifiable
+  Collection<MusicRingerAccess> getRingers();
 
-    /**
-     * 現在存在する音源を取得
-     * サーバー側でのみ呼び出し可能
-     *
-     * @param level 取得したい音源のレベル
-     * @return 音源
-     */
-    @Unmodifiable
-    Collection<MusicRingerAccess> getRingers(ServerLevel level);
+  /**
+   * 現在存在する音源を取得
+   * サーバー側でのみ呼び出し可能
+   *
+   * @param level 取得したい音源のレベル
+   * @return 音源
+   */
+  @Unmodifiable
+  Collection<MusicRingerAccess> getRingers(ServerLevel level);
 }

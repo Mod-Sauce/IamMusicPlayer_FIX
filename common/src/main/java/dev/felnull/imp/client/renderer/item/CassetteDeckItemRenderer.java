@@ -15,13 +15,39 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 public class CassetteDeckItemRenderer implements BEWLItemRenderer {
-    private final CassetteDeckBlockEntity entity = new CassetteDeckBlockEntity(BlockPos.ZERO, IMPBlocks.CASSETTE_DECK.get().defaultBlockState());
 
-    @Override
-    public void render(ItemStack itemStack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource multiBufferSource, float v, int i, int i1) {
-        var model = OEModelUtils.getModel(entity.getBlockState());
-        var vc = ItemRenderer.getFoilBufferDirect(multiBufferSource, Sheets.cutoutBlockSheet(), true, itemStack.hasFoil());//multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
-        OERenderUtils.renderModel(poseStack, vc, model, i, i1);
-        CassetteDeckBlockEntityRenderer.renderCassetteDeck(entity, poseStack, multiBufferSource, i, i1, v, vc);
-    }
+  private final CassetteDeckBlockEntity entity =
+    new CassetteDeckBlockEntity(
+      BlockPos.ZERO,
+      IMPBlocks.CASSETTE_DECK.get().defaultBlockState()
+    );
+
+  @Override
+  public void render(
+    ItemStack itemStack,
+    ItemDisplayContext displayContext,
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    float v,
+    int i,
+    int i1
+  ) {
+    var model = OEModelUtils.getModel(entity.getBlockState());
+    var vc = ItemRenderer.getFoilBufferDirect(
+      multiBufferSource,
+      Sheets.cutoutBlockSheet(),
+      true,
+      itemStack.hasFoil()
+    ); //multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
+    OERenderUtils.renderModel(poseStack, vc, model, i, i1);
+    CassetteDeckBlockEntityRenderer.renderCassetteDeck(
+      entity,
+      poseStack,
+      multiBufferSource,
+      i,
+      i1,
+      v,
+      vc
+    );
+  }
 }

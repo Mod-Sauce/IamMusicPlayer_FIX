@@ -5,6 +5,7 @@ import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.server.music.ringer.IBoomboxRinger;
+import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -16,91 +17,107 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 public class BoomboxEntityRinger implements IBoomboxRinger {
-    private final Entity entity;
-    private final UUID uuid;
-    private int lastInventory;
 
-    public BoomboxEntityRinger(Entity entity, UUID uuid) {
-        this.entity = entity;
-        this.uuid = uuid;
-    }
+  private final Entity entity;
+  private final UUID uuid;
+  private int lastInventory;
 
-    @Override
-    public Component getRingerName() {
-        if (entity instanceof ItemEntity)
-            return Component.translatable("imp.ringer.drop", getBoombox().getDisplayName());
+  public BoomboxEntityRinger(Entity entity, UUID uuid) {
+    this.entity = entity;
+    this.uuid = uuid;
+  }
 
-        return Component.translatable("imp.ringer.have", getBoombox().getDisplayName(), entity.getDisplayName());
-    }
+  @Override
+  public Component getRingerName() {
+    if (entity instanceof ItemEntity) return Component.translatable(
+      "imp.ringer.drop",
+      getBoombox().getDisplayName()
+    );
 
-    @Override
-    public ServerLevel getRingerLevel() {
-        return (ServerLevel) entity.level();
-    }
+    return Component.translatable(
+      "imp.ringer.have",
+      getBoombox().getDisplayName(),
+      entity.getDisplayName()
+    );
+  }
 
-    @Override
-    public UUID getRingerUUID() {
-        return uuid;
-    }
+  @Override
+  public ServerLevel getRingerLevel() {
+    return (ServerLevel) entity.level();
+  }
 
-    @Override
-    public boolean exists() {
-        return canRing(entity) && !getBoombox().isEmpty();
-    }
+  @Override
+  public UUID getRingerUUID() {
+    return uuid;
+  }
 
-    @Override
-    public MusicTrackerEntry getRingerTracker() {
-     /*
+  @Override
+  public boolean exists() {
+    return canRing(entity) && !getBoombox().isEmpty();
+  }
+
+  @Override
+  public MusicTrackerEntry getRingerTracker() {
+    /*
      if (entity instanceof Player player)
             return Pair.of(MusicRingManager.PLAYER_TRACKER, MusicRingManager.createPlayerTracker(player));
         return Pair.of(MusicRingManager.ENTITY_TRACKER, MusicRingManager.createEntityTracker(entity));
       */
-        return IMPMusicTrackers.createEntityTracker(entity, getRingerVolume(), getRingerRange());
-    }
+    return IMPMusicTrackers.createEntityTracker(
+      entity,
+      getRingerVolume(),
+      getRingerRange()
+    );
+  }
 
-    @Override
-    public @NotNull Vec3 getRingerSpatialPosition() {
-        return entity.position();
-    }
+  @Override
+  public @NotNull Vec3 getRingerSpatialPosition() {
+    return entity.position();
+  }
 
-    @NotNull
-    private ItemStack getBoombox() {
-        if (entity instanceof LivingEntity livingEntity) {
-            for (EquipmentSlot value : EquipmentSlot.values()) {
-                var item = livingEntity.getItemBySlot(value);
-                if (uuid.equals(BoomboxItem.getRingerUUID(item))) return item;
-            }
+  @NotNull
+  private ItemStack getBoombox() {
+    if (entity instanceof LivingEntity livingEntity) {
+      for (EquipmentSlot value : EquipmentSlot.values()) {
+        var item = livingEntity.getItemBySlot(value);
+        if (uuid.equals(BoomboxItem.getRingerUUID(item))) return item;
+      }
+    }
+    if (entity instanceof Player player) {
+      var li = player.getInventory().getItem(lastInventory);
+      if (uuid.equals(BoomboxItem.getRingerUUID(li))) return li;
+
+      for (
+        int i = 0;
+        i < player.getInventory().getContainerSize();
+        i++
+      ) {
+        var item = player.getInventory().getItem(i);
+        if (uuid.equals(BoomboxItem.getRingerUUID(item))) {
+          lastInventory = i;
+          return item;
         }
-        if (entity instanceof Player player) {
-            var li = player.getInventory().getItem(lastInventory);
-            if (uuid.equals(BoomboxItem.getRingerUUID(li))) return li;
-
-            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                var item = player.getInventory().getItem(i);
-                if (uuid.equals(BoomboxItem.getRingerUUID(item))) {
-                    lastInventory = i;
-                    return item;
-                }
-            }
-        }
-        if (IamMusicPlayer.getConfig().dropItemRing && entity instanceof ItemEntity itemEntity) {
-            var item = itemEntity.getItem();
-            if (uuid.equals(BoomboxItem.getRingerUUID(item))) return item;
-        }
-        return ItemStack.EMPTY;
+      }
     }
-
-    @Override
-    public @NotNull BoomboxData getRingerBoomboxData() {
-        return BoomboxItem.getData(getBoombox());
+    if (
+      IamMusicPlayer.getConfig().dropItemRing &&
+      entity instanceof ItemEntity itemEntity
+    ) {
+      var item = itemEntity.getItem();
+      if (uuid.equals(BoomboxItem.getRingerUUID(item))) return item;
     }
+    return ItemStack.EMPTY;
+  }
 
-    public static boolean canRing(Entity entity) {
-        if (!entity.isAlive()) return false;
-        if (entity instanceof Player player) return !player.isSpectator();
-        return true;
-    }
+  @Override
+  public @NotNull BoomboxData getRingerBoomboxData() {
+    return BoomboxItem.getData(getBoombox());
+  }
+
+  public static boolean canRing(Entity entity) {
+    if (!entity.isAlive()) return false;
+    if (entity instanceof Player player) return !player.isSpectator();
+    return true;
+  }
 }

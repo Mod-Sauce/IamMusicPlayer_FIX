@@ -5,18 +5,27 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 
 public class IMPSoundPhysicsRemasteredExpectPlatform {
-    @ExpectPlatform
-    public static void setDefaultEnvironment(int sourceID) {
-        throw new AssertionError();
-    }
 
-    @ExpectPlatform
-    public static void setLastSoundCategoryAndName(SoundSource sc, ResourceLocation name) {
-        throw new AssertionError();
-    }
+  @ExpectPlatform
+  public static void setDefaultEnvironment(int sourceID) {
+    throw new AssertionError();
+  }
 
-    @ExpectPlatform
-    public static void onPlaySound(double posX, double posY, double posZ, int sourceID) {
-        throw new AssertionError();
-    }
+  @ExpectPlatform
+  public static void setLastSoundCategoryAndName(
+    SoundSource sc,
+    ResourceLocation name
+  ) {
+    throw new AssertionError();
+  }
+
+  @ExpectPlatform
+  public static void onPlaySound(
+    double posX,
+    double posY,
+    double posZ,
+    int sourceID
+  ) {
+    throw new AssertionError();
+  }
 }

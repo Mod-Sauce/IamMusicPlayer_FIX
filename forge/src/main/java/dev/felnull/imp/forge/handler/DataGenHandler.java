@@ -7,10 +7,16 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = IamMusicPlayer.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(
+  modid = IamMusicPlayer.MODID,
+  bus = Mod.EventBusSubscriber.Bus.MOD
+)
 public class DataGenHandler {
-    @SubscribeEvent
-    public static void onDataGen(GatherDataEvent event) {
-        IamMusicPlayerDataGenerator.init(CrossDataGeneratorAccesses.create(event));
-    }
+
+  @SubscribeEvent
+  public static void onDataGen(GatherDataEvent event) {
+    IamMusicPlayerDataGenerator.init(
+      CrossDataGeneratorAccesses.create(event)
+    );
+  }
 }

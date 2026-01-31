@@ -18,26 +18,49 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class CassetteDeckBlock extends IMPBaseEntityBlock {
-    private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "cassette_deck"), BoomboxBlock.class));
 
-    protected CassetteDeckBlock(Properties properties) {
-        super(properties);
-    }
+  private static final DirectionVoxelShapesBundle SHAPE =
+    OEVoxelShapeUtils.makeAllDirection(
+      OEVoxelShapeUtils.getShapeFromResource(
+        new ResourceLocation(IamMusicPlayer.MODID, "cassette_deck"),
+        BoomboxBlock.class
+      )
+    );
 
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new CassetteDeckBlockEntity(blockPos, blockState);
-    }
+  protected CassetteDeckBlock(Properties properties) {
+    super(properties);
+  }
 
-    @Override
-    public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-        return SHAPE.getShape(blockState.getValue(FACING));
-    }
+  @Nullable
+  @Override
+  public BlockEntity newBlockEntity(
+    BlockPos blockPos,
+    BlockState blockState
+  ) {
+    return new CassetteDeckBlockEntity(blockPos, blockState);
+  }
 
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, IMPBlockEntities.CASSETTE_DECK.get(), CassetteDeckBlockEntity::tick);
-    }
+  @Override
+  public VoxelShape getShape(
+    BlockState blockState,
+    BlockGetter blockGetter,
+    BlockPos blockPos,
+    CollisionContext collisionContext
+  ) {
+    return SHAPE.getShape(blockState.getValue(FACING));
+  }
+
+  @Nullable
+  @Override
+  public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+    Level level,
+    BlockState blockState,
+    BlockEntityType<T> blockEntityType
+  ) {
+    return createTickerHelper(
+      blockEntityType,
+      IMPBlockEntities.CASSETTE_DECK.get(),
+      CassetteDeckBlockEntity::tick
+    );
+  }
 }

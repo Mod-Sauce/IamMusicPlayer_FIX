@@ -32,7 +32,9 @@ public class IMPSystemNativeLibraryProperties
   @Override
   public String getLibraryDirectory() {
     var sys = detectMatchingSystemType(this, systemFilter);
-    if (sys == null) throw new IllegalStateException("System type is null");
+    if (sys == null) throw new IllegalStateException(
+      "System type is null"
+    );
     //   var natName = sys.osType.identifier() + "-" + sys.architectureType.identifier();
 
     var natName = sys.osType.identifier();
@@ -43,7 +45,9 @@ public class IMPSystemNativeLibraryProperties
       natName,
       sys.formatLibraryName(libraryName)
     );
-    if (!ret) throw new UnsatisfiedLinkError("Failed to load the library");
+    if (!ret) throw new UnsatisfiedLinkError(
+      "Failed to load the library"
+    );
     var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);
     LOGGER.info(
       "The path for lava loader is: " + p.toAbsolutePath().toString()
@@ -86,7 +90,9 @@ public class IMPSystemNativeLibraryProperties
     } catch (IllegalArgumentException e) {
       return null;
     }
-    if (systemFilter != null && !systemFilter.test(systemType)) return null;
+    if (
+      systemFilter != null && !systemFilter.test(systemType)
+    ) return null;
     return systemType;
   }
 }

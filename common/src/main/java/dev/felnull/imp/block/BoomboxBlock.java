@@ -31,66 +31,137 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class BoomboxBlock extends IMPBaseEntityBlock {
-    private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "boombox"), BoomboxBlock.class));
-    private static final DirectionVoxelShapesBundle SHAPE_NO_RAISED = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "boombox_no_raised"), BoomboxBlock.class));
-    public static final BooleanProperty RAISED = IMPBlockStateProperties.RAISE;
 
-    protected BoomboxBlock(BlockBehaviour.Properties properties) {
-        super(properties);
-        this.registerDefaultState(this.defaultBlockState().setValue(RAISED, true));
-    }
+  private static final DirectionVoxelShapesBundle SHAPE =
+    OEVoxelShapeUtils.makeAllDirection(
+      OEVoxelShapeUtils.getShapeFromResource(
+        new ResourceLocation(IamMusicPlayer.MODID, "boombox"),
+        BoomboxBlock.class
+      )
+    );
+  private static final DirectionVoxelShapesBundle SHAPE_NO_RAISED =
+    OEVoxelShapeUtils.makeAllDirection(
+      OEVoxelShapeUtils.getShapeFromResource(
+        new ResourceLocation(
+          IamMusicPlayer.MODID,
+          "boombox_no_raised"
+        ),
+        BoomboxBlock.class
+      )
+    );
+  public static final BooleanProperty RAISED =
+    IMPBlockStateProperties.RAISE;
 
-    @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+  protected BoomboxBlock(BlockBehaviour.Properties properties) {
+    super(properties);
+    this.registerDefaultState(
+      this.defaultBlockState().setValue(RAISED, true)
+    );
+  }
 
-        if (player.isCrouching()) {
-            var be = level.getBlockEntity(blockPos);
-            if (be instanceof BoomboxBlockEntity boombox) {
-                if (blockHitResult.getDirection() == Direction.UP) {
-                    if (boombox.getBoomboxData().cycleRaisedHandle()) {
-                        level.playSound(null, blockPos, boombox.getBoomboxData().isLidOpen() ? SoundEvents.IRON_DOOR_OPEN : SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
-                        return InteractionResult.sidedSuccess(level.isClientSide());
-                    }
-                } else if (blockHitResult.getDirection() == blockState.getValue(FACING)) {
-                    if (boombox.getBoomboxData().cycleLidOpen(level))
-                        return InteractionResult.sidedSuccess(level.isClientSide());
-                }
-            }
-        } else {
-            return super.use(blockState, level, blockPos, player, interactionHand, blockHitResult);
+  @Override
+  public InteractionResult use(
+    BlockState blockState,
+    Level level,
+    BlockPos blockPos,
+    Player player,
+    InteractionHand interactionHand,
+    BlockHitResult blockHitResult
+  ) {
+    if (player.isCrouching()) {
+      var be = level.getBlockEntity(blockPos);
+      if (be instanceof BoomboxBlockEntity boombox) {
+        if (blockHitResult.getDirection() == Direction.UP) {
+          if (boombox.getBoomboxData().cycleRaisedHandle()) {
+            level.playSound(
+              null,
+              blockPos,
+              boombox.getBoomboxData().isLidOpen()
+                ? SoundEvents.IRON_DOOR_OPEN
+                : SoundEvents.IRON_DOOR_CLOSE,
+              SoundSource.BLOCKS,
+              0.5F,
+              0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+            );
+            return InteractionResult.sidedSuccess(
+              level.isClientSide()
+            );
+          }
+        } else if (
+          blockHitResult.getDirection() == blockState.getValue(FACING)
+        ) {
+          if (
+            boombox.getBoomboxData().cycleLidOpen(level)
+          ) return InteractionResult.sidedSuccess(
+            level.isClientSide()
+          );
         }
-        return InteractionResult.PASS;
+      }
+    } else {
+      return super.use(
+        blockState,
+        level,
+        blockPos,
+        player,
+        interactionHand,
+        blockHitResult
+      );
     }
+    return InteractionResult.PASS;
+  }
 
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new BoomboxBlockEntity(blockPos, blockState);
-    }
+  @Nullable
+  @Override
+  public BlockEntity newBlockEntity(
+    BlockPos blockPos,
+    BlockState blockState
+  ) {
+    return new BoomboxBlockEntity(blockPos, blockState);
+  }
 
-    @Override
-    public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-        var shp = blockState.getValue(RAISED) ? SHAPE : SHAPE_NO_RAISED;
-        return shp.getShape(blockState.getValue(FACING));
-    }
+  @Override
+  public VoxelShape getShape(
+    BlockState blockState,
+    BlockGetter blockGetter,
+    BlockPos blockPos,
+    CollisionContext collisionContext
+  ) {
+    var shp = blockState.getValue(RAISED) ? SHAPE : SHAPE_NO_RAISED;
+    return shp.getShape(blockState.getValue(FACING));
+  }
 
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(RAISED);
-    }
+  @Override
+  protected void createBlockStateDefinition(
+    StateDefinition.Builder<Block, BlockState> builder
+  ) {
+    super.createBlockStateDefinition(builder);
+    builder.add(RAISED);
+  }
 
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, IMPBlockEntities.BOOMBOX.get(), BoomboxBlockEntity::tick);
-    }
+  @Nullable
+  @Override
+  public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+    Level level,
+    BlockState blockState,
+    BlockEntityType<T> blockEntityType
+  ) {
+    return createTickerHelper(
+      blockEntityType,
+      IMPBlockEntities.BOOMBOX.get(),
+      BoomboxBlockEntity::tick
+    );
+  }
 
-    @Override
-    public ItemStack getCloneItemStack(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState) {
-        var be = blockGetter.getBlockEntity(blockPos);
-        if (be instanceof BoomboxBlockEntity boomboxBlockEntity)
-            return BoomboxItem.createByBE(boomboxBlockEntity, true);
-        return super.getCloneItemStack(blockGetter, blockPos, blockState);
-    }
+  @Override
+  public ItemStack getCloneItemStack(
+    BlockGetter blockGetter,
+    BlockPos blockPos,
+    BlockState blockState
+  ) {
+    var be = blockGetter.getBlockEntity(blockPos);
+    if (
+      be instanceof BoomboxBlockEntity boomboxBlockEntity
+    ) return BoomboxItem.createByBE(boomboxBlockEntity, true);
+    return super.getCloneItemStack(blockGetter, blockPos, blockState);
+  }
 }

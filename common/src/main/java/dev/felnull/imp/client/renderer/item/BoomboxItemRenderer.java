@@ -17,26 +17,65 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 public class BoomboxItemRenderer implements BEWLItemRenderer {
-    private final BoomboxBlockEntity onEntity = new BoomboxBlockEntity(BlockPos.ZERO, IMPBlocks.BOOMBOX.get().defaultBlockState().setValue(BoomboxBlock.POWERED, true));
-    private final BoomboxBlockEntity offEntity = new BoomboxBlockEntity(BlockPos.ZERO, IMPBlocks.BOOMBOX.get().defaultBlockState());
 
-    @Override
-    public void render(ItemStack itemStack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource multiBufferSource, float f, int i, int i1) {
-        boolean power = BoomboxItem.isPowered(itemStack);
-        boolean radio = false;
+  private final BoomboxBlockEntity onEntity = new BoomboxBlockEntity(
+    BlockPos.ZERO,
+    IMPBlocks.BOOMBOX.get()
+      .defaultBlockState()
+      .setValue(BoomboxBlock.POWERED, true)
+  );
+  private final BoomboxBlockEntity offEntity = new BoomboxBlockEntity(
+    BlockPos.ZERO,
+    IMPBlocks.BOOMBOX.get().defaultBlockState()
+  );
 
-        var state = power ? onEntity.getBlockState() : offEntity.getBlockState();
-        var model = OEModelUtils.getModel(state);
-        var vc = ItemRenderer.getFoilBufferDirect(multiBufferSource, Sheets.cutoutBlockSheet(), true, itemStack.hasFoil());//multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
-        OERenderUtils.renderModel(poseStack, vc, model, i, i1);
+  @Override
+  public void render(
+    ItemStack itemStack,
+    ItemDisplayContext displayContext,
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    float f,
+    int i,
+    int i1
+  ) {
+    boolean power = BoomboxItem.isPowered(itemStack);
+    boolean radio = false;
 
-        float handleRaised = 1;
+    var state = power
+      ? onEntity.getBlockState()
+      : offEntity.getBlockState();
+    var model = OEModelUtils.getModel(state);
+    var vc = ItemRenderer.getFoilBufferDirect(
+      multiBufferSource,
+      Sheets.cutoutBlockSheet(),
+      true,
+      itemStack.hasFoil()
+    ); //multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
+    OERenderUtils.renderModel(poseStack, vc, model, i, i1);
 
-        if (displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
-                || displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND) {
-            handleRaised = 1f - BoomboxItem.getTransferProgress(itemStack, f);
-        }
+    float handleRaised = 1;
 
-        BoomboxBlockEntityRenderer.renderBoombox(poseStack, multiBufferSource, state.getValue(BoomboxBlock.FACING), i, i1, f, BoomboxItem.getData(itemStack), handleRaised, vc);
+    if (
+      displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND ||
+      displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ||
+      displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND ||
+      displayContext == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
+    ) {
+      handleRaised =
+        1f - BoomboxItem.getTransferProgress(itemStack, f);
     }
+
+    BoomboxBlockEntityRenderer.renderBoombox(
+      poseStack,
+      multiBufferSource,
+      state.getValue(BoomboxBlock.FACING),
+      i,
+      i1,
+      f,
+      BoomboxItem.getData(itemStack),
+      handleRaised,
+      vc
+    );
+  }
 }

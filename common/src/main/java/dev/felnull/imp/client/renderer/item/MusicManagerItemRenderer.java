@@ -15,13 +15,39 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 public class MusicManagerItemRenderer implements BEWLItemRenderer {
-    private final MusicManagerBlockEntity entity = new MusicManagerBlockEntity(BlockPos.ZERO, IMPBlocks.MUSIC_MANAGER.get().defaultBlockState());
 
-    @Override
-    public void render(ItemStack itemStack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource multiBufferSource, float f, int i, int i1) {
-        var model = OEModelUtils.getModel(entity.getBlockState());
-        var vc = ItemRenderer.getFoilBufferDirect(multiBufferSource, Sheets.cutoutBlockSheet(), true, itemStack.hasFoil());// multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
-        OERenderUtils.renderModel(poseStack, vc, model, i, i1);
-        MusicManagerBlockEntityRenderer.renderMusicManager(entity, poseStack, multiBufferSource, i, i1, 0, vc);
-    }
+  private final MusicManagerBlockEntity entity =
+    new MusicManagerBlockEntity(
+      BlockPos.ZERO,
+      IMPBlocks.MUSIC_MANAGER.get().defaultBlockState()
+    );
+
+  @Override
+  public void render(
+    ItemStack itemStack,
+    ItemDisplayContext displayContext,
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    float f,
+    int i,
+    int i1
+  ) {
+    var model = OEModelUtils.getModel(entity.getBlockState());
+    var vc = ItemRenderer.getFoilBufferDirect(
+      multiBufferSource,
+      Sheets.cutoutBlockSheet(),
+      true,
+      itemStack.hasFoil()
+    ); // multiBufferSource.getBuffer(Sheets.cutoutBlockSheet());
+    OERenderUtils.renderModel(poseStack, vc, model, i, i1);
+    MusicManagerBlockEntityRenderer.renderMusicManager(
+      entity,
+      poseStack,
+      multiBufferSource,
+      i,
+      i1,
+      0,
+      vc
+    );
+  }
 }

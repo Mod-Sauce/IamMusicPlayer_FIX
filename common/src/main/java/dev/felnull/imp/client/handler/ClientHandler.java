@@ -4,7 +4,6 @@ import dev.architectury.event.CompoundEventResult;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
-import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IMPConfig;
@@ -13,7 +12,6 @@ import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.imp.client.music.MusicSyncManager;
-import dev.felnull.imp.client.renderer.item.IMPItemRenderers;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.entity.IRingerPartyParrot;
 import dev.felnull.imp.item.BoomboxItem;
@@ -42,23 +40,35 @@ import org.jetbrains.annotations.NotNull;
 public class ClientHandler {
 
   private static final Minecraft mc = Minecraft.getInstance();
-  private static final Component CONFIG_BUTTON = Component.translatable(
-    "imp.button.config"
-  );
+  private static final Component CONFIG_BUTTON =
+    Component.translatable("imp.button.config");
   private static final TextureRegion CONFIG_BUTTON_REGION =
-    TextureRegion.relative(MusicManagerMonitor.WIDGETS_TEXTURE, 36, 58, 14, 5);
-  private static double LAST_MUSIC_VOLUME = IamMusicPlayer.getConfig().volume;
+    TextureRegion.relative(
+      MusicManagerMonitor.WIDGETS_TEXTURE,
+      36,
+      58,
+      14,
+      5
+    );
+  private static double LAST_MUSIC_VOLUME =
+    IamMusicPlayer.getConfig().volume;
 
   public static void init() {
     ClientLifecycleEvent.CLIENT_LEVEL_LOAD.register(
       ClientHandler::onClientLevelLoad
     );
-    ClientEvent.CHANGE_HAND_HEIGHT.register(ClientHandler::changeHandHeight);
+    ClientEvent.CHANGE_HAND_HEIGHT.register(
+      ClientHandler::changeHandHeight
+    );
     AutoConfig.getConfigHolder(IMPConfig.class).registerSaveListener(
       ClientHandler::onConfigSave
     );
-    ClientEvent.POSE_HUMANOID_ARM.register(ClientHandler::onPoseHumanoidArm);
-    ClientEvent.INTEGRATED_SERVER_PAUSE.register(ClientHandler::onPauseChange);
+    ClientEvent.POSE_HUMANOID_ARM.register(
+      ClientHandler::onPoseHumanoidArm
+    );
+    ClientEvent.INTEGRATED_SERVER_PAUSE.register(
+      ClientHandler::onPauseChange
+    );
     MoreEntityEvent.LIVING_ENTITY_TICK.register(
       ClientHandler::onLivingEntityTick
     );
@@ -68,7 +78,10 @@ public class ClientHandler {
     ClientGuiEvent.INIT_POST.register(ClientHandler::onScreenInit);
   }
 
-  private static void onScreenInit(Screen screen, ScreenAccess screenAccess) {
+  private static void onScreenInit(
+    Screen screen,
+    ScreenAccess screenAccess
+  ) {
     if (screen instanceof SoundOptionsScreen) {
       LAST_MUSIC_VOLUME = IamMusicPlayer.getConfig().volume;
 
@@ -81,7 +94,10 @@ public class ClientHandler {
           CONFIG_BUTTON,
           button ->
             mc.setScreen(
-              AutoConfig.getConfigScreen(IMPConfig.class, screen).get()
+              AutoConfig.getConfigScreen(
+                IMPConfig.class,
+                screen
+              ).get()
             ),
           CONFIG_BUTTON_REGION
         )
@@ -89,7 +105,9 @@ public class ClientHandler {
     }
   }
 
-  private static CompoundEventResult<Screen> onModifyScreen(Screen screen) {
+  private static CompoundEventResult<Screen> onModifyScreen(
+    Screen screen
+  ) {
     if (
       mc.screen instanceof SoundOptionsScreen &&
       LAST_MUSIC_VOLUME != IamMusicPlayer.getConfig().volume
@@ -97,7 +115,9 @@ public class ClientHandler {
     return CompoundEventResult.pass();
   }
 
-  private static EventResult onHandAttack(@NotNull ItemStack itemStack) {
+  private static EventResult onHandAttack(
+    @NotNull ItemStack itemStack
+  ) {
     if (
       itemStack.getItem() instanceof BoomboxItem &&
       BoomboxItem.isPowered(itemStack)
@@ -120,14 +140,18 @@ public class ClientHandler {
   private static EventResult onLivingEntityTick(
     @NotNull LivingEntity livingEntity
   ) {
-    if (!livingEntity.level().isClientSide()) return EventResult.pass();
+    if (
+      !livingEntity.level().isClientSide()
+    ) return EventResult.pass();
 
-    if (livingEntity instanceof IRingerPartyParrot ringerPartyParrot) {
+    if (
+      livingEntity instanceof IRingerPartyParrot ringerPartyParrot
+    ) {
       var mm = MusicEngine.getInstance();
       var id = ringerPartyParrot.getRingerUUID();
-      if (id == null || !mm.isPlaying(id)) ringerPartyParrot.setRingerUUID(
-        null
-      );
+      if (
+        id == null || !mm.isPlaying(id)
+      ) ringerPartyParrot.setRingerUUID(null);
     }
 
     return EventResult.pass();

@@ -18,26 +18,49 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class MusicManagerBlock extends IMPBaseEntityBlock {
-    private static final DirectionVoxelShapesBundle SHAPE = OEVoxelShapeUtils.makeAllDirection(OEVoxelShapeUtils.getShapeFromResource(new ResourceLocation(IamMusicPlayer.MODID, "music_manager"), MusicManagerBlock.class));
 
-    protected MusicManagerBlock(Properties properties) {
-        super(properties);
-    }
+  private static final DirectionVoxelShapesBundle SHAPE =
+    OEVoxelShapeUtils.makeAllDirection(
+      OEVoxelShapeUtils.getShapeFromResource(
+        new ResourceLocation(IamMusicPlayer.MODID, "music_manager"),
+        MusicManagerBlock.class
+      )
+    );
 
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new MusicManagerBlockEntity(blockPos, blockState);
-    }
+  protected MusicManagerBlock(Properties properties) {
+    super(properties);
+  }
 
-    @Override
-    public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-        return SHAPE.getShape(blockState.getValue(FACING));
-    }
+  @Nullable
+  @Override
+  public BlockEntity newBlockEntity(
+    BlockPos blockPos,
+    BlockState blockState
+  ) {
+    return new MusicManagerBlockEntity(blockPos, blockState);
+  }
 
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, IMPBlockEntities.MUSIC_MANAGER.get(), MusicManagerBlockEntity::tick);
-    }
+  @Override
+  public VoxelShape getShape(
+    BlockState blockState,
+    BlockGetter blockGetter,
+    BlockPos blockPos,
+    CollisionContext collisionContext
+  ) {
+    return SHAPE.getShape(blockState.getValue(FACING));
+  }
+
+  @Nullable
+  @Override
+  public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+    Level level,
+    BlockState blockState,
+    BlockEntityType<T> blockEntityType
+  ) {
+    return createTickerHelper(
+      blockEntityType,
+      IMPBlockEntities.MUSIC_MANAGER.get(),
+      MusicManagerBlockEntity::tick
+    );
+  }
 }

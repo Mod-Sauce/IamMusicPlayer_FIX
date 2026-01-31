@@ -7,6 +7,9 @@ import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.gui.screen.monitor.Monitor;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.otyacraftengine.client.util.OERenderUtils;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,126 +18,380 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+public abstract class MusicManagerMonitor
+  extends Monitor<MusicManagerBlockEntity>
+{
 
-public abstract class MusicManagerMonitor extends Monitor<MusicManagerBlockEntity> {
-    private static final Map<MusicManagerBlockEntity.MonitorType, MonitorFactory> monitorFactory = new HashMap<>();
-    protected static final ResourceLocation BG_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/background.png");
-    public static final ResourceLocation WIDGETS_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/widgets.png");
-    public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/base.png");
-    protected boolean header = true;
-    private final MusicManagerBlockEntity.MonitorType type;
-    private final MusicManagerScreen screen;
+  private static final Map<
+    MusicManagerBlockEntity.MonitorType,
+    MonitorFactory
+  > monitorFactory = new HashMap<>();
+  protected static final ResourceLocation BG_TEXTURE =
+    new ResourceLocation(
+      IamMusicPlayer.MODID,
+      "textures/gui/container/music_manager/monitor/background.png"
+    );
+  public static final ResourceLocation WIDGETS_TEXTURE =
+    new ResourceLocation(
+      IamMusicPlayer.MODID,
+      "textures/gui/container/music_manager/monitor/widgets.png"
+    );
+  public static final ResourceLocation BASE_TEXTURE =
+    new ResourceLocation(
+      IamMusicPlayer.MODID,
+      "textures/gui/container/music_manager/monitor/base.png"
+    );
+  protected boolean header = true;
+  private final MusicManagerBlockEntity.MonitorType type;
+  private final MusicManagerScreen screen;
 
-    public MusicManagerMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
-        super(Component.translatable("imp.monitor.music_manager." + type.getName()), 8, 20, 370, 199);
-        this.type = type;
-        this.screen = screen;
+  public MusicManagerMonitor(
+    MusicManagerBlockEntity.MonitorType type,
+    MusicManagerScreen screen
+  ) {
+    super(
+      Component.translatable(
+        "imp.monitor.music_manager." + type.getName()
+      ),
+      8,
+      20,
+      370,
+      199
+    );
+    this.type = type;
+    this.screen = screen;
+  }
+
+  @Override
+  public void init(int leftPos, int topPos) {
+    super.init(leftPos, topPos);
+    if (header && getParentType() != null) {
+      addRenderWidget(
+        new ImageButton(
+          getStartX() + 356,
+          getStartY(),
+          14,
+          10,
+          0,
+          0,
+          10,
+          WIDGETS_TEXTURE,
+          256,
+          256,
+          n -> {
+            insMonitor(MusicManagerBlockEntity.MonitorType.PLAY_LIST);
+          },
+          Component.translatable("imp.button.close")
+        )
+      );
+      addRenderWidget(
+        new ImageButton(
+          getStartX() + 342,
+          getStartY(),
+          14,
+          10,
+          14,
+          0,
+          10,
+          WIDGETS_TEXTURE,
+          256,
+          256,
+          n -> {
+            onBackParent();
+            insMonitor(getParentType());
+          },
+          Component.translatable("imp.button.backScreen")
+        )
+      );
     }
+  }
 
-    @Override
-    public void init(int leftPos, int topPos) {
-        super.init(leftPos, topPos);
-        if (header && getParentType() != null) {
-            addRenderWidget(new ImageButton(getStartX() + 356, getStartY(), 14, 10, 0, 0, 10, WIDGETS_TEXTURE, 256, 256, n -> {
-                insMonitor(MusicManagerBlockEntity.MonitorType.PLAY_LIST);
-            }, Component.translatable("imp.button.close")));
-            addRenderWidget(new ImageButton(getStartX() + 342, getStartY(), 14, 10, 14, 0, 10, WIDGETS_TEXTURE, 256, 256, n -> {
-                onBackParent();
-                insMonitor(getParentType());
-            }, Component.translatable("imp.button.backScreen")));
-        }
+  @Override
+  public void render(
+    GuiGraphics guiGraphics,
+    float f,
+    int mouseX,
+    int mouseY
+  ) {
+    super.render(guiGraphics, f, mouseX, mouseY);
+    OERenderUtils.drawTexture(
+      BG_TEXTURE,
+      guiGraphics.pose(),
+      getStartX(),
+      getStartY(),
+      0f,
+      0f,
+      width,
+      height,
+      width,
+      height
+    );
+    if (header) {
+      OERenderUtils.drawTexture(
+        BASE_TEXTURE,
+        guiGraphics.pose(),
+        getStartX(),
+        getStartY(),
+        0,
+        0,
+        width,
+        10,
+        width,
+        height
+      );
+      drawSmartText(
+        guiGraphics,
+        title,
+        getStartX() + 1,
+        getStartY() + 1
+      );
     }
+  }
 
-    @Override
-    public void render(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
-        super.render(guiGraphics, f, mouseX, mouseY);
-        OERenderUtils.drawTexture(BG_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0f, 0f, width, height, width, height);
-        if (header) {
-            OERenderUtils.drawTexture(BASE_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0, 0, width, 10, width, height);
-            drawSmartText(guiGraphics, title, getStartX() + 1, getStartY() + 1);
-        }
+  @Override
+  public void renderAppearance(
+    MusicManagerBlockEntity blockEntity,
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    int i,
+    int j,
+    float f,
+    float monitorWidth,
+    float monitorHeight
+  ) {
+    float onPxW = monitorWidth / (float) width;
+    float onPxH = monitorHeight / (float) height;
+
+    OERenderUtils.renderTextureSprite(
+      BG_TEXTURE,
+      poseStack,
+      multiBufferSource,
+      0,
+      0,
+      OERenderUtils.MIN_BREADTH,
+      0,
+      0,
+      0,
+      monitorWidth,
+      monitorHeight,
+      0,
+      0,
+      width,
+      height,
+      width,
+      height,
+      i,
+      j
+    );
+    if (header) {
+      OERenderUtils.renderTextureSprite(
+        BASE_TEXTURE,
+        poseStack,
+        multiBufferSource,
+        0,
+        monitorHeight - onPxH * 10,
+        OERenderUtils.MIN_BREADTH * 2,
+        0,
+        0,
+        0,
+        monitorWidth,
+        onPxH * 10,
+        0,
+        0,
+        width,
+        10,
+        width,
+        height,
+        i,
+        j
+      );
+      if (getParentType() != null) {
+        OERenderUtils.renderTextureSprite(
+          WIDGETS_TEXTURE,
+          poseStack,
+          multiBufferSource,
+          onPxW * 356,
+          monitorHeight - onPxH * 10,
+          OERenderUtils.MIN_BREADTH * 3,
+          0,
+          0,
+          0,
+          onPxW * 14,
+          onPxH * 10,
+          0,
+          0,
+          14,
+          10,
+          256,
+          256,
+          i,
+          j
+        );
+        OERenderUtils.renderTextureSprite(
+          WIDGETS_TEXTURE,
+          poseStack,
+          multiBufferSource,
+          onPxW * 342,
+          monitorHeight - onPxH * 10,
+          OERenderUtils.MIN_BREADTH * 3,
+          0,
+          0,
+          0,
+          onPxW * 14,
+          onPxH * 10,
+          14,
+          0,
+          14,
+          10,
+          256,
+          256,
+          i,
+          j
+        );
+      }
+      renderSmartTextSprite(
+        poseStack,
+        multiBufferSource,
+        title,
+        1,
+        2,
+        OERenderUtils.MIN_BREADTH * 3,
+        onPxW,
+        onPxH,
+        monitorHeight,
+        i
+      );
     }
+  }
 
-    @Override
-    public void renderAppearance(MusicManagerBlockEntity blockEntity, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j, float f, float monitorWidth, float monitorHeight) {
-        float onPxW = monitorWidth / (float) width;
-        float onPxH = monitorHeight / (float) height;
+  public static void firstInit() {
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.OFF,
+      OffMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.TEST,
+      TestMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.PLAY_LIST,
+      PlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.ADD_PLAY_LIST,
+      AddPlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.ADD_ONLINE_PLAY_LIST,
+      AddOnlinePlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.CREATE_PLAY_LIST,
+      CreatePlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.ADD_MUSIC,
+      AddMusicMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.SEARCH_MUSIC,
+      SearchMusicMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.UPLOAD_MUSIC,
+      UploadMusicMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST,
+      ImportYoutubePlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.EDIT_PLAY_LIST,
+      EditPlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.EDIT_MUSIC,
+      EditMusicMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.DETAIL_PLAY_LIST,
+      DetailPlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_SELECT,
+      ImportPlayListSelectMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.DETAIL_MUSIC,
+      DetailMusicMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.DELETE_PLAY_LIST,
+      DeletePlayListMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.DELETE_MUSIC,
+      DeleteMusicMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT,
+      ImportMusicsSelectMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST_MUSICS,
+      ImportYoutubePlayListMusicsMMMonitor::new
+    );
+    registerMonitors(
+      MusicManagerBlockEntity.MonitorType.AUTHORITY,
+      AuthorityMMMonitor::new
+    );
+  }
 
-        OERenderUtils.renderTextureSprite(BG_TEXTURE, poseStack, multiBufferSource, 0, 0, OERenderUtils.MIN_BREADTH, 0, 0, 0, monitorWidth, monitorHeight, 0, 0, width, height, width, height, i, j);
-        if (header) {
-            OERenderUtils.renderTextureSprite(BASE_TEXTURE, poseStack, multiBufferSource, 0, monitorHeight - onPxH * 10, OERenderUtils.MIN_BREADTH * 2, 0, 0, 0, monitorWidth, onPxH * 10, 0, 0, width, 10, width, height, i, j);
-            if (getParentType() != null) {
-                OERenderUtils.renderTextureSprite(WIDGETS_TEXTURE, poseStack, multiBufferSource, onPxW * 356, monitorHeight - onPxH * 10, OERenderUtils.MIN_BREADTH * 3, 0, 0, 0, onPxW * 14, onPxH * 10, 0, 0, 14, 10, 256, 256, i, j);
-                OERenderUtils.renderTextureSprite(WIDGETS_TEXTURE, poseStack, multiBufferSource, onPxW * 342, monitorHeight - onPxH * 10, OERenderUtils.MIN_BREADTH * 3, 0, 0, 0, onPxW * 14, onPxH * 10, 14, 0, 14, 10, 256, 256, i, j);
-            }
-            renderSmartTextSprite(poseStack, multiBufferSource, title, 1, 2, OERenderUtils.MIN_BREADTH * 3, onPxW, onPxH, monitorHeight, i);
-        }
-    }
+  public MusicManagerScreen getScreen() {
+    return screen;
+  }
 
-    public static void firstInit() {
-        registerMonitors(MusicManagerBlockEntity.MonitorType.OFF, OffMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.TEST, TestMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.PLAY_LIST, PlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.ADD_PLAY_LIST, AddPlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.ADD_ONLINE_PLAY_LIST, AddOnlinePlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.CREATE_PLAY_LIST, CreatePlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.ADD_MUSIC, AddMusicMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.SEARCH_MUSIC, SearchMusicMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.UPLOAD_MUSIC, UploadMusicMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST, ImportYoutubePlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.EDIT_PLAY_LIST, EditPlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.EDIT_MUSIC, EditMusicMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.DETAIL_PLAY_LIST, DetailPlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_SELECT, ImportPlayListSelectMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.DETAIL_MUSIC, DetailMusicMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.DELETE_PLAY_LIST, DeletePlayListMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.DELETE_MUSIC, DeleteMusicMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT, ImportMusicsSelectMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST_MUSICS, ImportYoutubePlayListMusicsMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.AUTHORITY, AuthorityMMMonitor::new);
-    }
+  public static MusicManagerMonitor createdMusicMonitor(
+    MusicManagerBlockEntity.MonitorType type,
+    MusicManagerScreen screen
+  ) {
+    return monitorFactory.get(type).create(type, screen);
+  }
 
-    public MusicManagerScreen getScreen() {
-        return screen;
-    }
+  private static void registerMonitors(
+    MusicManagerBlockEntity.MonitorType type,
+    MonitorFactory factory
+  ) {
+    monitorFactory.put(type, factory);
+  }
 
-    public static MusicManagerMonitor createdMusicMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
-        return monitorFactory.get(type).create(type, screen);
-    }
+  private static interface MonitorFactory {
+    MusicManagerMonitor create(
+      MusicManagerBlockEntity.MonitorType type,
+      MusicManagerScreen screen
+    );
+  }
 
-    private static void registerMonitors(MusicManagerBlockEntity.MonitorType type, MonitorFactory factory) {
-        monitorFactory.put(type, factory);
-    }
+  public MusicEngine getMusicEngine() {
+    return MusicEngine.getInstance();
+  }
 
-    private static interface MonitorFactory {
-        MusicManagerMonitor create(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen);
-    }
+  public MusicManagerBlockEntity.MonitorType getType() {
+    return type;
+  }
 
-    public MusicEngine getMusicEngine() {
-        return MusicEngine.getInstance();
-    }
+  protected void insMonitor(
+    @NotNull MusicManagerBlockEntity.MonitorType type
+  ) {
+    screen.insMonitor(type);
+  }
 
-    public MusicManagerBlockEntity.MonitorType getType() {
-        return type;
-    }
+  @Nullable
+  protected MusicManagerBlockEntity.MonitorType getParentType() {
+    return null;
+  }
 
-    protected void insMonitor(@NotNull MusicManagerBlockEntity.MonitorType type) {
-        screen.insMonitor(type);
-    }
+  public void onUpdateSelectedPlayList(UUID playListId) {}
 
-    @Nullable
-    protected MusicManagerBlockEntity.MonitorType getParentType() {
-        return null;
-    }
-
-    public void onUpdateSelectedPlayList(UUID playListId) {
-
-    }
-
-    protected void onBackParent() {
-
-    }
+  protected void onBackParent() {}
 }

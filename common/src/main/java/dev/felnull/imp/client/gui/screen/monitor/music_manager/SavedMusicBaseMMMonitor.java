@@ -4,20 +4,25 @@ import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.music.resource.MusicSource;
 
-public abstract class SavedMusicBaseMMMonitor extends MusicBaseMMMonitor {
+public abstract class SavedMusicBaseMMMonitor
+  extends MusicBaseMMMonitor
+{
 
-    public SavedMusicBaseMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
-        super(type, screen);
-    }
+  public SavedMusicBaseMMMonitor(
+    MusicManagerBlockEntity.MonitorType type,
+    MusicManagerScreen screen
+  ) {
+    super(type, screen);
+  }
 
-    protected void setMusicSource(MusicSource source, String author) {
-        getScreen().insMusicSource(source);
-        setMusicAuthor(author);
-    }
+  protected void setMusicSource(MusicSource source, String author) {
+    getScreen().insMusicSource(source);
+    setMusicAuthor(author);
+  }
 
-    @Override
-    protected void setMusicAuthor(String author) {
-        super.setMusicAuthor(author);
-        getScreen().insMusicAuthor(author);
-    }
+  @Override
+  protected void setMusicAuthor(String author) {
+    super.setMusicAuthor(author);
+    getScreen().insMusicAuthor(author);
+  }
 }

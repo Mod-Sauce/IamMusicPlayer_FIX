@@ -14,242 +14,474 @@ import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.otyacraftengine.client.util.OERenderUtils;
 import dev.felnull.otyacraftengine.util.FlagThread;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.ArrayList;
-import java.util.List;
+public abstract class ImportYoutubePlayListBaseMMMonitor
+  extends MusicManagerMonitor
+{
 
-public abstract class ImportYoutubePlayListBaseMMMonitor extends MusicManagerMonitor {
-    private static final ResourceLocation IMPORT_YOUTUBE_PLAY_LIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/import_youtube_play_list.png");
-    private static final Component BACK_TEXT = Component.translatable("gui.back");
-    private static final Component LOADING_TEXT = Component.translatable("imp.text.playlistLoading");
-    private final List<ImportYoutubePlayListMMMonitor.YoutubePlayListEntry> youtubePlayListEntries = new ArrayList<>();
-    private SmartButton importButton;
-    private PlayListLoadThread playListLoader;
-    private EditBox playlistIdentifierEditBox;
-    private YoutubePlayListMusicsFixedListWidget youtubePlayListMusicsFixedButtonsList;
+  private static final ResourceLocation IMPORT_YOUTUBE_PLAY_LIST_TEXTURE =
+    new ResourceLocation(
+      IamMusicPlayer.MODID,
+      "textures/gui/container/music_manager/monitor/import_youtube_play_list.png"
+    );
+  private static final Component BACK_TEXT = Component.translatable(
+    "gui.back"
+  );
+  private static final Component LOADING_TEXT =
+    Component.translatable("imp.text.playlistLoading");
+  private final List<
+    ImportYoutubePlayListMMMonitor.YoutubePlayListEntry
+  > youtubePlayListEntries = new ArrayList<>();
+  private SmartButton importButton;
+  private PlayListLoadThread playListLoader;
+  private EditBox playlistIdentifierEditBox;
+  private YoutubePlayListMusicsFixedListWidget youtubePlayListMusicsFixedButtonsList;
 
-    public ImportYoutubePlayListBaseMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
-        super(type, screen);
-    }
+  public ImportYoutubePlayListBaseMMMonitor(
+    MusicManagerBlockEntity.MonitorType type,
+    MusicManagerScreen screen
+  ) {
+    super(type, screen);
+  }
 
-    @Override
-    public void init(int leftPos, int topPos) {
-        super.init(leftPos, topPos);
+  @Override
+  public void init(int leftPos, int topPos) {
+    super.init(leftPos, topPos);
 
-        addRenderWidget(new SmartButton(getStartX() + 5, getStartY() + 180, 87, 15, BACK_TEXT, n -> {
-            if (getParentType() != null)
-                insMonitor(getParentType());
-            resetImport();
-        }));
-
-        this.importButton = addRenderWidget(new SmartButton(getStartX() + 95, getStartY() + 180, 87, 15, CreatePlayListMMMonitor.IMPORT_TEXT, n -> {
-            onImport();
-        }));
-        this.importButton.active = canImport();
-
-        this.playlistIdentifierEditBox = addRenderWidget(new EditBox(mc.font, getStartX() + 6, getStartY() + 164, 175, 12, Component.translatable("imp.editBox.youtubePlaylistIdentifier")));
-        this.playlistIdentifierEditBox.setMaxLength(300);
-        this.playlistIdentifierEditBox.setResponder(this::startPlayListLoad);
-        this.playlistIdentifierEditBox.setValue(getImportPlayList());
-
-        this.youtubePlayListMusicsFixedButtonsList = addRenderWidget(new YoutubePlayListMusicsFixedListWidget(getStartX() + 1, getStartY() + 10, 368, 148, Component.translatable("imp.fixedList.youtubePlayListMusics"), 4, youtubePlayListEntries, this.youtubePlayListMusicsFixedButtonsList));
-
-        startPlayListLoad(getImportPlayList());
-    }
-
-    abstract protected void onImport();
-
-    @Override
-    public void render(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
-        super.render(guiGraphics, f, mouseX, mouseY);
-        OERenderUtils.drawTexture(IMPORT_YOUTUBE_PLAY_LIST_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0f, 0f, width, height, width, height);
-        if (isPlayListLoading()) {
-            drawSmartText(guiGraphics, LOADING_TEXT, getStartX() + 2, getStartY() + 11);
+    addRenderWidget(
+      new SmartButton(
+        getStartX() + 5,
+        getStartY() + 180,
+        87,
+        15,
+        BACK_TEXT,
+        n -> {
+          if (getParentType() != null) insMonitor(getParentType());
+          resetImport();
         }
+      )
+    );
 
-        drawSmartText(guiGraphics, Component.literal(getImportPlayListName()), getStartX() + 200, getStartY() + 167);
-        drawSmartText(guiGraphics, Component.literal(getImportPlayListAuthor()), getStartX() + 200, getStartY() + 183);
+    this.importButton = addRenderWidget(
+      new SmartButton(
+        getStartX() + 95,
+        getStartY() + 180,
+        87,
+        15,
+        CreatePlayListMMMonitor.IMPORT_TEXT,
+        n -> {
+          onImport();
+        }
+      )
+    );
+    this.importButton.active = canImport();
+
+    this.playlistIdentifierEditBox = addRenderWidget(
+      new EditBox(
+        mc.font,
+        getStartX() + 6,
+        getStartY() + 164,
+        175,
+        12,
+        Component.translatable(
+          "imp.editBox.youtubePlaylistIdentifier"
+        )
+      )
+    );
+    this.playlistIdentifierEditBox.setMaxLength(300);
+    this.playlistIdentifierEditBox.setResponder(
+      this::startPlayListLoad
+    );
+    this.playlistIdentifierEditBox.setValue(getImportPlayList());
+
+    this.youtubePlayListMusicsFixedButtonsList = addRenderWidget(
+      new YoutubePlayListMusicsFixedListWidget(
+        getStartX() + 1,
+        getStartY() + 10,
+        368,
+        148,
+        Component.translatable("imp.fixedList.youtubePlayListMusics"),
+        4,
+        youtubePlayListEntries,
+        this.youtubePlayListMusicsFixedButtonsList
+      )
+    );
+
+    startPlayListLoad(getImportPlayList());
+  }
+
+  protected abstract void onImport();
+
+  @Override
+  public void render(
+    GuiGraphics guiGraphics,
+    float f,
+    int mouseX,
+    int mouseY
+  ) {
+    super.render(guiGraphics, f, mouseX, mouseY);
+    OERenderUtils.drawTexture(
+      IMPORT_YOUTUBE_PLAY_LIST_TEXTURE,
+      guiGraphics.pose(),
+      getStartX(),
+      getStartY(),
+      0f,
+      0f,
+      width,
+      height,
+      width,
+      height
+    );
+    if (isPlayListLoading()) {
+      drawSmartText(
+        guiGraphics,
+        LOADING_TEXT,
+        getStartX() + 2,
+        getStartY() + 11
+      );
+    }
+
+    drawSmartText(
+      guiGraphics,
+      Component.literal(getImportPlayListName()),
+      getStartX() + 200,
+      getStartY() + 167
+    );
+    drawSmartText(
+      guiGraphics,
+      Component.literal(getImportPlayListAuthor()),
+      getStartX() + 200,
+      getStartY() + 183
+    );
+  }
+
+  @Override
+  public void renderAppearance(
+    MusicManagerBlockEntity blockEntity,
+    PoseStack poseStack,
+    MultiBufferSource multiBufferSource,
+    int i,
+    int j,
+    float f,
+    float monitorWidth,
+    float monitorHeight
+  ) {
+    super.renderAppearance(
+      blockEntity,
+      poseStack,
+      multiBufferSource,
+      i,
+      j,
+      f,
+      monitorWidth,
+      monitorHeight
+    );
+    float onPxW = monitorWidth / (float) width;
+    float onPxH = monitorHeight / (float) height;
+    OERenderUtils.renderTextureSprite(
+      IMPORT_YOUTUBE_PLAY_LIST_TEXTURE,
+      poseStack,
+      multiBufferSource,
+      0,
+      0,
+      OERenderUtils.MIN_BREADTH * 2,
+      0,
+      0,
+      0,
+      monitorWidth,
+      monitorHeight,
+      0,
+      0,
+      width,
+      height,
+      width,
+      height,
+      i,
+      j
+    );
+
+    renderSmartButtonSprite(
+      poseStack,
+      multiBufferSource,
+      5,
+      180,
+      OERenderUtils.MIN_BREADTH * 4,
+      87,
+      15,
+      i,
+      j,
+      onPxW,
+      onPxH,
+      monitorHeight,
+      BACK_TEXT,
+      true
+    );
+    renderSmartButtonSprite(
+      poseStack,
+      multiBufferSource,
+      95,
+      180,
+      OERenderUtils.MIN_BREADTH * 4,
+      87,
+      15,
+      i,
+      j,
+      onPxW,
+      onPxH,
+      monitorHeight,
+      CreatePlayListMMMonitor.IMPORT_TEXT,
+      true,
+      !canImport(blockEntity)
+    );
+
+    renderSmartEditBoxSprite(
+      poseStack,
+      multiBufferSource,
+      6,
+      164,
+      OERenderUtils.MIN_BREADTH * 4,
+      175,
+      12,
+      i,
+      j,
+      onPxW,
+      onPxH,
+      monitorHeight,
+      getImportPlayList(blockEntity)
+    );
+
+    renderSmartTextSprite(
+      poseStack,
+      multiBufferSource,
+      Component.literal(getImportPlayListName(blockEntity)),
+      200,
+      167,
+      OERenderUtils.MIN_BREADTH * 2,
+      onPxW,
+      onPxH,
+      monitorHeight,
+      i
+    );
+    renderSmartTextSprite(
+      poseStack,
+      multiBufferSource,
+      Component.literal(getImportPlayListAuthor(blockEntity)),
+      200,
+      183,
+      OERenderUtils.MIN_BREADTH * 2,
+      onPxW,
+      onPxH,
+      monitorHeight,
+      i
+    );
+
+    renderScrollbarSprite(
+      poseStack,
+      multiBufferSource,
+      360,
+      10,
+      OERenderUtils.MIN_BREADTH * 2,
+      148,
+      i,
+      j,
+      onPxW,
+      onPxH,
+      monitorHeight,
+      1,
+      1
+    );
+  }
+
+  @Override
+  public void tick() {
+    super.tick();
+    this.importButton.active = canImport();
+  }
+
+  protected int getImportPlayListMusicCount() {
+    if (
+      getScreen().getBlockEntity() instanceof
+        MusicManagerBlockEntity musicManagerBlockEntity
+    ) return getImportPlayListMusicCount(musicManagerBlockEntity);
+    return 0;
+  }
+
+  protected int getImportPlayListMusicCount(
+    MusicManagerBlockEntity blockEntity
+  ) {
+    return blockEntity.getImportPlayListMusicCount(mc.player);
+  }
+
+  protected String getImportPlayListAuthor() {
+    if (
+      getScreen().getBlockEntity() instanceof
+        MusicManagerBlockEntity musicManagerBlockEntity
+    ) return getImportPlayListAuthor(musicManagerBlockEntity);
+    return "";
+  }
+
+  protected String getImportPlayListAuthor(
+    MusicManagerBlockEntity blockEntity
+  ) {
+    return blockEntity.getImportPlayListAuthor(mc.player);
+  }
+
+  protected String getImportPlayList() {
+    if (
+      getScreen().getBlockEntity() instanceof
+        MusicManagerBlockEntity musicManagerBlockEntity
+    ) return getImportPlayList(musicManagerBlockEntity);
+    return "";
+  }
+
+  protected String getImportPlayList(
+    MusicManagerBlockEntity blockEntity
+  ) {
+    return blockEntity.getImportIdentifier(mc.player);
+  }
+
+  protected String getImportPlayListName() {
+    if (
+      getScreen().getBlockEntity() instanceof
+        MusicManagerBlockEntity musicManagerBlockEntity
+    ) return getImportPlayListName(musicManagerBlockEntity);
+    return "";
+  }
+
+  protected String getImportPlayListName(
+    MusicManagerBlockEntity blockEntity
+  ) {
+    return blockEntity.getImportPlayListName(mc.player);
+  }
+
+  protected boolean canImport() {
+    if (
+      getScreen().getBlockEntity() instanceof
+        MusicManagerBlockEntity musicManagerBlockEntity
+    ) return canImport(musicManagerBlockEntity);
+    return false;
+  }
+
+  protected boolean canImport(MusicManagerBlockEntity blockEntity) {
+    return (
+      !getImportPlayList(blockEntity).isEmpty() &&
+      getImportPlayListMusicCount(blockEntity) > 0
+    );
+  }
+
+  protected boolean isPlayListLoading() {
+    return playListLoader != null && playListLoader.isAlive();
+  }
+
+  protected void setImportPlayListAuthor(String author) {
+    getScreen().insImportPlayListAuthor(author);
+  }
+
+  protected void setImportPlayListMusicCount(int count) {
+    getScreen().insImportPlayListMusicCount(count);
+  }
+
+  protected void setImportPlayListName(String name) {
+    getScreen().insImportPlayListName(name);
+  }
+
+  protected void setImportPlayList(String id) {
+    getScreen().insImportIdentifier(id);
+  }
+
+  @Override
+  protected void onBackParent() {
+    super.onBackParent();
+    resetImport();
+  }
+
+  protected void resetImport() {
+    setImportPlayList("");
+    setImportPlayListAuthor("");
+    setImportPlayListName("");
+    setImportPlayListMusicCount(0);
+  }
+
+  protected void startPlayListLoad(String id) {
+    stopPlayListLoad();
+    youtubePlayListEntries.clear();
+    resetImport();
+    playListLoader = new PlayListLoadThread(id);
+    playListLoader.start();
+  }
+
+  protected void stopPlayListLoad() {
+    if (playListLoader != null) {
+      playListLoader.stopped();
+      playListLoader = null;
+    }
+  }
+
+  private class PlayListLoadThread extends FlagThread {
+
+    private final String id;
+
+    public PlayListLoadThread(String id) {
+      this.id = id;
     }
 
     @Override
-    public void renderAppearance(MusicManagerBlockEntity blockEntity, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j, float f, float monitorWidth, float monitorHeight) {
-        super.renderAppearance(blockEntity, poseStack, multiBufferSource, i, j, f, monitorWidth, monitorHeight);
-        float onPxW = monitorWidth / (float) width;
-        float onPxH = monitorHeight / (float) height;
-        OERenderUtils.renderTextureSprite(IMPORT_YOUTUBE_PLAY_LIST_TEXTURE, poseStack, multiBufferSource, 0, 0, OERenderUtils.MIN_BREADTH * 2, 0, 0, 0, monitorWidth, monitorHeight, 0, 0, width, height, width, height, i, j);
+    public void run() {
+      if (isStopped()) return;
 
-        renderSmartButtonSprite(poseStack, multiBufferSource, 5, 180, OERenderUtils.MIN_BREADTH * 4, 87, 15, i, j, onPxW, onPxH, monitorHeight, BACK_TEXT, true);
-        renderSmartButtonSprite(poseStack, multiBufferSource, 95, 180, OERenderUtils.MIN_BREADTH * 4, 87, 15, i, j, onPxW, onPxH, monitorHeight, CreatePlayListMMMonitor.IMPORT_TEXT, true, !canImport(blockEntity));
-
-        renderSmartEditBoxSprite(poseStack, multiBufferSource, 6, 164, OERenderUtils.MIN_BREADTH * 4, 175, 12, i, j, onPxW, onPxH, monitorHeight, getImportPlayList(blockEntity));
-
-        renderSmartTextSprite(poseStack, multiBufferSource, Component.literal(getImportPlayListName(blockEntity)), 200, 167, OERenderUtils.MIN_BREADTH * 2, onPxW, onPxH, monitorHeight, i);
-        renderSmartTextSprite(poseStack, multiBufferSource, Component.literal(getImportPlayListAuthor(blockEntity)), 200, 183, OERenderUtils.MIN_BREADTH * 2, onPxW, onPxH, monitorHeight, i);
-
-        renderScrollbarSprite(poseStack, multiBufferSource, 360, 10, OERenderUtils.MIN_BREADTH * 2, 148, i, j, onPxW, onPxH, monitorHeight, 1, 1);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        this.importButton.active = canImport();
-    }
-
-    protected int getImportPlayListMusicCount() {
-        if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlockEntity)
-            return getImportPlayListMusicCount(musicManagerBlockEntity);
-        return 0;
-    }
-
-    protected int getImportPlayListMusicCount(MusicManagerBlockEntity blockEntity) {
-        return blockEntity.getImportPlayListMusicCount(mc.player);
-    }
-
-
-    protected String getImportPlayListAuthor() {
-        if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlockEntity)
-            return getImportPlayListAuthor(musicManagerBlockEntity);
-        return "";
-    }
-
-    protected String getImportPlayListAuthor(MusicManagerBlockEntity blockEntity) {
-        return blockEntity.getImportPlayListAuthor(mc.player);
-    }
-
-    protected String getImportPlayList() {
-        if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlockEntity)
-            return getImportPlayList(musicManagerBlockEntity);
-        return "";
-    }
-
-    protected String getImportPlayList(MusicManagerBlockEntity blockEntity) {
-        return blockEntity.getImportIdentifier(mc.player);
-    }
-
-    protected String getImportPlayListName() {
-        if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlockEntity)
-            return getImportPlayListName(musicManagerBlockEntity);
-        return "";
-    }
-
-    protected String getImportPlayListName(MusicManagerBlockEntity blockEntity) {
-        return blockEntity.getImportPlayListName(mc.player);
-    }
-
-    protected boolean canImport() {
-        if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlockEntity)
-            return canImport(musicManagerBlockEntity);
-        return false;
-    }
-
-    protected boolean canImport(MusicManagerBlockEntity blockEntity) {
-        return !getImportPlayList(blockEntity).isEmpty() && getImportPlayListMusicCount(blockEntity) > 0;
-    }
-
-    protected boolean isPlayListLoading() {
-        return playListLoader != null && playListLoader.isAlive();
-    }
-
-    protected void setImportPlayListAuthor(String author) {
-        getScreen().insImportPlayListAuthor(author);
-    }
-
-    protected void setImportPlayListMusicCount(int count) {
-        getScreen().insImportPlayListMusicCount(count);
-    }
-
-    protected void setImportPlayListName(String name) {
-        getScreen().insImportPlayListName(name);
-    }
-
-    protected void setImportPlayList(String id) {
-        getScreen().insImportIdentifier(id);
-    }
-
-    @Override
-    protected void onBackParent() {
-        super.onBackParent();
-        resetImport();
-    }
-
-    protected void resetImport() {
-        setImportPlayList("");
-        setImportPlayListAuthor("");
-        setImportPlayListName("");
-        setImportPlayListMusicCount(0);
-    }
-
-    protected void startPlayListLoad(String id) {
-        stopPlayListLoad();
-        youtubePlayListEntries.clear();
-        resetImport();
-        playListLoader = new PlayListLoadThread(id);
-        playListLoader.start();
-    }
-
-    protected void stopPlayListLoad() {
-        if (playListLoader != null) {
-            playListLoader.stopped();
-            playListLoader = null;
+      String sid = "";
+      String sname = "";
+      String satuhor = "";
+      int sct = 0;
+      try {
+        var pl = LavaPlayerManager.getInstance().loadTracks(id);
+        if (pl.getLeft() == null) throw new IllegalStateException(
+          "Not PlayList"
+        );
+        for (AudioTrack track : pl.getRight()) {
+          if (!track.getInfo().isStream) {
+            var ret = IMPMusicMedias.YOUTUBE.createResult(track);
+            var en = new YoutubePlayListEntry(
+              ret.name(),
+              ret.author(),
+              ret.source(),
+              ret.imageInfo()
+            );
+            youtubePlayListEntries.add(en);
+          }
+          if (isStopped()) return;
         }
-    }
+        sid = id;
+        sct = youtubePlayListEntries.size();
+        sname = pl.getLeft().getName();
 
-    private class PlayListLoadThread extends FlagThread {
-        private final String id;
+        if (isStopped()) return;
 
-        public PlayListLoadThread(String id) {
-            this.id = id;
+        var pid = YoutubeUtil.getPlayListID(id);
+        if (pid != null) {
+          var ypl = YoutubeUtil.getYoutubePlayList(pid);
+          satuhor = ypl.details().author();
         }
-
-        @Override
-        public void run() {
-            if (isStopped())
-                return;
-
-            String sid = "";
-            String sname = "";
-            String satuhor = "";
-            int sct = 0;
-            try {
-                var pl = LavaPlayerManager.getInstance().loadTracks(id);
-                if (pl.getLeft() == null) throw new IllegalStateException("Not PlayList");
-                for (AudioTrack track : pl.getRight()) {
-                    if (!track.getInfo().isStream) {
-                        var ret = IMPMusicMedias.YOUTUBE.createResult(track);
-                        var en = new YoutubePlayListEntry(ret.name(), ret.author(), ret.source(), ret.imageInfo());
-                        youtubePlayListEntries.add(en);
-                    }
-                    if (isStopped())
-                        return;
-                }
-                sid = id;
-                sct = youtubePlayListEntries.size();
-                sname = pl.getLeft().getName();
-
-                if (isStopped())
-                    return;
-
-                var pid = YoutubeUtil.getPlayListID(id);
-                if (pid != null) {
-                    var ypl = YoutubeUtil.getYoutubePlayList(pid);
-                    satuhor = ypl.details().author();
-                }
-            } catch (Exception ignored) {
-            }
-            if (isStopped())
-                return;
-            setImportPlayList(sid);
-            setImportPlayListMusicCount(sct);
-            setImportPlayListName(sname);
-            setImportPlayListAuthor(satuhor);
-        }
+      } catch (Exception ignored) {}
+      if (isStopped()) return;
+      setImportPlayList(sid);
+      setImportPlayListMusicCount(sct);
+      setImportPlayListName(sname);
+      setImportPlayListAuthor(satuhor);
     }
+  }
 
-    public static record YoutubePlayListEntry(String name, String artist, MusicSource source, ImageInfo imageInfo) {
-    }
+  public static record YoutubePlayListEntry(
+    String name,
+    String artist,
+    MusicSource source,
+    ImageInfo imageInfo
+  ) {}
 }

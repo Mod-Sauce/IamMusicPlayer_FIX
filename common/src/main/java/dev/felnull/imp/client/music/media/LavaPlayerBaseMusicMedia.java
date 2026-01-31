@@ -10,64 +10,85 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class LavaPlayerBaseMusicMedia implements MusicMedia {
-    private static final Component ENTER_TEXT = Component.translatable("imp.text.enterText.default");
-    private final String name;
-    private final Component componentName;
-    private final ResourceLocation icon;
 
-    protected LavaPlayerBaseMusicMedia(String name) {
-        this.name = name;
-        this.componentName = Component.translatable("imp.loaderType." + name);
-        var il = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/loader_types/" + name + ".png");
-        this.icon = il;
-    }
+  private static final Component ENTER_TEXT = Component.translatable(
+    "imp.text.enterText.default"
+  );
+  private final String name;
+  private final Component componentName;
+  private final ResourceLocation icon;
 
-    abstract public void registerSourceManager(AudioPlayerManager audioPlayerManager);
+  protected LavaPlayerBaseMusicMedia(String name) {
+    this.name = name;
+    this.componentName = Component.translatable(
+      "imp.loaderType." + name
+    );
+    var il = new ResourceLocation(
+      IamMusicPlayer.MODID,
+      "textures/gui/container/music_manager/loader_types/" +
+        name +
+        ".png"
+    );
+    this.icon = il;
+  }
 
-    @Override
-    public Component getMediaName() {
-        return componentName;
-    }
+  public abstract void registerSourceManager(
+    AudioPlayerManager audioPlayerManager
+  );
 
-    @Override
-    public Component getEnterText() {
-        return ENTER_TEXT;
-    }
+  @Override
+  public Component getMediaName() {
+    return componentName;
+  }
 
-    @Override
-    public ResourceLocation getIcon() {
-        return icon;
-    }
+  @Override
+  public Component getEnterText() {
+    return ENTER_TEXT;
+  }
 
-    @Override
-    public MusicMediaResult load(String sourceName) throws Exception {
-        var lm = LavaPlayerManager.getInstance();
+  @Override
+  public ResourceLocation getIcon() {
+    return icon;
+  }
 
-        var otrack = lm.loadTrack(sourceName);
-        if (otrack.isPresent() && !match(otrack.get()))
-            return null;
+  @Override
+  public MusicMediaResult load(String sourceName) throws Exception {
+    var lm = LavaPlayerManager.getInstance();
 
-        if (otrack.isPresent() && !otrack.get().getInfo().isStream)
-            return createResult(otrack.get());
-        return null;
-    }
+    var otrack = lm.loadTrack(sourceName);
+    if (otrack.isPresent() && !match(otrack.get())) return null;
 
-    public MusicMediaResult createResult(AudioTrack track) {
-        var ms = new MusicSource(name, getIdentifier(track), track.getDuration());
-        return new MusicMediaResult(ms, createThumbnail(track), track.getInfo().title, track.getInfo().author);
-    }
+    if (
+      otrack.isPresent() && !otrack.get().getInfo().isStream
+    ) return createResult(otrack.get());
+    return null;
+  }
 
-    protected ImageInfo createThumbnail(AudioTrack track) {
-        return null;
-    }
+  public MusicMediaResult createResult(AudioTrack track) {
+    var ms = new MusicSource(
+      name,
+      getIdentifier(track),
+      track.getDuration()
+    );
+    return new MusicMediaResult(
+      ms,
+      createThumbnail(track),
+      track.getInfo().title,
+      track.getInfo().author
+    );
+  }
 
-    protected String getIdentifier(AudioTrack track) {
-        return track.getIdentifier();
-    }
+  protected ImageInfo createThumbnail(AudioTrack track) {
+    return null;
+  }
 
-    abstract public boolean match(AudioTrack track);
+  protected String getIdentifier(AudioTrack track) {
+    return track.getIdentifier();
+  }
 
-    public int priority() {
-        return 0;
-    }
+  public abstract boolean match(AudioTrack track);
+
+  public int priority() {
+    return 0;
+  }
 }

@@ -6,8 +6,9 @@ import dev.felnull.otyacraftengine.client.callpoint.ModelRegister;
 
 @ClientCallPoint.Sign
 public class IMPOEClientEntryPoint implements ClientCallPoint {
-    @Override
-    public void onModelRegistry(ModelRegister register) {
-        IMPModels.init(register);
-    }
+
+  @Override
+  public void onModelRegistry(ModelRegister register) {
+    IMPModels.init(register);
+  }
 }

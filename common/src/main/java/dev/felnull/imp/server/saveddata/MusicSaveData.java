@@ -7,54 +7,66 @@ import dev.felnull.imp.server.handler.ServerMessageHandler;
 import dev.felnull.imp.util.IMPNbtUtil;
 import dev.felnull.otyacraftengine.server.level.saveddata.OEBaseSavedData;
 import dev.felnull.otyacraftengine.server.util.OESaveDataUtils;
+import java.util.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 
-import java.util.*;
-
 public class MusicSaveData extends OEBaseSavedData {
-    private final Map<UUID, MusicPlayList> playLists = new HashMap<>();
-    private final Map<UUID, Music> musics = new HashMap<>();
 
-    public MusicSaveData() {
-        setDirty();
-    }
+  private final Map<UUID, MusicPlayList> playLists = new HashMap<>();
+  private final Map<UUID, Music> musics = new HashMap<>();
 
-    public static MusicSaveData get(MinecraftServer server) {
-        return OESaveDataUtils.getSaveData(server, "imp_music_data", MusicSaveData::new);
-    }
+  public MusicSaveData() {
+    setDirty();
+  }
 
-    @Override
-    public CompoundTag save(CompoundTag tag) {
-        IMPNbtUtil.writeMusicPlayLists(tag, "PlayLists", Lists.newArrayList(playLists.values()));
-        IMPNbtUtil.writeMusics(tag, "Musics", Lists.newArrayList(musics.values()));
-        return tag;
-    }
+  public static MusicSaveData get(MinecraftServer server) {
+    return OESaveDataUtils.getSaveData(
+      server,
+      "imp_music_data",
+      MusicSaveData::new
+    );
+  }
 
-    @Override
-    public void load(CompoundTag tag) {
-        playLists.clear();
-        List<MusicPlayList> pls = new ArrayList<>();
-        IMPNbtUtil.readMusicPlayLists(tag, "PlayLists", pls);
-        pls.forEach(pl -> playLists.put(pl.getUuid(), pl));
+  @Override
+  public CompoundTag save(CompoundTag tag) {
+    IMPNbtUtil.writeMusicPlayLists(
+      tag,
+      "PlayLists",
+      Lists.newArrayList(playLists.values())
+    );
+    IMPNbtUtil.writeMusics(
+      tag,
+      "Musics",
+      Lists.newArrayList(musics.values())
+    );
+    return tag;
+  }
 
-        musics.clear();
-        List<Music> ms = new ArrayList<>();
-        IMPNbtUtil.readMusics(tag, "Musics", ms);
-        ms.forEach(m -> musics.put(m.getUuid(), m));
-    }
+  @Override
+  public void load(CompoundTag tag) {
+    playLists.clear();
+    List<MusicPlayList> pls = new ArrayList<>();
+    IMPNbtUtil.readMusicPlayLists(tag, "PlayLists", pls);
+    pls.forEach(pl -> playLists.put(pl.getUuid(), pl));
 
-    public Map<UUID, Music> getMusics() {
-        return musics;
-    }
+    musics.clear();
+    List<Music> ms = new ArrayList<>();
+    IMPNbtUtil.readMusics(tag, "Musics", ms);
+    ms.forEach(m -> musics.put(m.getUuid(), m));
+  }
 
-    public Map<UUID, MusicPlayList> getPlayLists() {
-        return playLists;
-    }
+  public Map<UUID, Music> getMusics() {
+    return musics;
+  }
 
-    @Override
-    public void setDirty() {
-        super.setDirty();
-        ServerMessageHandler.onMusicDataUpdate();
-    }
+  public Map<UUID, MusicPlayList> getPlayLists() {
+    return playLists;
+  }
+
+  @Override
+  public void setDirty() {
+    super.setDirty();
+    ServerMessageHandler.onMusicDataUpdate();
+  }
 }

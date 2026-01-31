@@ -7,12 +7,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class CassetteTapeSlot extends Slot {
 
-    public CassetteTapeSlot(Container container, int i, int j, int k) {
-        super(container, i, j, k);
-    }
+  public CassetteTapeSlot(Container container, int i, int j, int k) {
+    super(container, i, j, k);
+  }
 
-    @Override
-    public boolean mayPlace(ItemStack itemStack) {
-        return IMPItemUtil.isCassetteTape(itemStack);
-    }
+  @Override
+  public boolean mayPlace(ItemStack itemStack) {
+    return IMPItemUtil.isCassetteTape(itemStack);
+  }
 }

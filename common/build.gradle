@@ -16,9 +16,6 @@ dependencies {
 
     implementation "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
 
-    /*implementation("com.github.walkyst:lavaplayer-fork:${rootProject.lava_version}") {
-        exclude group: 'com.sedmelluq', module: 'lavaplayer-natives'
-    }*/
     implementation("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
@@ -28,44 +25,3 @@ dependencies {
     implementation 'com.mpatric:mp3agic:0.9.1'
     implementation("org.json:json:20250517")
 }
-/*
-publishing {
-    publications {
-        mavenCommon(MavenPublication) {
-            artifactId = rootProject.archives_base_name
-            from components.java
-            pom {
-                name = 'IamMusicPlayer'
-                description = 'The ikisugi music player mod.'
-                licenses {
-                    license {
-                        name = 'GNU Lesser General Public License v3.0'
-                        url = 'https://www.gnu.org/licenses/lgpl-3.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'MORIMORI0317'
-                        name = 'MORIMORI0317'
-                    }
-                    developer {
-                        id = 'FelNull'
-                        name = 'TeamFelNull'
-                        email = 'teamfelnull@felnull.dev'
-                    }
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url "${project.maven_put_url}"
-            credentials {
-                username = "felnull"
-                password = "${project.maven_put_pass}" != '' ? "${project.maven_put_pass}" : System.getenv('mavenpassword')
-            }
-        }
-    }
-}
-*/

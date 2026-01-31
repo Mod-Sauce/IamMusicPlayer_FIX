@@ -9,14 +9,14 @@ import dev.felnull.imp.impl.client.IamMusicPlayerClientAPIImpl;
  * @since 3.19
  */
 public interface IamMusicPlayerClientAPI {
-    static IamMusicPlayerClientAPI getInstance() {
-        return IamMusicPlayerClientAPIImpl.INSTANCE;
-    }
+  static IamMusicPlayerClientAPI getInstance() {
+    return IamMusicPlayerClientAPIImpl.INSTANCE;
+  }
 
-    /**
-     * 音楽エンジンを取得
-     *
-     * @return 音楽エンジン
-     */
-    MusicEngineAccess getMusicEngine();
+  /**
+   * 音楽エンジンを取得
+   *
+   * @return 音楽エンジン
+   */
+  MusicEngineAccess getMusicEngine();
 }

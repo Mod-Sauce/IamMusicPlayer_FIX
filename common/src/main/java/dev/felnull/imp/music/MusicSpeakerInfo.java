@@ -13,60 +13,70 @@ import net.minecraft.world.phys.Vec3;
  * @param range     範囲
  * @param fixedInfo 固定情報
  */
-public record MusicSpeakerInfo(Vec3 position, float volume, float range,
-                               MusicSpeakerFixedInfo fixedInfo) implements MusicSpeakerInfoAccess {
-    public MusicSpeakerInfo() {
-        this(Vec3.ZERO, 0, 0, new MusicSpeakerFixedInfo());
-    }
+public record MusicSpeakerInfo(
+  Vec3 position,
+  float volume,
+  float range,
+  MusicSpeakerFixedInfo fixedInfo
+) implements MusicSpeakerInfoAccess {
+  public MusicSpeakerInfo() {
+    this(Vec3.ZERO, 0, 0, new MusicSpeakerFixedInfo());
+  }
 
-    public CompoundTag toTag() {
-        var tag = new CompoundTag();
+  public CompoundTag toTag() {
+    var tag = new CompoundTag();
 
-        tag.putDouble("x", position.x);
-        tag.putDouble("y", position.y);
-        tag.putDouble("z", position.z);
+    tag.putDouble("x", position.x);
+    tag.putDouble("y", position.y);
+    tag.putDouble("z", position.z);
 
-        tag.putFloat("volume", volume);
-        tag.putFloat("range", range);
+    tag.putFloat("volume", volume);
+    tag.putFloat("range", range);
 
-        tag.put("fixed_info", fixedInfo.toTag());
+    tag.put("fixed_info", fixedInfo.toTag());
 
-        return tag;
-    }
+    return tag;
+  }
 
-    public static MusicSpeakerInfo loadByTag(CompoundTag tag) {
-        var position = new Vec3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
+  public static MusicSpeakerInfo loadByTag(CompoundTag tag) {
+    var position = new Vec3(
+      tag.getDouble("x"),
+      tag.getDouble("y"),
+      tag.getDouble("z")
+    );
 
-        float volume = tag.getFloat("volume");
-        float range = tag.getFloat("range");
+    float volume = tag.getFloat("volume");
+    float range = tag.getFloat("range");
 
-        var fixedInfo = MusicSpeakerFixedInfo.loadByTag(tag.getCompound("fixed_info"));
+    var fixedInfo = MusicSpeakerFixedInfo.loadByTag(
+      tag.getCompound("fixed_info")
+    );
 
-        return new MusicSpeakerInfo(position, volume, range, fixedInfo);
-    }
+    return new MusicSpeakerInfo(position, volume, range, fixedInfo);
+  }
 
-    @Override
-    public Vec3 getPosition() {
-        return position;
-    }
+  @Override
+  public Vec3 getPosition() {
+    return position;
+  }
 
-    @Override
-    public float getVolume() {
-        return volume;
-    }
+  @Override
+  public float getVolume() {
+    return volume;
+  }
 
-    @Override
-    public float getRange() {
-        return range;
-    }
+  @Override
+  public float getRange() {
+    return range;
+  }
 
-    @Override
-    public int getChannel() {
-        return fixedInfo().channel();
-    }
+  @Override
+  public int getChannel() {
+    return fixedInfo().channel();
+  }
 
-    @Override
-    public boolean isSpatial() {
-        return MusicUtils.isSpatial(fixedInfo.spatialType());
-    }
+  @Override
+  public boolean isSpatial() {
+    return MusicUtils.isSpatial(fixedInfo.spatialType());
+  }
 }

@@ -18,16 +18,39 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
-    @Shadow
-    @Final
-    private RenderBuffers renderBuffers;
 
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;getModelViewStack()Lcom/mojang/blaze3d/vertex/PoseStack;"))
-    private void renderLevel(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci) {
-        if (IamMusicPlayer.getConfig().showSpeakerRange) {
-            var bs = this.renderBuffers.bufferSource();
-            var camVec = camera.getPosition();
-            DebugSpeakerRangeRenderer.render(poseStack, bs, camVec.x(), camVec.y(), camVec.z());
-        }
+  @Shadow
+  @Final
+  private RenderBuffers renderBuffers;
+
+  @Inject(
+    method = "renderLevel",
+    at = @At(
+      value = "INVOKE",
+      target = "Lcom/mojang/blaze3d/systems/RenderSystem;getModelViewStack()Lcom/mojang/blaze3d/vertex/PoseStack;"
+    )
+  )
+  private void renderLevel(
+    PoseStack poseStack,
+    float f,
+    long l,
+    boolean bl,
+    Camera camera,
+    GameRenderer gameRenderer,
+    LightTexture lightTexture,
+    Matrix4f matrix4f,
+    CallbackInfo ci
+  ) {
+    if (IamMusicPlayer.getConfig().showSpeakerRange) {
+      var bs = this.renderBuffers.bufferSource();
+      var camVec = camera.getPosition();
+      DebugSpeakerRangeRenderer.render(
+        poseStack,
+        bs,
+        camVec.x(),
+        camVec.y(),
+        camVec.z()
+      );
     }
+  }
 }

@@ -9,10 +9,7 @@
     "client.SoundEngineMixin",
     "client.SoundOptionsScreenMixin"
   ],
-  "mixins": [
-    "ItemEntityMixin",
-    "ParrotMixin"
-  ],
+  "mixins": ["ItemEntityMixin", "ParrotMixin"],
   "injectors": {
     "defaultRequire": 1
   }

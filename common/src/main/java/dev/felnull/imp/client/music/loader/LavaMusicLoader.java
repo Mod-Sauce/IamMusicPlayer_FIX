@@ -5,55 +5,67 @@ import dev.felnull.imp.client.lava.LavaPlayerManager;
 import dev.felnull.imp.client.music.player.LavaMusicPlayer;
 import dev.felnull.imp.client.music.player.MusicPlayer;
 import dev.felnull.imp.music.resource.MusicSource;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 public class LavaMusicLoader implements MusicLoader {
-    private MusicSource musicSource;
-    private AudioTrack audioTrack;
 
-    @Override
-    public @NotNull MusicPlayer<?, ?> createMusicPlayer(UUID musicPlayerId) {
-        return new LavaMusicPlayer(musicPlayerId, audioTrack, musicSource);
-    }
+  private MusicSource musicSource;
+  private AudioTrack audioTrack;
 
-    @Override
-    public void tryLoad(@NotNull MusicSource source) throws Exception {
-        if (!isSupportMedia(source))
-            throw new RuntimeException("Unsupported media");
+  @Override
+  public @NotNull MusicPlayer<?, ?> createMusicPlayer(
+    UUID musicPlayerId
+  ) {
+    return new LavaMusicPlayer(
+      musicPlayerId,
+      audioTrack,
+      musicSource
+    );
+  }
 
-        var lm = LavaPlayerManager.getInstance();
+  @Override
+  public void tryLoad(@NotNull MusicSource source) throws Exception {
+    if (!isSupportMedia(source)) throw new RuntimeException(
+      "Unsupported media"
+    );
 
-        var wr = wrappedIdentifier(source);
-        if (wr == null)
-            throw new RuntimeException("Failed to get wrapped identifier");
+    var lm = LavaPlayerManager.getInstance();
 
-        var track = lm.loadTrack(wr);
-        if (track.isEmpty())
-            throw new RuntimeException("Failed to load track");
+    var wr = wrappedIdentifier(source);
+    if (wr == null) throw new RuntimeException(
+      "Failed to get wrapped identifier"
+    );
 
-        if (source.isLive() != track.get().getInfo().isStream)
-            throw new RuntimeException("Discrepancies in live information");
+    var track = lm.loadTrack(wr);
+    if (track.isEmpty()) throw new RuntimeException(
+      "Failed to load track"
+    );
 
-        this.audioTrack = track.get();
-        this.musicSource = source;
-    }
+    if (
+      source.isLive() != track.get().getInfo().isStream
+    ) throw new RuntimeException("Discrepancies in live information");
 
-    protected boolean isSupportMedia(MusicSource source) {
-        if (source.isLive() && source.getLoaderType().isEmpty())
-            return true;
+    this.audioTrack = track.get();
+    this.musicSource = source;
+  }
 
-        var lm = LavaPlayerManager.getInstance();
-        return lm.getMedias().containsKey(source.getLoaderType());
-    }
+  protected boolean isSupportMedia(MusicSource source) {
+    if (
+      source.isLive() && source.getLoaderType().isEmpty()
+    ) return true;
 
-    protected String wrappedIdentifier(MusicSource source) throws Exception {
-        return source.getIdentifier();
-    }
+    var lm = LavaPlayerManager.getInstance();
+    return lm.getMedias().containsKey(source.getLoaderType());
+  }
 
-    @Override
-    public int priority() {
-        return 0;
-    }
+  protected String wrappedIdentifier(MusicSource source)
+    throws Exception {
+    return source.getIdentifier();
+  }
+
+  @Override
+  public int priority() {
+    return 0;
+  }
 }

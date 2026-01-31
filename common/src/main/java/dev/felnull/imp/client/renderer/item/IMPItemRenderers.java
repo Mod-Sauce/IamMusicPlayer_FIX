@@ -6,8 +6,6 @@ import dev.felnull.otyacraftengine.client.renderer.item.ItemRendererRegister;
 
 public class IMPItemRenderers {
 
-  public static ManualItemRenderer manualItemRenderer;
-
   public static void init() {
     ItemRendererRegister.register(
       IMPBlocks.MUSIC_MANAGER,
@@ -17,7 +15,10 @@ public class IMPItemRenderers {
       IMPBlocks.CASSETTE_DECK,
       new CassetteDeckItemRenderer()
     );
-    ItemRendererRegister.register(IMPBlocks.BOOMBOX, new BoomboxItemRenderer());
+    ItemRendererRegister.register(
+      IMPBlocks.BOOMBOX,
+      new BoomboxItemRenderer()
+    );
     ItemRendererRegister.register(
       IMPItems.PARABOLIC_ANTENNA,
       new ParabolicAntennaItemRenderer()
@@ -29,8 +30,5 @@ public class IMPItemRenderers {
       IMPItems.RADIO_ANTENNA,
       new AntennaItemRenderer()
     );
-
-    manualItemRenderer = new ManualItemRenderer();
-    //ItemRendererRegister.register(IMPItems.MANUAL, manualItemRenderer);
   }
 }

@@ -14,27 +14,52 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public abstract class IMPBaseEntityBlock extends HorizontalDirectionalEquipmentEntityBlock implements IContainerEntityBlock {
-    public static final BooleanProperty POWERED = IMPBlockStateProperties.POWER;
+public abstract class IMPBaseEntityBlock
+  extends HorizontalDirectionalEquipmentEntityBlock
+  implements IContainerEntityBlock
+{
 
-    protected IMPBaseEntityBlock(Properties properties) {
-        super(properties.lightLevel((state) -> state.getValue(POWERED) ? 13 : 0));
-        this.registerDefaultState(this.defaultBlockState().setValue(POWERED, false));
-    }
+  public static final BooleanProperty POWERED =
+    IMPBlockStateProperties.POWER;
 
-    @Override
-    public RenderShape getRenderShape(BlockState blockState) {
-        return RenderShape.MODEL;
-    }
+  protected IMPBaseEntityBlock(Properties properties) {
+    super(
+      properties.lightLevel(state -> state.getValue(POWERED) ? 13 : 0)
+    );
+    this.registerDefaultState(
+      this.defaultBlockState().setValue(POWERED, false)
+    );
+  }
 
-    @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
-        return useContainer(blockState, level, blockPos, player, interactionHand, blockHitResult);
-    }
+  @Override
+  public RenderShape getRenderShape(BlockState blockState) {
+    return RenderShape.MODEL;
+  }
 
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(POWERED);
-    }
+  @Override
+  public InteractionResult use(
+    BlockState blockState,
+    Level level,
+    BlockPos blockPos,
+    Player player,
+    InteractionHand interactionHand,
+    BlockHitResult blockHitResult
+  ) {
+    return useContainer(
+      blockState,
+      level,
+      blockPos,
+      player,
+      interactionHand,
+      blockHitResult
+    );
+  }
+
+  @Override
+  protected void createBlockStateDefinition(
+    StateDefinition.Builder<Block, BlockState> builder
+  ) {
+    super.createBlockStateDefinition(builder);
+    builder.add(POWERED);
+  }
 }

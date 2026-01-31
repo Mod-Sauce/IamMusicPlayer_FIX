@@ -4,11 +4,15 @@ import dev.felnull.imp.api.client.IamMusicPlayerClientAPI;
 import dev.felnull.imp.api.client.MusicEngineAccess;
 import dev.felnull.imp.client.music.MusicEngine;
 
-public class IamMusicPlayerClientAPIImpl implements IamMusicPlayerClientAPI {
-    public static final IamMusicPlayerClientAPIImpl INSTANCE = new IamMusicPlayerClientAPIImpl();
+public class IamMusicPlayerClientAPIImpl
+  implements IamMusicPlayerClientAPI
+{
 
-    @Override
-    public MusicEngineAccess getMusicEngine() {
-        return MusicEngine.getInstance();
-    }
+  public static final IamMusicPlayerClientAPIImpl INSTANCE =
+    new IamMusicPlayerClientAPIImpl();
+
+  @Override
+  public MusicEngineAccess getMusicEngine() {
+    return MusicEngine.getInstance();
+  }
 }

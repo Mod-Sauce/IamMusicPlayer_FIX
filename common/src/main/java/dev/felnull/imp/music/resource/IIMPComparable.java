@@ -1,9 +1,9 @@
 package dev.felnull.imp.music.resource;
 
 public interface IIMPComparable {
-    String getCompareName();
+  String getCompareName();
 
-    String getComparePlayerName();
+  String getComparePlayerName();
 
-    long getCompareDate();
+  long getCompareDate();
 }

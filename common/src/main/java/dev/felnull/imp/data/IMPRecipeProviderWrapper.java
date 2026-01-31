@@ -1,7 +1,6 @@
 package dev.felnull.imp.data;
 
 import dev.felnull.imp.block.IMPBlocks;
-import dev.felnull.imp.item.IMPItemTags;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.otyacraftengine.data.CrossDataGeneratorAccess;
 import dev.felnull.otyacraftengine.data.provider.RecipeProviderWrapper;
@@ -91,7 +90,10 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
       )
       .save(exporter);
 
-    ShapedRecipeBuilder.shaped(RecipeCategory.MISC, IMPBlocks.BOOMBOX.get())
+    ShapedRecipeBuilder.shaped(
+      RecipeCategory.MISC,
+      IMPBlocks.BOOMBOX.get()
+    )
       .define('T', PlatformItemTags.ironNuggets().getKey())
       .define('I', PlatformItemTags.ironIngots())
       .define('N', Items.NOTE_BLOCK)

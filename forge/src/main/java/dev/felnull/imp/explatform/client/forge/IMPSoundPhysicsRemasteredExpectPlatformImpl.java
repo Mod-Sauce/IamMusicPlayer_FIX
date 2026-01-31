@@ -23,7 +23,9 @@ public class IMPSoundPhysicsRemasteredExpectPlatformImpl {
     try {
       SoundPhysics.setLastSoundCategoryAndName(sc, name);
     } catch (NoSuchMethodError e) {
-      LOGGER.error("Failed to load soundphysics intigration, due to: " + e);
+      LOGGER.error(
+        "Failed to load soundphysics intigration, due to: " + e
+      );
     }
   }
 

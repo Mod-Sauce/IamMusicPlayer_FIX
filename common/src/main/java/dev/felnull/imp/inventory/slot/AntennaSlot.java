@@ -7,12 +7,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class AntennaSlot extends Slot {
 
-    public AntennaSlot(Container container, int i, int j, int k) {
-        super(container, i, j, k);
-    }
+  public AntennaSlot(Container container, int i, int j, int k) {
+    super(container, i, j, k);
+  }
 
-    @Override
-    public boolean mayPlace(ItemStack itemStack) {
-        return IMPItemUtil.isAntenna(itemStack);
-    }
+  @Override
+  public boolean mayPlace(ItemStack itemStack) {
+    return IMPItemUtil.isAntenna(itemStack);
+  }
 }

@@ -3,6 +3,7 @@ package dev.felnull.imp.server.music.ringer;
 import dev.felnull.imp.api.MusicRingerAccess;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
+import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -10,102 +11,100 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 public interface IMusicRinger extends MusicRingerAccess {
-    Component getRingerName();
+  Component getRingerName();
 
-    ServerLevel getRingerLevel();
+  ServerLevel getRingerLevel();
 
-    UUID getRingerUUID();
+  UUID getRingerUUID();
 
-    boolean exists();
+  boolean exists();
 
-    boolean isRingerPlaying();
+  boolean isRingerPlaying();
 
-    void setRingerPlaying(boolean playing);
+  void setRingerPlaying(boolean playing);
 
-    @Nullable
-    MusicSource getRingerMusicSource();
+  @Nullable
+  MusicSource getRingerMusicSource();
 
-    boolean isRingerLoop();
+  boolean isRingerLoop();
 
-    long getRingerPosition();
+  long getRingerPosition();
 
-    void setRingerPosition(long position);
+  void setRingerPosition(long position);
 
-    MusicTrackerEntry getRingerTracker();
+  MusicTrackerEntry getRingerTracker();
 
-    @NotNull
-    Vec3 getRingerSpatialPosition();
+  @NotNull
+  Vec3 getRingerSpatialPosition();
 
-    float getRingerVolume();
+  float getRingerVolume();
 
-    float getRingerRange();
+  float getRingerRange();
 
-    boolean isRingerStream();
+  boolean isRingerStream();
 
-    default boolean isRingerWait() {
-        return getMusicRing().isWaitRinger(getRingerUUID());
-    }
+  default boolean isRingerWait() {
+    return getMusicRing().isWaitRinger(getRingerUUID());
+  }
 
-    default MusicRing getMusicRing() {
-        return MusicRingManager.getInstance().getMusicRing(getRingerLevel());
-    }
+  default MusicRing getMusicRing() {
+    return MusicRingManager.getInstance().getMusicRing(
+      getRingerLevel()
+    );
+  }
 
-    default boolean alreadyAdded() {
-        return getMusicRing().hasRinger(getRingerUUID());
-    }
+  default boolean alreadyAdded() {
+    return getMusicRing().hasRinger(getRingerUUID());
+  }
 
-    default void ringerTick() {
-        if (!alreadyAdded())
-            addRingerInRingManager();
-    }
+  default void ringerTick() {
+    if (!alreadyAdded()) addRingerInRingManager();
+  }
 
-    default void addRingerInRingManager() {
-        getMusicRing().addRinger(this);
-    }
+  default void addRingerInRingManager() {
+    getMusicRing().addRinger(this);
+  }
 
-    default void ringerRestart() {
-        getMusicRing().restart(getRingerUUID());
-    }
+  default void ringerRestart() {
+    getMusicRing().restart(getRingerUUID());
+  }
 
-    default void ringerEnd() {
-    }
+  default void ringerEnd() {}
 
-    boolean isRingerMute();
+  boolean isRingerMute();
 
-    default boolean isRingerRemote() {
-        return false;
-    }
+  default boolean isRingerRemote() {
+    return false;
+  }
 
-    @Nullable
-    default String getRingerMusicAuthor() {
-        return null;
-    }
+  @Nullable
+  default String getRingerMusicAuthor() {
+    return null;
+  }
 
-    @NotNull
-    default ItemStack getRingerAntenna() {
-        return ItemStack.EMPTY;
-    }
+  @NotNull
+  default ItemStack getRingerAntenna() {
+    return ItemStack.EMPTY;
+  }
 
-    @Override
-    default Component getName() {
-        return getRingerName();
-    }
+  @Override
+  default Component getName() {
+    return getRingerName();
+  }
 
-    @Override
-    default Vec3 getSpatialPosition() {
-        return getRingerSpatialPosition();
-    }
+  @Override
+  default Vec3 getSpatialPosition() {
+    return getRingerSpatialPosition();
+  }
 
-    @Override
-    default boolean isPlaying() {
-        return isRingerPlaying();
-    }
+  @Override
+  default boolean isPlaying() {
+    return isRingerPlaying();
+  }
 
-    @Override
-    default ServerLevel getServerLevel() {
-        return getRingerLevel();
-    }
+  @Override
+  default ServerLevel getServerLevel() {
+    return getRingerLevel();
+  }
 }
