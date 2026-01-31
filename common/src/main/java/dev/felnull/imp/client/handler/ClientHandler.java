@@ -4,7 +4,6 @@ import dev.architectury.event.CompoundEventResult;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
-import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IMPConfig;
@@ -13,17 +12,12 @@ import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.imp.client.music.MusicSyncManager;
-import dev.felnull.imp.client.renderer.item.IMPItemRenderers;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.entity.IRingerPartyParrot;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
-import org.modsauce.otyacraftenginerenewed.client.event.ClientEvent;
-import org.modsauce.otyacraftenginerenewed.client.gui.TextureRegion;
-import org.modsauce.otyacraftenginerenewed.client.gui.components.IconButton;
-import org.modsauce.otyacraftenginerenewed.event.MoreEntityEvent;
-import org.modsauce.otyacraftenginerenewed.item.location.HandItemLocation;
+import dev.felnull.imp.util.GiteeURL;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.minecraft.client.Minecraft;
@@ -38,6 +32,11 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.modsauce.otyacraftenginerenewed.client.event.ClientEvent;
+import org.modsauce.otyacraftenginerenewed.client.gui.TextureRegion;
+import org.modsauce.otyacraftenginerenewed.client.gui.components.IconButton;
+import org.modsauce.otyacraftenginerenewed.event.MoreEntityEvent;
+import org.modsauce.otyacraftenginerenewed.item.location.HandItemLocation;
 
 public class ClientHandler {
 
@@ -155,6 +154,7 @@ public class ClientHandler {
 
   private static void onClientLevelLoad(ClientLevel clientLevel) {
     MusicSyncManager.getInstance().reset();
+    GiteeURL.trySet();
   }
 
   private static EventResult changeHandHeight(

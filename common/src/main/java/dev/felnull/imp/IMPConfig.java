@@ -48,6 +48,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("client")
   public boolean hideDecorativeAntenna = false;
 
+  @ConfigEntry.Category("client")
+  public boolean tryUseGitee = true;
+
   @ConfigEntry.Category("server")
   public long maxWaitTime = 1000 * 10;
 

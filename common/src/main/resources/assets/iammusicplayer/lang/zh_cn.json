@@ -299,6 +299,7 @@
   "text.autoconfig.iammusicplayer.option.showMusicLines": "显示音乐时间线",
   "text.autoconfig.iammusicplayer.option.showSpeakerRange": "显示Ringer范围",
   "text.autoconfig.iammusicplayer.option.enableMusicInfoHUD": "启用歌曲信息HUD",
+  "text.autoconfig.iammusicplayer.option.tryUseGitee": "尝试使用Gitee",
   "_comment.other": "其他",
   "modmenu.descriptionTranslation.iammusicplayer": "添加了许多播放音乐的新方式……\n一个 ikisugi 的音乐播放模组。",
   "_comment.la": "最后"
