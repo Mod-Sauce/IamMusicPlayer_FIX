@@ -27,7 +27,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    modApi files("../../OtyacraftEngineRenewed/neoforge/build/libs/otyacraftenginerenewed-neoforge-mc1.21.1-3.7.2-1.21.1-alpha2.jar")
+    modApi "org.mod-sauce:otyacraftenginerenewed-neoforge:${rootProject.oe_version}"
     // todo: 在接受pr前先这样
 
     modApi "me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}"
