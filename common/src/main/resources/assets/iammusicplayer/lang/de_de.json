@@ -216,7 +216,7 @@
   "imp.fileChooser.title.music": "Öffne Musik Datein",
   "imp.fileChooser.title.image": "Öffne Musik Datein",
   "imp.ringer.have": "%s, die %s hat",
-  "imp.ringer.drop": "Fallengelassen %s",
+  "imp.ringer.drop": "%s wurde fallengelassen",
   "soundCategory.iammusicplayer": "IMPR Musik",
   "imp.button.config": "IMPR Konfiguration",
   "_comment.co": "Konfiguration",
