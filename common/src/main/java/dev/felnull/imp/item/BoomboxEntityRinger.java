@@ -2,6 +2,8 @@ package dev.felnull.imp.item;
 
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.BoomboxData;
+import dev.felnull.imp.client.integration.TouhouLittleMaidIntegration;
+import dev.felnull.imp.explatform.IMPMaidExpectPlatform;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.server.music.ringer.IBoomboxRinger;
@@ -89,6 +91,10 @@ public class BoomboxEntityRinger implements IBoomboxRinger {
         if (IamMusicPlayer.getConfig().dropItemRing && entity instanceof ItemEntity itemEntity) {
             var item = itemEntity.getItem();
             if (uuid.equals(BoomboxItem.getRingerUUID(item))) return item;
+        }
+        if (TouhouLittleMaidIntegration.INSTANCE.isEnable()){
+            var item = IMPMaidExpectPlatform.getMaidBoombox(entity);
+            if(uuid.equals(BoomboxItem.getRingerUUID(item)))return item;
         }
         return ItemStack.EMPTY;
     }

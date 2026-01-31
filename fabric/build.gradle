@@ -53,6 +53,10 @@ configurations {
 
 repositories {
     maven { url "https://maven.terraformersmc.com/releases/" }//modmenu
+    maven {
+        url "https://cursemaven.com"
+    }
+    maven { url = "https://maven.ladysnake.org/releases" }
     mavenCentral()
 }
 
@@ -70,6 +74,11 @@ dependencies {
     modApi "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
     modApi "me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rootProject.rei_version}"
+
+    modCompileOnly "curse.maven:touhoulittlemaid-orihime-1311287:7549503"
+    var cca_version = "6.1.2"
+    modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:${cca_version}"
+    modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-entity:${cca_version}"
 
     modApi "dev.felnull:special-model-loader:1.3.0"
     include "dev.felnull:special-model-loader:1.3.0"
@@ -110,7 +119,9 @@ shadowJar {
         include 'org.apache.commons.io.**'
         include 'org.apache.commons.codec.**'
     }
-    relocate 'com.github', 'dev.felnull.imp.include.com.github'
+    relocate ('com.github', 'dev.felnull.imp.include.com.github'){
+        exclude 'com.github.tartaricacid.**'
+    }
     relocate 'com.alibaba', 'dev.felnull.imp.include.com.alibaba'
     relocate 'dev.felnull.fnjl', 'dev.felnull.imp.include.dev.felnull.fnjl'
     relocate 'com.mpatric', 'dev.felnull.imp.include.com.mpatric'

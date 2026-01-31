@@ -1,5 +1,6 @@
 package dev.felnull.imp;
 
+import dev.felnull.imp.client.gui.config.Button;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
@@ -59,6 +60,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("integration")
   public boolean soundPhysicsRemasteredIntegration = true;
 
+  @ConfigEntry.Category("integration")
+  public boolean touhouLittleMaidIntegration = true;
+
   @ConfigEntry.Category("debug")
   public boolean showMusicLines = false;
 
@@ -80,4 +84,8 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("hud")
   public boolean enableMusicInfoHUD = true;
+
+  @ConfigEntry.Category("debug")
+  @Button("reloadLava")
+  public Void reloadLavaLib = null;
 }

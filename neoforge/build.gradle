@@ -41,6 +41,31 @@ dependencies {
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
     shadowIn "com.mpatric:mp3agic:0.9.1"
     shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
+
+    // fuck
+    developmentNeoForge "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
+    developmentNeoForge ("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}"){
+        exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
+    }
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+    developmentNeoForge 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+    developmentNeoForge 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    developmentNeoForge 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+    implementation 'org.mozilla:rhino:1.7.15'
+    developmentNeoForge 'org.mozilla:rhino:1.7.15'
+    developmentNeoForge 'org.apache.logging.log4j:log4j-api:2.22.1'
+    developmentNeoForge 'org.apache.logging.log4j:log4j-core:2.22.1'
+    developmentNeoForge 'org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1'
+//    implementation 'javax.jms:javax.jms-api:2.0.1'
+    developmentNeoForge 'javax.jms:javax.jms-api:2.0.1'
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+    developmentNeoForge 'com.sun.mail:javax.mail:1.6.2'
+//    implementation 'org.osgi:org.osgi.core:6.0.0'
+    developmentNeoForge 'org.osgi:org.osgi.core:6.0.0'
+//    implementation 'org.apache.logging.log4j:log4j-1.2-api:2.22.1'
+    developmentNeoForge 'org.apache.logging.log4j:log4j-1.2-api:2.22.1'
 }
 
 processResources {

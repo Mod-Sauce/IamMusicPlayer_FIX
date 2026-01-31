@@ -2,6 +2,7 @@ package dev.felnull.imp.blockentity;
 
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -10,7 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.modsauce.otyacraftenginerenewed.OtyacraftEngine;
 
 public class IMPBlockEntities {
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES_REGISTER = DeferredRegister.create(OtyacraftEngine.MODID, Registries.BLOCK_ENTITY_TYPE);
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES_REGISTER = DeferredRegister.create(IamMusicPlayer.MODID, Registries.BLOCK_ENTITY_TYPE);  // wdf用的什么modid
     public static final RegistrySupplier<BlockEntityType<MusicManagerBlockEntity>> MUSIC_MANAGER = register("music_manager", MusicManagerBlockEntity::new, IMPBlocks.MUSIC_MANAGER);
     public static final RegistrySupplier<BlockEntityType<CassetteDeckBlockEntity>> CASSETTE_DECK = register("cassette_deck", CassetteDeckBlockEntity::new, IMPBlocks.CASSETTE_DECK);
     public static final RegistrySupplier<BlockEntityType<BoomboxBlockEntity>> BOOMBOX = register("boombox", BoomboxBlockEntity::new, IMPBlocks.BOOMBOX);

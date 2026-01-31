@@ -298,5 +298,8 @@
   "imp.monitor.music_manager.import_netease_play_list": "Import NetEase Cloud Music Playlist",
   "text.autoconfig.iammusicplayer.category.hud": "HUD",
   "text.autoconfig.iammusicplayer.option.withTransName": "Add translations for music names",
-  "text.autoconfig.iammusicplayer.option.enableMusicInfoHUD": "Enable Music Info HUD"
+  "text.autoconfig.iammusicplayer.option.enableMusicInfoHUD": "Enable Music Info HUD",
+  "imp.text.lava.success": "Lava Player loaded successfully",
+  "imp.text.lava.reload": "Reload Lava Player",
+  "text.autoconfig.iammusicplayer.option.touhouLittleMaidIntegration": "Touhou Little Maid Integration"
 }

@@ -48,12 +48,6 @@ public class IMPSystemNativeLibraryProperties
       sys.formatLibraryName(libraryName)
     );
     if (!ret) {
-        Minecraft.getInstance().getToasts().addToast(SystemToast.multiline(
-                Minecraft.getInstance(),
-                SystemToast.SystemToastId.NARRATOR_TOGGLE,
-                Component.translatable("imp.text.lava.failed1"),
-                Component.translatable("imp.text.lava.failed2")
-        ));
         throw new UnsatisfiedLinkError("Failed to load the library");
     };
     var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);

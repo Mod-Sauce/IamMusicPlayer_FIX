@@ -4,6 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LootEvent;
 import dev.felnull.imp.block.IMPBlocks;
+import dev.felnull.imp.client.integration.TouhouLittleMaidIntegration;
+import dev.felnull.imp.explatform.IMPMaidExpectPlatform;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.server.commands.MusicCommand;
 import net.minecraft.commands.CommandBuildContext;
@@ -26,6 +28,8 @@ public class ServerHandler {
     public static void init() {
         CommandRegistrationEvent.EVENT.register(ServerHandler::registerCommand);
         LootEvent.MODIFY_LOOT_TABLE.register(ServerHandler::modifyLootTable);
+        if(TouhouLittleMaidIntegration.INSTANCE.isEnable())
+            TouhouLittleMaidIntegration.INSTANCE.init();
     }
 
     public static void modifyLootTable(ResourceKey<LootTable> id, LootEvent.LootTableModificationContext context, boolean builtin) {

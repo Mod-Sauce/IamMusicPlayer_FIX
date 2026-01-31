@@ -13,7 +13,7 @@ public class IamMusicPlayerForge {
 //      IamMusicPlayer.MODID,
 //      eventBus
 //    );
-    IamMusicPlayer.init();
+      IamMusicPlayer.init();
     eventBus.addListener(this::setup);
   }
 

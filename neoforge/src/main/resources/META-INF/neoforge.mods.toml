@@ -3,6 +3,9 @@ loaderVersion = "47.4.0"
 issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
 license = "GNU LGPLv3"
 
+[[mixins]]
+config = "iammusicplayer-common.mixins.json"
+
 [[mods]]
 modId = "iammusicplayer"
 version = "${version}"  
