@@ -35,11 +35,16 @@ public class LavaNativeManager {
   private static final Gson GSON = new Gson();
   private static final LavaNativeManager INSTANCE =
     new LavaNativeManager();
-  public static final String NATIVES_VERSION = "2.2.6";
-  private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
-  private static final int READ_TIMEOUT = 30000; // 30 seconds
-  private static final int DOWNLOAD_RETRY_COUNT = 3;
-  private static final long DOWNLOAD_RETRY_DELAY_MS = 1000;
+  public static final String NATIVES_VERSION =
+    IamMusicPlayer.LAVAPLAYERNATIVESVERSION;
+  private static final int CONNECTION_TIMEOUT =
+    IamMusicPlayer.getConfig().ConnectionTimeout; // 10 seconds
+  private static final int READ_TIMEOUT =
+    IamMusicPlayer.getConfig().ReadTimeout; // 30 seconds
+  private static final int DOWNLOAD_RETRY_COUNT =
+    IamMusicPlayer.getConfig().DownloadRetryCount;
+  private static final long DOWNLOAD_RETRY_DELAY_MS =
+    IamMusicPlayer.getConfig().DownloadRetryDelayMS;
 
   // Executor for background downloads
   private final ExecutorService downloadExecutor =

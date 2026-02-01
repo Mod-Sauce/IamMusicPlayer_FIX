@@ -24,28 +24,40 @@ public class IMPConfig implements ConfigData {
   public boolean useYoutubeDownloader = true;
 
   @ConfigEntry.Category("client")
-  public String relayServerURL =
-    "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
-
-  @ConfigEntry.Category("client")
-  public String lavaPlayerNativesURL =
-    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
-
-  @ConfigEntry.Category("cleint")
-  public String hashBaseUrl =
-    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
-
-  @ConfigEntry.Category("client")
-  public String IMPRFolder = "iammusicplayerrenewed";
-
-  @ConfigEntry.Category("client")
-  public String lavaNativesFolder = "lavaplayer_natives";
-
-  @ConfigEntry.Category("client")
   public boolean hideDisplaySprite = false;
 
   @ConfigEntry.Category("client")
   public boolean hideDecorativeAntenna = false;
+
+  @ConfigEntry.Category("lavaplayer")
+  public int ConnectionTimeout = 10000; // 10 seconds
+
+  @ConfigEntry.Category("lavaplayer")
+  public int ReadTimeout = 30000; // 30 seconds
+
+  @ConfigEntry.Category("lavaplayer")
+  public int DownloadRetryCount = 3;
+
+  @ConfigEntry.Category("lavaplayer")
+  public long DownloadRetryDelayMS = 1000;
+
+  @ConfigEntry.Category("lavaplayer")
+  public String relayServerURL =
+    "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
+
+  @ConfigEntry.Category("lavaplayer")
+  public String lavaPlayerNativesURL =
+    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
+
+  @ConfigEntry.Category("lavaplayer")
+  public String hashBaseUrl =
+    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
+
+  @ConfigEntry.Category("lavaplayer")
+  public String IMPRFolder = "iammusicplayerrenewed";
+
+  @ConfigEntry.Category("lavaplayer")
+  public String lavaNativesFolder = "lavaplayer_natives";
 
   @ConfigEntry.Category("server")
   public long maxWaitTime = 1000 * 10;
@@ -56,14 +68,14 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("server")
   public boolean dropItemRing = true;
 
-  @ConfigEntry.Category("integration")
-  public boolean soundPhysicsRemasteredIntegration = true;
-
   @ConfigEntry.Category("debug")
   public boolean showMusicLines = false;
 
   @ConfigEntry.Category("debug")
   public boolean showSpeakerRange = false;
+
+  @ConfigEntry.Category("integration")
+  public boolean soundPhysicsRemasteredIntegration = true;
 
   @ConfigEntry.Category("internal")
   @ConfigEntry.Gui.Excluded
