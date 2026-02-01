@@ -15,13 +15,11 @@ forge/src/generated
 Do not edit these generated directories directly.  
 If you want to change the contents, please change the IamMusicPlayerDataGenerator or change the resources folder.
 
-## Transration
+## Translation
 
-If a kind person translates it, please open an Pull requests!
+[![Translation status](https://translate.codeberg.org/widget/iammusicplayerrenewed/multi-auto.svg)](https://translate.codeberg.org/engage/iammusicplayerrenewed/)
 
-[Templates used for translation](https://codeberg.org/Mod-Sauce/IamMusicPlayerRenewed/src/branch/1.20.1/common/src/main/resources/assets/iammusicplayer/lang)
-
-There is a Weblate page inprogess but not done
+You can help us translate the mod on https://translate.codeberg.org/projects/iammusicplayerrenewed/
 
 # Using libraries
 
