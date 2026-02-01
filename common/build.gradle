@@ -11,7 +11,7 @@ dependencies {
 
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
-    modApi files("../../OtyacraftEngineRenewed/common/build/libs/otyacraftenginerenewed-3.7.1-1.21.1-alpha1.jar")
+    modApi "org.mod-sauce:otyacraftenginerenewed:${rootProject.oe_version}"
     modApi "me.shedaniel.cloth:cloth-config:${rootProject.cloth_config_version}"
 
     implementation "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
