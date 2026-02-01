@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 public class IamMusicPlayer {
 
   public static final String MODID = "iammusicplayer";
+  public static final String LAVAPLAYERNATIVESVERSION = "2.2.6";
   public static final String CONFIG_VERSION = "1";
   private static final Logger LOGGER = LogManager.getLogger();
   private static final Supplier<String> MODNAME = Suppliers.memoize(
@@ -47,6 +48,18 @@ public class IamMusicPlayer {
     ServerMusicHandler.init();
     ServerHandler.init();
     CommonHandler.init();
+  }
+
+  public static void setup() {
+    IMPVillagerProfessions.setup();
+  }
+
+  public static String getModName() {
+    return MODNAME.get();
+  }
+
+  public static IMPConfig getConfig() {
+    return CONFIG;
   }
 
   private static void checkAndResetConfig() {
@@ -81,6 +94,10 @@ public class IamMusicPlayer {
       CONFIG.soundPhysicsRemasteredIntegration = true;
       CONFIG.showMusicLines = false;
       CONFIG.showSpeakerRange = false;
+      CONFIG.ConnectionTimeout = 10000; // 10 seconds
+      CONFIG.ReadTimeout = 30000; // 30 seconds
+      CONFIG.DownloadRetryCount = 3;
+      CONFIG.DownloadRetryDelayMS = 1000;
 
       // Update config version
       CONFIG.configVersion = CONFIG_VERSION;
@@ -92,17 +109,5 @@ public class IamMusicPlayer {
         "Config has been reset to defaults for IamMusicPlayer Renewed."
       );
     }
-  }
-
-  public static void setup() {
-    IMPVillagerProfessions.setup();
-  }
-
-  public static String getModName() {
-    return MODNAME.get();
-  }
-
-  public static IMPConfig getConfig() {
-    return CONFIG;
   }
 }
