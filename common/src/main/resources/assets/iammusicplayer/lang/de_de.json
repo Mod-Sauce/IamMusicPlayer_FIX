@@ -229,7 +229,7 @@
   "text.autoconfig.iammusicplayer.option.useYoutubeDownloader": "Nutze YoutubeDownloader",
   "text.autoconfig.iammusicplayer.option.relayServerURL": "Relay-Server url",
   "text.autoconfig.iammusicplayer.option.lavaPlayerNativesURL": "URL der nativen LavaPlayer-Bibliothek",
-  "text.autoconfig.iammusicplayer.option.neteaseCloudMusicApiURL": "",
+  "text.autoconfig.iammusicplayer.option.neteaseCloudMusicApiURL": "Netease Cloud API Url",
   "text.autoconfig.iammusicplayer.option.hideDisplaySprite": "Anzeige-Sprite ausblenden",
   "text.autoconfig.iammusicplayer.option.hideDecorativeAntenna": "Dekorative Antenne verstecken",
   "text.autoconfig.iammusicplayer.category.server": "Server Seite",
