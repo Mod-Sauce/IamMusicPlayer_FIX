@@ -12,7 +12,7 @@ steps:
   - name: extract-version
     image: amazoncorretto:21
     commands:
-      - echo "MOD_VERSION=$(awk -F= '$1=="mod_version"{print $2}' gradle.properties)" >> "$CROW_ENV"
+      - echo "MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)" >> "$CROW_ENV"
 
   - name: package-and-upload
     image: alpine:latest
