@@ -7,17 +7,19 @@
   "authors": ["Shadowbee27", "Us3r0"],
   "contributors": ["Mod Sauce & contributors"],
   "contact": {
-    "email": "ModSauce@disroot.org",
-    "homepage": "https://mod-sauce.github.io/impr.html",
-    "sources": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX",
-    "issues": "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
+    "email": "dev@mod-sauce.ddns-ip.net",
+    "homepage": "https://mod-sauce.codeberg.page/impr.html",
+    "sources": "https://codeberg.org/Mod-Sauce/IamMusicPlayerRenewed/",
+    "issues": "https://codeberg.org/Mod-Sauce/IamMusicPlayerRenewed/issues"
   },
   "license": "GNU LGPLv3",
   "icon": "assets/iammusicplayer/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": ["dev.felnull.imp.fabric.IamMusicPlayerFabric"],
-    "client": ["dev.felnull.imp.fabric.client.IamMusicPlayerClientFabric"],
+    "client": [
+      "dev.felnull.imp.fabric.client.IamMusicPlayerClientFabric"
+    ],
     "fabric-datagen": [
       "dev.felnull.imp.fabric.data.IamMusicPlayerDataGeneratorFabric"
     ],
