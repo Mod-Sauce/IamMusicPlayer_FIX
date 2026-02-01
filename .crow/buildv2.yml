@@ -8,12 +8,12 @@ steps:
     commands:
       - chmod +x gradlew
       - ./gradlew build --no-daemon
-      
+
   - name: extract-version
     image: amazoncorretto:21
     commands:
-      - echo "MOD_VERSION=$(./gradlew properties --no-daemon | grep '^version:' | awk '{print $2}')" >> $CROW_ENV
-    
+      - echo "MOD_VERSION=$(awk -F= '$1=="mod_version"{print $2}' gradle.properties)" >> "$CROW_ENV"
+
   - name: package-and-upload
     image: alpine:latest
     environment:
@@ -30,11 +30,11 @@ steps:
     commands:
       # Install dependencies
       - apk add --no-cache curl jq libxml2-utils zip
-      
+
       # Set variables
       - WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
       - FOLDER_PATH="builds/${MOD_VERSION}"
-      
+
       # Create folder structure
       - |
         curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
@@ -42,36 +42,36 @@ steps:
       - |
         curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
           "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || true
-      
+
       # Function to upload and share a loader
       - |
         upload_loader() {
           LOADER=$1
           LOADER_PATH=$2
-          
+
           if [ ! -d "${LOADER_PATH}" ]; then
             echo "⏭️  Skipping ${LOADER} - directory not found"
             return
           fi
-          
+
           if [ ! "$(ls -A ${LOADER_PATH}/*.jar 2>/dev/null)" ]; then
             echo "⏭️  Skipping ${LOADER} - no JARs found"
             return
           fi
-          
+
           echo "📦 Processing ${LOADER}..."
-          
+
           # Create zip
           ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
           cd $(dirname ${LOADER_PATH})
           zip -r "/tmp/${ZIP_NAME}" $(basename ${LOADER_PATH})/*.jar
           cd -
-          
+
           # Upload zip
           curl -T "/tmp/${ZIP_NAME}" \
             -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
             "${WEBDAV_PATH}/${FOLDER_PATH}/${ZIP_NAME}"
-          
+
           # Share with first user
           curl -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
             "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
@@ -80,7 +80,7 @@ steps:
             -d "shareType=0" \
             -d "shareWith=${NEXTCLOUD_SHARE_USER1}" \
             -d "permissions=1" 2>/dev/null || true
-          
+
           # Share with second user
           curl -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
             "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
@@ -89,10 +89,10 @@ steps:
             -d "shareType=0" \
             -d "shareWith=${NEXTCLOUD_SHARE_USER2}" \
             -d "permissions=1" 2>/dev/null || true
-          
+
           echo "✅ Uploaded ${ZIP_NAME}"
         }
-      
+
       # Upload each loader
       - upload_loader "fabric" "fabric/build/libs"
       - upload_loader "forge" "forge/build/libs"
