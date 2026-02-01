@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "47.4.0"
-issueTrackerURL = "https://github.com/Mod-Sauce/IamMusicPlayer_FIX/issues"
+issueTrackerURL = "https://codeberg.org/Mod-Sauce/IamMusicPlayerRenewed/issues"
 license = "GNU LGPLv3"
 
 [[mixins]]
@@ -8,9 +8,9 @@ config = "iammusicplayer-common.mixins.json"
 
 [[mods]]
 modId = "iammusicplayer"
-version = "${version}"  
+version = "${version}"
 displayName = "Iam Music Player Renewed"
-displayURL = "https://mod-sauce.github.io/impr.html"
+displayURL = "https://mod-sauce.codeberg.page/impr.html"
 updateJSONURL = ""
 authors = "Us3r0, Shadowbee27, gly091020"
 credits = "Mod-Sauce & contributers"
@@ -23,14 +23,14 @@ logoFile = "logo.png"
 [[dependencies.iammusicplayer]]
 modId = "neoforge"
 mandatory = true
-versionRange = "[21.1,)"  
+versionRange = "[21.1,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.21.1,1.22)"  
+versionRange = "[1.21.1,1.22)"
 ordering = "NONE"
 side = "BOTH"
 
@@ -44,13 +44,13 @@ side = "BOTH"
 [[dependencies.iammusicplayer]]
 modId = "cloth_config"
 mandatory = true
-versionRange = "[15,)"  
+versionRange = "[15,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.iammusicplayer]]
-modId = "otyacraftenginerenewed"  
+modId = "otyacraftenginerenewed"
 mandatory = true
-versionRange = "[3.7.1,)"  
+versionRange = "[3.7.1,)"
 ordering = "NONE"
 side = "BOTH"
