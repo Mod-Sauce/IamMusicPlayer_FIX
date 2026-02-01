@@ -1,4 +1,4 @@
-package dev.felnull.imp.explatform.client.forge;
+package dev.felnull.imp.explatform.client.neoforge;
 
 import com.sonicether.soundphysics.SoundPhysics;
 import net.minecraft.resources.ResourceLocation;

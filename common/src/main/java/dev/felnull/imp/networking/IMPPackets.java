@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class IMPPackets {
-    public static final ResourceLocation MUSIC_SYNC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_sync");
+    public static final ResourceLocation MUSIC_SYNC_STC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_sync_stc");
+    public static final ResourceLocation MUSIC_SYNC_CTS = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_sync_cts");
     public static final ResourceLocation MUSIC_PLAYLIST_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_add");
     public static final ResourceLocation MUSIC_PLAYLIST_EDIT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_edit");
     public static final ResourceLocation MUSIC_PLAYLIST_CHANGE_AUTHORITY = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_change_authority");
@@ -37,7 +38,7 @@ public class IMPPackets {
     public static final ResourceLocation HAND_LID_CYCLE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "hand_lid_cycle");
 
     public static void init() {
-        NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_SYNC, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicSyncRequestMessage(new MusicSyncRequestMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_SYNC_CTS, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicSyncRequestMessage(new MusicSyncRequestMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_PLAYLIST_ADD, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicPlayListAddMessage(new MusicPlayListMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_PLAYLIST_EDIT, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicPlayListEditMessage(new MusicPlayListMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_PLAYLIST_CHANGE_AUTHORITY, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicPlayListChangeAuthority(new MusicPlayListChangeAuthorityMessage(friendlyByteBuf), packetContext));
@@ -51,7 +52,7 @@ public class IMPPackets {
     }
 
     public static void clientInit() {
-        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_SYNC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicSyncResponseMessage(new MusicSyncResponseMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_SYNC_STC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicSyncResponseMessage(new MusicSyncResponseMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_READY, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingReadyResponseMessage(new MusicReadyMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_STATE, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingStateResponseMessage(new MusicRingStateMessage(friendlyByteBuf), packetContext));
     }

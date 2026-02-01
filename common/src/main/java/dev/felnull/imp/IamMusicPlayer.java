@@ -44,7 +44,8 @@ public class IamMusicPlayer {
         IMPMenus.init();
         IMPPoiType.init();
         IMPVillagerProfessions.init();
-        IMPCriteriaTriggers.init();
+        if(!Platform.isNeoForge())
+            IMPCriteriaTriggers.init();
         ServerMusicHandler.init();
         ServerHandler.init();
         CommonHandler.init();

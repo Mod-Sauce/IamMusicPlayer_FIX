@@ -170,10 +170,13 @@ public class NetMusicUtil {
         }
         for(NetEaseMusicList.Track track : pojo.getPlayList().getTracks()) {
             var musicSource = new MusicSource(IMPMusicMedias.NETEASE_MUSIC.getName(), String.valueOf(track.getId()), track.getDuration());
+            var name = IamMusicPlayer.getConfig().withTransName && !track.getTransName().isEmpty() ?
+                    String.format("%s(%s)", track.getName(), track.getTransName()) :
+                    track.getName();
 
             ImageInfo imageInfo = new ImageInfo(ImageInfo.ImageType.URL, track.getAlbum().getPicUrl());
             SONGS.add(new Music(UUID.randomUUID(),
-                    track.getName(),
+                    name,
                     String.join("、", track.getArtists()),
                     musicSource,
                     imageInfo,

@@ -8,7 +8,19 @@ architectury {
     neoForge()
 }
 
+loom {
+    runs {
+        datagen {
+            server()
 
+            name "Minecraft Data"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
+
+            runDir "run"
+        }
+    }
+}
 
 configurations {
     common
@@ -18,6 +30,7 @@ configurations {
     runtimeClasspath.extendsFrom common
     developmentNeoForge.extendsFrom common
     shadowCommon.extendsFrom shadowIn
+    forgeRuntimeLibrary.extendsFrom shadowIn
 }
 
 dependencies {
@@ -27,45 +40,48 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    modApi files("../../OtyacraftEngineRenewed/neoforge/build/libs/otyacraftenginerenewed-neoforge-mc1.21.1-3.7.2-1.21.1-alpha2.jar")
+    modApi files("../../OtyacraftEngineRenewed/neoforge/build/libs/otyacraftenginerenewed-neoforge-mc1.21.1-3.7.2-1.21.1-alpha3.jar")
     // todo: 在接受pr前先这样
 
     modApi "me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${rootProject.rei_version}"
     modApi "maven.modrinth:sound-physics-remastered:neoforge-${rootProject.sound_physics_remastered}"
+    modCompileOnly "curse.maven:touhou-little-maid-355044:7510722"
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
+        transitive = false
     }
-    shadowIn "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
-    shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
-    shadowIn "com.mpatric:mp3agic:0.9.1"
+    shadowIn ("com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}")
+    shadowIn ("dev.felnull:felnull-java-library:${rootProject.felnull_version}")
+    shadowIn ("com.mpatric:mp3agic:0.9.1")
     shadowIn("dev.lavalink.youtube:v2:${rootProject.lavalink}")
 
     // fuck
-    developmentNeoForge "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
-    developmentNeoForge ("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}"){
-        exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
-    }
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
-    developmentNeoForge 'com.fasterxml.jackson.core:jackson-core:2.15.2'
-    developmentNeoForge 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    developmentNeoForge 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
-    implementation 'org.mozilla:rhino:1.7.15'
-    developmentNeoForge 'org.mozilla:rhino:1.7.15'
-    developmentNeoForge 'org.apache.logging.log4j:log4j-api:2.22.1'
-    developmentNeoForge 'org.apache.logging.log4j:log4j-core:2.22.1'
-    developmentNeoForge 'org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1'
-//    implementation 'javax.jms:javax.jms-api:2.0.1'
-    developmentNeoForge 'javax.jms:javax.jms-api:2.0.1'
-    implementation 'com.sun.mail:javax.mail:1.6.2'
-    developmentNeoForge 'com.sun.mail:javax.mail:1.6.2'
-//    implementation 'org.osgi:org.osgi.core:6.0.0'
-    developmentNeoForge 'org.osgi:org.osgi.core:6.0.0'
-//    implementation 'org.apache.logging.log4j:log4j-1.2-api:2.22.1'
-    developmentNeoForge 'org.apache.logging.log4j:log4j-1.2-api:2.22.1'
+//    developmentNeoForge "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
+//    developmentNeoForge ("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}"){
+//        exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
+//    }
+//    developmentNeoForge "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
+//    developmentNeoForge "com.mpatric:mp3agic:0.9.1"
+//    developmentNeoForge "dev.lavalink.youtube:v2:${rootProject.lavalink}"
+////    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+////    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+////    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+//    developmentNeoForge 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+//    developmentNeoForge 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+//    developmentNeoForge 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+////    implementation 'org.mozilla:rhino:1.7.15'
+//    developmentNeoForge 'org.mozilla:rhino:1.7.15'
+//    developmentNeoForge 'org.apache.logging.log4j:log4j-api:2.22.1'
+//    developmentNeoForge 'org.apache.logging.log4j:log4j-core:2.22.1'
+//    developmentNeoForge 'org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1'
+//    developmentNeoForge 'javax.jms:javax.jms-api:2.0.1'
+//    implementation 'com.sun.mail:javax.mail:1.6.2'
+//    developmentNeoForge 'com.sun.mail:javax.mail:1.6.2'
+//    developmentNeoForge 'org.osgi:org.osgi.core:6.0.0'
+//    developmentNeoForge 'org.apache.logging.log4j:log4j-1.2-api:2.22.1'
+//    developmentNeoForge 'javax.ws.rs:javax.ws.rs-api:2.1.1'
 }
 
 processResources {
@@ -73,6 +89,13 @@ processResources {
     filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": project.version
     }
+}
+
+repositories {
+    maven {
+        url "https://cursemaven.com"
+    }
+    mavenCentral()
 }
 
 shadowJar {
@@ -101,7 +124,9 @@ shadowJar {
         include 'org.apache.commons.io.**'
         include 'org.apache.commons.codec.**'
     }
-    relocate 'com.github', 'dev.felnull.imp.include.com.github'
+    relocate ('com.github', 'dev.felnull.imp.include.com.github'){
+        exclude 'com.github.tartaricacid.**'
+    }
     relocate 'com.alibaba', 'dev.felnull.imp.include.com.alibaba'
     relocate 'dev.felnull.fnjl', 'dev.felnull.imp.include.dev.felnull.fnjl'
     relocate 'com.mpatric', 'dev.felnull.imp.include.com.mpatric'

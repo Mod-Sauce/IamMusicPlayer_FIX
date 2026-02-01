@@ -1,4 +1,4 @@
-package dev.felnull.imp.explatform.forge;
+package dev.felnull.imp.explatform.neoforge;
 
 
 import net.minecraft.resources.ResourceLocation;

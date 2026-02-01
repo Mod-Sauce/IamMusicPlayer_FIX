@@ -21,16 +21,16 @@ public class GiteeURL {
         h.save();
     }
 
-    public static boolean isChina(){
+    public static boolean isZH_CN(){
         var manager = Minecraft.getInstance().getLanguageManager();
         return manager.getSelected().equals("zh_cn");
     }
 
     public static void trySet(){
         if(!IamMusicPlayer.getConfig().tryUseGitee)return;
-        if(isChina() && IamMusicPlayer.getConfig().lavaPlayerNativesURL.contains("raw.githubusercontent.com"))
+        if(isZH_CN() && IamMusicPlayer.getConfig().lavaPlayerNativesURL.contains("raw.githubusercontent.com"))
             setGitee();
-        else if(!isChina()){
+        else if(!isZH_CN()){
             IamMusicPlayer.getConfig().tryUseGitee = false;
             reload();
         }
