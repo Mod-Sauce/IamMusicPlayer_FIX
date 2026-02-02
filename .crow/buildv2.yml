@@ -16,31 +16,33 @@ steps:
       NEXTCLOUD_SHARE_USER2:
         from_secret: nextcloud_share_user2
     commands:
-      # Build the project
-      - chmod +x gradlew
-      - ./gradlew build --no-daemon
-      
-      # Install dependencies
-      - yum install -y curl zip
-      
-      # Extract version
-      - export MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
-      - echo "Building version ${MOD_VERSION}"
-      
-      # Set variables
-      - export WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
-      - export FOLDER_PATH="builds/${MOD_VERSION}"
-      
-      # Create folder structure
-      - curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" 2>/dev/null || true
-      - curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || true
-      
-      # Create upload script
       - |
-        cat > /tmp/upload.sh << 'UPLOAD_SCRIPT'
-        #!/bin/bash
         set -e
         
+        # Build the project
+        echo "=== Starting build ==="
+        chmod +x gradlew
+        ./gradlew build --no-daemon
+        
+        # Install dependencies
+        echo "=== Installing dependencies ==="
+        yum install -y curl zip
+        
+        # Extract version
+        echo "=== Extracting version ==="
+        export MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
+        echo "Building version: ${MOD_VERSION}"
+        
+        # Set variables
+        export WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
+        export FOLDER_PATH="builds/${MOD_VERSION}"
+        
+        # Create folder structure
+        echo "=== Creating Nextcloud folders ==="
+        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" 2>/dev/null || true
+        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || true
+        
+        # Define upload function
         upload_loader() {
           LOADER=$1
           LOADER_PATH=$2
@@ -93,11 +95,9 @@ steps:
         }
         
         # Upload each loader
+        echo "=== Starting uploads ==="
         upload_loader "fabric" "fabric/build/libs"
         upload_loader "forge" "forge/build/libs"
         upload_loader "neoforge" "neoforge/build/libs"
-        UPLOAD_SCRIPT
-      
-      # Make script executable and run it
-      - chmod +x /tmp/upload.sh
-      - bash /tmp/upload.sh
+        
+        echo "=== Upload process complete ==="
