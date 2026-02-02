@@ -19,22 +19,9 @@ public class CommonHandler {
 
     public static void init() {
         TickEvent.SERVER_POST.register(CommonHandler::onTickEnd);
-        TickEvent.SERVER_LEVEL_POST.register(CommonHandler::tickSpectatorPlayer);
     }
 
     private static void onTickEnd(MinecraftServer minecraftServer) {
         itemBoomboxes.clear();
-    }
-
-    private static void tickSpectatorPlayer(ServerLevel level){
-        for(ServerPlayer player: level.getPlayers(LivingEntity::isAlive)){
-            if(player.isSpectator()){
-                for(ItemStack stack: player.getInventory().items){
-                    if(stack.is(IMPBlocks.BOOMBOX.get().asItem())){
-                        BoomboxItem.tick(level, player, stack, false);
-                    }
-                }
-            }
-        }
     }
 }
