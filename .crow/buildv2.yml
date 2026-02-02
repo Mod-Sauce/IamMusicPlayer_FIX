@@ -11,7 +11,7 @@ steps:
     image: amazoncorretto:21
     commands:
       - MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
-      - echo "MOD_VERSION=${MOD_VERSION}" >> $CROW_ENV
+      - echo "MOD_VERSION=${MOD_VERSION}" >> "$CROW_ENV"
   - name: package-and-upload
     image: alpine:latest
     environment:
