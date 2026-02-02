@@ -282,5 +282,7 @@
   "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player Renewed",
   "_comment.other": "Andere",
   "modmenu.descriptionTranslation.iammusicplayer": "Füge einen Musikplayer hinzu, mit dem du Musik auf mehreren Geräten hören kannst.\nDer Ikisugi-Musikplayer-Mod...",
-  "_comment.la": "Zuletzt"
+  "_comment.la": "Zuletzt",
+  "text.autoconfig.iammusicplayer.category.lavaplayer": "Lavaplayer",
+  "text.autoconfig.iammusicplayer.category.internal": "Intern"
 }
