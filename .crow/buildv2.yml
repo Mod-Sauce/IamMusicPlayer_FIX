@@ -7,11 +7,6 @@ steps:
     commands:
       - chmod +x gradlew
       - ./gradlew build --no-daemon
-  - name: extract-version
-    image: amazoncorretto:21
-    commands:
-      - MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
-      - echo "MOD_VERSION=${MOD_VERSION}" >> "$CROW_ENV"
   - name: package-and-upload
     image: alpine:latest
     environment:
@@ -28,6 +23,8 @@ steps:
     commands:
       # Install dependencies
       - apk add --no-cache curl jq libxml2-utils zip
+      # Extract version directly in this step
+      - MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
       # Set variables
       - WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
       - FOLDER_PATH="builds/${MOD_VERSION}"
