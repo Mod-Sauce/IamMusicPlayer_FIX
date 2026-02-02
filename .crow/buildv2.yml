@@ -1,10 +1,6 @@
 when:
   - event:
       - manual
-
-cache:
-  - gradle-cache
-
 steps:
   - name: build-and-upload
     image: amazoncorretto:21
@@ -19,8 +15,6 @@ steps:
         from_secret: nextcloud_share_user1
       NEXTCLOUD_SHARE_USER2:
         from_secret: nextcloud_share_user2
-    volumes:
-      - gradle-cache:/root/.gradle
     commands:
       - chmod +x gradlew
       - ./gradlew build --no-daemon
@@ -85,6 +79,3 @@ steps:
         done
         
         echo "=== All uploads complete ==="
-
-volumes:
-  - name: gradle-cache
