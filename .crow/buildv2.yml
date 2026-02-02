@@ -2,7 +2,7 @@ when:
   - event:
       - manual
 steps:
-  - name: build & upload
+  - name: build
     image: amazoncorretto:21
     environment:
       NEXTCLOUD_URL:
@@ -24,45 +24,53 @@ steps:
       - yum install -y curl zip
       
       # Extract version
-      - MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
+      - export MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
       - echo "Building version ${MOD_VERSION}"
       
       # Set variables
-      - WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
-      - FOLDER_PATH="builds/${MOD_VERSION}"
+      - export WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
+      - export FOLDER_PATH="builds/${MOD_VERSION}"
       
       # Create folder structure
-      - |
-        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
-          "${WEBDAV_PATH}/builds/" 2>/dev/null || true
-      - |
-        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
-          "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || true
+      - curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" 2>/dev/null || true
+      - curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || true
       
-      # Function to upload and share a loader
+      # Create upload script
       - |
+        cat > /tmp/upload.sh << 'UPLOAD_SCRIPT'
+        #!/bin/bash
+        set -e
+        
         upload_loader() {
           LOADER=$1
           LOADER_PATH=$2
+          
           if [ ! -d "${LOADER_PATH}" ]; then
             echo "⏭️  Skipping ${LOADER} - directory not found"
             return
           fi
+          
           if [ ! "$(ls -A ${LOADER_PATH}/*.jar 2>/dev/null)" ]; then
             echo "⏭️  Skipping ${LOADER} - no JARs found"
             return
           fi
+          
           echo "📦 Processing ${LOADER}..."
+          
           # Create zip
           ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
           cd $(dirname ${LOADER_PATH})
           zip -r "/tmp/${ZIP_NAME}" $(basename ${LOADER_PATH})/*.jar
-          cd -
+          cd - > /dev/null
+          
           # Upload zip
+          echo "⬆️  Uploading ${ZIP_NAME}..."
           curl -T "/tmp/${ZIP_NAME}" \
             -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
             "${WEBDAV_PATH}/${FOLDER_PATH}/${ZIP_NAME}"
+          
           # Share with first user
+          echo "🔗 Sharing with ${NEXTCLOUD_SHARE_USER1}..."
           curl -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
             "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
             -H "OCS-APIRequest: true" \
@@ -70,7 +78,9 @@ steps:
             -d "shareType=0" \
             -d "shareWith=${NEXTCLOUD_SHARE_USER1}" \
             -d "permissions=1" 2>/dev/null || true
+          
           # Share with second user
+          echo "🔗 Sharing with ${NEXTCLOUD_SHARE_USER2}..."
           curl -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
             "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
             -H "OCS-APIRequest: true" \
@@ -78,10 +88,16 @@ steps:
             -d "shareType=0" \
             -d "shareWith=${NEXTCLOUD_SHARE_USER2}" \
             -d "permissions=1" 2>/dev/null || true
+          
           echo "✅ Uploaded ${ZIP_NAME}"
         }
+        
+        # Upload each loader
+        upload_loader "fabric" "fabric/build/libs"
+        upload_loader "forge" "forge/build/libs"
+        upload_loader "neoforge" "neoforge/build/libs"
+        UPLOAD_SCRIPT
       
-      # Upload each loader
-      - upload_loader "fabric" "fabric/build/libs"
-      - upload_loader "forge" "forge/build/libs"
-      - upload_loader "neoforge" "neoforge/build/libs"
+      # Make script executable and run it
+      - chmod +x /tmp/upload.sh
+      - bash /tmp/upload.sh
