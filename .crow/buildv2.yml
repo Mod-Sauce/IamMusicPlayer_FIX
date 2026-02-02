@@ -2,13 +2,8 @@ when:
   - event:
       - manual
 steps:
-  - name: build
+  - name: build & upload
     image: amazoncorretto:21
-    commands:
-      - chmod +x gradlew
-      - ./gradlew build --no-daemon
-  - name: package-and-upload
-    image: alpine:latest
     environment:
       NEXTCLOUD_URL:
         from_secret: nextcloud_url
@@ -21,13 +16,21 @@ steps:
       NEXTCLOUD_SHARE_USER2:
         from_secret: nextcloud_share_user2
     commands:
+      # Build the project
+      - chmod +x gradlew
+      - ./gradlew build --no-daemon
+      
       # Install dependencies
-      - apk add --no-cache curl jq libxml2-utils zip
-      # Extract version directly in this step
+      - yum install -y curl zip
+      
+      # Extract version
       - MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
+      - echo "Building version ${MOD_VERSION}"
+      
       # Set variables
       - WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
       - FOLDER_PATH="builds/${MOD_VERSION}"
+      
       # Create folder structure
       - |
         curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
@@ -35,6 +38,7 @@ steps:
       - |
         curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
           "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || true
+      
       # Function to upload and share a loader
       - |
         upload_loader() {
@@ -76,6 +80,7 @@ steps:
             -d "permissions=1" 2>/dev/null || true
           echo "✅ Uploaded ${ZIP_NAME}"
         }
+      
       # Upload each loader
       - upload_loader "fabric" "fabric/build/libs"
       - upload_loader "forge" "forge/build/libs"
