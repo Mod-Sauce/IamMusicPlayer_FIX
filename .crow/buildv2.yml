@@ -18,7 +18,6 @@ steps:
 
       echo "=== Starting Gradle build ==="
       chmod +x gradlew
-      # Use --no-daemon, plain console, ignore non-zero exit to continue
       ./gradlew build --no-daemon --console=plain || echo "Gradle finished with non-zero exit (ignored)"
       echo "=== Build complete ==="
 
@@ -30,8 +29,8 @@ steps:
           JARS=( "$BUILD_DIR"/*.jar )
           if [ -e "${JARS[0]}" ]; then
             echo "Adding $LOADER build artifacts"
-            mkdir -p persisted_builds/$LOADER
-            cp "$BUILD_DIR"/*.jar persisted_builds/$LOADER/
+            mkdir -p "persisted_builds/$LOADER"
+            cp "$BUILD_DIR"/*.jar "persisted_builds/$LOADER/"
           else
             echo "Skipping $LOADER - no jars found"
           fi
@@ -68,7 +67,6 @@ steps:
       curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" 2>/dev/null || echo "builds folder exists or creation failed"
       curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || echo "version folder exists or creation failed"
 
-      # Loop over only existing modloader builds
       if compgen -G "persisted_builds/*" > /dev/null; then
         for LOADER_DIR in persisted_builds/*; do
           LOADER=$(basename "$LOADER_DIR")
