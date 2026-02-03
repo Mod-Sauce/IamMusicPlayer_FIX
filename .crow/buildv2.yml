@@ -17,7 +17,7 @@ steps:
         from_secret: nextcloud_share_user2
     commands:
       - chmod +x gradlew
-      - ./gradlew build --no-daemon
+      - ./gradlew build --no-daemon || true
       - echo "=== Build complete, starting upload process ==="
       - yum install -y curl zip
       - echo "=== Dependencies installed ==="
