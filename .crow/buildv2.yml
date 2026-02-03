@@ -12,19 +12,21 @@ steps:
       NEXTCLOUD_PASSWORD: { from_secret: nextcloud_password }
       NEXTCLOUD_SHARE_USER1: { from_secret: nextcloud_share_user1 }
       NEXTCLOUD_SHARE_USER2: { from_secret: nextcloud_share_user2 }
-      # Limit Gradle memory to prevent the CI from killing the container
+      # Limit Gradle memory
       GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"
     commands:
       - yum install -y zip curl findutils
       
       - |
-        # Use 'set -x' to see exactly which line the script is on
-        set -x
+        # set -x: Print commands for debugging
+        # set -u: Exit if a variable is undefined
+        set -xu 
 
         echo "=== Starting Gradle build ==="
         chmod +x gradlew
         
-        # We run build, but we capture the exit code so the script doesn't die immediately
+        # 1. Execute Build
+        # We don't use 'set -e' here so we can capture the status manually
         ./gradlew build --no-daemon --console=plain
         BUILD_STATUS=$?
 
@@ -35,48 +37,72 @@ steps:
 
         echo "=== Gradle build finished successfully, starting collection ==="
         
-        # 1. Extract Version
-        # Note: We use $MOD_VERSION (no braces) to avoid Woodpecker interference
+        # 2. Extract Version from gradle.properties
+        if [ ! -f "gradle.properties" ]; then
+          echo "Error: gradle.properties not found!"
+          exit 1
+        fi
         MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r' | xargs)
         echo "Detected Version: $MOD_VERSION"
 
+        # 3. Collect Jars
         mkdir -p persisted_builds
         for LOADER in fabric forge neoforge; do
           BUILD_DIR="$LOADER/build/libs"
           if [ -d "$BUILD_DIR" ]; then
             echo "Checking $LOADER directory..."
-            # Find jars that aren't sources/dev jars
+            # Copy main jars, exclude sources and dev jars
             find "$BUILD_DIR" -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" -exec cp {} persisted_builds/ \;
           fi
         done
 
-        # 2. Upload Logic
-        # We use $VAR syntax because Woodpecker interprets ${VAR} before the script runs
-        WEBDAV_PATH="$NEXTCLOUD_URL/remote.php/dav/files/$NEXTCLOUD_USERNAME"
-        FOLDER_PATH="builds/$MOD_VERSION"
+        # 4. Upload to Nextcloud via WebDAV
+        # We use standard $VAR syntax. Ensure variables are passed from 'environment' block.
+        WEBDAV_BASE_PATH="$NEXTCLOUD_URL/remote.php/dav/files/$NEXTCLOUD_USERNAME"
+        UPLOAD_FOLDER="builds/$MOD_VERSION"
 
-        echo "=== Creating Nextcloud folders ==="
-        curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_PATH/builds/" || true
-        curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_PATH/$FOLDER_PATH/" || true
+        echo "=== Preparing Nextcloud Directories ==="
+        # MKCOL returns error if folder exists, so we use '|| true'
+        curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/builds/" || true
+        curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/" || true
 
         echo "=== Processing Uploads ==="
+        if [ -z "$(ls -A persisted_builds)" ]; then
+           echo "No artifacts found to upload!"
+           exit 1
+        fi
+
         cd persisted_builds
         for FILE in *.jar; do
           [ -e "$FILE" ] || continue
-          echo "Uploading $FILE..."
-          curl -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_PATH/$FOLDER_PATH/$FILE"
           
-          # Sharing
-          for USER in "$NEXTCLOUD_SHARE_USER1" "$NEXTCLOUD_SHARE_USER2"; do
-            if [ -n "$USER" ]; then
-              echo "Sharing $FILE with $USER..."
-              curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
-                "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
-                -H "OCS-APIRequest: true" \
-                -d "path=/$FOLDER_PATH/$FILE" \
-                -d "shareType=0" \
-                -d "shareWith=$USER" \
-                -d "permissions=1"
-            fi
-          done
+          echo "Uploading $FILE to $UPLOAD_FOLDER..."
+          curl -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/$FILE"
+          
+          # 5. Sharing Logic
+          # Share with User 1
+          if [ -n "$NEXTCLOUD_SHARE_USER1" ]; then
+            echo "Sharing $FILE with $NEXTCLOUD_SHARE_USER1..."
+            curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
+              "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
+              -H "OCS-APIRequest: true" \
+              -d "path=/$UPLOAD_FOLDER/$FILE" \
+              -d "shareType=0" \
+              -d "shareWith=$NEXTCLOUD_SHARE_USER1" \
+              -d "permissions=1"
+          fi
+
+          # Share with User 2
+          if [ -n "$NEXTCLOUD_SHARE_USER2" ]; then
+            echo "Sharing $FILE with $NEXTCLOUD_SHARE_USER2..."
+            curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
+              "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
+              -H "OCS-APIRequest: true" \
+              -d "path=/$UPLOAD_FOLDER/$FILE" \
+              -d "shareType=0" \
+              -d "shareWith=$NEXTCLOUD_SHARE_USER2" \
+              -d "permissions=1"
+          fi
         done
+
+        echo "=== Pipeline Completed Successfully ==="
