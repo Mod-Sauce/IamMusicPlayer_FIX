@@ -13,7 +13,7 @@ steps:
       NEXTCLOUD_PASSWORD:
         from_secret: nextcloud_password
     commands: |
-      '#!/bin/bash
+      #!/bin/bash
       set -euo pipefail
 
       echo "=== Starting Gradle build ==="
@@ -24,7 +24,7 @@ steps:
       echo "=== Collecting modloader builds ==="
       mkdir -p persisted_builds
       for LOADER in fabric forge neoforge; do
-        BUILD_DIR="${LOADER}/build/libs"
+        BUILD_DIR="$LOADER/build/libs"
         if [ -d "$BUILD_DIR" ]; then
           JARS=( "$BUILD_DIR"/*.jar )
           if [ -e "${JARS[0]}" ]; then
@@ -38,7 +38,6 @@ steps:
           echo "Skipping $LOADER - directory not found"
         fi
       done
-'
 
     artifacts:
       - persisted_builds/**
@@ -57,16 +56,16 @@ steps:
       NEXTCLOUD_SHARE_USER2:
         from_secret: nextcloud_share_user2
     commands: |
-      '#!/bin/bash
+      #!/bin/bash
       set -euo pipefail
 
       MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties)
-      WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
-      FOLDER_PATH="builds/${MOD_VERSION}"
+      WEBDAV_PATH="$NEXTCLOUD_URL/remote.php/dav/files/$NEXTCLOUD_USERNAME"
+      FOLDER_PATH="builds/$MOD_VERSION"
 
       echo "=== Creating Nextcloud folders ==="
-      curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" 2>/dev/null || echo "builds folder exists or creation failed"
-      curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || echo "version folder exists or creation failed"
+      curl -X MKCOL -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" "$WEBDAV_PATH/builds/" 2>/dev/null || echo "builds folder exists or creation failed"
+      curl -X MKCOL -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" "$WEBDAV_PATH/$FOLDER_PATH/" 2>/dev/null || echo "version folder exists or creation failed"
 
       if compgen -G "persisted_builds/*" > /dev/null; then
         for LOADER_DIR in persisted_builds/*; do
@@ -77,22 +76,22 @@ steps:
           fi
 
           echo "=== Processing $LOADER ==="
-          ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
+          ZIP_NAME="$MOD_VERSION-$LOADER.zip"
           cd "$LOADER_DIR"
-          zip -r "/tmp/${ZIP_NAME}" *.jar
+          zip -r "/tmp/$ZIP_NAME" *.jar
           cd -
 
-          echo "Uploading ${ZIP_NAME}..."
-          curl -T "/tmp/${ZIP_NAME}" -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/${ZIP_NAME}"
+          echo "Uploading $ZIP_NAME..."
+          curl -T "/tmp/$ZIP_NAME" -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" "$WEBDAV_PATH/$FOLDER_PATH/$ZIP_NAME"
 
-          for USER in "${NEXTCLOUD_SHARE_USER1}" "${NEXTCLOUD_SHARE_USER2}"; do
-            curl -s -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
-              "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
+          for USER in "$NEXTCLOUD_SHARE_USER1" "$NEXTCLOUD_SHARE_USER2"; do
+            curl -s -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
+              "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
               -H "OCS-APIRequest: true" \
-              -d "path=/${FOLDER_PATH}/${ZIP_NAME}" \
+              -d "path=/$FOLDER_PATH/$ZIP_NAME" \
               -d "shareType=0" \
-              -d "shareWith=${USER}" \
-              -d "permissions=1" || echo "Share failed for ${USER}"
+              -d "shareWith=$USER" \
+              -d "permissions=1" || echo "Share failed for $USER"
           done
 
           echo "Completed $LOADER"
@@ -101,5 +100,4 @@ steps:
         echo "No modloader builds found, skipping upload"
       fi
 
-      echo "=== All uploads complete ===
-'
+      echo "=== All uploads complete ==="
