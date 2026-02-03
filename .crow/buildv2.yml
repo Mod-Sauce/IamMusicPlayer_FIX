@@ -1,6 +1,6 @@
-kind: pipeline
-type: docker
-name: build-and-upload
+when:
+  event:
+    - manual
 
 steps:
   - name: build-and-upload
@@ -17,72 +17,78 @@ steps:
       NEXTCLOUD_SHARE_USER2:
         from_secret: nextcloud_share_user2
     commands:
-      # 1. Install missing tools (assuming Amazon Linux 2023 base)
+      # 1. Install dependencies
       - yum install -y zip curl findutils
       
       - |
-        set -euo pipefail
+        # 'set -x' will print every command before executing it (great for debugging)
+        # 'set -e' makes the script stop if any command fails
+        set -exuo pipefail
 
         echo "=== Starting Gradle build ==="
         chmod +x gradlew
-        ./gradlew build --no-daemon --console=plain
+        
+        # We use '|| exit 1' to ensure if it fails, we know it's because of the build
+        ./gradlew build --no-daemon --console=plain || { echo "Gradle build failed!"; exit 1; }
 
         echo "=== Collecting modloader builds ==="
         mkdir -p persisted_builds
+        
+        # List of loaders to check
         for LOADER in fabric forge neoforge; do
           BUILD_DIR="$LOADER/build/libs"
           if [ -d "$BUILD_DIR" ]; then
-            # Check if any jars exist without using bash arrays for compatibility
+            # Look for jars, excluding 'sources' or 'dev' jars if necessary
             if ls "$BUILD_DIR"/*.jar >/dev/null 2>&1; then
-              echo "Adding $LOADER build artifacts"
+              echo "Found $LOADER jars, copying..."
               mkdir -p "persisted_builds/$LOADER"
               cp "$BUILD_DIR"/*.jar "persisted_builds/$LOADER/"
-            else
-              echo "Skipping $LOADER - no jars found"
             fi
           fi
         done
 
-        MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r')
+        # Check if gradle.properties exists before reading
+        if [ ! -f "gradle.properties" ]; then
+          echo "Error: gradle.properties not found!"
+          exit 1
+        fi
+
+        MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r' | xargs)
+        echo "Detected Version: $MOD_VERSION"
+
         WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
         FOLDER_PATH="builds/${MOD_VERSION}"
 
         echo "=== Creating Nextcloud folders ==="
-        # Create parent 'builds' folder if it doesn't exist
-        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" || true
-        # Create version-specific folder
-        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" || true
+        # We allow these to fail if folders exist, but use -f for curl to be safe
+        curl -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" -X MKCOL "${WEBDAV_PATH}/builds/" || true
+        curl -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" -X MKCOL "${WEBDAV_PATH}/${FOLDER_PATH}/" || true
 
-        echo "=== Processing Uploads ==="
-        if [ "$(ls -A persisted_builds)" ]; then
+        if [ -d "persisted_builds" ] && [ "$(ls -A persisted_builds)" ]; then
           for LOADER_DIR in persisted_builds/*; do
             LOADER=$(basename "$LOADER_DIR")
             ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
             
-            echo "Zipping $LOADER..."
+            echo "Zipping and Uploading $LOADER..."
             (cd "$LOADER_DIR" && zip -r "/tmp/$ZIP_NAME" .)
+            
+            # -f makes curl return an error code if the upload fails (404, 500, etc)
+            curl -f -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" -T "/tmp/$ZIP_NAME" "${WEBDAV_PATH}/${FOLDER_PATH}/$ZIP_NAME"
 
-            echo "Uploading $ZIP_NAME to Nextcloud..."
-            curl -f -T "/tmp/$ZIP_NAME" -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/$ZIP_NAME"
-
-            # Share with users
+            # Sharing logic
             for USER in "${NEXTCLOUD_SHARE_USER1}" "${NEXTCLOUD_SHARE_USER2}"; do
-              if [ -n "$USER" ]; then
-                echo "Sharing with $USER..."
-                curl -s -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
-                  "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
-                  -H "OCS-APIRequest: true" \
-                  -d "path=/${FOLDER_PATH}/$ZIP_NAME" \
-                  -d "shareType=0" \
-                  -d "shareWith=$USER" \
-                  -d "permissions=1"
-              fi
+              if [ -z "$USER" ]; then continue; fi
+              echo "Sharing $ZIP_NAME with $USER..."
+              curl -s -f -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
+                "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
+                -H "OCS-APIRequest: true" \
+                -d "path=/${FOLDER_PATH}/$ZIP_NAME" \
+                -d "shareType=0" \
+                -d "shareWith=$USER" \
+                -d "permissions=1"
             done
           done
         else
-          echo "No builds found in persisted_builds, skipping."
+          echo "No jars were found in the build directories. Check your project structure."
+          exit 1
         fi
-
-when:
-  event:
-    - manual
