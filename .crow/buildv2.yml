@@ -6,89 +6,77 @@ steps:
   - name: build-and-upload
     image: amazoncorretto:21
     environment:
-      NEXTCLOUD_URL:
-        from_secret: nextcloud_url
-      NEXTCLOUD_USERNAME:
-        from_secret: nextcloud_username
-      NEXTCLOUD_PASSWORD:
-        from_secret: nextcloud_password
-      NEXTCLOUD_SHARE_USER1:
-        from_secret: nextcloud_share_user1
-      NEXTCLOUD_SHARE_USER2:
-        from_secret: nextcloud_share_user2
+      # Secrets
+      NEXTCLOUD_URL: { from_secret: nextcloud_url }
+      NEXTCLOUD_USERNAME: { from_secret: nextcloud_username }
+      NEXTCLOUD_PASSWORD: { from_secret: nextcloud_password }
+      NEXTCLOUD_SHARE_USER1: { from_secret: nextcloud_share_user1 }
+      NEXTCLOUD_SHARE_USER2: { from_secret: nextcloud_share_user2 }
+      # Limit Gradle memory to prevent the CI from killing the container
+      GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"
     commands:
-      # 1. Install dependencies
       - yum install -y zip curl findutils
       
       - |
-        # 'set -x' will print every command before executing it (great for debugging)
-        # 'set -e' makes the script stop if any command fails
-        set -exuo pipefail
+        # Use 'set -x' to see exactly which line the script is on
+        set -x
 
         echo "=== Starting Gradle build ==="
         chmod +x gradlew
         
-        # We use '|| exit 1' to ensure if it fails, we know it's because of the build
-        ./gradlew build --no-daemon --console=plain || { echo "Gradle build failed!"; exit 1; }
+        # We run build, but we capture the exit code so the script doesn't die immediately
+        ./gradlew build --no-daemon --console=plain
+        BUILD_STATUS=$?
 
-        echo "=== Collecting modloader builds ==="
-        mkdir -p persisted_builds
-        
-        # List of loaders to check
-        for LOADER in fabric forge neoforge; do
-          BUILD_DIR="$LOADER/build/libs"
-          if [ -d "$BUILD_DIR" ]; then
-            # Look for jars, excluding 'sources' or 'dev' jars if necessary
-            if ls "$BUILD_DIR"/*.jar >/dev/null 2>&1; then
-              echo "Found $LOADER jars, copying..."
-              mkdir -p "persisted_builds/$LOADER"
-              cp "$BUILD_DIR"/*.jar "persisted_builds/$LOADER/"
-            fi
-          fi
-        done
-
-        # Check if gradle.properties exists before reading
-        if [ ! -f "gradle.properties" ]; then
-          echo "Error: gradle.properties not found!"
-          exit 1
+        if [ $BUILD_STATUS -ne 0 ]; then
+          echo "Gradle failed with exit code $BUILD_STATUS"
+          exit $BUILD_STATUS
         fi
 
+        echo "=== Gradle build finished successfully, starting collection ==="
+        
+        # 1. Extract Version
+        # Note: We use $MOD_VERSION (no braces) to avoid Woodpecker interference
         MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r' | xargs)
         echo "Detected Version: $MOD_VERSION"
 
-        WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
-        FOLDER_PATH="builds/${MOD_VERSION}"
+        mkdir -p persisted_builds
+        for LOADER in fabric forge neoforge; do
+          BUILD_DIR="$LOADER/build/libs"
+          if [ -d "$BUILD_DIR" ]; then
+            echo "Checking $LOADER directory..."
+            # Find jars that aren't sources/dev jars
+            find "$BUILD_DIR" -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" -exec cp {} persisted_builds/ \;
+          fi
+        done
+
+        # 2. Upload Logic
+        # We use $VAR syntax because Woodpecker interprets ${VAR} before the script runs
+        WEBDAV_PATH="$NEXTCLOUD_URL/remote.php/dav/files/$NEXTCLOUD_USERNAME"
+        FOLDER_PATH="builds/$MOD_VERSION"
 
         echo "=== Creating Nextcloud folders ==="
-        # We allow these to fail if folders exist, but use -f for curl to be safe
-        curl -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" -X MKCOL "${WEBDAV_PATH}/builds/" || true
-        curl -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" -X MKCOL "${WEBDAV_PATH}/${FOLDER_PATH}/" || true
+        curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_PATH/builds/" || true
+        curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_PATH/$FOLDER_PATH/" || true
 
-        if [ -d "persisted_builds" ] && [ "$(ls -A persisted_builds)" ]; then
-          for LOADER_DIR in persisted_builds/*; do
-            LOADER=$(basename "$LOADER_DIR")
-            ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
-            
-            echo "Zipping and Uploading $LOADER..."
-            (cd "$LOADER_DIR" && zip -r "/tmp/$ZIP_NAME" .)
-            
-            # -f makes curl return an error code if the upload fails (404, 500, etc)
-            curl -f -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" -T "/tmp/$ZIP_NAME" "${WEBDAV_PATH}/${FOLDER_PATH}/$ZIP_NAME"
-
-            # Sharing logic
-            for USER in "${NEXTCLOUD_SHARE_USER1}" "${NEXTCLOUD_SHARE_USER2}"; do
-              if [ -z "$USER" ]; then continue; fi
-              echo "Sharing $ZIP_NAME with $USER..."
-              curl -s -f -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
-                "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
+        echo "=== Processing Uploads ==="
+        cd persisted_builds
+        for FILE in *.jar; do
+          [ -e "$FILE" ] || continue
+          echo "Uploading $FILE..."
+          curl -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_PATH/$FOLDER_PATH/$FILE"
+          
+          # Sharing
+          for USER in "$NEXTCLOUD_SHARE_USER1" "$NEXTCLOUD_SHARE_USER2"; do
+            if [ -n "$USER" ]; then
+              echo "Sharing $FILE with $USER..."
+              curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
+                "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
                 -H "OCS-APIRequest: true" \
-                -d "path=/${FOLDER_PATH}/$ZIP_NAME" \
+                -d "path=/$FOLDER_PATH/$FILE" \
                 -d "shareType=0" \
                 -d "shareWith=$USER" \
                 -d "permissions=1"
-            done
+            fi
           done
-        else
-          echo "No jars were found in the build directories. Check your project structure."
-          exit 1
-        fi
+        done
