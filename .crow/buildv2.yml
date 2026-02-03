@@ -1,6 +1,6 @@
-when:
-  - event:
-      - manual
+kind: pipeline
+type: docker
+name: build-and-upload
 
 steps:
   - name: build-and-upload
@@ -16,72 +16,73 @@ steps:
         from_secret: nextcloud_share_user1
       NEXTCLOUD_SHARE_USER2:
         from_secret: nextcloud_share_user2
-    commands: |
-      #!/bin/bash
-      set -euo pipefail
+    commands:
+      # 1. Install missing tools (assuming Amazon Linux 2023 base)
+      - yum install -y zip curl findutils
+      
+      - |
+        set -euo pipefail
 
-      echo "=== Starting Gradle build ==="
-      chmod +x gradlew
-      ./gradlew build --no-daemon --console=plain || echo "Gradle finished with non-zero exit (ignored)"
-      echo "=== Build complete ==="
+        echo "=== Starting Gradle build ==="
+        chmod +x gradlew
+        ./gradlew build --no-daemon --console=plain
 
-      echo "=== Collecting modloader builds ==="
-      mkdir -p persisted_builds
-      for LOADER in fabric forge neoforge; do
-        BUILD_DIR="\$LOADER/build/libs"
-        if [ -d "\$BUILD_DIR" ]; then
-          JARS=( "\$BUILD_DIR"/*.jar )
-          if [ -e "\${JARS[0]}" ]; then
-            echo "Adding \$LOADER build artifacts"
-            mkdir -p "persisted_builds/\$LOADER"
-            cp "\$BUILD_DIR"/*.jar "persisted_builds/\$LOADER/"
-          else
-            echo "Skipping \$LOADER - no jars found"
+        echo "=== Collecting modloader builds ==="
+        mkdir -p persisted_builds
+        for LOADER in fabric forge neoforge; do
+          BUILD_DIR="$LOADER/build/libs"
+          if [ -d "$BUILD_DIR" ]; then
+            # Check if any jars exist without using bash arrays for compatibility
+            if ls "$BUILD_DIR"/*.jar >/dev/null 2>&1; then
+              echo "Adding $LOADER build artifacts"
+              mkdir -p "persisted_builds/$LOADER"
+              cp "$BUILD_DIR"/*.jar "persisted_builds/$LOADER/"
+            else
+              echo "Skipping $LOADER - no jars found"
+            fi
           fi
-        else
-          echo "Skipping \$LOADER - directory not found"
-        fi
-      done
-
-      MOD_VERSION=\$(sed -n "s/^mod_version=//p" gradle.properties)
-      WEBDAV_PATH="\${NEXTCLOUD_URL}/remote.php/dav/files/\${NEXTCLOUD_USERNAME}"
-      FOLDER_PATH="builds/\${MOD_VERSION}"
-
-      echo "=== Creating Nextcloud folders ==="
-      curl -X MKCOL -u "\${NEXTCLOUD_USERNAME}:\${NEXTCLOUD_PASSWORD}" "\${WEBDAV_PATH}/builds/" 2>/dev/null || echo "builds folder exists or creation failed"
-      curl -X MKCOL -u "\${NEXTCLOUD_USERNAME}:\${NEXTCLOUD_PASSWORD}" "\${WEBDAV_PATH}/\${FOLDER_PATH}/" 2>/dev/null || echo "version folder exists or creation failed"
-
-      if compgen -G "persisted_builds/*" > /dev/null; then
-        for LOADER_DIR in persisted_builds/*; do
-          LOADER=\$(basename "\$LOADER_DIR")
-          if [ -z "\$(ls -A "\$LOADER_DIR" 2>/dev/null)" ]; then
-            echo "Skipping \$LOADER - empty"
-            continue
-          fi
-
-          echo "=== Processing \$LOADER ==="
-          ZIP_NAME="\${MOD_VERSION}-\$LOADER.zip"
-          cd "\$LOADER_DIR"
-          zip -r "/tmp/\$ZIP_NAME" *.jar
-          cd -
-
-          echo "Uploading \$ZIP_NAME..."
-          curl -T "/tmp/\$ZIP_NAME" -u "\${NEXTCLOUD_USERNAME}:\${NEXTCLOUD_PASSWORD}" "\${WEBDAV_PATH}/\${FOLDER_PATH}/\$ZIP_NAME"
-
-          for USER in "\${NEXTCLOUD_SHARE_USER1}" "\${NEXTCLOUD_SHARE_USER2}"; do
-            curl -s -X POST -u "\${NEXTCLOUD_USERNAME}:\${NEXTCLOUD_PASSWORD}" \
-              "\${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
-              -H "OCS-APIRequest: true" \
-              -d "path=/\${FOLDER_PATH}/\$ZIP_NAME" \
-              -d "shareType=0" \
-              -d "shareWith=\$USER" \
-              -d "permissions=1" || echo "Share failed for \$USER"
-          done
-
-          echo "Completed \$LOADER"
         done
-      else
-        echo "No modloader builds found, skipping upload"
-      fi
 
-      echo "=== All uploads complete ==="
+        MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r')
+        WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
+        FOLDER_PATH="builds/${MOD_VERSION}"
+
+        echo "=== Creating Nextcloud folders ==="
+        # Create parent 'builds' folder if it doesn't exist
+        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" || true
+        # Create version-specific folder
+        curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" || true
+
+        echo "=== Processing Uploads ==="
+        if [ "$(ls -A persisted_builds)" ]; then
+          for LOADER_DIR in persisted_builds/*; do
+            LOADER=$(basename "$LOADER_DIR")
+            ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
+            
+            echo "Zipping $LOADER..."
+            (cd "$LOADER_DIR" && zip -r "/tmp/$ZIP_NAME" .)
+
+            echo "Uploading $ZIP_NAME to Nextcloud..."
+            curl -f -T "/tmp/$ZIP_NAME" -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/$ZIP_NAME"
+
+            # Share with users
+            for USER in "${NEXTCLOUD_SHARE_USER1}" "${NEXTCLOUD_SHARE_USER2}"; do
+              if [ -n "$USER" ]; then
+                echo "Sharing with $USER..."
+                curl -s -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
+                  "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
+                  -H "OCS-APIRequest: true" \
+                  -d "path=/${FOLDER_PATH}/$ZIP_NAME" \
+                  -d "shareType=0" \
+                  -d "shareWith=$USER" \
+                  -d "permissions=1"
+              fi
+            done
+          done
+        else
+          echo "No builds found in persisted_builds, skipping."
+        fi
+
+when:
+  event:
+    - manual
