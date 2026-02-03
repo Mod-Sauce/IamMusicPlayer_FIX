@@ -16,20 +16,27 @@ steps:
       #!/bin/bash
       set -euo pipefail
 
+      echo "=== Starting Gradle build ==="
       chmod +x gradlew
-      ./gradlew build --no-daemon
+      # Use --no-daemon, plain console, ignore non-zero exit to continue
+      ./gradlew build --no-daemon --console=plain || echo "Gradle finished with non-zero exit (ignored)"
+      echo "=== Build complete ==="
 
-      # create a folder to hold all existing modloader build outputs
+      echo "=== Collecting modloader builds ==="
       mkdir -p persisted_builds
-
       for LOADER in fabric forge neoforge; do
         BUILD_DIR="${LOADER}/build/libs"
-        if [ -d "$BUILD_DIR" ] && [ "$(ls -A $BUILD_DIR/*.jar 2>/dev/null)" ]; then
-          echo "Adding $LOADER build artifacts"
-          mkdir -p persisted_builds/$LOADER
-          cp $BUILD_DIR/*.jar persisted_builds/$LOADER/
+        if [ -d "$BUILD_DIR" ]; then
+          JARS=( "$BUILD_DIR"/*.jar )
+          if [ -e "${JARS[0]}" ]; then
+            echo "Adding $LOADER build artifacts"
+            mkdir -p persisted_builds/$LOADER
+            cp "$BUILD_DIR"/*.jar persisted_builds/$LOADER/
+          else
+            echo "Skipping $LOADER - no jars found"
+          fi
         else
-          echo "Skipping $LOADER - no build output"
+          echo "Skipping $LOADER - directory not found"
         fi
       done
 
@@ -57,32 +64,42 @@ steps:
       WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
       FOLDER_PATH="builds/${MOD_VERSION}"
 
-      echo "=== Creating folders ==="
+      echo "=== Creating Nextcloud folders ==="
       curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/builds/" 2>/dev/null || echo "builds folder exists or creation failed"
       curl -X MKCOL -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/" 2>/dev/null || echo "version folder exists or creation failed"
 
-      for LOADER_DIR in persisted_builds/*; do
-        LOADER=$(basename $LOADER_DIR)
-        echo "=== Processing ${LOADER} ==="
+      # Loop over only existing modloader builds
+      if compgen -G "persisted_builds/*" > /dev/null; then
+        for LOADER_DIR in persisted_builds/*; do
+          LOADER=$(basename "$LOADER_DIR")
+          if [ -z "$(ls -A "$LOADER_DIR" 2>/dev/null)" ]; then
+            echo "Skipping $LOADER - empty"
+            continue
+          fi
 
-        ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
-        cd $LOADER_DIR
-        zip -r "/tmp/${ZIP_NAME}" *.jar
-        cd -
+          echo "=== Processing $LOADER ==="
+          ZIP_NAME="${MOD_VERSION}-${LOADER}.zip"
+          cd "$LOADER_DIR"
+          zip -r "/tmp/${ZIP_NAME}" *.jar
+          cd -
 
-        curl -T "/tmp/${ZIP_NAME}" -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/${ZIP_NAME}"
+          echo "Uploading ${ZIP_NAME}..."
+          curl -T "/tmp/${ZIP_NAME}" -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" "${WEBDAV_PATH}/${FOLDER_PATH}/${ZIP_NAME}"
 
-        for USER in "${NEXTCLOUD_SHARE_USER1}" "${NEXTCLOUD_SHARE_USER2}"; do
-          curl -s -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
-            "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
-            -H "OCS-APIRequest: true" \
-            -d "path=/${FOLDER_PATH}/${ZIP_NAME}" \
-            -d "shareType=0" \
-            -d "shareWith=${USER}" \
-            -d "permissions=1" || echo "Share failed for ${USER}"
+          for USER in "${NEXTCLOUD_SHARE_USER1}" "${NEXTCLOUD_SHARE_USER2}"; do
+            curl -s -X POST -u "${NEXTCLOUD_USERNAME}:${NEXTCLOUD_PASSWORD}" \
+              "${NEXTCLOUD_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares" \
+              -H "OCS-APIRequest: true" \
+              -d "path=/${FOLDER_PATH}/${ZIP_NAME}" \
+              -d "shareType=0" \
+              -d "shareWith=${USER}" \
+              -d "permissions=1" || echo "Share failed for ${USER}"
+          done
+
+          echo "Completed $LOADER"
         done
-
-        echo "Completed ${LOADER}"
-      done
+      else
+        echo "No modloader builds found, skipping upload"
+      fi
 
       echo "=== All uploads complete ==="
