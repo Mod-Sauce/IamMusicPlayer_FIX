@@ -13,7 +13,7 @@ steps:
       NEXTCLOUD_PASSWORD:
         from_secret: nextcloud_password
     commands: |
-      #!/bin/bash
+      '#!/bin/bash
       set -euo pipefail
 
       echo "=== Starting Gradle build ==="
@@ -38,6 +38,7 @@ steps:
           echo "Skipping $LOADER - directory not found"
         fi
       done
+'
 
     artifacts:
       - persisted_builds/**
@@ -56,10 +57,10 @@ steps:
       NEXTCLOUD_SHARE_USER2:
         from_secret: nextcloud_share_user2
     commands: |
-      #!/bin/bash
+      '#!/bin/bash
       set -euo pipefail
 
-      MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties)
+      MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties)
       WEBDAV_PATH="${NEXTCLOUD_URL}/remote.php/dav/files/${NEXTCLOUD_USERNAME}"
       FOLDER_PATH="builds/${MOD_VERSION}"
 
@@ -100,4 +101,5 @@ steps:
         echo "No modloader builds found, skipping upload"
       fi
 
-      echo "=== All uploads complete ==="
+      echo "=== All uploads complete ===
+'
