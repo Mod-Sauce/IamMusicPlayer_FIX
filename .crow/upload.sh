@@ -40,30 +40,6 @@ for FILE in *.jar; do
   
   echo "Uploading $FILE..."
   curl --location-trusted -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/$FILE"
-  
-  # Share with User 1
-  if [ -n "$NEXTCLOUD_SHARE_USER1" ]; then
-    echo "Sharing with $NEXTCLOUD_SHARE_USER1..."
-    curl --location-trusted -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
-      "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
-      -H "OCS-APIRequest: true" \
-      -d "path=/$UPLOAD_FOLDER/$FILE" \
-      -d "shareType=0" \
-      -d "shareWith=$NEXTCLOUD_SHARE_USER1" \
-      -d "permissions=1" || echo "Share 1 failed (may already exist)"
-  fi
-
-  # Share with User 2
-  if [ -n "$NEXTCLOUD_SHARE_USER2" ]; then
-    echo "Sharing with $NEXTCLOUD_SHARE_USER2..."
-    curl --location-trusted -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
-      "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
-      -H "OCS-APIRequest: true" \
-      -d "path=/$UPLOAD_FOLDER/$FILE" \
-      -d "shareType=0" \
-      -d "shareWith=$NEXTCLOUD_SHARE_USER2" \
-      -d "permissions=1" || echo "Share 2 failed (may already exist)"
-  fi
 done
 
 echo "=== Upload Completed Successfully ==="
