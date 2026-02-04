@@ -18,7 +18,7 @@ steps:
       - yum install -y zip curl findutils procps-ng
       
       # Make scripts executable
-      - chmod +x gradlew upload.sh
+      - chmod +x gradlew .crow/upload.sh
       
       # Run gradle 
       - ./gradlew clean build --no-daemon --console=plain
