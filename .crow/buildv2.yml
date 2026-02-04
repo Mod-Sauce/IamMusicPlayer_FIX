@@ -18,8 +18,6 @@ steps:
       NEXTCLOUD_URL: { from_secret: nextcloud_url }
       NEXTCLOUD_USERNAME: { from_secret: nextcloud_username }
       NEXTCLOUD_PASSWORD: { from_secret: nextcloud_password }
-      NEXTCLOUD_SHARE_USER1: { from_secret: nextcloud_share_user1 }
-      NEXTCLOUD_SHARE_USER2: { from_secret: nextcloud_share_user2 }
     commands:
       - yum install -y zip curl findutils procps-ng
       - chmod +x .crow/upload.sh
