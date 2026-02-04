@@ -13,94 +13,88 @@ steps:
       NEXTCLOUD_SHARE_USER2: { from_secret: nextcloud_share_user2 }
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4g -XX:MaxMetaspaceSize=512m'"
     commands:
-      - yum install -y zip curl findutils procps-ng  # Added procps-ng for pkill
+      - yum install -y zip curl findutils util-linux  # util-linux provides setsid
+      
+      # Make gradlew executable first (separate command)
+      - chmod +x gradlew
+      
+      # Run gradle completely detached from shell, redirect all I/O
+      - |
+        echo "=== Starting detached Gradle build ==="
+        # setsid creates new session, preventing process group issues
+        # stdbuf disables buffering
+        # Redirect all streams to files so setsid can exit properly
+        setsid sh -c './gradlew build --no-daemon --console=plain > /tmp/build.log 2>&1; echo $? > /tmp/build.exit'
+        
+        # Wait for build to complete by polling the exit code file
+        echo "Waiting for build to complete..."
+        while [ ! -f /tmp/build.exit ]; do
+          sleep 5
+          if [ -f /tmp/build.log ]; then
+            tail -5 /tmp/build.log || true
+          fi
+        done
+        
+        BUILD_STATUS=$(cat /tmp/build.exit)
+        echo "Build exited with code: $BUILD_STATUS"
+        
+        if [ "$BUILD_STATUS" -ne 0 ]; then
+          echo "=== BUILD FAILED ==="
+          cat /tmp/build.log
+          exit $BUILD_STATUS
+        fi
+        
+        echo "=== BUILD SUCCESSFUL ==="
+        cat /tmp/build.log
+      
+      # Now these commands WILL execute because Gradle didn't hijack the shell
+      - |
+        echo "=== Extracting version ==="
+        MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r' | xargs)
+        echo "$MOD_VERSION" > .mod_version
+        echo "Version: $MOD_VERSION"
       
       - |
-        # Run Gradle with explicit timeout and process cleanup
-        echo "=== Starting Gradle build ==="
-        chmod +x gradlew
-        
-        # Use timeout to force kill if Gradle hangs after "BUILD SUCCESSFUL"
-        # 15m = 15 minutes timeout (adjust based on your build time + buffer)
-        timeout 15m ./gradlew build --no-daemon --console=plain || EXIT_CODE=$?
-        
-        # Capture exit code if timeout killed it
-        if [ -n "$EXIT_CODE" ]; then
-          echo "Build exited with code: $EXIT_CODE"
-          if [ "$EXIT_CODE" -eq 124 ]; then
-            echo "ERROR: Build timed out after 15 minutes"
-          fi
-          exit $EXIT_CODE
-        fi
-        
-        # AGGRESSIVE CLEANUP: Kill all Gradle-related processes
-        echo "=== Cleaning up Gradle processes ==="
-        pkill -9 -f "GradleDaemon" 2>/dev/null || true
-        pkill -9 -f "GradleWrapperMain" 2>/dev/null || true
-        pkill -9 -f "java.*gradle" 2>/dev/null || true
-        
-        # Wait a moment for processes to die
-        sleep 2
-        
-        # Verify no Gradle processes remain
-        if pgrep -f "GradleDaemon|GradleWrapperMain" > /dev/null; then
-          echo "Warning: Some Gradle processes may still be running"
-          ps aux | grep -i gradle | grep -v grep || true
-        fi
-        
-        echo "=== Gradle build finished successfully ==="
-        
-        # Extract Version
-        MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r' | xargs)
-        echo "Detected Version: $MOD_VERSION"
-        
-        # Collect Jars
+        echo "=== Collecting JARs ==="
         mkdir -p persisted_builds
         for LOADER in fabric forge neoforge; do
           BUILD_DIR="$LOADER/build/libs"
           if [ -d "$BUILD_DIR" ]; then
-            echo "Checking $LOADER directory..."
             find "$BUILD_DIR" -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" -exec cp {} persisted_builds/ \;
           fi
         done
-        
-        # Upload to Nextcloud
+        ls -la persisted_builds/
+      
+      - |
+        echo "=== Uploading to Nextcloud ==="
+        MOD_VERSION=$(cat .mod_version)
         WEBDAV_BASE_PATH="$NEXTCLOUD_URL/remote.php/dav/files/$NEXTCLOUD_USERNAME"
         UPLOAD_FOLDER="builds/$MOD_VERSION"
 
-        echo "=== Preparing Nextcloud Directories ==="
         curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/builds/" || true
         curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/" || true
-
-        echo "=== Processing Uploads ==="
-        if [ -z "$(ls -A persisted_builds 2>/dev/null)" ]; then
-           echo "No artifacts found to upload!"
-           exit 1
-        fi
 
         cd persisted_builds
         for FILE in *.jar; do
           [ -e "$FILE" ] || continue
           
-          echo "Uploading $FILE to $UPLOAD_FOLDER..."
+          echo "Uploading $FILE..."
           curl -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/$FILE"
           
           if [ -n "$NEXTCLOUD_SHARE_USER1" ]; then
-            echo "Sharing $FILE with $NEXTCLOUD_SHARE_USER1..."
             curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
               "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
               -H "OCS-APIRequest: true" \
               -d "path=/$UPLOAD_FOLDER/$FILE" -d "shareType=0" \
-              -d "shareWith=$NEXTCLOUD_SHARE_USER1" -d "permissions=1" || echo "Share 1 failed"
+              -d "shareWith=$NEXTCLOUD_SHARE_USER1" -d "permissions=1" || true
           fi
 
           if [ -n "$NEXTCLOUD_SHARE_USER2" ]; then
-            echo "Sharing $FILE with $NEXTCLOUD_SHARE_USER2..."
             curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
               "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
               -H "OCS-APIRequest: true" \
               -d "path=/$UPLOAD_FOLDER/$FILE" -d "shareType=0" \
-              -d "shareWith=$NEXTCLOUD_SHARE_USER2" -d "permissions=1" || echo "Share 2 failed"
+              -d "shareWith=$NEXTCLOUD_SHARE_USER2" -d "permissions=1" || true
           fi
         done
 
