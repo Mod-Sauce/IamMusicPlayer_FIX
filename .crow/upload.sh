@@ -30,8 +30,8 @@ WEBDAV_BASE_PATH="$NEXTCLOUD_URL/remote.php/dav/files/$NEXTCLOUD_USERNAME"
 UPLOAD_FOLDER="builds/$MOD_VERSION"
 
 echo "=== Creating directories ==="
-curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/builds/" || true
-curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/" || true
+curl -L -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/builds/" || true
+curl -L -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/" || true
 
 echo "=== Uploading files ==="
 cd persisted_builds
@@ -39,12 +39,12 @@ for FILE in *.jar; do
   [ -e "$FILE" ] || continue
   
   echo "Uploading $FILE..."
-  curl -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/$FILE"
+  curl -L -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/$FILE"
   
   # Share with User 1
   if [ -n "$NEXTCLOUD_SHARE_USER1" ]; then
     echo "Sharing with $NEXTCLOUD_SHARE_USER1..."
-    curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
+    curl -L -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
       "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
       -H "OCS-APIRequest: true" \
       -d "path=/$UPLOAD_FOLDER/$FILE" \
@@ -56,7 +56,7 @@ for FILE in *.jar; do
   # Share with User 2
   if [ -n "$NEXTCLOUD_SHARE_USER2" ]; then
     echo "Sharing with $NEXTCLOUD_SHARE_USER2..."
-    curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
+    curl -L -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
       "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
       -H "OCS-APIRequest: true" \
       -d "path=/$UPLOAD_FOLDER/$FILE" \
