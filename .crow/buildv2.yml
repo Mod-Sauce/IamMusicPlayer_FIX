@@ -6,103 +6,86 @@ steps:
   - name: build-and-upload
     image: amazoncorretto:21
     environment:
-      # Secrets
       NEXTCLOUD_URL: { from_secret: nextcloud_url }
       NEXTCLOUD_USERNAME: { from_secret: nextcloud_username }
       NEXTCLOUD_PASSWORD: { from_secret: nextcloud_password }
       NEXTCLOUD_SHARE_USER1: { from_secret: nextcloud_share_user1 }
       NEXTCLOUD_SHARE_USER2: { from_secret: nextcloud_share_user2 }
-      # Limit Gradle memory
       GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"
+      # Disable Gradle daemon completely via env var
+      GRADLE_DAEMON: "false"
     commands:
+      # Install dependencies first (separate step for clarity)
       - yum install -y zip curl findutils
       
+      # Make gradlew executable
+      - chmod +x gradlew
+      
+      # Run build with explicit error handling
       - |
-        # set -x: Print commands for debugging
-        # set -u: Exit if a variable is undefined
-        set -xu 
-
         echo "=== Starting Gradle build ==="
-        chmod +x gradlew
-        
-        # 1. Execute Build
-        # We don't use 'set -e' here so we can capture the status manually
-        ./gradlew build --no-daemon --console=plain
-        BUILD_STATUS=$?
-
-        if [ $BUILD_STATUS -ne 0 ]; then
-          echo "Gradle failed with exit code $BUILD_STATUS"
-          exit $BUILD_STATUS
-        fi
-
-        echo "=== Gradle build finished successfully, starting collection ==="
-        
-        # 2. Extract Version from gradle.properties
+        ./gradlew build --no-daemon --console=plain || exit $?
+        echo "=== Gradle build finished successfully ==="
+      
+      # Extract version (separate step)
+      - |
         if [ ! -f "gradle.properties" ]; then
           echo "Error: gradle.properties not found!"
           exit 1
         fi
         MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r' | xargs)
+        echo "MOD_VERSION=$MOD_VERSION" >> $CROW_ENV  # Persist to env file if Crow supports it
         echo "Detected Version: $MOD_VERSION"
-
-        # 3. Collect Jars
+      
+      # Collect JARs
+      - |
         mkdir -p persisted_builds
         for LOADER in fabric forge neoforge; do
           BUILD_DIR="$LOADER/build/libs"
           if [ -d "$BUILD_DIR" ]; then
             echo "Checking $LOADER directory..."
-            # Copy main jars, exclude sources and dev jars
             find "$BUILD_DIR" -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" -exec cp {} persisted_builds/ \;
           fi
         done
-
-        # 4. Upload to Nextcloud via WebDAV
-        # We use standard $VAR syntax. Ensure variables are passed from 'environment' block.
+      
+      # Upload to Nextcloud
+      - |
+        MOD_VERSION=$(sed -n "s/^mod_version=//p" gradle.properties | tr -d '\r' | xargs)
         WEBDAV_BASE_PATH="$NEXTCLOUD_URL/remote.php/dav/files/$NEXTCLOUD_USERNAME"
         UPLOAD_FOLDER="builds/$MOD_VERSION"
-
+        
         echo "=== Preparing Nextcloud Directories ==="
-        # MKCOL returns error if folder exists, so we use '|| true'
         curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/builds/" || true
         curl -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -X MKCOL "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/" || true
-
-        echo "=== Processing Uploads ==="
-        if [ -z "$(ls -A persisted_builds)" ]; then
+        
+        if [ -z "$(ls -A persisted_builds 2>/dev/null)" ]; then
            echo "No artifacts found to upload!"
            exit 1
         fi
-
+        
         cd persisted_builds
         for FILE in *.jar; do
           [ -e "$FILE" ] || continue
           
-          echo "Uploading $FILE to $UPLOAD_FOLDER..."
+          echo "Uploading $FILE..."
           curl -f -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" -T "$FILE" "$WEBDAV_BASE_PATH/$UPLOAD_FOLDER/$FILE"
           
-          # 5. Sharing Logic
-          # Share with User 1
+          # Share with users
           if [ -n "$NEXTCLOUD_SHARE_USER1" ]; then
-            echo "Sharing $FILE with $NEXTCLOUD_SHARE_USER1..."
             curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
               "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
               -H "OCS-APIRequest: true" \
-              -d "path=/$UPLOAD_FOLDER/$FILE" \
-              -d "shareType=0" \
-              -d "shareWith=$NEXTCLOUD_SHARE_USER1" \
-              -d "permissions=1"
+              -d "path=/$UPLOAD_FOLDER/$FILE" -d "shareType=0" \
+              -d "shareWith=$NEXTCLOUD_SHARE_USER1" -d "permissions=1" || echo "Share 1 failed"
           fi
-
-          # Share with User 2
+          
           if [ -n "$NEXTCLOUD_SHARE_USER2" ]; then
-            echo "Sharing $FILE with $NEXTCLOUD_SHARE_USER2..."
             curl -s -f -X POST -u "$NEXTCLOUD_USERNAME:$NEXTCLOUD_PASSWORD" \
               "$NEXTCLOUD_URL/ocs/v2.php/apps/files_sharing/api/v1/shares" \
               -H "OCS-APIRequest: true" \
-              -d "path=/$UPLOAD_FOLDER/$FILE" \
-              -d "shareType=0" \
-              -d "shareWith=$NEXTCLOUD_SHARE_USER2" \
-              -d "permissions=1"
+              -d "path=/$UPLOAD_FOLDER/$FILE" -d "shareType=0" \
+              -d "shareWith=$NEXTCLOUD_SHARE_USER2" -d "permissions=1" || echo "Share 2 failed"
           fi
         done
-
+        
         echo "=== Pipeline Completed Successfully ==="
