@@ -3,25 +3,24 @@ when:
     - manual
 
 steps:
-  - name: build-and-upload
+  - name: build
     image: amazoncorretto:21
     environment:
-      # Secrets - these will be available to both gradle and the script
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4g -XX:MaxMetaspaceSize=512m'"
+    commands:
+      - yum install -y zip curl findutils procps-ng
+      - chmod +x gradlew
+      - ./gradlew clean build --no-daemon --console=plain
+
+  - name: upload
+    image: amazoncorretto:21
+    environment:
       NEXTCLOUD_URL: { from_secret: nextcloud_url }
       NEXTCLOUD_USERNAME: { from_secret: nextcloud_username }
       NEXTCLOUD_PASSWORD: { from_secret: nextcloud_password }
       NEXTCLOUD_SHARE_USER1: { from_secret: nextcloud_share_user1 }
       NEXTCLOUD_SHARE_USER2: { from_secret: nextcloud_share_user2 }
-      # Gradle settings
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4g -XX:MaxMetaspaceSize=512m'"
     commands:
       - yum install -y zip curl findutils procps-ng
-      
-      # Make scripts executable
-      - chmod +x gradlew .crow/upload.sh
-      
-      # Run gradle 
-      - ./gradlew clean build --no-daemon --console=plain
-      
-      # Execute upload script - environment variables are inherited
+      - chmod +x .crow/upload.sh
       - ./.crow/upload.sh
