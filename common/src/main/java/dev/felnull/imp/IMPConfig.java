@@ -91,4 +91,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("debug")
   @Button("reloadLava")
   public Void reloadLavaLib = null;
+
+  @ConfigEntry.Category("netease")
+  @ConfigEntry.Gui.PrefixText
+  @Button("openNetMusic")
+  public Void openNetMusic = null;
 }
