@@ -140,6 +140,7 @@ shadowJar {
     relocate 'org.mozilla.javascript', 'dev.felnull.imp.include.org.mozilla.javascript'
     relocate 'org.mozilla.classfile', 'dev.felnull.imp.include.org.mozilla.classfile'
     relocate 'dev.lavalink.youtube', 'dev.felnull.imp.include.dev.lavalink.youtube'
+    relocate 'org.jsoup', 'dev.felnull.imp.include.org.jsoup'
 }
 
 shadowJar {

@@ -121,8 +121,8 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
         var process = music.getSource() == null ? 0 :
                 (float) data.getMusicPosition() / (float) music.getSource().getDuration();
         var processStartY = baseHeight - 8 + getY();
-        var processStartX = baseHeight - 2 + getX() + 4;
-        var processWidth = width - baseHeight - 5;
+        var processStartX = music.getImage().isEmpty() ? getX() + 5 : baseHeight - 2 + getX() + 4;
+        var processWidth = music.getImage().isEmpty() ? width - baseHeight + 25 : width - baseHeight - 5;
 
         var ptx = LOADING_MUSIC_TEXT;
         if (!(music.getSource() == null))

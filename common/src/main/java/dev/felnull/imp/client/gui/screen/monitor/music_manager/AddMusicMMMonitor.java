@@ -65,7 +65,7 @@ public class AddMusicMMMonitor extends SavedMusicBaseMMMonitor {
         }, this.musicLoaderTypesFixedButtonsList, n -> getMusicLoaderType().equals(n)));
 
         this.musicSourceNameEditBox = new EditBox(IIMPSmartRender.mc.font, getStartX() + 189, getStartY() + 112, isMSNShortWidth() ? 141 : 177, 12, Component.translatable("imp.editBox.musicSourceName"));
-        this.musicSourceNameEditBox.setMaxLength(300);
+        this.musicSourceNameEditBox.setMaxLength(114514);
         this.musicSourceNameEditBox.visible = isMSNVisible();
         this.musicSourceNameEditBox.setValue(getMusicSourceName());
         this.musicSourceNameEditBox.setResponder(this::setMusicSourceName);
