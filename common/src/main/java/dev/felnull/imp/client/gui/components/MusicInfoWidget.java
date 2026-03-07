@@ -80,6 +80,12 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float d) {
         if(music == null || data == null)return;
+        if(lyric == null)
+            height = 36;
+        else if(lyric.hasTrans())
+            height = 59;
+        else
+            height = 49;
         OERenderUtils.drawFill(guiGraphics.pose(), getX(), getY(), width + getX(), height + getY(),
                 0xFFDCDCDC);
         OERenderUtils.drawFill(guiGraphics.pose(), getX() + 1, getY() + 1, width + getX() - 1, height + getY() - 1, 0xFFFFFFFF);
