@@ -1,11 +1,13 @@
 package dev.felnull.imp.networking;
 
 import dev.architectury.networking.NetworkManager;
+import dev.architectury.platform.Platform;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.handler.ClientMessageHandler;
 import dev.felnull.imp.music.resource.*;
 import dev.felnull.imp.server.handler.ServerMessageHandler;
 import dev.felnull.imp.util.IMPNbtUtil;
+import net.fabricmc.api.EnvType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocation;
 import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocations;
@@ -49,6 +51,13 @@ public class IMPPackets {
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_OR_PLAYLIST_DELETE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicOrPlayListDeleteMessage(new MusicOrPlayListDeleteMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MULTIPLE_MUSIC_ADD, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMultipleMusicAdd(new MultipleMusicAddMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), HAND_LID_CYCLE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onHandLidCycleMessage(new LidCycleMessage(friendlyByteBuf), packetContext));
+
+        // These code snippets are useful as they prevent errors caused by the server missing STC packets.
+        if(Platform.getEnv() == EnvType.SERVER) {
+            NetworkManager.registerS2CPayloadType(MUSIC_SYNC_STC);
+            NetworkManager.registerS2CPayloadType(MUSIC_RING_READY);
+            NetworkManager.registerS2CPayloadType(MUSIC_RING_STATE);
+        }
     }
 
     public static void clientInit() {

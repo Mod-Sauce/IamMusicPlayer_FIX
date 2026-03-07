@@ -1,0 +1,20 @@
+{
+  "name": "播放音乐",
+  "icon": "iammusicplayer:boombox",
+  "category": "iammusicplayer:how_to_listen",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "本篇介绍如何通过$(l:iammusicplayer:item_or_block_with_feature/boombox)手提音响$(/l)播放音乐."
+    },
+    {
+      "type": "patchouli:image",
+      "images": [
+        "iammusicplayer:textures/gui/patchouli/entries/how_to_listen/play_music/boombox_set_cassette_tape.png"
+      ],
+      "title": "使用磁带播放",
+      "text": "将磁带放入$(l:iammusicplayer:item_or_block_with_feature/boombox)手提音响$(/l)然后按播放键。"
+    }
+  ]
+}

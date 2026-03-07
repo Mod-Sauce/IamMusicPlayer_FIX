@@ -76,6 +76,7 @@ dependencies {
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rootProject.rei_version}"
 
     modCompileOnly "curse.maven:touhoulittlemaid-orihime-1311287:7549503"
+    modApi "vazkii.patchouli:Patchouli:${rootProject.patchouli_version}-FABRIC"
     var cca_version = "6.1.2"
     modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:${cca_version}"
     modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-entity:${cca_version}"

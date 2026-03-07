@@ -1,5 +1,4 @@
-package dev.felnull.imp.explatform.neoforge;
-
+package dev.felnull.imp.explatform.fabric;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

@@ -1,8 +1,11 @@
 package dev.felnull.imp.data;
 
 import dev.felnull.imp.data.advancements.IMPAdvancementProviderWrapper;
+import net.minecraft.data.PackOutput;
 import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
 import org.modsauce.otyacraftenginerenewed.data.provider.DataProviderWrapper;
+import org.modsauce.otyacraftenginerenewed.data.provider.DirectCopyProviderWrapper;
+
 import java.nio.file.Paths;
 
 public class IamMusicPlayerDataGenerator {
@@ -20,7 +23,8 @@ public class IamMusicPlayerDataGenerator {
         new IMPItemTagProviderWrapper(packOutput, lookup, generatorAccess, btp)
     );
     access.addProviderWrapper(IMPPoiTypeTagProviderWrapper::new);
-    //access.addProviderWrapper(packOutput -> new DirectCopyProviderWrapper(packOutput, PackOutput.Target.DATA_PACK, "patchouli_books", access));
+    access.addProviderWrapper(packOutput -> new DirectCopyProviderWrapper(packOutput, PackOutput.Target.RESOURCE_PACK,
+            "patchouli_books", access));
     access.addProviderWrapper(IMPBlockLootTableProviderWrapper::new);
     access.addProviderWrapper(IMPAdvancementProviderWrapper::new);
   }

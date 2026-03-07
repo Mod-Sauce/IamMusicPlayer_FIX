@@ -66,6 +66,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("integration")
   public boolean touhouLittleMaidIntegration = true;
 
+  @ConfigEntry.Category("integration")
+  public boolean patchouliIntegration = true;
+
   @ConfigEntry.Category("debug")
   public boolean showMusicLines = false;
 

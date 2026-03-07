@@ -139,5 +139,16 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                         InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND)
                 )
                 .save(consumer);
+
+        ShapelessRecipeBuilder.shapeless(
+                RecipeCategory.MISC,
+                IMPItems.MANUAL.get()
+        ).requires(PlatformItemTags.books())
+                .unlockedBy(
+                        providerAccess.getHasName(Items.BOOK),
+                        InventoryChangeTrigger.TriggerInstance.hasItems(Items.BOOK)
+                )
+                .requires(Items.NOTE_BLOCK)
+                .save(consumer);
     }
 }

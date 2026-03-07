@@ -19,8 +19,8 @@ import net.minecraft.world.item.ItemStack;
 public class ManualItemRenderer implements BEWLItemRenderer {
 
   private static final Minecraft mc = Minecraft.getInstance();
-  private static final Component FELNULL_DEV_TEXT = Component.literal(
-    "FelNull DEV"
+  private static final Component MOD_SAUCE_DEV_TEXT = Component.literal(
+    "Mod-Sauce DEV"
   );
   private static final Component MANUAL_TEXT = Component.translatable(
     "imp.text.manual"
@@ -105,7 +105,7 @@ public class ManualItemRenderer implements BEWLItemRenderer {
     renderText(
       poseStack,
       multiBufferSource,
-      FELNULL_DEV_TEXT,
+            MOD_SAUCE_DEV_TEXT,
       light,
       9f,
       15.75f,
