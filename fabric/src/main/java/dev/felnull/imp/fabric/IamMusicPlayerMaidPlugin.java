@@ -8,6 +8,6 @@ public class IamMusicPlayerMaidPlugin implements ILittleMaid {
     @Override
     public void addAdditionMaidLayer(EntityMaidRenderer renderer, EntityRendererProvider.Context context) {
 //        renderer.addLayer(new MaidBoomboxRenderer(renderer));
-        // todo:还没做好
+        // todo:Unfinished feature
     }
 }

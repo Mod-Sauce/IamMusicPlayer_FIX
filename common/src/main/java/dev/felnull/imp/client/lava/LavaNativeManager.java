@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
+import dev.felnull.imp.util.ProxyUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -262,7 +262,7 @@ public class LavaNativeManager {
         URL manifestUrl = new URI(manifestUrlString).toURL();
 
         HttpURLConnection connection =
-                (HttpURLConnection) manifestUrl.openConnection(NetMusicUtil.getSystemProxy());
+                (HttpURLConnection) manifestUrl.openConnection(ProxyUtil.getSystemProxy());
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
         connection.setReadTimeout(READ_TIMEOUT);
         connection.setRequestProperty("User-Agent", "IamMusicPlayer");
@@ -346,7 +346,7 @@ public class LavaNativeManager {
      */
     private void downloadFile(URL url, Path destination) throws IOException {
         LOGGER.info("Opening connection to: {}", url);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection(NetMusicUtil.getSystemProxy());
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection(ProxyUtil.getSystemProxy());
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
         connection.setReadTimeout(READ_TIMEOUT);
         connection.setRequestProperty("User-Agent", "IamMusicPlayer");

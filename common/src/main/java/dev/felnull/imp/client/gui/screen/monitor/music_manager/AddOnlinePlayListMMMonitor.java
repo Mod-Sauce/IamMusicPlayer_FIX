@@ -20,8 +20,10 @@ public class AddOnlinePlayListMMMonitor extends MusicManagerMonitor {
     @Override
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
-        addRenderWidget(new SmartButton(getStartX() + (width - 270) / 2, getStartY() + (height - 15) / 2 + 15, 270, 15, IMPORT_YOUTUBE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST)));
-        var button = new SmartButton(getStartX() + (width - 270) / 2, getStartY() + (height - 15) / 2 - 15, 270, 15, IMPORT_NETEASE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST));
+        var button = new SmartButton(getStartX() + (width - 270) / 2, getStartY() + (height - 15) / 2 + 15, 270, 15, IMPORT_YOUTUBE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST));
+        button.active = false; // todo: YouTube import has two implementations, but it is not implemented here.
+        addRenderWidget(button);
+        button = new SmartButton(getStartX() + (width - 270) / 2, getStartY() + (height - 15) / 2 - 15, 270, 15, IMPORT_NETEASE_PLAYLIST_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST));
         button.active = IamMusicPlayer.getConfig().enableNetease;
         addRenderWidget(button);
     }
