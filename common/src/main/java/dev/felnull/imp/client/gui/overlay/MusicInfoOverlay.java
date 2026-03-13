@@ -1,5 +1,6 @@
 package dev.felnull.imp.client.gui.overlay;
 
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.components.MusicInfoWidget;
@@ -15,6 +16,7 @@ public class MusicInfoOverlay {
     public void render(GuiGraphics guiGraphics, float tickDelta) {
         var data = getPlayerData();
         if(data == null){return;}
+        musicInfoWidget.setPosition(IamMusicPlayer.getConfig().hudX, IamMusicPlayer.getConfig().hudY);
         musicInfoWidget.setData(data);
         musicInfoWidget.setMusic(data.getSelectedMusic() == null ? data.getCassetteTapeMusic() : data.getSelectedMusic());
         musicInfoWidget.render(guiGraphics, 0, 0, tickDelta);

@@ -99,4 +99,15 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Gui.PrefixText
   @Button("openNetMusic")
   public Void openNetMusic = null;
+
+  @ConfigEntry.Category("hud")
+  @Button("settingHud")
+  public Void settingHud = null;
+
+  @ConfigEntry.Gui.Excluded
+  @ConfigEntry.Category("hud")
+  public int hudX = 10;
+  @ConfigEntry.Gui.Excluded
+  @ConfigEntry.Category("hud")
+  public int hudY = 10;
 }

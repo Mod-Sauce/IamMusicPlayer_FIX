@@ -43,5 +43,8 @@ public class AllButtons {
 
         registry("openNetMusic", Component.translatable("text.autoconfig.iammusicplayer.option.openNetMusic"), button ->
                 Util.getPlatform().openUri(Component.translatable("text.autoconfig.iammusicplayer.option.openNetMusic.url").getString()));
+
+        registry("settingHud", Component.translatable("text.autoconfig.iammusicplayer.option.hud_pos"), button ->
+                Minecraft.getInstance().setScreen(new HUDSettingScreen(Minecraft.getInstance().screen)));
     }
 }

@@ -305,5 +305,12 @@
   "text.autoconfig.iammusicplayer.option.openNetMusic.url": "https://www.mcmod.cn/class/4935.html",
   "_comment.other": "其他",
   "modmenu.descriptionTranslation.iammusicplayer": "添加了许多播放音乐的新方式……\n一个 ikisugi 的音乐播放模组。",
-  "_comment.la": "最后"
+  "_comment.la": "最后",
+
+  "text.autoconfig.iammusicplayer.option.hud_pos": "HUD 位置调整……",
+  "text.autoconfig.iammusicplayer.option.hud_pos.example_title": "音乐标题",
+  "text.autoconfig.iammusicplayer.option.hud_pos.example_author": "音乐作者",
+  "text.autoconfig.iammusicplayer.option.hud_pos.ok": "确定",
+  "text.autoconfig.iammusicplayer.option.hud_pos.cancel": "取消",
+  "text.autoconfig.iammusicplayer.option.hud_pos.reset": "恢复默认"
 }
