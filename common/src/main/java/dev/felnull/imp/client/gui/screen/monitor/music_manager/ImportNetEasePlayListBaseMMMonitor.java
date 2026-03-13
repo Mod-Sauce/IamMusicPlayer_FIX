@@ -80,8 +80,8 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
 
         this.neteasePlayListMusicsFixedButtonsList = addRenderWidget(new NeteasePlayListMusicsFixedListWidget(getStartX() + 1, getStartY() + 10, 368, 148, Component.translatable("imp.fixedList.youtubePlayListMusics"), 4, neteasePlayListEntries, this.neteasePlayListMusicsFixedButtonsList));
 
-        tryAutoFillID();
-        startPlayListLoad(getImportPlayList());
+        if(tryAutoFillID())
+            startPlayListLoad(playlistIdentifierEditBox.getValue());
     }
 
     private boolean tryAutoFillID(){
