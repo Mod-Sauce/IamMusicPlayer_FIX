@@ -47,11 +47,11 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("lavaplayer")
   public String lavaPlayerNativesURL =
-    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
+    "https://raw.githubusercontent.com/Mod-Sauce/lavanatives/refs/heads/main/lavaplayer/natives_link.json";
 
   @ConfigEntry.Category("lavaplayer")
   public String hashBaseUrl =
-    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
+    "https://raw.githubusercontent.com/Mod-Sauce/lavanatives/refs/heads/main/lavaplayer";
 
   @ConfigEntry.Category("lavaplayer")
   public String IMPRFolder = "iammusicplayerrenewed";
@@ -79,5 +79,5 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("internal")
   @ConfigEntry.Gui.Excluded
-  public String configVersion = "1";
+  public String configVersion = "3";
 }
