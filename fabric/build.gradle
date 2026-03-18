@@ -130,7 +130,7 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set("dev-shadow")
-    archiveFileName.set("IMPR-Fabric-${project.version}-${rootProject.minecraft_version}-dev-shadow.jar")
+    archiveFileName.set("IMPR-Fabric-${project.version}-dev-shadow.jar")
 }
 
 remapJar {
@@ -138,7 +138,7 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier.set(null)
-    archiveFileName.set("IMPR-Fabric-${project.version}-${rootProject.minecraft_version}.jar")
+    archiveFileName.set("IMPR-Fabric-${project.version}.jar")
 }
 
 jar {
@@ -149,7 +149,7 @@ sourcesJar {
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
-    archiveFileName.set("IMPR-Fabric-${project.version}-${rootProject.minecraft_version}-sources.jar")
+    archiveFileName.set("IMPR-Fabric-${project.version}-sources.jar")
 }
 
 components.java {
