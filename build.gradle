@@ -2,10 +2,15 @@ plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.11-SNAPSHOT" apply false
     id "org.jetbrains.changelog" version "2.0.0"
+    id "io.github.pacifistmc.forgix" version "2.0.0-SNAPSHOT.5.1"
 }
 
 architectury {
     minecraft = rootProject.minecraft_version
+}
+
+forgix {
+  autoRun = true
 }
 
 changelog {
@@ -54,6 +59,9 @@ allprojects {
         }
         maven {
             url = "https://m2.dv8tion.net/releases"
+        }
+        maven {
+        url = "https://plugins.gradle.org/m2/"
         }
         maven {
             url = "https://jitpack.io"

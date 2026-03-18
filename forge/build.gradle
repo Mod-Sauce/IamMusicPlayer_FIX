@@ -109,14 +109,14 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set("dev-shadow")
-    archiveFileName.set("IMPR-Forge-${project.version}-${rootProject.minecraft_version}-dev-shadow.jar")
+    archiveFileName.set("IMPR-Forge-${project.version}-dev-shadow.jar")
 }
 
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier.set(null)
-    archiveFileName.set("IMPR-Forge-${project.version}-${rootProject.minecraft_version}.jar")
+    archiveFileName.set("IMPR-Forge-${project.version}.jar")
 }
 
 jar {
