@@ -97,7 +97,9 @@ public class IamMusicPlayer {
 
   public static void setup() {
     IMPVillagerProfessions.setup();
-    IMPCriteriaTriggers.init();
+    if(!Platform.isNeoForge())
+      IMPCriteriaTriggers.init();
+    // There is special code for NeoForge, no changes are needed.
   }
 
   public static String getModName() {

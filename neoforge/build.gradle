@@ -9,9 +9,14 @@ architectury {
     neoForge()
 }
 
-neoForge {
-    accessTransformers {
-        file("src/main/resources/META-INF/accesstransformer.cfg")
+loom {
+    accessWidenerPath = project(":common").loom.accessWidenerPath
+    runs {
+        datagen {
+            data()
+            name "Minecraft Data"
+            programArgs.addAll '--mod', 'iammusicplayer', '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
     }
 }
 
@@ -32,8 +37,12 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    modApi "org.mod-sauce:otyacraftenginerenewed-neoforge:${rootProject.oe_version}"
-    // todo: 在接受pr前先这样
+    def localJar = file("../../OtyacraftEngineRenewed/neoforge/build/libs/otyacraftenginerenewed-neoforge-mc1.21.1-${rootProject.oe_version}.jar")
+    if (localJar.exists()) {
+        modApi files(localJar)
+    } else {
+        modApi "org.mod-sauce:otyacraftenginerenewed-neoforge:${rootProject.oe_version}"
+    }
 
     modApi "me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${rootProject.rei_version}"
@@ -131,3 +140,5 @@ sourcesJar {
     dependsOn project(":common").tasks.named("sourcesJar")
     from zipTree(project(":common").tasks.named("sourcesJar").get().archiveFile)
 }
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
