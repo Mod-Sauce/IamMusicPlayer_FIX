@@ -20,6 +20,9 @@ The ikisugi music player mod...
 '''
 logoFile = "logo.png"
 
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
 [[dependencies.iammusicplayer]]
 modId = "neoforge"
 mandatory = true
