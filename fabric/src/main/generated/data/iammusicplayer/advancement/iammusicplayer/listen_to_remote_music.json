@@ -1,0 +1,32 @@
+{
+  "parent": "iammusicplayer:iammusicplayer/listen_to_music",
+  "criteria": {
+    "listen_to_remote_music": {
+      "conditions": {
+        "kamesuta": false,
+        "radio": false,
+        "remote": true
+      },
+      "trigger": "minecraft:listen_to_music"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.iammusicplayer.listen_to_remote_music.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "iammusicplayer:parabolic_antenna"
+    },
+    "title": {
+      "translate": "advancements.iammusicplayer.listen_to_remote_music.title"
+    }
+  },
+  "requirements": [
+    [
+      "listen_to_remote_music"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
