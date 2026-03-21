@@ -19,7 +19,7 @@ public class BiliBiliMusicLoader extends LavaMusicLoader{
     @Override
     public void tryLoad(@NotNull MusicSource source) throws Exception {
         var url = BiliBiliUtil.getURLFromBV(source.getIdentifier());
-        if(url == null)throw new RuntimeException("加载失败");
+        if(url == null)throw new RuntimeException("Loading failed.");
         var newSource = new MusicSource(source.getLoaderType(), url, source.getDuration());
         super.tryLoad(newSource);
     }

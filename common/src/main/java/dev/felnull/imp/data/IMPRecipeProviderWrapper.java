@@ -147,7 +147,7 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
         ShapelessRecipeBuilder.shapeless(
                 RecipeCategory.MISC,
                 IMPItems.MANUAL.get()
-        ).requires(PlatformItemTags.books())
+        ).requires(Items.BOOK)
                 .unlockedBy(
                         providerAccess.getHasName(Items.BOOK),
                         InventoryChangeTrigger.TriggerInstance.hasItems(Items.BOOK)
