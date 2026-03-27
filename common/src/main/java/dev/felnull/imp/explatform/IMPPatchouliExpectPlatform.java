@@ -9,10 +9,4 @@ public class IMPPatchouliExpectPlatform {
     public static void openBookGUI(ServerPlayer player, ResourceLocation location) {
         throw new AssertionError();
     }
-
-
-    @ExpectPlatform
-    public static ResourceLocation getOpenBookGui() {
-        throw new AssertionError();
-    }
 }

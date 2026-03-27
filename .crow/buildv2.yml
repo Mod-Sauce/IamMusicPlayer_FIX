@@ -1,0 +1,24 @@
+when:
+  event:
+    - manual
+
+steps:
+  - name: build
+    image: amazoncorretto:21
+    environment:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx4g -XX:MaxMetaspaceSize=512m'"
+    commands:
+      - yum install -y zip curl findutils procps-ng
+      - chmod +x gradlew
+      - ./gradlew clean build --no-daemon --console=plain
+
+  - name: upload
+    image: amazoncorretto:21
+    environment:
+      NEXTCLOUD_URL: { from_secret: nextcloud_url }
+      NEXTCLOUD_USERNAME: { from_secret: nextcloud_username }
+      NEXTCLOUD_PASSWORD: { from_secret: nextcloud_password }
+    commands:
+      - yum install -y zip curl findutils procps-ng
+      - chmod +x .crow/upload.sh
+      - ./.crow/upload.sh

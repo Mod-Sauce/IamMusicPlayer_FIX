@@ -42,14 +42,10 @@ allprojects {
 
     repositories {
         maven {
-            url = repsyUrl
-            credentials {
-                username = repsyUsername
-                password = repsyPassword
-            }
+        url = "https://codeberg.org/api/packages/Mod-Sauce/maven"
         }
         maven {
-            url = "https://maven.neoforged.net/#/releases"
+            url = "https://maven.neoforged.net/releases"
         }
         maven {
             url = "https://maven.felnull.dev"
@@ -68,6 +64,9 @@ allprojects {
         }
         maven {
             url = "https://maven.lavalink.dev/releases"
+        }
+        maven {
+            url = 'https://maven.blamejared.com'
         }
     }
 

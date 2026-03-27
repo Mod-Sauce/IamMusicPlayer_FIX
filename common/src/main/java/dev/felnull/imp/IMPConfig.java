@@ -48,6 +48,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("client")
   public boolean hideDecorativeAntenna = false;
 
+  @ConfigEntry.Category("client")
+  public boolean tryUseGitee = true;
+
   @ConfigEntry.Category("server")
   public long maxWaitTime = 1000 * 10;
 
@@ -62,6 +65,9 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("integration")
   public boolean touhouLittleMaidIntegration = true;
+
+  @ConfigEntry.Category("integration")
+  public boolean patchouliIntegration = true;
 
   @ConfigEntry.Category("debug")
   public boolean showMusicLines = false;
@@ -88,4 +94,20 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("debug")
   @Button("reloadLava")
   public Void reloadLavaLib = null;
+
+  @ConfigEntry.Category("netease")
+  @ConfigEntry.Gui.PrefixText
+  @Button("openNetMusic")
+  public Void openNetMusic = null;
+
+  @ConfigEntry.Category("hud")
+  @Button("settingHud")
+  public Void settingHud = null;
+
+  @ConfigEntry.Gui.Excluded
+  @ConfigEntry.Category("hud")
+  public int hudX = 10;
+  @ConfigEntry.Gui.Excluded
+  @ConfigEntry.Category("hud")
+  public int hudY = 10;
 }

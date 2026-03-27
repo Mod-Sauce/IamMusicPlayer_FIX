@@ -11,6 +11,7 @@ import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
+import dev.felnull.imp.client.music.netmusic.URLType;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
 import dev.felnull.imp.client.util.YoutubeUtil;
 import dev.felnull.imp.music.resource.ImageInfo;
@@ -19,6 +20,7 @@ import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -57,14 +59,38 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
         }));
         this.importButton.active = canImport();
 
-        this.playlistIdentifierEditBox = addRenderWidget(new EditBox(mc.font, getStartX() + 6, getStartY() + 164, 175, 12, Component.translatable("imp.editBox.youtubePlaylistIdentifier")));
+        this.playlistIdentifierEditBox = addRenderWidget(new EditBox(mc.font, getStartX() + 6, getStartY() + 164, 175, 12, Component.translatable("imp.editBox.youtubePlaylistIdentifier")){
+            @Override
+            public boolean keyPressed(int i, int j, int k) {
+                if (this.isActive() && this.isFocused() && Screen.isPaste(i)) {
+                    var text = Minecraft.getInstance().keyboardHandler.getClipboard();
+                    if(URLType.SONG_LIST.isMatch(text)) {
+                        insertText(URLType.SONG_LIST.getMatch(text));
+                    }else{
+                        insertText(text);
+                    }
+                    return true;
+                }
+                return super.keyPressed(i, j, k);
+            }
+        });
         this.playlistIdentifierEditBox.setMaxLength(300);
         this.playlistIdentifierEditBox.setResponder(this::startPlayListLoad);
         this.playlistIdentifierEditBox.setValue(getImportPlayList());
 
         this.neteasePlayListMusicsFixedButtonsList = addRenderWidget(new NeteasePlayListMusicsFixedListWidget(getStartX() + 1, getStartY() + 10, 368, 148, Component.translatable("imp.fixedList.youtubePlayListMusics"), 4, neteasePlayListEntries, this.neteasePlayListMusicsFixedButtonsList));
 
-        startPlayListLoad(getImportPlayList());
+        if(tryAutoFillID())
+            startPlayListLoad(playlistIdentifierEditBox.getValue());
+    }
+
+    private boolean tryAutoFillID(){
+        var text = Minecraft.getInstance().keyboardHandler.getClipboard();
+        if(URLType.SONG_LIST.isMatch(text)) {
+            playlistIdentifierEditBox.setValue(URLType.SONG_LIST.getMatch(text));
+            return true;
+        }
+        return false;
     }
 
     abstract protected void onImport();

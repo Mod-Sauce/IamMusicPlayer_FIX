@@ -9,11 +9,8 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 public class IamMusicPlayerForge {
 
   public IamMusicPlayerForge(IEventBus eventBus) {
-//    EventBuses.registerModEventBus(
-//      IamMusicPlayer.MODID,
-//      eventBus
-//    );
-      IamMusicPlayer.init();
+      IMPCriteriaTriggersNeoForge.registry(eventBus);
+    IamMusicPlayer.init();
     eventBus.addListener(this::setup);
   }
 

@@ -1,6 +1,7 @@
 package dev.felnull.imp.client.music.media;
 
 import com.google.common.collect.ImmutableMap;
+import dev.architectury.platform.Platform;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,12 +12,18 @@ public class IMPMusicMedias {
     public static final SoundCloudMusicMedia SOUNDCLOUD = new SoundCloudMusicMedia("soundcloud");
     public static final HttpMusicMedia HTTP = new HttpMusicMedia("http");
     public static final NeteaseMusicMedia NETEASE_MUSIC = new NeteaseMusicMedia("netease");
+    public static final BiliBiliMedia BILIBILI = new BiliBiliMedia("bilibili");
 
     public static void init() {
-        register("youtube", YOUTUBE);
+        // todo The YouTube feature is not available in the NeoForge development environment.
+        if(!Platform.isDevelopmentEnvironment() || !Platform.isForgeLike())
+            register("youtube", YOUTUBE);
         register("soundcloud", SOUNDCLOUD);
         register("http", HTTP);
         register("netease", NETEASE_MUSIC);
+
+        // register("bilibili", BILIBILI);
+        // todo:Unfinished feature
     }
 
     public static void register(String name, MusicMedia media) {

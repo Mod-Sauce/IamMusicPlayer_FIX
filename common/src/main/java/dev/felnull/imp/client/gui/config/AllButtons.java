@@ -1,6 +1,7 @@
 package dev.felnull.imp.client.gui.config;
 
 import com.sedmelluq.discord.lavaplayer.natives.ConnectorNativeLibLoader;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -39,5 +40,11 @@ public class AllButtons {
             Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToast.SystemToastId.NARRATOR_TOGGLE,
                     Component.translatable("imp.text.lava.success"), null));
         });
+
+        registry("openNetMusic", Component.translatable("text.autoconfig.iammusicplayer.option.openNetMusic"), button ->
+                Util.getPlatform().openUri(Component.translatable("text.autoconfig.iammusicplayer.option.openNetMusic.url").getString()));
+
+        registry("settingHud", Component.translatable("text.autoconfig.iammusicplayer.option.hud_pos"), button ->
+                Minecraft.getInstance().setScreen(new HUDSettingScreen(Minecraft.getInstance().screen)));
     }
 }

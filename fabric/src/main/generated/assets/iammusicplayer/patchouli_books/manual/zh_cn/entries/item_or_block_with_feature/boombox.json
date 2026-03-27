@@ -1,0 +1,21 @@
+{
+  "name": "手提音响",
+  "icon": "iammusicplayer:boombox",
+  "category": "iammusicplayer:item_or_block_with_feature",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "一种播放音乐的设备。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "iammusicplayer:boombox",
+      "text": "可以使用$(l:iammusicplayer:item_or_block_with_feature/cassette_tape)磁带$(/l)播放音乐,播放播放广播流需要$(l:iammusicplayer:item_or_block_with_feature/antenna)广播天线$(/l),直接从播放列表中播放音乐需要$(l:iammusicplayer:item_or_block_with_feature/parabolic_antenna)卫星天线$(/l)."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "iammusicplayer:boombox"
+    }
+  ]
+}

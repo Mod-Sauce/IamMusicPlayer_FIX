@@ -51,4 +51,8 @@ public class Lyric {
         }
         return new Pair(text, transformText);
     }
+
+    public boolean hasTrans(){
+        return transLyrics != null && !transLyrics.isEmpty();
+    }
 }

@@ -1,0 +1,22 @@
+{
+  "name": "卫星天线",
+  "icon": "iammusicplayer:parabolic_antenna",
+  "category": "iammusicplayer:item_or_block_with_feature",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "不用磁带也可以播放音乐！"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "iammusicplayer:parabolic_antenna",
+      "link_recipe": true,
+      "text": "将其设置在扬声器的天线槽中，按选择按钮显示播放列表。$(br)从播放列表中选择你想要播放的音乐，它就会开始播放。$(br)可以通过合成、与DJ村民交易和通过战利品箱获得。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "iammusicplayer:parabolic_antenna"
+    }
+  ]
+}

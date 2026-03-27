@@ -1,0 +1,21 @@
+{
+  "name": "天线",
+  "icon": "iammusicplayer:radio_antenna",
+  "category": "iammusicplayer:item_or_block_with_feature",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "听取电台!$(br)(此物品在无法访问Youtube的地区几乎无用)"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "iammusicplayer:radio_antenna",
+      "text": "把它放在$(l:iammusicplayer:item_or_block_with_feature/boombox)手提音响$(/l)的天线槽里,按下天线按钮,并输入链接。$(br)支持 Youtube Live 或广播流媒体的链接。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "iammusicplayer:radio_antenna"
+    }
+  ]
+}

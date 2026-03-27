@@ -31,6 +31,6 @@ public class IMPItemRenderers {
     );
 
     manualItemRenderer = new ManualItemRenderer();
-    //ItemRendererRegister.register(IMPItems.MANUAL, manualItemRenderer);
+    ItemRendererRegister.register(IMPItems.MANUAL, manualItemRenderer);
   }
 }

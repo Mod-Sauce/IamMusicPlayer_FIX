@@ -20,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 
-import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
+import dev.felnull.imp.util.ProxyUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -325,7 +325,7 @@ public class IMPRHash {
             HttpClient client = HttpClient.newBuilder().proxy(new ProxySelector() {
                 @Override
                 public List<Proxy> select(URI uri) {
-                    return List.of(NetMusicUtil.getSystemProxy());
+                    return List.of(ProxyUtil.getSystemProxy());
                 }
 
                 @Override

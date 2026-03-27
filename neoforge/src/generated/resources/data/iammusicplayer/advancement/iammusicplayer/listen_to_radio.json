@@ -1,0 +1,32 @@
+{
+  "parent": "iammusicplayer:iammusicplayer/listen_to_music",
+  "criteria": {
+    "listen_to_radio": {
+      "conditions": {
+        "kamesuta": false,
+        "radio": true,
+        "remote": false
+      },
+      "trigger": "iammusicplayer:listen_to_music"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.iammusicplayer.listen_to_radio.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "iammusicplayer:radio_antenna"
+    },
+    "title": {
+      "translate": "advancements.iammusicplayer.listen_to_radio.title"
+    }
+  },
+  "requirements": [
+    [
+      "listen_to_radio"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

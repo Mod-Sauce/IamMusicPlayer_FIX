@@ -4,6 +4,7 @@ import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.item.IMPItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -16,13 +17,16 @@ import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
 import org.modsauce.otyacraftenginerenewed.data.provider.RecipeProviderWrapper;
 import org.modsauce.otyacraftenginerenewed.tag.PlatformItemTags;
 
+import java.util.concurrent.CompletableFuture;
+
 public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
 
     public IMPRecipeProviderWrapper(
             PackOutput packOutput,
+            CompletableFuture<HolderLookup.Provider> lookup,
             CrossDataGeneratorAccess crossDataGeneratorAccess
     ) {
-        super(packOutput, crossDataGeneratorAccess);
+        super(packOutput, lookup, crossDataGeneratorAccess);
     }
 
     @Override
@@ -138,6 +142,17 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                         providerAccess.getHasName(Items.DIAMOND),
                         InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND)
                 )
+                .save(consumer);
+
+        ShapelessRecipeBuilder.shapeless(
+                RecipeCategory.MISC,
+                IMPItems.MANUAL.get()
+        ).requires(Items.BOOK)
+                .unlockedBy(
+                        providerAccess.getHasName(Items.BOOK),
+                        InventoryChangeTrigger.TriggerInstance.hasItems(Items.BOOK)
+                )
+                .requires(Items.NOTE_BLOCK)
                 .save(consumer);
     }
 }

@@ -4,6 +4,8 @@ import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.felnull.imp.IamMusicPlayer;
 import java.util.function.Supplier;
+
+import dev.felnull.imp.integration.PatchouliIntegration;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -47,6 +49,13 @@ public class IMPItems {
         CassetteTapeItem.BaseType.GLASS
       )
   );
+
+  public static final RegistrySupplier<Item> MANUAL = register("manual", () -> {
+    var pr = new Item.Properties().stacksTo(1);
+    if (PatchouliIntegration.INSTANCE.isEnableElement())
+      pr.arch$tab(IMPCreativeModeTabs.MOD_TAB);
+    return new ManualItem(pr);
+  });
 
   //  public static final RegistrySupplier<Item> SOUND_TEST = register("sound_test", () -> new SoundTestItem(new Item.Properties().tab(IMPCreativeModeTab.MOD_TAB)));
 

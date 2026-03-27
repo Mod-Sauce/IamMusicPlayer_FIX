@@ -69,13 +69,19 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    modApi files("../../OtyacraftEngineRenewed/fabric/build/libs/otyacraftenginerenewed-fabric-mc1.21.1-3.7.2-1.21.1-alpha2.jar")
+    def localJar = file("../../OtyacraftEngineRenewed/fabric/build/libs/otyacraftenginerenewed-fabric-mc1.21.1-${rootProject.oe_version}.jar")
+    if (localJar.exists()) {
+        modApi files(localJar)
+    } else {
+        modApi "org.mod-sauce:otyacraftenginerenewed-fabric:${rootProject.oe_version}"
+    }
 
     modApi "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
     modApi "me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rootProject.rei_version}"
 
     modCompileOnly "curse.maven:touhoulittlemaid-orihime-1311287:7549503"
+    modApi "vazkii.patchouli:Patchouli:${rootProject.patchouli_version}-FABRIC"
     var cca_version = "6.1.2"
     modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:${cca_version}"
     modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-entity:${cca_version}"
@@ -140,6 +146,7 @@ shadowJar {
     relocate 'org.mozilla.javascript', 'dev.felnull.imp.include.org.mozilla.javascript'
     relocate 'org.mozilla.classfile', 'dev.felnull.imp.include.org.mozilla.classfile'
     relocate 'dev.lavalink.youtube', 'dev.felnull.imp.include.dev.lavalink.youtube'
+    relocate 'org.jsoup', 'dev.felnull.imp.include.org.jsoup'
 }
 
 shadowJar {

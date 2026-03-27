@@ -51,7 +51,9 @@ public class CreatePlayListMMMonitor extends SavedPlayListBaseMMMonitor {
     @Override
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
-        addRenderWidget(new SmartButton(getStartX() + width - 95 - 87, getStartY() + 180, 87, 15, IMPORT_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_SELECT)));
+        var uploadButton = new SmartButton(getStartX() + width - 95 - 87, getStartY() + 180, 87, 15, IMPORT_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_SELECT));
+        uploadButton.visible = false;
+        addRenderWidget(uploadButton);
     }
 
     @Override

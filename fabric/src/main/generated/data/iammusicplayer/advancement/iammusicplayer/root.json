@@ -4,7 +4,7 @@
       "conditions": {
         "modid": "iammusicplayer"
       },
-      "trigger": "otyacraftenginerenewed:mod_involvement"
+      "trigger": "minecraft:mod_involvement"
     }
   },
   "display": {

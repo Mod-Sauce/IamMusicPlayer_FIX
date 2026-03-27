@@ -301,5 +301,16 @@
   "text.autoconfig.iammusicplayer.option.enableMusicInfoHUD": "Enable Music Info HUD",
   "imp.text.lava.success": "Lava Player loaded successfully",
   "imp.text.lava.reload": "Reload Lava Player",
-  "text.autoconfig.iammusicplayer.option.touhouLittleMaidIntegration": "Touhou Little Maid Integration"
+  "text.autoconfig.iammusicplayer.option.touhouLittleMaidIntegration": "Touhou Little Maid Integration",
+  "text.autoconfig.iammusicplayer.option.tryUseGitee": "Attempt to use Gitee (typically disabled for users outside mainland China)",
+  "text.autoconfig.iammusicplayer.option.openNetMusic.@PrefixText": "The NetEase Cloud Music section's code is sourced from the Net Music mod. We extend our gratitude to the author of the Net Music mod and the author of this code section, 'NegeQiu'.",
+  "text.autoconfig.iammusicplayer.option.openNetMusic": "Open the Net Music mod homepage",
+  "text.autoconfig.iammusicplayer.option.openNetMusic.url": "https://modrinth.com/mod/net-music",
+
+  "text.autoconfig.iammusicplayer.option.hud_pos": "HUD Position Adjustment...",
+  "text.autoconfig.iammusicplayer.option.hud_pos.example_title": "Music Title",
+  "text.autoconfig.iammusicplayer.option.hud_pos.example_author": "Music Author",
+  "text.autoconfig.iammusicplayer.option.hud_pos.ok": "OK",
+  "text.autoconfig.iammusicplayer.option.hud_pos.cancel": "Cancel",
+  "text.autoconfig.iammusicplayer.option.hud_pos.reset": "Reset to Default"
 }
