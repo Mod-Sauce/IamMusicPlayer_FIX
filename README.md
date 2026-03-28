@@ -2,7 +2,8 @@
 
 The Ikisugi Music Player MOD (Minecraft (Neo-)Forge/Fabric MOD)
 
-
+> [!WARNING]
+> **Not** compatible with Android
 
 # Contributor
 
