@@ -216,7 +216,7 @@
   "imp.fileChooser.title.music": "Öffne Musik Datein",
   "imp.fileChooser.title.image": "Öffne Musik Datein",
   "imp.ringer.have": "%s, die %s hat",
-  "imp.ringer.drop": "Fallengelassen %s",
+  "imp.ringer.drop": "%s wurde fallengelassen",
   "soundCategory.iammusicplayer": "IMPR Musik",
   "imp.button.config": "IMPR Konfiguration",
   "_comment.co": "Konfiguration",
@@ -229,7 +229,7 @@
   "text.autoconfig.iammusicplayer.option.useYoutubeDownloader": "Nutze YoutubeDownloader",
   "text.autoconfig.iammusicplayer.option.relayServerURL": "Relay-Server url",
   "text.autoconfig.iammusicplayer.option.lavaPlayerNativesURL": "URL der nativen LavaPlayer-Bibliothek",
-  "text.autoconfig.iammusicplayer.option.neteaseCloudMusicApiURL": "",
+  "text.autoconfig.iammusicplayer.option.neteaseCloudMusicApiURL": "Netease Cloud API Url",
   "text.autoconfig.iammusicplayer.option.hideDisplaySprite": "Anzeige-Sprite ausblenden",
   "text.autoconfig.iammusicplayer.option.hideDecorativeAntenna": "Dekorative Antenne verstecken",
   "text.autoconfig.iammusicplayer.category.server": "Server Seite",
@@ -282,5 +282,7 @@
   "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player Renewed",
   "_comment.other": "Andere",
   "modmenu.descriptionTranslation.iammusicplayer": "Füge einen Musikplayer hinzu, mit dem du Musik auf mehreren Geräten hören kannst.\nDer Ikisugi-Musikplayer-Mod...",
-  "_comment.la": "Zuletzt"
+  "_comment.la": "Zuletzt",
+  "text.autoconfig.iammusicplayer.category.lavaplayer": "Lavaplayer",
+  "text.autoconfig.iammusicplayer.category.internal": "Intern"
 }
