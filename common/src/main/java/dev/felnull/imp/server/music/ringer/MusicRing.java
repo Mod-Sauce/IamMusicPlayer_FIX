@@ -508,9 +508,24 @@ public class MusicRing {
         player,
         getRinger().isRingerStream(),
         getRinger().isRingerRemote(),
-        isKamesuta()
+        getEggType()
       );
       ModInvolvementTrigger.trigger(player, IamMusicPlayer.MODID);
+    }
+
+    private String getEggType(){
+      if(isKamesuta())
+        return "kamesuta";
+      if(isCat())
+        return "cat";
+      return "";
+    }
+
+    private boolean isCat(){
+      var ath = getRinger().getRingerMusicAuthor();
+      var source = getRinger().getRingerMusicSource();
+      return source != null && Objects.equals(source.getLoaderType(), "netease") &&
+                ath != null && ath.contains("AcidGold");
     }
 
     private boolean isKamesuta() {

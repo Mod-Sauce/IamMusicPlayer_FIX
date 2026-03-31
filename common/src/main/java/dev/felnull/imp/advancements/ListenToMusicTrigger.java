@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public class ListenToMusicTrigger extends SimpleCriterionTrigger<ListenToMusicTrigger.TriggerInstance> {
 
-    public void trigger(ServerPlayer serverPlayer, boolean radio, boolean remote, boolean kamesuta) {
-        this.trigger(serverPlayer, (triggerInstance) -> triggerInstance.matches(radio, remote, kamesuta));
+    public void trigger(ServerPlayer serverPlayer, boolean radio, boolean remote, @NotNull String eggType) {
+        this.trigger(serverPlayer, (triggerInstance) -> triggerInstance.matches(radio, remote, eggType));
     }
 
     @Override
@@ -21,24 +21,26 @@ public class ListenToMusicTrigger extends SimpleCriterionTrigger<ListenToMusicTr
         return TriggerInstance.CODEC;
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, boolean radio, boolean remote, boolean kamesuta) implements SimpleInstance{
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(triggerInstanceInstance -> triggerInstanceInstance.group(
-                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
-                Codec.BOOL.fieldOf("radio").forGetter(TriggerInstance::radio),
-                Codec.BOOL.fieldOf("remote").forGetter(TriggerInstance::remote),
-                Codec.BOOL.fieldOf("kamesuta").forGetter(TriggerInstance::kamesuta))
-                .apply(triggerInstanceInstance, TriggerInstance::new)
+    public record TriggerInstance(Optional<ContextAwarePredicate> player, boolean radio, boolean remote, String eggType) implements SimpleInstance {
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                        EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
+                        Codec.BOOL.fieldOf("radio").forGetter(TriggerInstance::radio),
+                        Codec.BOOL.fieldOf("remote").forGetter(TriggerInstance::remote),
+                        Codec.STRING.fieldOf("eggType").forGetter(TriggerInstance::eggType))
+                .apply(instance, TriggerInstance::new)
         );
-        public boolean matches(boolean radio, boolean remote, boolean kamesuta) {
-            if (this.radio && !radio)
-                return false;
-            if (this.remote && !remote)
-                return false;
-            return !this.kamesuta || kamesuta;
+
+        public boolean matches(boolean radio, boolean remote, String eggType) {
+            if (this.radio && !radio) return false;
+            if (this.remote && !remote) return false;
+            if (this.eggType == null || this.eggType.isEmpty()) {
+                return true;
+            }
+            return this.eggType.equals(eggType);
         }
 
-        public static TriggerInstance listen(boolean radio, boolean remote, boolean kamesuta) {
-            return new TriggerInstance(Optional.empty(), radio, remote, kamesuta);
+        public static TriggerInstance listen(boolean radio, boolean remote, @NotNull String eggType) {
+            return new TriggerInstance(Optional.empty(), radio, remote, eggType);
         }
 
         @Override
