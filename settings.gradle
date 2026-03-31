@@ -12,3 +12,9 @@ include("fabric")
 include("neoforge")
 
 rootProject.name = "IamMusicPlayer"
+
+def oeDir = file("../OtyacraftEngineRenewed")
+
+if (oeDir.exists()) {
+    includeBuild(oeDir)
+}
