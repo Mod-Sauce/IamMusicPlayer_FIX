@@ -69,12 +69,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    def localJar = file("../../OtyacraftEngineRenewed/fabric/build/libs/otyacraftenginerenewed-fabric-mc1.21.1-${rootProject.oe_version}.jar")
-    if (localJar.exists()) {
-        modApi files(localJar)
-    } else {
-        modApi "org.mod-sauce:otyacraftenginerenewed-fabric:${rootProject.oe_version}"
-    }
+    modApi "org.mod-sauce:otyacraftenginerenewed-fabric:${rootProject.oe_version}"
 
     modApi "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
     modApi "me.shedaniel.cloth:cloth-config-fabric:${rootProject.cloth_config_version}"
