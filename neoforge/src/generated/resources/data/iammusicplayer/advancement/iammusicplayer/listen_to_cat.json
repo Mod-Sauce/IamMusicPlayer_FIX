@@ -1,9 +1,9 @@
 {
   "parent": "iammusicplayer:iammusicplayer/listen_to_remote_music",
   "criteria": {
-    "listen_to_kamesuta": {
+    "listen_to_cat": {
       "conditions": {
-        "eggType": "kamesuta",
+        "eggType": "cat",
         "radio": false,
         "remote": false
       },
@@ -12,24 +12,21 @@
   },
   "display": {
     "description": {
-      "translate": "advancements.iammusicplayer.listen_to_kamesuta.description"
+      "translate": "advancements.iammusicplayer.listen_to_cat.description"
     },
     "frame": "challenge",
     "hidden": true,
     "icon": {
-      "components": {
-        "minecraft:item_name": "{\"color\":\"green\",\"italic\":false,\"text\":\"Kamesuta\"}"
-      },
       "count": 1,
-      "id": "iammusicplayer:parabolic_antenna"
+      "id": "minecraft:cat_spawn_egg"
     },
     "title": {
-      "translate": "advancements.iammusicplayer.listen_to_kamesuta.title"
+      "translate": "advancements.iammusicplayer.listen_to_cat.title"
     }
   },
   "requirements": [
     [
-      "listen_to_kamesuta"
+      "listen_to_cat"
     ]
   ],
   "sends_telemetry_event": true

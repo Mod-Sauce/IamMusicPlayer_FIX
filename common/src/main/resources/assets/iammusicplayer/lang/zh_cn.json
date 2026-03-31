@@ -269,6 +269,8 @@
   "advancements.iammusicplayer.listen_to_remote_music.description": "使用卫星天线直接播放播放列表中的音乐",
   "advancements.iammusicplayer.listen_to_kamesuta.title": "KAME之力！！！",
   "advancements.iammusicplayer.listen_to_kamesuta.description": "使用kamesuta天线播放kamesuta的视频",
+  "advancements.iammusicplayer.listen_to_cat.title": "小猫之力！！！",
+  "advancements.iammusicplayer.listen_to_cat.description": "播放一首来自 AcidGold 的歌曲",
   "_comment.bo": "书",
   "book.imp.landing_text": "本书介绍了如何使用Iam Music Player Renewed。$(br2)如果您发现此 Mod 中存在错误或与其他 Mod 冲突，请在$(l:https://codeberg.org/Mod-Sauce/IamMusicPlayerRenewed/issues)GitHub 中反馈$(/l).",
   "_comment.cr": "创造标签",

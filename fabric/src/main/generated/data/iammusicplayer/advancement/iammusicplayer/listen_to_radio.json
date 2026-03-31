@@ -3,7 +3,7 @@
   "criteria": {
     "listen_to_radio": {
       "conditions": {
-        "kamesuta": false,
+        "eggType": "kamesuta",
         "radio": true,
         "remote": false
       },
