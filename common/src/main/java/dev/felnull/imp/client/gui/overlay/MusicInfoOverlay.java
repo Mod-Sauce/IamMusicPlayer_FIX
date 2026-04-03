@@ -7,6 +7,7 @@ import dev.felnull.imp.client.gui.components.MusicInfoWidget;
 import dev.felnull.imp.item.BoomboxItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 
 public class MusicInfoOverlay {
@@ -31,6 +32,13 @@ public class MusicInfoOverlay {
                 if (!data.isPlaying())continue;
                 return data;
             }
+        }
+
+        var stack = p.getItemInHand(InteractionHand.OFF_HAND);
+        if(stack.is(IMPBlocks.BOOMBOX.get().asItem())) {
+            var data = BoomboxItem.getData(stack, p.level().registryAccess());
+            if (data.isPlaying())
+                return data;
         }
         return null;
     }
