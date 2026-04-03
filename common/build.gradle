@@ -11,7 +11,12 @@ dependencies {
 
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
-    modApi "org.mod-sauce:otyacraftenginerenewed:${rootProject.oe_version}"
+    def localJar = file("../../OtyacraftEngineRenewed/common/build/libs/otyacraftenginerenewed-${rootProject.oe_version}.jar")
+    if (localJar.exists()) {
+        modApi files(localJar)
+    } else {
+        modApi "org.mod-sauce:otyacraftenginerenewed:${rootProject.oe_version}"
+    }
 
     modApi "me.shedaniel.cloth:cloth-config:${rootProject.cloth_config_version}"
 
