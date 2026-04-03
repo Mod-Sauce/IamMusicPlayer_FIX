@@ -178,7 +178,7 @@ public class NetMusicUtil {
                     musicSource,
                     imageInfo,
                     Objects.requireNonNull(Minecraft.getInstance().player).getGameProfile().getId(),
-                    System.currentTimeMillis()));
+                    track.getPublishTime()));
         }
         return SONGS;
     }
