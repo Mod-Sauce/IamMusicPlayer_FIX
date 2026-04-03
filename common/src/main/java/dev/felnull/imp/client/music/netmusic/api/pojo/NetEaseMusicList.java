@@ -44,6 +44,9 @@ public class NetEaseMusicList {
         @SerializedName("fee")
         private int fee;
 
+        @SerializedName("publishTime")
+        private long publishTime;
+
         public long getId() {
             return id;
         }
@@ -59,6 +62,10 @@ public class NetEaseMusicList {
             List<String> artistNames = Lists.newArrayList();
             artists.forEach(artist -> artistNames.add(artist.name));
             return artistNames;
+        }
+
+        public long getPublishTime() {
+            return publishTime;
         }
 
         public Album getAlbum() {
