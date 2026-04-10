@@ -114,9 +114,11 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
 
         if (musicOnly) return;
 
-        var data = getData(stack, level.registryAccess());
-        data.tick(level);
-        setData(stack, data);
+        if(!level.isClientSide){
+            var data = getData(stack, level.registryAccess());
+            data.tick(level);
+            setData(stack, data);
+        }
 
         if (entity instanceof LivingEntity livingEntity && (livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack)) {
             boolean power = isPowered(stack);
@@ -125,12 +127,14 @@ public class BoomboxItem extends BlockItem implements IInstructionItem {
         }
         var p = level.registryAccess();
 
-        // 临时的解决方案
-        var l = NonNullList.withSize(2, ItemStack.EMPTY);
-        l.set(0, BoomboxItem.getCassetteTape(stack, p));
-        l.set(1, BoomboxItem.getAntenna(stack, p));
-        stack.set(DataComponents.CONTAINER,
-                ItemContainerContents.fromItems(l));
+        // Temporary solution
+        if (!level.isClientSide) {
+            var l = NonNullList.withSize(2, ItemStack.EMPTY);
+            l.set(0, BoomboxItem.getCassetteTape(stack, p));
+            l.set(1, BoomboxItem.getAntenna(stack, p));
+            stack.set(DataComponents.CONTAINER,
+                    ItemContainerContents.fromItems(l));
+        }
     }
 
     @Override
