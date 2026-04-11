@@ -3,7 +3,7 @@
   "criteria": {
     "listen_to_remote_music": {
       "conditions": {
-        "eggType": "kamesuta",
+        "eggType": "",
         "radio": false,
         "remote": true
       },

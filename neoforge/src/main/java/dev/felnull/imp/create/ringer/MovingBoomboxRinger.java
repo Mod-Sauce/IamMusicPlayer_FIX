@@ -4,6 +4,7 @@ import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.block.IMPBaseEntityBlock;
+import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.create.behaviour.BoomboxMovementBehaviour;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
@@ -73,7 +74,7 @@ public class MovingBoomboxRinger implements IBoomboxRinger {
 
     @Override
     public Component getRingerName() {
-        return Component.literal("moving");
+        return Component.translatable("imp.ringer.have", IMPBlocks.BOOMBOX.get().getName(), entity.getName());
     }
 
     @Override

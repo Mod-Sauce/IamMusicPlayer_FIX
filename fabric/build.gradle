@@ -182,6 +182,14 @@ components.java {
         skip()
     }
 }
+
+tasks.register("cleanGenerated", Delete) {
+    delete file("src/main/generated")
+}
+
+tasks.named("runDatagen") {
+    dependsOn tasks.named("cleanGenerated")
+}
 /*
 publishing {
     publications {

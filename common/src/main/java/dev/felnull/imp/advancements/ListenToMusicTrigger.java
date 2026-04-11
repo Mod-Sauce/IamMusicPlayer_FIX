@@ -43,6 +43,10 @@ public class ListenToMusicTrigger extends SimpleCriterionTrigger<ListenToMusicTr
             return new TriggerInstance(Optional.empty(), radio, remote, eggType);
         }
 
+        public static TriggerInstance listen(boolean radio, boolean remote) {
+            return new TriggerInstance(Optional.empty(), radio, remote, "");
+        }
+
         @Override
         public @NotNull Optional<ContextAwarePredicate> player() {
             return player;

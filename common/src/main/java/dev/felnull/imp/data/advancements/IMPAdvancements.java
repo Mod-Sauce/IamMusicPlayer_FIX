@@ -42,17 +42,17 @@ public class IMPAdvancements extends AdvancementSubProviderWrapper {
 
         AdvancementHolder listenToMusic = Advancement.Builder.advancement().parent(writeCassetteTape)
                 .display(IMPBlocks.BOOMBOX.get(), Component.translatable("advancements.iammusicplayer.listen_to_music.title"), Component.translatable("advancements.iammusicplayer.listen_to_music.description"), null, AdvancementType.TASK, true, true, false)
-                .addCriterion("listen_to_music", new Criterion<>(IMPCriteriaTriggers.LISTEN_TO_MUSIC, ListenToMusicTrigger.TriggerInstance.listen(false, false, "kamesuta")))
+                .addCriterion("listen_to_music", new Criterion<>(IMPCriteriaTriggers.LISTEN_TO_MUSIC, ListenToMusicTrigger.TriggerInstance.listen(false, false)))
                 .save(advancementConsumer, ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, IamMusicPlayer.MODID + "/listen_to_music").toString());
 
         AdvancementHolder listenToRadio = Advancement.Builder.advancement().parent(listenToMusic)
                 .display(IMPItems.RADIO_ANTENNA.get(), Component.translatable("advancements.iammusicplayer.listen_to_radio.title"), Component.translatable("advancements.iammusicplayer.listen_to_radio.description"), null, AdvancementType.GOAL, true, true, false)
-                .addCriterion("listen_to_radio", new Criterion<>(IMPCriteriaTriggers.LISTEN_TO_MUSIC, ListenToMusicTrigger.TriggerInstance.listen(true, false, "kamesuta")))
+                .addCriterion("listen_to_radio", new Criterion<>(IMPCriteriaTriggers.LISTEN_TO_MUSIC, ListenToMusicTrigger.TriggerInstance.listen(true, false)))
                 .save(advancementConsumer, ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, IamMusicPlayer.MODID + "/listen_to_radio").toString());
 
         AdvancementHolder listenToRemoteMusic = Advancement.Builder.advancement().parent(listenToMusic)
                 .display(IMPItems.PARABOLIC_ANTENNA.get(), Component.translatable("advancements.iammusicplayer.listen_to_remote_music.title"), Component.translatable("advancements.iammusicplayer.listen_to_remote_music.description"), null, AdvancementType.GOAL, true, true, false)
-                .addCriterion("listen_to_remote_music", new Criterion<>(IMPCriteriaTriggers.LISTEN_TO_MUSIC, ListenToMusicTrigger.TriggerInstance.listen(false, true, "kamesuta")))
+                .addCriterion("listen_to_remote_music", new Criterion<>(IMPCriteriaTriggers.LISTEN_TO_MUSIC, ListenToMusicTrigger.TriggerInstance.listen(false, true)))
                 .save(advancementConsumer, ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, IamMusicPlayer.MODID + "/listen_to_remote_music").toString());
 
         AdvancementHolder listenToKamesuta = Advancement.Builder.advancement().parent(listenToRemoteMusic)
