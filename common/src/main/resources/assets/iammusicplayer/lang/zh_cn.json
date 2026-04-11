@@ -305,6 +305,7 @@
   "text.autoconfig.iammusicplayer.option.openNetMusic.@PrefixText": "网易云音乐部分的代码来自网络音乐机模组，在此感谢网络音乐机模组的作者和此部分代码的作者内个球",
   "text.autoconfig.iammusicplayer.option.openNetMusic": "打开网络音乐机模组主页",
   "text.autoconfig.iammusicplayer.option.openNetMusic.url": "https://www.mcmod.cn/class/4935.html",
+  "text.autoconfig.iammusicplayer.option.createIntegration": "机械动力兼容",
   "_comment.other": "其他",
   "modmenu.descriptionTranslation.iammusicplayer": "添加了许多播放音乐的新方式……\n一个 ikisugi 的音乐播放模组。",
   "_comment.la": "最后",

@@ -6,6 +6,9 @@ license = "GNU LGPLv3"
 [[mixins]]
 config = "iammusicplayer-common.mixins.json"
 
+[[mixins]]
+config = "iammusicplayer-neoforge.mixins.json"
+
 [[mods]]
 modId = "iammusicplayer"
 version = "${version}"

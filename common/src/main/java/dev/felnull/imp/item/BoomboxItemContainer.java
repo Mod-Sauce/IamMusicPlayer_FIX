@@ -1,6 +1,7 @@
 package dev.felnull.imp.item;
 
 import dev.felnull.imp.inventory.BoomboxMenu;
+import dev.felnull.imp.inventory.IMPMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,7 +46,7 @@ public class BoomboxItemContainer extends ItemContainer {
 
     public static void openContainer(ServerPlayer player, InteractionHand hand, ItemStack stack, HolderLookup.Provider provider) {
         var loc = new HandItemLocation(hand);
-        OEMenuUtil.openItemMenu(player, createBoomboxMenuProvider(stack, loc, 2, "BoomboxItems", BoomboxMenu::new, provider), loc, stack, 2);
+        OEMenuUtil.openItemMenu(player, createBoomboxMenuProvider(stack, loc, 2, "BoomboxItems", BoomboxMenu::create, provider), loc, stack, 2);
     }
 
     private static MenuProvider createBoomboxMenuProvider(ItemStack stack, PlayerItemLocation location, int size, String tagName, MenuFactory factory, HolderLookup.Provider provider) {

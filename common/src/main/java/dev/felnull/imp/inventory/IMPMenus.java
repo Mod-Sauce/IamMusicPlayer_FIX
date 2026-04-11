@@ -17,7 +17,7 @@ public class IMPMenus {
     private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(IamMusicPlayer.MODID, Registries.MENU);
     public static final RegistrySupplier<MenuType<MusicManagerMenu>> MUSIC_MANAGER = registerBlockMenu("music_manager", MusicManagerMenu::new);
     public static final RegistrySupplier<MenuType<CassetteDeckMenu>> CASSETTE_DECK = registerBlockMenu("cassette_deck", CassetteDeckMenu::new);
-    public static final RegistrySupplier<MenuType<BoomboxMenu>> BOOMBOX = registerItemAndBlockMenu("boombox", BoomboxMenu::new);
+    public static final RegistrySupplier<MenuType<BoomboxMenu>> BOOMBOX = registerItemAndBlockMenu("boombox", BoomboxMenu::create);
 
     private static <T extends AbstractContainerMenu> RegistrySupplier<MenuType<T>> registerItemAndBlockMenu(String name, OEItemAndBlockMenuFactory<T> factoryItemAndBlock) {
         return MENUS.register(name, () -> OEMenuUtil.createMenuType(factoryItemAndBlock.getBlockMenuFactory(), factoryItemAndBlock.getItemMenuFactory()));

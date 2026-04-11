@@ -5,6 +5,10 @@ import dev.felnull.imp.client.IamMusicPlayerClient;
 import dev.felnull.imp.client.gui.screen.BoomboxScreen;
 import dev.felnull.imp.client.gui.screen.CassetteDeckScreen;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
+import dev.felnull.imp.create.IMPCreate;
+import dev.felnull.imp.create.IMPCreateClient;
+import dev.felnull.imp.create.client.MovingBoomboxScreen;
+import dev.felnull.imp.integration.CreateIntegration;
 import dev.felnull.imp.inventory.IMPMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -19,6 +23,8 @@ public class ClientBusHandler {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         IamMusicPlayerClient.init();
+        if(CreateIntegration.INSTANCE.isEnable())
+            IMPCreateClient.init();
     }
 
     @SubscribeEvent
@@ -26,5 +32,8 @@ public class ClientBusHandler {
         event.register(MUSIC_MANAGER.get(), MusicManagerScreen::new);
         event.register(CASSETTE_DECK.get(), CassetteDeckScreen::new);
         event.register(BOOMBOX.get(), BoomboxScreen::new);
+
+        if(CreateIntegration.INSTANCE.isEnable())
+            event.register(IMPCreate.MOVING_BOOMBOX_MENU.get(), MovingBoomboxScreen::new);
     }
 }

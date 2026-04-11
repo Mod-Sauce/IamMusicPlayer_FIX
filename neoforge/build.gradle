@@ -47,8 +47,14 @@ dependencies {
     modApi "me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${rootProject.rei_version}"
     modApi "maven.modrinth:sound-physics-remastered:neoforge-${rootProject.sound_physics_remastered}"
-    modCompileOnly "curse.maven:touhou-little-maid-355044:7510722"
+    modCompileOnly "curse.maven:touhou-little-maid-355044:7894267"
     modApi "vazkii.patchouli:Patchouli:${rootProject.patchouli_version}-NEOFORGE"
+
+    modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    modCompileOnly("net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}")
+    modCompileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
+//    modRuntimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
+    modCompileOnly("com.tterrag.registrate:Registrate:${registrate_version}")
 
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
@@ -80,6 +86,8 @@ repositories {
         url "https://cursemaven.com"
     }
     mavenCentral()
+    maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
+    maven { url = "https://maven.ithundxr.dev/snapshots" } // Registrate
 }
 
 shadowJar {
