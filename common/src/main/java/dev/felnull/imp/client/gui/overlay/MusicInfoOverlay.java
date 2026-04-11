@@ -4,6 +4,8 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.components.MusicInfoWidget;
+import dev.felnull.imp.explatform.IMPCreateHUDExpectPlatform;
+import dev.felnull.imp.integration.CreateIntegration;
 import dev.felnull.imp.item.BoomboxItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -40,6 +42,13 @@ public class MusicInfoOverlay {
             if (data.isPlaying())
                 return data;
         }
+
+        if(CreateIntegration.INSTANCE.isEnable()){
+            var data = IMPCreateHUDExpectPlatform.getDataFromPlayer(p);
+            if(data != null && data.isPlaying())
+                return data;
+        }
+
         return null;
     }
 }

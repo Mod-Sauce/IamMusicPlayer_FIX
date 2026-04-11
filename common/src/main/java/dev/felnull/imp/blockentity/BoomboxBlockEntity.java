@@ -4,6 +4,7 @@ import dev.felnull.imp.block.BoomboxBlock;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.inventory.BoomboxMenu;
+import dev.felnull.imp.inventory.IMPMenus;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
@@ -31,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoomboxRinger {
-    private final BoomboxData boomboxData;
+    private BoomboxData boomboxData;
     private NonNullList<ItemStack> items = NonNullList.withSize(2, ItemStack.EMPTY);
     private final UUID ringerUUID = UUID.randomUUID();
 
@@ -107,6 +108,11 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
         boomboxData.load(data.save(new CompoundTag(), false, false), false, false);
     }
 
+    public void setBoomboxDataReally(BoomboxData data) {
+        // Do not use this method under normal circumstances
+        this.boomboxData = data;
+    }
+
     @Override
     public ItemStack createRetainDropItem() {
         return BoomboxItem.createByBE(this, false);
@@ -124,7 +130,7 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
 
     @Override
     protected @NotNull AbstractContainerMenu createMenu(int i, @NotNull Inventory inventory) {
-        return new BoomboxMenu(i, inventory, this, getBlockPos(), ItemStack.EMPTY, null);
+        return new BoomboxMenu(IMPMenus.BOOMBOX.get(), i, inventory, this, getBlockPos(), ItemStack.EMPTY, null);
     }
 
     @Override
