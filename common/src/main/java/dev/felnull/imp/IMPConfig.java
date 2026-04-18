@@ -82,26 +82,12 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Gui.Excluded
   public String configVersion = "1";
 
-  @ConfigEntry.Category("netease")
-  public boolean enableNetease = true;
-
-  @ConfigEntry.Category("netease")
-  public boolean withTransName = true;
-
-  @ConfigEntry.Category("netease")
-  public String neteaseCookie = "";
-
   @ConfigEntry.Category("hud")
   public boolean enableMusicInfoHUD = true;
 
   @ConfigEntry.Category("debug")
   @Button("reloadLava")
   public Void reloadLavaLib = null;
-
-  @ConfigEntry.Category("netease")
-  @ConfigEntry.Gui.PrefixText
-  @Button("openNetMusic")
-  public Void openNetMusic = null;
 
   @ConfigEntry.Category("hud")
   @Button("settingHud")
@@ -117,4 +103,34 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("integration")
   @ConfigEntry.Gui.RequiresRestart
   public boolean createIntegration = true;
+
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public NetMusicConfig netMusicConfig = new NetMusicConfig();
+
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public BilibiliConfig bilibiliConfig = new BilibiliConfig();
+
+  public static class NetMusicConfig{
+    public boolean enableNetease = true;
+
+    public boolean withTransName = true;
+
+    public String neteaseCookie = "";
+
+    @ConfigEntry.Gui.PrefixText
+    @Button("openNetMusic")
+    public Void openNetMusic = null;
+  }
+
+  public static class BilibiliConfig{
+    public boolean enableBilibili = true;
+
+    public String bilibiliCookie = "";
+
+    @ConfigEntry.Gui.PrefixText
+    @Button("openMcedia")
+    public Void openMcedia = null;
+  }
 }

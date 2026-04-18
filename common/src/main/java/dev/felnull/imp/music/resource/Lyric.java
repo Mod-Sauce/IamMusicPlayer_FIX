@@ -10,7 +10,7 @@ public class Lyric {
     private final Float2ObjectSortedMap<String> transLyrics;
     public static final Lyric EMPTY = new Lyric();
 
-    public Lyric(Float2ObjectSortedMap<String> lyrics, Float2ObjectSortedMap<String> transLyrics){
+    public Lyric(Float2ObjectSortedMap<String> lyrics, @Nullable Float2ObjectSortedMap<String> transLyrics){
         this.lyrics = lyrics;
         this.transLyrics = transLyrics;
     }

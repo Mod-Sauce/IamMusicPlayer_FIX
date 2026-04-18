@@ -21,9 +21,7 @@ public class IMPMusicMedias {
         register("soundcloud", SOUNDCLOUD);
         register("http", HTTP);
         register("netease", NETEASE_MUSIC);
-
-        // register("bilibili", BILIBILI);
-        // todo:Unfinished feature
+         register("bilibili", BILIBILI);
     }
 
     public static void register(String name, MusicMedia media) {

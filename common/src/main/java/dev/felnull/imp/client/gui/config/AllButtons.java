@@ -46,5 +46,10 @@ public class AllButtons {
 
         registry("settingHud", Component.translatable("text.autoconfig.iammusicplayer.option.hud_pos"), button ->
                 Minecraft.getInstance().setScreen(new HUDSettingScreen(Minecraft.getInstance().screen)));
+
+        registry("openMcedia", Component.translatable("text.autoconfig.iammusicplayer.option.openMcedia"), button ->
+                Util.getPlatform().openUri(
+                        "https://github.com/tobyprime/Mcedia"
+                ));
     }
 }
