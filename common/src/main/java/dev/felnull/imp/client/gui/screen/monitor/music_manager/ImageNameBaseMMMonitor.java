@@ -3,7 +3,6 @@ package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.logging.LogUtils;
 import dev.felnull.fnjl.util.FNURLUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
@@ -11,21 +10,23 @@ import dev.felnull.imp.client.gui.IIMPSmartRender;
 import dev.felnull.imp.client.gui.components.ImageSetButton;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
+import dev.felnull.imp.client.lava.hash.IMPRHash;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import dev.felnull.imp.client.util.FileChooserUtils;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.util.ProxyUtil;
-import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
-import org.modsauce.otyacraftenginerenewed.util.FlagThread;
-import org.modsauce.otyacraftenginerenewed.util.OEImageUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
+import org.modsauce.otyacraftenginerenewed.util.OEImageUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,7 @@ import java.util.List;
 
 public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
     private static final Gson GSON = new Gson();
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger(ImageNameBaseMMMonitor.class);
 
     private static final ResourceLocation SET_IMAGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/image_set_base.png");
     private static final Component IMAGE_TEXT = Component.translatable("imp.text.image");
@@ -57,7 +58,7 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
     private boolean locked;
     private Component NOT_ENTERED_TEXT;
     private Component IMAGE_SET_ERROR_TEXT;
-    //  private EditBox imageUrlEditBox;
+    private EditBox imageUrlEditBox;
     protected EditBox nameEditBox;
     private SmartButton doneButton;
     private ImageUrlLoader imageUrlLoader;
@@ -66,6 +67,16 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
 
     public ImageNameBaseMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
         super(type, screen);
+    }
+
+    private static boolean isUrl(String str) {
+        if (str == null || str.isEmpty()) return false;
+        try {
+            var uri = new java.net.URI(str);
+            return uri.getScheme() != null && uri.getHost() != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -85,19 +96,15 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
 
             addRenderWidget(new ImageSetButton(getStartX() + 75, getStartY() + 22, ImageSetButton.ImageSetType.PLAYER_FACE, n -> setImage(new ImageInfo(ImageInfo.ImageType.PLAYER_FACE, IIMPSmartRender.mc.player.getGameProfile().getName())), getScreen()));
 
-            /*this.imageUrlEditBox = new EditBox(IIMPSmartRender.mc.font, getStartX() + 112, getStartY() + 42, 69, 12, Component.translatable("imp.editBox.imageUrl"));
+            this.imageUrlEditBox = new EditBox(IIMPSmartRender.mc.font, getStartX() + 112, getStartY() + 42, 69, 12, Component.translatable("imp.editBox.imageUrl"));
             this.imageUrlEditBox.setMaxLength(300);
-            this.imageUrlEditBox.setValue(getImageURL());
-            this.imageUrlEditBox.setResponder(this::setImageURL);
-            addRenderWidget(this.imageUrlEditBox);*/
-
-            /*addRenderWidget(new ImageSetButton(getStartX() + 75, getStartY() + 41, ImageSetButton.ImageSetType.URL, n -> {
-                if (this.imageUrlEditBox.getValue().isEmpty()) {
-                    IMAGE_SET_ERROR_TEXT = Component.translatable("imp.text.imageLoad.empty");
-                    return;
-                }
-                startImageUrlLoad(this.imageUrlEditBox.getValue());
-            }, getScreen()));*/
+            if(getImage().getImageType() == ImageInfo.ImageType.URL)
+                this.imageUrlEditBox.setValue(getImage().getIdentifier());
+            this.imageUrlEditBox.setResponder((s) -> {
+                if(!isUrl(s))return;
+                setImage(new ImageInfo(ImageInfo.ImageType.URL, s));
+            });
+            addRenderWidget(this.imageUrlEditBox);
         }
 
         this.nameEditBox = new EditBox(IIMPSmartRender.mc.font, getStartX() + 5, getStartY() + 112, 177, 12, Component.translatable("imp.editBox.name"));

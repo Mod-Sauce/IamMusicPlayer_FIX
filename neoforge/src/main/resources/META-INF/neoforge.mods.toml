@@ -21,7 +21,7 @@ description = '''
 Add a boombox that can play music.
 The ikisugi music player mod...
 '''
-logoFile = "logo.png"
+#logoFile = "logo.png"
 
 [[accessTransformers]]
 file="META-INF/accesstransformer.cfg"

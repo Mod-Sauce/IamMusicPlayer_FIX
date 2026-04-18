@@ -1,7 +1,7 @@
 package dev.felnull.imp.client.bilibili;
 
 import com.google.gson.*;
-import com.mojang.logging.LogUtils;
+import dev.felnull.imp.client.lava.hash.IMPRHash;
 import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Lyric;
@@ -9,7 +9,8 @@ import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.util.ProxyUtil;
 import it.unimi.dsi.fastutil.floats.Float2ObjectRBTreeMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectSortedMap;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import oshi.util.tuples.Pair;
 
 import java.io.IOException;
@@ -24,7 +25,6 @@ import java.util.List;
 
 public class BiliBiliUtil {
     // Reference from Mcedia
-    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new Gson();
     private static final String USER_AGENT = "Mozilla/5.0";
     private static final HttpClient client = HttpClient.newBuilder()

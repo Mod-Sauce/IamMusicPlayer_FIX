@@ -56,6 +56,10 @@ dependencies {
 //    modRuntimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
     modCompileOnly("com.tterrag.registrate:Registrate:${registrate_version}")
 
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-core:${rootProject.cct_version}")
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${rootProject.cct_version}")
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${rootProject.cct_version}")
+
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }

@@ -122,11 +122,11 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
         blockEntity.baseAfterTick();
     }
 
-    private boolean canWriteCassetteTape() {
+    public boolean canWriteCassetteTape() {
         return getMusic() != null && !getCassetteTape().isEmpty() && IMPItemUtil.isCassetteTape(getCassetteTape());
     }
 
-    private void writeCassetteTape() {
+    public void writeCassetteTape() {
         if (canWriteCassetteTape()) {
             CassetteTapeItem.setMusic(getCassetteTape(), getMusic());
             setChanged();

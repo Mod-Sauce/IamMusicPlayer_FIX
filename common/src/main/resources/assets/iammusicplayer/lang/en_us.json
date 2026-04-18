@@ -238,6 +238,7 @@
   "text.autoconfig.iammusicplayer.option.dropItemRing": "Whether to play in the dropped item",
   "text.autoconfig.iammusicplayer.category.integration": "Integration",
   "text.autoconfig.iammusicplayer.option.patchouliIntegration": "Patchouli integration",
+  "text.autoconfig.iammusicplayer.option.cctIntegration": "CC:Tweaked integration",
   "text.autoconfig.iammusicplayer.option.soundPhysicsRemasteredIntegration": "SoundPhysicsRemastered integration",
   "text.autoconfig.iammusicplayer.category.debug": "Debug",
   "text.autoconfig.iammusicplayer.option.showMusicLines": "Show music time line",
