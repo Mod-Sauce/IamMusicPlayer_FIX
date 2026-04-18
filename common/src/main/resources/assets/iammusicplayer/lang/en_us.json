@@ -325,5 +325,6 @@
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.enableBilibili": "Enable Bilibili",
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "Audio stream retrieval references tobyprime's Mcedia project",
   "text.autoconfig.iammusicplayer.option.openMcedia": "Open Mcedia GitHub URL",
-  "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur Client ID"
+  "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur Client ID",
+  "text.autoconfig.iammusicplayer.option.sableIntegration": "Sable Integration"
 }

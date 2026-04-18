@@ -71,6 +71,9 @@ allprojects {
         maven {
             url "https://maven.squiddev.cc"
         }
+        maven {
+            url = "https://maven.ryanhcode.dev/releases"
+        }
     }
 
     tasks.withType(JavaCompile) {

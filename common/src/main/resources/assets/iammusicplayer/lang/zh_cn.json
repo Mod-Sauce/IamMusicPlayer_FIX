@@ -236,6 +236,7 @@
   "text.autoconfig.iammusicplayer.option.patchouliIntegration": "帕秋莉手册联动",
   "text.autoconfig.iammusicplayer.option.touhouLittleMaidIntegration": "车万女仆联动",
   "text.autoconfig.iammusicplayer.option.cctIntegration": "CC:Tweaked 联动",
+  "text.autoconfig.iammusicplayer.option.sableIntegration": "Sable 联动 (航空学)",
   "_comment.cc": "数值配置",
   "subtitleType.off": "关闭",
   "subtitleType.vanilla": "原版",

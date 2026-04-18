@@ -2,6 +2,8 @@ package dev.felnull.imp.blockentity;
 
 import dev.felnull.imp.advancements.IMPCriteriaTriggers;
 import dev.felnull.imp.block.IMPBlocks;
+import dev.felnull.imp.integration.SableIntegration;
+import dev.felnull.imp.integration.sable.PosGetter;
 import dev.felnull.imp.inventory.CassetteDeckMenu;
 import dev.felnull.imp.item.CassetteTapeItem;
 import dev.felnull.imp.music.resource.Music;
@@ -539,7 +541,9 @@ public class CassetteDeckBlockEntity extends IMPBaseEntityBlockEntity implements
 
     @Override
     public @NotNull Vec3 getRingerSpatialPosition() {
-        return new Vec3(getBlockPos().getX() + 0.5, getBlockPos().getY() + 0.5, getBlockPos().getZ() + 0.5);
+        if(SableIntegration.INSTANCE.isEnable())
+            return PosGetter.getReallyPos(level, getBlockPos());
+        return getBlockPos().getCenter();
     }
 
     public float getRawVolume() {
