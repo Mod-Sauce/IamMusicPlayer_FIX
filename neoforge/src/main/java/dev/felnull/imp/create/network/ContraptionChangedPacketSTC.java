@@ -46,6 +46,8 @@ public record ContraptionChangedPacketSTC(int entityID,
         var a = contraption.getActorAt(packet.pos);
         if(a == null)return;
         a.right.blockEntityData = packet.data;
+        var update = a.right.state != packet.state;
+        a.right.state = packet.state;
         var r = contraption.getBlocks().remove(packet.pos);
         contraption.getBlocks().put(packet.pos, new StructureTemplate.StructureBlockInfo(r.pos(), packet.state, packet.data));
         var clientContraption = contraptionEntity.getContraption().getOrCreateClientContraptionLazy();
@@ -54,5 +56,7 @@ public record ContraptionChangedPacketSTC(int entityID,
             blockEntity.loadCustomOnly(packet.data, entity.level().registryAccess());
             blockEntity.setBlockState(packet.state);
         }
+        if(update)
+            contraption.invalidateClientContraptionStructure();
     }
 }
