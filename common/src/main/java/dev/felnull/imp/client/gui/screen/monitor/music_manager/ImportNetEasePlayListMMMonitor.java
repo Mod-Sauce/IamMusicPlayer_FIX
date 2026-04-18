@@ -4,6 +4,7 @@ import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
+import dev.felnull.imp.client.music.netmusic.URLType;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Music;
@@ -15,6 +16,7 @@ import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ImportNetEasePlayListMMMonitor extends ImportNetEasePlayListBaseMMMonitor {
     protected static final Component IMPORTING_TEXT = Component.translatable("imp.text.importing");
@@ -88,7 +90,7 @@ public class ImportNetEasePlayListMMMonitor extends ImportNetEasePlayListBaseMMM
         if(failureImportPlayList)return;
 
         NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_ADD, new IMPPackets.MusicPlayListMessage(getImportPlayListName(),
-                ImageInfo.EMPTY, false,
+                getImportImageInfo(), false,
                 false, List.of(),
                 BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), importMusicList).toRFBB());
         resetImport();
@@ -110,7 +112,13 @@ public class ImportNetEasePlayListMMMonitor extends ImportNetEasePlayListBaseMMM
                 try {
                     listID = Long.parseLong(id);
                 } catch (NumberFormatException e) {
-                    throw new RuntimeException("参数不合法：", e);
+                    if(URLType.SONG.isMatch(id)){
+                        try {
+                            listID = Long.parseLong(Objects.requireNonNull(URLType.SONG.getMatch(id)));
+                        } catch (NumberFormatException | NullPointerException e1) {
+                            throw new RuntimeException("Illegal argument:", e1);
+                        }
+                    }else throw new RuntimeException("Illegal argument:", e);
                 }
 
                 NetEaseMusicList.PlayList data;
@@ -118,7 +126,7 @@ public class ImportNetEasePlayListMMMonitor extends ImportNetEasePlayListBaseMMM
                     data = NetMusicUtil.getMusicListInfo(listID);
                     if(data == null) throw new RuntimeException();
                 } catch (Exception e) {
-                    throw new RuntimeException("解析失败：", e);
+                    throw new RuntimeException("Failed to parse:", e);
                 }
 
                 if (isStopped()) return;
@@ -127,7 +135,7 @@ public class ImportNetEasePlayListMMMonitor extends ImportNetEasePlayListBaseMMM
                 try {
                     musics = new ArrayList<>(NetMusicUtil.getMusicList(listID));
                 } catch (Exception e) {
-                    throw new RuntimeException("解析失败：", e);
+                    throw new RuntimeException("Failed to parse:", e);
                 }
 
                 if (isStopped()) return;
@@ -136,6 +144,7 @@ public class ImportNetEasePlayListMMMonitor extends ImportNetEasePlayListBaseMMM
                 setImportPlayListMusicCount(musics.size());
                 setImportPlayListName(data.getName());
                 setImportPlayListAuthor(data.getCreator().getNickname());
+                setImportPlayListIco(new ImageInfo(ImageInfo.ImageType.URL, data.getCoverImgUrl()));
 
                 if (isStopped()) return;
                 importMusicList.addAll(musics);

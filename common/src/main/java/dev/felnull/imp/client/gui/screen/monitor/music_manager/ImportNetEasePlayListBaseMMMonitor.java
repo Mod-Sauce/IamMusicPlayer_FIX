@@ -29,6 +29,7 @@ import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMonitor {
     private static final ResourceLocation IMPORT_YOUTUBE_PLAY_LIST_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/import_youtube_play_list.png");
@@ -39,6 +40,8 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
     private PlayListLoadThread playListLoader;
     private EditBox playlistIdentifierEditBox;
     private NeteasePlayListMusicsFixedListWidget neteasePlayListMusicsFixedButtonsList;
+
+    private ImageInfo importImageInfo = ImageInfo.EMPTY;
 
     public ImportNetEasePlayListBaseMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
         super(type, screen);
@@ -202,6 +205,14 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
         getScreen().insImportIdentifier(id);
     }
 
+    protected void setImportPlayListIco(ImageInfo imageInfo){
+        this.importImageInfo = imageInfo;
+    }
+
+    public ImageInfo getImportImageInfo() {
+        return importImageInfo;
+    }
+
     @Override
     protected void onBackParent() {
         super.onBackParent();
@@ -243,8 +254,13 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
             try {
                 listID = Long.parseLong(id);
             } catch (NumberFormatException e) {
-//                throw new RuntimeException("参数不合法：", e);
-                return;
+                if(URLType.SONG.isMatch(id)){
+                    try {
+                        listID = Long.parseLong(Objects.requireNonNull(URLType.SONG.getMatch(id)));
+                    } catch (NumberFormatException | NullPointerException e1) {
+                        return;
+                    }
+                }else return;
             }
 
             NetEaseMusicList.PlayList data;
@@ -274,6 +290,7 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
             setImportPlayListMusicCount(neteasePlayListEntries.size());
             setImportPlayListName(data.getName());
             setImportPlayListAuthor(data.getCreator().getNickname());
+            setImportPlayListIco(new ImageInfo(ImageInfo.ImageType.URL, data.getCoverImgUrl()));
         }
     }
 

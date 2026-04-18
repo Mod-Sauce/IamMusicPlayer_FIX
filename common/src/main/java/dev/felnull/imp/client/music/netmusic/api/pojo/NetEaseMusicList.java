@@ -80,7 +80,7 @@ public class NetEaseMusicList {
             if (transNames == null || transNames.isEmpty()) {
                 return StringUtils.EMPTY;
             }
-            return transNames.get(0);
+            return transNames.getFirst();
         }
 
         public boolean needVip() {
@@ -148,6 +148,9 @@ public class NetEaseMusicList {
         @SerializedName("trackIds")
         private List<TrackId> trackIds;
 
+        @SerializedName("coverImgUrl")
+        private String coverImgUrl;
+
         public String getName() {
             return name;
         }
@@ -182,6 +185,10 @@ public class NetEaseMusicList {
 
         public Creator getCreator() {
             return creator;
+        }
+
+        public String getCoverImgUrl() {
+            return coverImgUrl;
         }
 
         public class TrackId {

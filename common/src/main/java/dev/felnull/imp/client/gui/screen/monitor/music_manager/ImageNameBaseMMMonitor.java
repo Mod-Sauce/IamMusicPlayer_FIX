@@ -3,6 +3,7 @@ package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import dev.felnull.fnjl.util.FNURLUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
@@ -13,6 +14,7 @@ import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import dev.felnull.imp.client.util.FileChooserUtils;
 import dev.felnull.imp.music.resource.ImageInfo;
+import dev.felnull.imp.util.ProxyUtil;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 import org.modsauce.otyacraftenginerenewed.util.OEImageUtils;
@@ -23,9 +25,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -34,11 +39,14 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
     private static final Gson GSON = new Gson();
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final ResourceLocation SET_IMAGE_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/image_set_base.png");
     private static final Component IMAGE_TEXT = Component.translatable("imp.text.image");
     private static final Component NO_IMAGE_TEXT = Component.translatable("imp.text.noImage");
@@ -382,7 +390,7 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
                 startImageUpload(Files.readAllBytes(file.toPath()));
             } catch (IOException e) {
                 IMAGE_SET_ERROR_TEXT = Component.translatable("imp.text.imageLoad.error", e.getMessage());
-                e.printStackTrace();
+                LOGGER.error("Error:", e);
             }
         } else {
             IMAGE_SET_ERROR_TEXT = Component.translatable("imp.text.imageLoad.fileNotFound");
@@ -426,7 +434,7 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
                 IMAGE_SET_ERROR_TEXT = null;
             } catch (Exception e) {
                 IMAGE_SET_ERROR_TEXT = Component.translatable("imp.text.imageLoad.error", e.getLocalizedMessage());
-                //   e.printStackTrace();
+                //   LOGGER.error("Error:), e;
             }
         }
     }
@@ -462,7 +470,7 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
                     if (isStopped()) return;
                 } catch (IOException e) {
                     IMAGE_SET_ERROR_TEXT = Component.translatable("imp.text.imageLoad.uploadFailure", e.getMessage());
-                    e.printStackTrace();
+                    LOGGER.error("Error:", e);
                     return;
                 }
                 if (isStopped()) return;
@@ -470,20 +478,23 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
                 IMAGE_SET_ERROR_TEXT = null;
             } catch (Exception e) {
                 IMAGE_SET_ERROR_TEXT = Component.translatable("imp.text.imageLoad.error", e.getLocalizedMessage());
-                e.printStackTrace();
+                LOGGER.error("Error:", e);
             }
         }
 
         private String uploadToImgur(byte[] data) throws IOException, InterruptedException {
             if (isStopped()) return null;
-            HttpClient hc = HttpClient.newHttpClient();
-            HttpRequest hr = HttpRequest.newBuilder(URI.create("https://api.imgur.com/3/image")).POST(HttpRequest.BodyPublishers.ofByteArray(data)).header("Authorization", "Client-ID 9a0189f3c8b74b9").build();
+            HttpClient hc = HttpClient.newBuilder()
+                    .proxy(ProxySelector.of((InetSocketAddress) ProxyUtil.getSystemProxy().address()))
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .build();
+            HttpRequest hr = HttpRequest.newBuilder(URI.create("https://api.imgur.com/3/image")).POST(HttpRequest.BodyPublishers.ofByteArray(data)).header("Authorization", "Client-ID " + IamMusicPlayer.getConfig().imgurClientID).build();
             if (isStopped()) return null;
             HttpResponse<String> res = hc.send(hr, HttpResponse.BodyHandlers.ofString());
             if (isStopped()) return null;
             JsonObject upData = GSON.fromJson(res.body(), JsonObject.class);
             if (upData.getAsJsonObject("data") == null || upData.getAsJsonObject("data").get("link") == null)
-                throw new IOException("code " + upData.get("status").getAsInt());
+                throw new IOException(upData.get("errors").getAsJsonArray().get(0).getAsJsonObject().get("status").toString());
             return upData.getAsJsonObject("data").get("link").getAsString();
         }
     }

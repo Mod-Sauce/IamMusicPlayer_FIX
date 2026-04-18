@@ -1,16 +1,14 @@
 package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
-import dev.felnull.imp.client.lava.LavaPlayerManager;
-import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
+import dev.felnull.imp.client.music.netmusic.URLType;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
+import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.networking.IMPPackets;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
@@ -18,7 +16,7 @@ import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 public class ImportNetEasePlayListMusicsMMMonitor extends ImportNetEasePlayListBaseMMMonitor {
     protected static final Component IMPORTING_TEXT = Component.translatable("imp.text.importing");
@@ -92,7 +90,13 @@ public class ImportNetEasePlayListMusicsMMMonitor extends ImportNetEasePlayListB
                 try {
                     listID = Long.parseLong(id);
                 } catch (NumberFormatException e) {
-                    throw new RuntimeException("参数不合法：", e);
+                    if(URLType.SONG.isMatch(id)){
+                        try {
+                            listID = Long.parseLong(Objects.requireNonNull(URLType.SONG.getMatch(id)));
+                        } catch (NumberFormatException | NullPointerException e1) {
+                            throw new RuntimeException("Illegal argument:", e1);
+                        }
+                    }else throw new RuntimeException("Illegal argument:", e);
                 }
 
                 NetEaseMusicList.PlayList data;
@@ -118,6 +122,7 @@ public class ImportNetEasePlayListMusicsMMMonitor extends ImportNetEasePlayListB
                 setImportPlayListMusicCount(musics.size());
                 setImportPlayListName(data.getName());
                 setImportPlayListAuthor(data.getCreator().getNickname());
+                setImportPlayListIco(new ImageInfo(ImageInfo.ImageType.URL, data.getCoverImgUrl()));
 
                 if (isStopped()) return;
                 mc.submit(() -> {

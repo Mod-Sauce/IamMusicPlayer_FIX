@@ -25,6 +25,9 @@ public class IMPConfig implements ConfigData {
   public boolean useYoutubeDownloader = true;
 
   @ConfigEntry.Category("client")
+  public String imgurClientID = "9a0189f3c8b74b9";
+
+  @ConfigEntry.Category("client")
   public String relayServerURL =
     "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
 
