@@ -114,7 +114,6 @@ shadowJar {
     relocate 'org.slf4j', 'dev.felnull.imp.include.org.slf4j'
     relocate 'certificates', 'dev.felnull.imp.include.certificates'
     relocate 'com.fasterxml', 'dev.felnull.imp.include.com.fasterxml'
-    relocate 'org.jsoup', 'dev.felnull.imp.include.org.jsoup'
     relocate 'natives', 'dev.felnull.imp.include.natives'
     relocate 'mozilla', 'dev.felnull.imp.include.mozilla'
     relocate 'net.iharder', 'dev.felnull.imp.include.net.iharder'
