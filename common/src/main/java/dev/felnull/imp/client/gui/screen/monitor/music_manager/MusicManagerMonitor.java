@@ -345,6 +345,8 @@ public abstract class MusicManagerMonitor
       MusicManagerBlockEntity.MonitorType.AUTHORITY,
       AuthorityMMMonitor::new
     );
+    registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST_MUSICS, ImportNetEasePlayListMusicsMMMonitor::new);
+    registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST, ImportNetEasePlayListMMMonitor::new);
   }
 
   public MusicManagerScreen getScreen() {

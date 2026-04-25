@@ -13,6 +13,8 @@ public class IMPMusicLoaders {
   public static void init() {
     register(LavaMusicLoader::new);
     register(YoutubeDownloaderMusicLoader::new);
+    register(NeteaseMusicLoader::new);
+    register(BiliBiliMusicLoader::new);
   }
 
   public static void register(Supplier<MusicLoader> loaderSupplier) {

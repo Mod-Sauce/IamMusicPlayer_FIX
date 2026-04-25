@@ -6,6 +6,8 @@ import dev.felnull.fnjl.util.FNDataUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.LavaNativeManager;
 import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,6 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
+
+import dev.felnull.imp.util.ProxyUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -349,7 +353,7 @@ public class IMPRHash {
 
   private String GetHash(String url) throws Exception {
     try {
-      HttpClient client = HttpClient.newHttpClient();
+      HttpClient client = HttpClient.newBuilder().proxy(ProxySelector.of((InetSocketAddress) ProxyUtil.getSystemProxy().address())).build();
       HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(url))
         .GET()

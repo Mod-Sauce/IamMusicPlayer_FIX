@@ -1,5 +1,6 @@
 package dev.felnull.imp;
 
+import dev.felnull.imp.client.gui.config.Button;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
@@ -80,4 +81,55 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("internal")
   @ConfigEntry.Gui.Excluded
   public String configVersion = "3";
+
+  @ConfigEntry.Category("client")
+  public boolean tryUseGitee = true;
+
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public NetMusicConfig netMusicConfig = new NetMusicConfig();
+
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public BilibiliConfig bilibiliConfig = new BilibiliConfig();
+
+  public static class NetMusicConfig{
+    public boolean enableNetease = true;
+
+    public boolean withTransName = true;
+
+    public String neteaseCookie = "";
+
+    @ConfigEntry.Gui.PrefixText
+    @Button("openNetMusic")
+    public Void openNetMusic = null;
+  }
+
+  public static class BilibiliConfig{
+    public boolean enableBilibili = true;
+
+    public String bilibiliCookie = "";
+
+    @ConfigEntry.Gui.PrefixText
+    @Button("openMcedia")
+    public Void openMcedia = null;
+  }
+
+  @ConfigEntry.Category("hud")
+  public boolean enableMusicInfoHUD = true;
+
+  @ConfigEntry.Category("debug")
+  @Button("reloadLava")
+  public Void reloadLavaLib = null;
+
+  @ConfigEntry.Category("hud")
+  @Button("settingHud")
+  public Void settingHud = null;
+
+  @ConfigEntry.Gui.Excluded
+  @ConfigEntry.Category("hud")
+  public int hudX = 10;
+  @ConfigEntry.Gui.Excluded
+  @ConfigEntry.Category("hud")
+  public int hudY = 10;
 }
