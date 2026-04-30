@@ -4,7 +4,7 @@
   "group": "antenna",
   "key": {
     "B": {
-      "item": "minecraft:iron_block"
+      "tag": "c:storage_blocks/iron"
     },
     "E": {
       "tag": "c:ender_pearls"

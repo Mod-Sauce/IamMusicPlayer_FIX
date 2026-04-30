@@ -11,7 +11,7 @@ import dev.felnull.imp.entity.village.IMPVillagerProfessions;
 import dev.felnull.imp.handler.CommonHandler;
 import dev.felnull.imp.integration.CCTIntegration;
 import dev.felnull.imp.inventory.IMPMenus;
-import dev.felnull.imp.item.IMPComponents;
+import dev.felnull.imp.item.component.IMPComponents;
 import dev.felnull.imp.item.IMPCreativeModeTabs;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.networking.IMPPackets;

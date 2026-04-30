@@ -57,6 +57,10 @@ public class IMPItems {
     return new ManualItem(pr);
   });
 
+  public static final RegistrySupplier<Item> EARPHONE = register("earphone", () ->
+    new EarphoneItem(new Item.Properties().arch$tab(IMPCreativeModeTabs.MOD_TAB).stacksTo(1))
+  );
+
   //  public static final RegistrySupplier<Item> SOUND_TEST = register("sound_test", () -> new SoundTestItem(new Item.Properties().tab(IMPCreativeModeTab.MOD_TAB)));
 
   private static RegistrySupplier<Item> register(String name) {

@@ -9,6 +9,7 @@ import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.util.IMPItemUtil;
 import net.minecraft.advancements.*;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.world.item.Items;
 import org.modsauce.otyacraftenginerenewed.advancement.ModInvolvementTrigger;
 import org.modsauce.otyacraftenginerenewed.advancement.OECriteriaTriggers;
@@ -44,6 +45,11 @@ public class IMPAdvancements extends AdvancementSubProviderWrapper {
                 .display(IMPBlocks.BOOMBOX.get(), Component.translatable("advancements.iammusicplayer.listen_to_music.title"), Component.translatable("advancements.iammusicplayer.listen_to_music.description"), null, AdvancementType.TASK, true, true, false)
                 .addCriterion("listen_to_music", new Criterion<>(IMPCriteriaTriggers.LISTEN_TO_MUSIC, ListenToMusicTrigger.TriggerInstance.listen(false, false)))
                 .save(advancementConsumer, ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, IamMusicPlayer.MODID + "/listen_to_music").toString());
+
+        AdvancementHolder earphone = Advancement.Builder.advancement().parent(listenToMusic)
+                .display(IMPItems.EARPHONE.get(), Component.translatable("advancements.iammusicplayer.earphone.title"), Component.translatable("advancements.iammusicplayer.earphone.description"), null, AdvancementType.TASK, true, true, false)
+                .addCriterion("listen_to_music", InventoryChangeTrigger.TriggerInstance.hasItems(IMPItems.EARPHONE.get()))
+                .save(advancementConsumer, ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, IamMusicPlayer.MODID + "/earphone").toString());
 
         AdvancementHolder listenToRadio = Advancement.Builder.advancement().parent(listenToMusic)
                 .display(IMPItems.RADIO_ANTENNA.get(), Component.translatable("advancements.iammusicplayer.listen_to_radio.title"), Component.translatable("advancements.iammusicplayer.listen_to_radio.description"), null, AdvancementType.GOAL, true, true, false)

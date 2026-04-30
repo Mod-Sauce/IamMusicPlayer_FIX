@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.api.IamMusicPlayerAPI;
 import dev.felnull.imp.api.MusicRingerAccess;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -15,6 +16,8 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Objects;
+
 public class MusicCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         var literalCommandNode = dispatcher.register(Commands.literal(IamMusicPlayer.MODID).requires(n -> n.hasPermission(2))
@@ -22,7 +25,9 @@ public class MusicCommand {
                         .then(Commands.literal("info").executes(n -> ringerInfo(n.getSource(), null))
                                 .then(Commands.argument("dimension", DimensionArgument.dimension()).executes(n -> ringerInfo(n.getSource(), DimensionArgument.getDimension(n, "dimension")))))
                         .then(Commands.literal("list").executes(n -> ringerList(n.getSource(), null))
-                                .then(Commands.argument("dimension", DimensionArgument.dimension()).executes(n -> ringerList(n.getSource(), DimensionArgument.getDimension(n, "dimension")))))));
+                                .then(Commands.argument("dimension", DimensionArgument.dimension()).executes(n -> ringerList(n.getSource(), DimensionArgument.getDimension(n, "dimension"))))))
+                .then(Commands.literal("earphone").executes(n -> earphoneList(n.getSource(), n.getSource().getLevel())))
+        );
 
         dispatcher.register(Commands.literal("imp").requires(n -> n.hasPermission(2)).redirect(literalCommandNode));
     }
@@ -64,6 +69,29 @@ public class MusicCommand {
             }
         }
 
+        return 1;
+    }
+
+    private static int earphoneList(CommandSourceStack src, ServerLevel level){
+        var data = EarphoneSaveData.getInstance(level);
+        if(data.getEarphones().isEmpty())
+            src.sendFailure(Component.translatable("commands.imp.earphone.list.notFound"));
+        else{
+            src.sendSuccess(() -> Component.translatable("commands.imp.earphone.list"), false);
+            for (EarphoneSaveData.EarphoneLocation location: data.getEarphones()) {
+                var owner = level.getEntity(location.ownerUUID());
+                if (owner == null){
+                    src.sendSuccess(() -> Component.translatable("commands.imp.earphone.list.unlive", location.earphoneUUID().toString()), false);
+                    continue;
+                }
+                var stack = EarphoneSaveData.findEarphone(level, location);
+                if (stack == null){
+                    src.sendSuccess(() -> Component.translatable("commands.imp.earphone.list.unlive", location.earphoneUUID().toString()), false);
+                    continue;
+                }
+                src.sendSuccess(() -> Component.translatable("commands.imp.earphone.list.entry", stack.getDisplayName(), owner.getDisplayName()), false);
+            }
+        }
         return 1;
     }
 

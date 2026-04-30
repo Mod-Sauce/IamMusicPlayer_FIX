@@ -2,23 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": {
-      "tag": "c:glass_panes"
-    },
     "I": {
       "tag": "c:ingots/iron"
     },
-    "R": {
-      "tag": "c:dusts/redstone"
+    "N": {
+      "item": "minecraft:note_block"
     }
   },
   "pattern": [
     "III",
-    "IGR",
-    "III"
+    "N N",
+    "   "
   ],
   "result": {
     "count": 1,
-    "id": "iammusicplayer:music_manager"
+    "id": "iammusicplayer:earphone"
   }
 }

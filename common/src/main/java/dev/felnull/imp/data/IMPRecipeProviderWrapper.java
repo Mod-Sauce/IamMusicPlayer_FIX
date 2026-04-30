@@ -83,7 +83,7 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                 )
                 .define('E', PlatformItemTags.enderPearls().getKey())
                 .define('I', PlatformItemTags.ironIngots())
-                .define('B', Blocks.IRON_BLOCK)
+                .define('B', PlatformItemTags.ironBlocks())
                 .pattern("IEI")
                 .pattern("I I")
                 .pattern(" B ")
@@ -130,17 +130,15 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                         RecipeCategory.MISC,
                         IMPBlocks.MUSIC_MANAGER.get()
                 )
-                .define('D', PlatformItemTags.diamonds())
                 .define('I', PlatformItemTags.ironIngots())
                 .define('G', PlatformItemTags.glassPanes())
                 .define('R', PlatformItemTags.redstoneDusts())
-                .define('B', PlatformItemTags.diamonds())
                 .pattern("III")
-                .pattern("DGR")
-                .pattern("BII")
+                .pattern("IGR")
+                .pattern("III")
                 .unlockedBy(
-                        providerAccess.getHasName(Items.DIAMOND),
-                        InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND)
+                        providerAccess.getHasName(Items.IRON_INGOT),
+                        InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT)
                 )
                 .save(consumer);
 
@@ -154,5 +152,20 @@ public class IMPRecipeProviderWrapper extends RecipeProviderWrapper {
                 )
                 .requires(Items.NOTE_BLOCK)
                 .save(consumer);
+
+        ShapedRecipeBuilder.shaped(
+                RecipeCategory.MISC,
+                IMPItems.EARPHONE.get()
+        )
+                .define('N', Items.NOTE_BLOCK)
+                .define('I', PlatformItemTags.ironIngots())
+                .pattern("III")
+                .pattern("N N")
+                .pattern("   ")
+                .unlockedBy(
+                        providerAccess.getHasName(Items.NOTE_BLOCK),
+                        InventoryChangeTrigger.TriggerInstance.hasItems(Items.NOTE_BLOCK)
+                ).save(consumer);
+        ;
     }
 }

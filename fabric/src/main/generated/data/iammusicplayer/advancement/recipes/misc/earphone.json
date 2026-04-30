@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_iron_ingot": {
+    "has_note_block": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:iron_ingot"
+            "items": "minecraft:note_block"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "iammusicplayer:music_manager"
+        "recipe": "iammusicplayer:earphone"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_iron_ingot"
+      "has_note_block"
     ]
   ],
   "rewards": {
     "recipes": [
-      "iammusicplayer:music_manager"
+      "iammusicplayer:earphone"
     ]
   }
 }

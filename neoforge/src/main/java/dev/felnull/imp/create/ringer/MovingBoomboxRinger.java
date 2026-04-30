@@ -10,6 +10,7 @@ import dev.felnull.imp.create.behaviour.BoomboxMovementBehaviour;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.server.music.ringer.IBoomboxRinger;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -94,11 +95,26 @@ public class MovingBoomboxRinger implements IBoomboxRinger {
 
     @Override
     public MusicTrackerEntry getRingerTracker() {
+        if(getRingerBoomboxData().getEarphoneUUID() != null){
+            var loc = EarphoneSaveData.getInstance(getServerLevel()).get(getRingerBoomboxData().getEarphoneUUID());
+            if(loc != null) {
+                var entity = getServerLevel().getEntity(loc.ownerUUID());
+                if(entity != null)
+                    return IMPMusicTrackers.createEntityTracker(entity, getRingerVolume(), getRingerRange());
+            }
+        }
         return IMPMusicTrackers.createFixedTracker(getRingerSpatialPosition(), getRingerVolume(), getRingerRange());
     }
 
     @Override
     public @NotNull Vec3 getRingerSpatialPosition() {
+        if(getRingerBoomboxData().getEarphoneUUID() != null){
+            var loc = EarphoneSaveData.getInstance(getServerLevel()).get(getRingerBoomboxData().getEarphoneUUID());
+            if(loc != null) {
+                var entity = getServerLevel().getEntity(loc.ownerUUID());
+                if(entity != null)return entity.position();
+            }
+        }
         return getContext(localPos, entity).position;
     }
 }

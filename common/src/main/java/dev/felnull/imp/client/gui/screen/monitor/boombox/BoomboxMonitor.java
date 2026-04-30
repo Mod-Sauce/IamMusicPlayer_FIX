@@ -37,6 +37,7 @@ public abstract class BoomboxMonitor extends Monitor<BoomboxBlockEntity> {
         registerMonitors(BoomboxData.MonitorType.REMOTE_PLAYBACK, RemotePlayBackBMonitor::new);
         registerMonitors(BoomboxData.MonitorType.RADIO_SELECT, RadioSelectBMonitor::new);
         registerMonitors(BoomboxData.MonitorType.REMOTE_PLAYBACK_SELECT, RemotePlayBackSelectBMonitor::new);
+        registerMonitors(BoomboxData.MonitorType.EARPHONE, EarphoneMonitor::new);
     }
 
     protected ImageInfo getRadioImage() {

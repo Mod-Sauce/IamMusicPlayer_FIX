@@ -327,5 +327,17 @@
   "imp.text.enterText.bilibili": "请输入视频 BV 号",
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "音频流获取参考了 tobyprime 的 Mcedia 项目",
   "text.autoconfig.iammusicplayer.option.openMcedia": "打开 Mcedia GitHub 地址",
-  "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌"
+  "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌",
+
+  "item.iammusicplayer.earphone": "耳机",
+  "item.iammusicplayer.earphone.desc": "享受你的私人音乐吧！",
+  "commands.imp.earphone.list.notFound": "未找到耳机",
+  "commands.imp.earphone.list.unlive": "不存在耳机：%s",
+  "commands.imp.earphone.list.entry": "%s: 属于%s",
+  "commands.imp.earphone.list": "现有的耳机如下：",
+  "imp.text.earphone.tip": "点击来连接",
+  "imp.text.earphone": "耳机",
+
+  "advancements.iammusicplayer.earphone.title": "耳机！",
+  "advancements.iammusicplayer.earphone.description": "末影唱片机……"
 }

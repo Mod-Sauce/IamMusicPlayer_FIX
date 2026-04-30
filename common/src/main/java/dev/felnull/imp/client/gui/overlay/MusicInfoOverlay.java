@@ -7,6 +7,7 @@ import dev.felnull.imp.client.gui.components.MusicInfoWidget;
 import dev.felnull.imp.explatform.IMPCreateHUDExpectPlatform;
 import dev.felnull.imp.integration.CreateIntegration;
 import dev.felnull.imp.item.BoomboxItem;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.InteractionHand;

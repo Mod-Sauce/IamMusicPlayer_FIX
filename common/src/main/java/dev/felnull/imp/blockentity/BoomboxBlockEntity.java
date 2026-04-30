@@ -12,6 +12,7 @@ import dev.felnull.imp.music.tracker.IMPMusicTrackers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.server.music.ringer.IBoomboxRinger;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import dev.felnull.imp.util.IMPItemUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -24,6 +25,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -245,12 +247,26 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
 
     @Override
     public MusicTrackerEntry getRingerTracker() {
+        if(boomboxData.getEarphoneUUID() != null){
+            var loc = EarphoneSaveData.getInstance(getServerLevel()).get(boomboxData.getEarphoneUUID());
+            if(loc != null) {
+                var entity = getServerLevel().getEntity(loc.ownerUUID());
+                if(entity != null)
+                    return IMPMusicTrackers.createEntityTracker(entity, getRingerVolume(), getRingerRange());
+            }
+        }
         return IMPMusicTrackers.createFixedTracker(getRingerSpatialPosition(), getRingerVolume(), getRingerRange());
-//        return Pair.of(MusicRingManager.FIXED_TRACKER, MusicRingManager.createFixedTracker(getRingerSpatialPosition()));
     }
 
     @Override
     public @NotNull Vec3 getRingerSpatialPosition() {
+        if(boomboxData.getEarphoneUUID() != null){
+            var loc = EarphoneSaveData.getInstance(getServerLevel()).get(boomboxData.getEarphoneUUID());
+            if(loc != null) {
+                var entity = getServerLevel().getEntity(loc.ownerUUID());
+                if(entity != null)return entity.position();
+            }
+        }
         if(SableIntegration.INSTANCE.isEnable())
             return PosGetter.getReallyPos(level, getBlockPos());
         return getBlockPos().getCenter();

@@ -7,6 +7,7 @@ import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.client.gui.components.PlayBackControlWidget;
 import dev.felnull.imp.client.gui.components.VolumeWidget;
 import dev.felnull.imp.client.gui.screen.BoomboxScreen;
+import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,6 +17,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+
+import java.util.UUID;
 
 public abstract class PlayBackBaseBMonitor extends BoomboxMonitor {
     protected static final ResourceLocation PLAYING_BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/monitor/playing.png");
@@ -79,6 +82,8 @@ public abstract class PlayBackBaseBMonitor extends BoomboxMonitor {
             sx += height - 2;
         }
         drawSmartCenterText(guiGraphics, Component.translatable(OEClientUtils.getWidthOmitText(getPlayBackName(), width - sx - 2, "...")), getStartX() + sx + (width - sx - 2f) / 2f, getStartY() + 3);
+        if(getScreen().getBoomBoxData().getEarphoneUUID() != null)
+            OERenderUtils.drawTexture(MusicManagerMonitor.WIDGETS_TEXTURE, guiGraphics.pose(), getStartX() + width - 45, getStartY() + height / 2f - 3, 7, 171, 7, 5, 256, 256);
     }
 
     @Override
@@ -110,6 +115,8 @@ public abstract class PlayBackBaseBMonitor extends BoomboxMonitor {
 
         renderVolumeSprite(poseStack, multiBufferSource, 168, 14, OERenderUtils.MIN_BREADTH * 2, i, j, onPxW, onPxH, monitorHeight, data.getVolume(), data.isMute());
         renderPlayBackControl(poseStack, multiBufferSource, isShortProgressBar(data) ? 38 : 2, 25, OERenderUtils.MIN_BREADTH * 2, i, j, onPxW, onPxH, monitorHeight, data.isPlaying() ? PlayBackControlWidget.StateType.STOP : PlayBackControlWidget.StateType.PLAYING);
+        if(data.getEarphoneUUID() != null)
+            renderTextureSprite(MusicManagerMonitor.WIDGETS_TEXTURE, poseStack, multiBufferSource, width - 45, height / 2f - 3, OERenderUtils.MIN_BREADTH * 2, 7, 5, 7, 171, 7, 5, 256, 256, i, j, onPxW, onPxH, monitorHeight);
     }
 
     private void setVolume(int volume) {

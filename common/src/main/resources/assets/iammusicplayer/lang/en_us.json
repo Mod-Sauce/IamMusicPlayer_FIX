@@ -326,5 +326,17 @@
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "Audio stream retrieval references tobyprime's Mcedia project",
   "text.autoconfig.iammusicplayer.option.openMcedia": "Open Mcedia GitHub URL",
   "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur Client ID",
-  "text.autoconfig.iammusicplayer.option.sableIntegration": "Sable Integration"
+  "text.autoconfig.iammusicplayer.option.sableIntegration": "Sable Integration",
+
+  "item.iammusicplayer.earphone": "Earphones",
+  "item.iammusicplayer.earphone.desc": "Enjoy your private music!",
+  "commands.imp.earphone.list.notFound": "No earphones found",
+  "commands.imp.earphone.list.unlive": "Earphone does not exist: %s",
+  "commands.imp.earphone.list.entry": "%s: owned by %s",
+  "commands.imp.earphone.list": "Available earphones:",
+  "imp.text.earphone.tip": "Click to connect",
+  "imp.text.earphone": "Earphones",
+
+  "advancements.iammusicplayer.earphone.title": "Earphones!",
+  "advancements.iammusicplayer.earphone.description": "The Ender music player..."
 }
