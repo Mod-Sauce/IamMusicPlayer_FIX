@@ -56,6 +56,10 @@ dependencies {
 //    modRuntimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
     modCompileOnly("com.tterrag.registrate:Registrate:${registrate_version}")
 
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-core:${rootProject.cct_version}")
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${rootProject.cct_version}")
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${rootProject.cct_version}")
+
     shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
         exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
     }
@@ -105,7 +109,6 @@ shadowJar {
     relocate 'org.slf4j', 'dev.felnull.imp.include.org.slf4j'
     relocate 'certificates', 'dev.felnull.imp.include.certificates'
     relocate 'com.fasterxml', 'dev.felnull.imp.include.com.fasterxml'
-    relocate 'org.jsoup', 'dev.felnull.imp.include.org.jsoup'
     relocate 'natives', 'dev.felnull.imp.include.natives'
     relocate 'mozilla', 'dev.felnull.imp.include.mozilla'
     relocate 'net.iharder', 'dev.felnull.imp.include.net.iharder'

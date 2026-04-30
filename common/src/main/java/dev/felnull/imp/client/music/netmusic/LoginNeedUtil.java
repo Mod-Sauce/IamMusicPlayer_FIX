@@ -25,7 +25,7 @@ public class LoginNeedUtil {
 
     @Nullable
     public static String pasteVIPUrl(long id){
-        if(IamMusicPlayer.getConfig().neteaseCookie.isEmpty())return null;
+        if(IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty())return null;
         var args = new HashMap<>(WEB_API.getRequestPropertyData());
         try {
             var json = NetWorker.get(String.format(BASE_URL, id), args);

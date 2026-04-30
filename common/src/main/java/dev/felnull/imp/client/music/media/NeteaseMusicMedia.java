@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
+import dev.felnull.imp.client.music.netmusic.URLType;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.network.chat.Component;
@@ -43,18 +44,22 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public MusicMediaResult load(String sourceName) throws Exception {
-        if(!IamMusicPlayer.getConfig().enableNetease)return null;
+        if(!IamMusicPlayer.getConfig().netMusicConfig.enableNetease)return null;
         long id;
         try {
             id = Long.parseLong(sourceName);
         } catch (NumberFormatException e) {
-            return null;
+            if(URLType.SONG.isMatch(sourceName))
+                try {
+                    id = Long.parseLong(sourceName);
+                } catch (NumberFormatException ignore) {return null;}
+            else return null;
         }
 
         var data = NetMusicUtil.getNetMusicJson(id);
         var infoData = NetMusicUtil.getNetMusicSongData(data);
         if(infoData == null)return null;
-        var name = IamMusicPlayer.getConfig().withTransName && !infoData.getTransName().isEmpty() ?
+        var name = IamMusicPlayer.getConfig().netMusicConfig.withTransName && !infoData.getTransName().isEmpty() ?
                 String.format("%s(%s)", infoData.getName(), infoData.getTransName()) :
                 infoData.getName();
         var author = String.join("、", infoData.getArtists());
@@ -72,6 +77,6 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public int priority() {
-        return 1;
+        return 2;
     }
 }

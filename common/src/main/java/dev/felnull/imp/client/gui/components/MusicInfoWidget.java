@@ -113,11 +113,11 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
             poseStack.popPose();
         }
         drawSmartCenterText(guiGraphics, Component.translatable(OEClientUtils.getWidthOmitText(music.getName(),
-                        width - sx - 2,
+                        width - sx - 15,
                         "...")).withStyle(ChatFormatting.BOLD),
                 getX() + sx + (width - sx - 2f) / 2f, getY() + 3);
         drawSmartCenterText(guiGraphics, Component.translatable(OEClientUtils.getWidthOmitText(music.getAuthor(),
-                        width - sx - 2,
+                        width - sx - 15,
                         "...")),
                 getX() + sx + (width - sx - 2f) / 2f, getY() + 3 + mc.font.lineHeight + 1);
 
@@ -147,14 +147,15 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
         }
 
         if(lyric == null)return;
+        if(lyric.isEmpty())return;
         var part = lyric.getPart(data.getMusicPosition() / 1000f);
         drawSmartCenterText(guiGraphics, Component.translatable(OEClientUtils.getWidthOmitText(part.getA(),
-                        width,
+                        width - 5,
                         "...")),
                 getX() + width / 2f, getY() + baseHeight + 1);
         if(part.getB() != null)
             drawSmartCenterText(guiGraphics, Component.translatable(OEClientUtils.getWidthOmitText(part.getB(),
-                            width,
+                            width - 5,
                             "...")),
                     getX() + width / 2f, getY() + baseHeight + 2 + mc.font.lineHeight);
     }

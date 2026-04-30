@@ -29,5 +29,17 @@ public class IMPLyricGetter {
                 return new NetEaseLyricGetter();
             }
         });
+
+        register(new LyricGetterType() {
+            @Override
+            public String getLoaderType() {
+                return "bilibili";
+            }
+
+            @Override
+            public LyricGetter getLyricGetter() {
+                return new BilibiliLyricGetter();
+            }
+        });
     }
 }

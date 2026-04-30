@@ -86,7 +86,7 @@ public class NetMusicUtil {
         updateCookie();
         final String baseURL = "https://music.163.com/song/media/outer/url?id=%d.mp3";
         String url = String.format(baseURL, id);
-        if(!IamMusicPlayer.getConfig().neteaseCookie.isEmpty()){
+        if(!IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty()){
             var url1 = LoginNeedUtil.pasteVIPUrl(id);
             if(url1 != null)url = url1;
         }
@@ -120,8 +120,8 @@ public class NetMusicUtil {
     }
 
     private static void updateCookie(){
-        if(IamMusicPlayer.getConfig().neteaseCookie.isEmpty())return;
-        var cookie = IamMusicPlayer.getConfig().neteaseCookie;
+        if(IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty())return;
+        var cookie = IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie;
         if(!cookie.contains("os=pc"))cookie = cookie + ";appver=3.1.6;os=pc";
         WEB_API.getRequestPropertyData().put("Cookie", cookie);
     }
@@ -167,7 +167,7 @@ public class NetMusicUtil {
         }
         for(NetEaseMusicList.Track track : pojo.getPlayList().getTracks()) {
             var musicSource = new MusicSource(IMPMusicMedias.NETEASE_MUSIC.getName(), String.valueOf(track.getId()), track.getDuration());
-            var name = IamMusicPlayer.getConfig().withTransName && !track.getTransName().isEmpty() ?
+            var name = IamMusicPlayer.getConfig().netMusicConfig.withTransName && !track.getTransName().isEmpty() ?
                     String.format("%s(%s)", track.getName(), track.getTransName()) :
                     track.getName();
 

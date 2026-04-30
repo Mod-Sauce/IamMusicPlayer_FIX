@@ -6,8 +6,8 @@ import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.Minecraft;
 
 public class GiteeURL {
-    public static final String hashBaseUrl = "https://gitee.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer";
-    public static final String lavaPlayerNativesURL = "https://gitee.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer/natives_link.json";
+    public static final String hashBaseUrl = "https://raw.giteeusercontent.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer";
+    public static final String lavaPlayerNativesURL = "https://raw.giteeusercontent.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer/natives_link.json";
 
     public static void setGitee(){
         IamMusicPlayer.getConfig().hashBaseUrl = hashBaseUrl;
@@ -28,7 +28,7 @@ public class GiteeURL {
 
     public static void trySet(){
         if(!IamMusicPlayer.getConfig().tryUseGitee)return;
-        if(isZH_CN() && IamMusicPlayer.getConfig().lavaPlayerNativesURL.contains("raw.githubusercontent.com"))
+        if(isZH_CN() && (IamMusicPlayer.getConfig().lavaPlayerNativesURL.contains("raw.githubusercontent.com") || IamMusicPlayer.getConfig().lavaPlayerNativesURL.contains("gitee.com")))
             setGitee();
         else if(!isZH_CN()){
             IamMusicPlayer.getConfig().tryUseGitee = false;
