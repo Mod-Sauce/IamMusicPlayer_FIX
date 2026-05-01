@@ -30,6 +30,8 @@ public class IMPRHash {
     private static final Logger LOGGER = LogManager.getLogger(IMPRHash.class);
 
     public boolean FileIsValid() {
+        if(IamMusicPlayer.getConfig().disableHash)
+            return true;
         Type os = OSs.getOS();
         String arch = OSs.getArch();
         if (os == Type.WINDOWS) {

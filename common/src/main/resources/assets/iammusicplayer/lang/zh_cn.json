@@ -339,5 +339,8 @@
   "imp.text.earphone": "耳机",
 
   "advancements.iammusicplayer.earphone.title": "耳机！",
-  "advancements.iammusicplayer.earphone.description": "末影唱片机……"
+  "advancements.iammusicplayer.earphone.description": "末影唱片机……",
+
+  "text.autoconfig.iammusicplayer.option.disableHash": "禁用哈希检查",
+  "text.autoconfig.iammusicplayer.option.disableHash.tip": "警告：取消哈希检查可能会导致加载未知的库"
 }

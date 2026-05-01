@@ -40,6 +40,10 @@ public class IMPConfig implements ConfigData {
     "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
 
   @ConfigEntry.Category("client")
+  @ConfigEntry.Gui.Tooltip
+  public boolean disableHash = false;
+
+  @ConfigEntry.Category("client")
   public String IMPRFolder = "iammusicplayerrenewed";
 
   @ConfigEntry.Category("client")

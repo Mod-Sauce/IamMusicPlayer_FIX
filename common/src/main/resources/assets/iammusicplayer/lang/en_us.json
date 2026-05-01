@@ -338,5 +338,8 @@
   "imp.text.earphone": "Earphones",
 
   "advancements.iammusicplayer.earphone.title": "Earphones!",
-  "advancements.iammusicplayer.earphone.description": "The Ender music player..."
+  "advancements.iammusicplayer.earphone.description": "The Ender music player...",
+
+  "text.autoconfig.iammusicplayer.option.disableHash": "Disable hash check",
+  "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries."
 }

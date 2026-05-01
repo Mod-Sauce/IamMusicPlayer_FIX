@@ -83,7 +83,7 @@ public abstract class PlayBackBaseBMonitor extends BoomboxMonitor {
         }
         drawSmartCenterText(guiGraphics, Component.translatable(OEClientUtils.getWidthOmitText(getPlayBackName(), width - sx - 2, "...")), getStartX() + sx + (width - sx - 2f) / 2f, getStartY() + 3);
         if(getScreen().getBoomBoxData().getEarphoneUUID() != null)
-            OERenderUtils.drawTexture(MusicManagerMonitor.WIDGETS_TEXTURE, guiGraphics.pose(), getStartX() + width - 45, getStartY() + height / 2f - 3, 7, 171, 7, 5, 256, 256);
+            OERenderUtils.drawTexture(MusicManagerMonitor.WIDGETS_TEXTURE, guiGraphics.pose(), getStartX() + width - 55, getStartY() + height / 2f - 3, 7, 171, 7, 5, 256, 256);
     }
 
     @Override
@@ -116,7 +116,7 @@ public abstract class PlayBackBaseBMonitor extends BoomboxMonitor {
         renderVolumeSprite(poseStack, multiBufferSource, 168, 14, OERenderUtils.MIN_BREADTH * 2, i, j, onPxW, onPxH, monitorHeight, data.getVolume(), data.isMute());
         renderPlayBackControl(poseStack, multiBufferSource, isShortProgressBar(data) ? 38 : 2, 25, OERenderUtils.MIN_BREADTH * 2, i, j, onPxW, onPxH, monitorHeight, data.isPlaying() ? PlayBackControlWidget.StateType.STOP : PlayBackControlWidget.StateType.PLAYING);
         if(data.getEarphoneUUID() != null)
-            renderTextureSprite(MusicManagerMonitor.WIDGETS_TEXTURE, poseStack, multiBufferSource, width - 45, height / 2f - 3, OERenderUtils.MIN_BREADTH * 2, 7, 5, 7, 171, 7, 5, 256, 256, i, j, onPxW, onPxH, monitorHeight);
+            renderTextureSprite(MusicManagerMonitor.WIDGETS_TEXTURE, poseStack, multiBufferSource, width - 55, height / 2f - 3, OERenderUtils.MIN_BREADTH * 2, 7, 5, 7, 171, 7, 5, 256, 256, i, j, onPxW, onPxH, monitorHeight);
     }
 
     private void setVolume(int volume) {
