@@ -15,6 +15,12 @@ public class BilibiliLyricGetter implements LyricGetter{
     }
 
     @Override
+    public void runAndWait(MusicSource musicSource) {
+        run(musicSource);
+        try {thread.join();} catch (InterruptedException ignored) {}
+    }
+
+    @Override
     public void stop() {
         thread.interrupt();
     }

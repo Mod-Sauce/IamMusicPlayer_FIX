@@ -57,6 +57,11 @@ public class MovingBoomboxRinger implements IBoomboxRinger {
                 BoomboxMovementBehaviour.saveData(context, getBlockState().setValue(IMPBaseEntityBlock.POWERED, isPowered()),
                         saveWithoutMetadata(context.world.registryAccess()));
             }
+
+            @Override
+            public void updateLyric() {
+
+            }
         };
         be.loadCustomOnly(context.blockEntityData, context.world.registryAccess());
         return be;

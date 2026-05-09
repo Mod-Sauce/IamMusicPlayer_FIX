@@ -33,6 +33,11 @@ public class MovingBoomboxScreen extends BoomboxScreen  {
                 BoomboxMovementBehaviour.saveData(content, getBlockState(),
                         saveWithoutMetadata(content.world.registryAccess()));
             }
+
+            @Override
+            public void updateLyric() {
+
+            }
         };
         be.loadCustomOnly(content.blockEntityData, level.registryAccess());
         return be;

@@ -1,13 +1,16 @@
 package dev.felnull.imp.blockentity;
 
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.BoomboxBlock;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.block.IMPBlocks;
+import dev.felnull.imp.client.music.lyric.IMPLyricGetter;
 import dev.felnull.imp.integration.SableIntegration;
 import dev.felnull.imp.integration.sable.PosGetter;
 import dev.felnull.imp.inventory.BoomboxMenu;
 import dev.felnull.imp.inventory.IMPMenus;
 import dev.felnull.imp.item.BoomboxItem;
+import dev.felnull.imp.music.resource.Lyric;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.server.music.ringer.IBoomboxRinger;
@@ -23,22 +26,27 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoomboxRinger {
     private BoomboxData boomboxData;
     private NonNullList<ItemStack> items = NonNullList.withSize(2, ItemStack.EMPTY);
     private final UUID ringerUUID = UUID.randomUUID();
+
+    @Nullable
+    // Server-side only
+    private volatile Lyric lyric;
+    private volatile boolean gettingLyric = false;
 
     public BoomboxBlockEntity(BlockPos blockPos, BlockState blockState) {
 
@@ -62,6 +70,7 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
             @Override
             public void setPower(boolean power) {
                 BoomboxBlockEntity.this.setPower(power);
+                updateLyric();
             }
 
             @Override
@@ -286,5 +295,31 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
             boomboxData.setHandleRaisedProgressOld(boomboxData.getHandleRaisedMax());
         }
         setChanged();
+    }
+
+    public void updateLyric(){
+        if(IamMusicPlayer.getConfig().serverLyric && lyric == null && !gettingLyric && boomboxData.isPlaying()) {
+            var source = getRingerMusicSource();
+            if(source == null)return;
+            var getter = IMPLyricGetter.getGetter(source);
+            if(getter == null)return;
+            CompletableFuture.runAsync(() ->
+                    getter.runAndWait(source)
+            ).thenAccept(v -> {
+                if(getter.isFinish() && getter.getLyric() != null) {
+                    this.lyric = getter.getLyric();
+                    gettingLyric = false;
+                }
+            });
+            gettingLyric = true;
+        }else if(lyric != null && !boomboxData.isPlaying()) {
+            lyric = null;
+            gettingLyric = false;
+        }
+    }
+
+    // Server-side only
+    public @Nullable Lyric getLyric() {
+        return lyric;
     }
 }

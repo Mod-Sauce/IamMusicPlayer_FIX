@@ -7,12 +7,9 @@ import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
-import dev.felnull.imp.server.music.ringer.MusicRing;
-import dev.felnull.imp.server.music.ringer.MusicRingManager;
 import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import dev.felnull.imp.util.IMPItemUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -101,6 +98,8 @@ public class BoomboxData {
 
             if (!isPowered() && monitorType != MonitorType.OFF) monitorType = MonitorType.OFF;
 
+            if(!isPowered() && earphoneUUID != null) setEarphoneUUID(null);
+
             if (monitorType != lastMonitorType) {
                 lastMonitorType = monitorType;
                 setMusicPosition(0);
@@ -154,8 +153,10 @@ public class BoomboxData {
             }
 
             if(earphoneUUID != null){
-                if(!EarphoneSaveData.getInstance((ServerLevel) level).has(earphoneUUID))
+                if(!EarphoneSaveData.getInstance((ServerLevel) level).has(earphoneUUID)) {
+                    setPlaying(false);
                     setEarphoneUUID(null);
+                }
             }
         }
     }

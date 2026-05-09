@@ -341,5 +341,12 @@
   "advancements.iammusicplayer.earphone.description": "The Ender music player...",
 
   "text.autoconfig.iammusicplayer.option.disableHash": "Disable hash check",
-  "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries."
+  "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries.",
+
+  "imp.create.text.showTrans.title": "Whether to show translation",
+  "imp.create.text.showTrans.yes": "Show translation",
+  "imp.create.text.showTrans.no": "Hide translation",
+  "imp.create.text.lyric": "Lyrics",
+  "text.autoconfig.iammusicplayer.option.serverLyric": "Request lyrics from server",
+  "imp.create.text.lyric.disable": "The \"Request lyrics from server\" configuration is not enabled"
 }

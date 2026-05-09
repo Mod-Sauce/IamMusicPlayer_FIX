@@ -39,7 +39,7 @@ loom {
         }
     }
 }
-assemble.dependsOn runDatagen
+//assemble.dependsOn runDatagen
 
 configurations {
     common

@@ -6,9 +6,11 @@ import dev.felnull.imp.IamMusicPlayer;
 import java.util.function.Supplier;
 
 import dev.felnull.imp.integration.PatchouliIntegration;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.DyedItemColor;
 
 public class IMPItems {
 

@@ -4,6 +4,7 @@ import dev.architectury.event.CompoundEventResult;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
+import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.hooks.client.screen.ScreenAccess;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IMPConfig;
@@ -12,8 +13,10 @@ import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.imp.client.music.MusicSyncManager;
+import dev.felnull.imp.client.renderer.item.IMPItemRenderers;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.entity.IRingerPartyParrot;
+import dev.felnull.imp.integration.PatchouliIntegration;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
@@ -61,7 +64,7 @@ public class ClientHandler {
     MoreEntityEvent.LIVING_ENTITY_TICK.register(
       ClientHandler::onLivingEntityTick
     );
-    //ClientTickEvent.CLIENT_POST.register(ClientHandler::ontClientTick);
+    ClientTickEvent.CLIENT_POST.register(ClientHandler::ontClientTick);
     ClientEvent.HAND_ATTACK.register(ClientHandler::onHandAttack);
     ClientGuiEvent.SET_SCREEN.register(ClientHandler::onModifyScreen);
     ClientGuiEvent.INIT_POST.register(ClientHandler::onScreenInit);
@@ -187,9 +190,9 @@ public class ClientHandler {
     return EventResult.pass();
   }
 
-  /*  private static void ontClientTick(Minecraft instance) {
+  private static void ontClientTick(Minecraft instance) {
     if (
       PatchouliIntegration.INSTANCE.isEnable()
     ) IMPItemRenderers.manualItemRenderer.tick();
-  }*/
+  }
 }

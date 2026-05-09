@@ -67,6 +67,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("server")
   public boolean dropItemRing = true;
 
+  @ConfigEntry.Category("server")
+  public boolean serverLyric = false;
+
   @ConfigEntry.Category("integration")
   public boolean soundPhysicsRemasteredIntegration = true;
 
