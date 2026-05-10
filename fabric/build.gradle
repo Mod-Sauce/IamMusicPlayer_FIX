@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "8.1.1"
+  id("com.gradleup.shadow") version "9.4.1"
 //    id 'com.matthewprenger.cursegradle' version '1.4.0'
 //    id "com.modrinth.minotaur" version "2.8.0"
 }
@@ -52,10 +52,8 @@ configurations {
 }
 
 repositories {
-    maven { url "https://maven.terraformersmc.com/releases/" }//modmenu
-    maven {
-        url "https://cursemaven.com"
-    }
+    maven { url = "https://maven.terraformersmc.com/releases/" }//modmenu
+    maven { url = "https://cursemaven.com" }
     maven { url = "https://maven.ladysnake.org/releases" }
     mavenCentral()
 }
@@ -82,9 +80,8 @@ dependencies {
 
     modCompileOnly "curse.maven:touhoulittlemaid-orihime-1311287:7549503"
     modApi "vazkii.patchouli:Patchouli:${rootProject.patchouli_version}-FABRIC"
-    var cca_version = "6.1.2"
-    modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:${cca_version}"
-    modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-entity:${cca_version}"
+    modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:${rootProject.cca_version}"
+    modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-entity:${rootProject.cca_version}"
 
     modCompileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-fabric-api:${rootProject.cct_version}")
     modCompileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-fabric:${rootProject.cct_version}")
@@ -179,10 +176,10 @@ sourcesJar {
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
+def javaComponent = components["java"] as AdhocComponentWithVariants
+javaComponent.withVariantsFromConfiguration(configurations["shadowRuntimeElements"]) {
+    // See more details in https://github.com/GradleUp/shadow/pull/1662.
+    skip()
 }
 
 tasks.register("cleanGenerated", Delete) {
