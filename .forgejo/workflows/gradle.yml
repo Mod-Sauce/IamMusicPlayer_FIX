@@ -2,9 +2,6 @@ name: Mod Build
 on:
   - workflow_dispatch
 
-env:
-  IMAGE_NAME: amazoncorretto:21
-
 jobs:
   build:
     runs-on: codeberg-small
@@ -13,6 +10,13 @@ jobs:
         uses: actions/checkout@main
         with:
           fetch-depth: 1
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: 21
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
       - name: Build
         run: ./gradlew build --no-daemon
       - name: Upload
