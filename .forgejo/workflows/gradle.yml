@@ -2,20 +2,17 @@ name: Mod Build
 on:
   - workflow_dispatch
 
+env:
+  IMAGE_NAME: amazoncorretto:21
+
 jobs:
   build:
     runs-on: codeberg-small
-    container:
-      image: amazoncorretto:21
     steps:
       - name: Checkout Repository
         uses: actions/checkout@main
         with:
           fetch-depth: 1
-      - name: Setup Java 17 & Java 21
-        run: |
-          sudo apt update
-          sudo apt install openjdk-21-jdk
       - name: Build
         run: ./gradlew build --no-daemon
       - name: Upload
