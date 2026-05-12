@@ -20,7 +20,7 @@ jobs:
       - name: Build
         run: ./gradlew build --no-daemon
       - name: Upload
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v3.2.2
         with:
           path: |
             fabric/build/libs
