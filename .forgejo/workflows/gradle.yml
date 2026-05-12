@@ -4,7 +4,7 @@ on:
 
 jobs:
   build:
-    runs-on: codeberg-small
+    runs-on: codeberg-medium
     steps:
       - name: Checkout Repository
         uses: actions/checkout@main
