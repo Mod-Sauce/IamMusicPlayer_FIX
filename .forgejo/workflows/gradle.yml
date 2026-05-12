@@ -26,4 +26,4 @@ jobs:
             fabric/build/libs
             forge/build/libs
           retention-days: 30
-          archive: false
+          archive: true
