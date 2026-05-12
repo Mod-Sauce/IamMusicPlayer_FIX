@@ -19,11 +19,11 @@ jobs:
         run: chmod +x gradlew
       - name: Build
         run: ./gradlew build --no-daemon
-      - name: Upload
+      - name: Upload Fabric
         uses: actions/upload-artifact@v3.2.2
         with:
           path: |
             fabric/build/libs
-            forge/build/libs
+            neoforge/build/libs
           retention-days: 30
           archive: true
