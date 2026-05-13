@@ -25,4 +25,9 @@ public class ImportMusicsSelectMMMonitor
   protected @Nullable MusicManagerBlockEntity.MonitorType getParentType() {
     return MusicManagerBlockEntity.MonitorType.ADD_MUSIC;
   }
+
+  @Override
+  public @NotNull MusicManagerBlockEntity.MonitorType getImportNeteaseMonitor() {
+    return MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST_MUSICS;
+  }
 }

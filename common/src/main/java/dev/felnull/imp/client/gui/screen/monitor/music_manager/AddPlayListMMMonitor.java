@@ -104,7 +104,7 @@ public class AddPlayListMMMonitor extends MusicManagerMonitor {
       5,
       5
     );
-    this.addOnlinePlayListButton.active = false;
+//    this.addOnlinePlayListButton.active = false;
 
     this.playlistSortButton = addRenderWidget(
       new SortButton.SortTypeButton(

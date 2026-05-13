@@ -17,6 +17,7 @@ import dev.felnull.imp.entity.IRingerPartyParrot;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
+import dev.felnull.imp.util.GiteeURL;
 import dev.felnull.otyacraftengine.client.event.ClientEvent;
 import dev.felnull.otyacraftengine.client.gui.TextureRegion;
 import dev.felnull.otyacraftengine.client.gui.components.IconButton;
@@ -179,6 +180,7 @@ public class ClientHandler {
 
   private static void onClientLevelLoad(ClientLevel clientLevel) {
     MusicSyncManager.getInstance().reset();
+    GiteeURL.trySet();
   }
 
   private static EventResult changeHandHeight(

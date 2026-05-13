@@ -808,11 +808,13 @@ public class MusicManagerBlockEntity
     EDIT_MUSIC("edit_music", true),
     DELETE_MUSIC("delete_music", true),
     IMPORT_YOUTUBE_PLAY_LIST("import_youtube_play_list", false),
+    IMPORT_NETEASE_PLAY_LIST("import_netease_play_list", false),
     IMPORT_MUSICS_SELECT("import_musics_select", true),
     IMPORT_YOUTUBE_PLAY_LIST_MUSICS(
       "import_youtube_play_list_musics",
       true
     ),
+    IMPORT_NETEASE_PLAY_LIST_MUSICS("import_netease_play_list_musics", true),
     AUTHORITY("authority", true);
 
     private final String name;
