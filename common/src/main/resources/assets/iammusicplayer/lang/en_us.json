@@ -326,5 +326,27 @@
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "Audio stream retrieval references tobyprime's Mcedia project",
   "text.autoconfig.iammusicplayer.option.openMcedia": "Open Mcedia GitHub URL",
   "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur Client ID",
-  "text.autoconfig.iammusicplayer.option.sableIntegration": "Sable Integration"
+  "text.autoconfig.iammusicplayer.option.sableIntegration": "Sable Integration",
+
+  "item.iammusicplayer.earphone": "Earphones",
+  "item.iammusicplayer.earphone.desc": "Enjoy your private music!",
+  "commands.imp.earphone.list.notFound": "No earphones found",
+  "commands.imp.earphone.list.unlive": "Earphone does not exist: %s",
+  "commands.imp.earphone.list.entry": "%s: owned by %s",
+  "commands.imp.earphone.list": "Available earphones:",
+  "imp.text.earphone.tip": "Click to connect",
+  "imp.text.earphone": "Earphones",
+
+  "advancements.iammusicplayer.earphone.title": "Earphones!",
+  "advancements.iammusicplayer.earphone.description": "The Ender music player...",
+
+  "text.autoconfig.iammusicplayer.option.disableHash": "Disable hash check",
+  "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries.",
+
+  "imp.create.text.showTrans.title": "Whether to show translation",
+  "imp.create.text.showTrans.yes": "Show translation",
+  "imp.create.text.showTrans.no": "Hide translation",
+  "imp.create.text.lyric": "Lyrics",
+  "text.autoconfig.iammusicplayer.option.serverLyric": "Request lyrics from server",
+  "imp.create.text.lyric.disable": "The \"Request lyrics from server\" configuration is not enabled"
 }

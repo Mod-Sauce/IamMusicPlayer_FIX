@@ -23,7 +23,12 @@ public class BoomboxMovementBehaviour implements MovementBehaviour {
     @Override
     public void tick(MovementContext context) {
         if(!context.world.isClientSide) {
-            var be = new BoomboxBlockEntity(BlockPos.ZERO, context.state);
+            var be = new BoomboxBlockEntity(BlockPos.ZERO, context.state){
+                @Override
+                public void updateLyric() {
+
+                }
+            };
             be.loadCustomOnly(context.blockEntityData, context.world.registryAccess());
             CompoundTag tag = context.blockEntityData;
             UUID uuid = tag.contains("RingerUUID") ? tag.getUUID("RingerUUID") : null;

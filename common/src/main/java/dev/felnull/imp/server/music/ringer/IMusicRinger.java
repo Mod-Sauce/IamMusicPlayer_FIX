@@ -5,6 +5,8 @@ import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -108,4 +110,6 @@ public interface IMusicRinger extends MusicRingerAccess {
     default ServerLevel getServerLevel() {
         return getRingerLevel();
     }
+
+    default boolean canListen(ServerPlayer player){return true;}
 }

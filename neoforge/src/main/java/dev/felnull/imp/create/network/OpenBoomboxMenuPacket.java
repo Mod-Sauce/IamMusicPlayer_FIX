@@ -71,6 +71,11 @@ public record OpenBoomboxMenuPacket(int entityID,
                 BoomboxMovementBehaviour.saveData(content, getBlockState().setValue(IMPBaseEntityBlock.POWERED, isPowered()),
                         saveWithoutMetadata(content.world.registryAccess()));
             }
+
+            @Override
+            public void updateLyric() {
+
+            }
         };
         be.loadCustomOnly(content.blockEntityData, content.world.registryAccess());
         MenuRegistry.openExtendedMenu((ServerPlayer) packetContext.getPlayer(), new ExtendedMenuProvider() {

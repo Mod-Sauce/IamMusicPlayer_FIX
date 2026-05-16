@@ -3,6 +3,7 @@ package dev.felnull.imp.server.handler;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.TickEvent;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
@@ -15,6 +16,7 @@ public class ServerMusicHandler {
 
     private static void levelTick(ServerLevel serverLevel) {
         MusicRingManager.getInstance().tick(serverLevel);
+        EarphoneSaveData.getInstance(serverLevel).tick(serverLevel);
     }
 
     private static void serverStarting(MinecraftServer server) {

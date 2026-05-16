@@ -1,0 +1,33 @@
+{
+  "parent": "iammusicplayer:iammusicplayer/listen_to_music",
+  "criteria": {
+    "listen_to_music": {
+      "conditions": {
+        "items": [
+          {
+            "items": "iammusicplayer:earphone"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.iammusicplayer.earphone.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "iammusicplayer:earphone"
+    },
+    "title": {
+      "translate": "advancements.iammusicplayer.earphone.title"
+    }
+  },
+  "requirements": [
+    [
+      "listen_to_music"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "N": {
+      "item": "minecraft:note_block"
+    }
+  },
+  "pattern": [
+    "III",
+    "N N",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "id": "iammusicplayer:earphone"
+  }
+}

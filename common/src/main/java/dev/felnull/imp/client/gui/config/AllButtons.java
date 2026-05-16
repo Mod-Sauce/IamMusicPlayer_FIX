@@ -1,6 +1,10 @@
 package dev.felnull.imp.client.gui.config;
 
 import com.sedmelluq.discord.lavaplayer.natives.ConnectorNativeLibLoader;
+import dev.felnull.imp.client.lava.IMPSystemNativeLibraryProperties;
+import dev.felnull.imp.client.lava.LavaNativeManager;
+import dev.felnull.imp.client.lava.LavaPlayerLoader;
+import dev.felnull.imp.client.lava.LavaPlayerManager;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -26,6 +30,8 @@ public class AllButtons {
     static {
         registry("reloadLava", Component.translatable("imp.text.lava.reload"), button -> {
             try {
+                LavaPlayerLoader.init();
+                LavaPlayerManager.getInstance().reload();
                 ConnectorNativeLibLoader.loadConnectorLibrary();
             }catch (Exception e){
                 Minecraft.getInstance().getToasts().addToast(SystemToast.multiline(

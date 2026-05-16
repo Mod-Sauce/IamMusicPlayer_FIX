@@ -6,9 +6,11 @@ import dev.felnull.imp.IamMusicPlayer;
 import java.util.function.Supplier;
 
 import dev.felnull.imp.integration.PatchouliIntegration;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.DyedItemColor;
 
 public class IMPItems {
 
@@ -56,6 +58,10 @@ public class IMPItems {
       pr.arch$tab(IMPCreativeModeTabs.MOD_TAB);
     return new ManualItem(pr);
   });
+
+  public static final RegistrySupplier<Item> EARPHONE = register("earphone", () ->
+    new EarphoneItem(new Item.Properties().arch$tab(IMPCreativeModeTabs.MOD_TAB).stacksTo(1))
+  );
 
   //  public static final RegistrySupplier<Item> SOUND_TEST = register("sound_test", () -> new SoundTestItem(new Item.Properties().tab(IMPCreativeModeTab.MOD_TAB)));
 

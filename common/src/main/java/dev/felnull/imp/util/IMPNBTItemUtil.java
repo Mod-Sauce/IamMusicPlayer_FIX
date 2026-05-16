@@ -1,6 +1,6 @@
 package dev.felnull.imp.util;
 
-import dev.felnull.imp.item.IMPComponents;
+import dev.felnull.imp.item.component.IMPComponents;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;

@@ -7,11 +7,12 @@ import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import dev.felnull.imp.util.IMPItemUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -25,9 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import org.modsauce.otyacraftenginerenewed.server.level.TagSerializable;
 import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public class BoomboxData {
@@ -63,6 +62,9 @@ public class BoomboxData {
     private boolean radioStartFlg;
     private boolean noChangeCassetteTape;
 
+    @Nullable
+    private UUID earphoneUUID;
+
     public BoomboxData(CompoundTag boomboxTag, @NotNull BoomboxData.DataAccess access) {
         this.access = access;
         if (boomboxTag != null) this.load(boomboxTag.getCompound("BoomBoxData"), true, true);
@@ -95,6 +97,8 @@ public class BoomboxData {
             if (isPowered() && monitorType == MonitorType.OFF) monitorType = MonitorType.PLAYBACK;
 
             if (!isPowered() && monitorType != MonitorType.OFF) monitorType = MonitorType.OFF;
+
+            if(!isPowered() && earphoneUUID != null) setEarphoneUUID(null);
 
             if (monitorType != lastMonitorType) {
                 lastMonitorType = monitorType;
@@ -145,6 +149,13 @@ public class BoomboxData {
                 if (getLidOpenProgress() >= getLidOpenProgressMax()) {
                     changeCassetteTape = false;
                     startLidOpen(false, level);
+                }
+            }
+
+            if(earphoneUUID != null){
+                if(!EarphoneSaveData.getInstance((ServerLevel) level).has(earphoneUUID)) {
+                    setPlaying(false);
+                    setEarphoneUUID(null);
                 }
             }
         }
@@ -200,6 +211,9 @@ public class BoomboxData {
                         setPlaying(false);
                         if (isRadioStream()) setMusicPosition(0);
                     }
+                }
+                case EARPHONE -> {
+                    setMonitorType(MonitorType.EARPHONE);
                 }
             }
             return null;
@@ -279,6 +293,20 @@ public class BoomboxData {
                 setContinuousType(ContinuousType.getByName(data.getString("type")));
             }
             return null;
+        } else if("earphone".equals(name)){
+            var savedData = EarphoneSaveData.getInstance(player.serverLevel());
+            return OENbtUtils.writeList(new CompoundTag(), "earphone", savedData.getEarphones().stream().filter(
+                    l -> {
+                        var item = EarphoneSaveData.findEarphone(player.serverLevel(), l);
+                        return item != null && Objects.equals(l.ownerUUID(), player.getUUID());
+                    }
+            ).toList(), EarphoneSaveData.EarphoneLocation::save);
+        } else if ("connect_earphone".equals(name)) {
+            if(data.contains("uuid"))
+                setEarphoneUUID(data.getUUID("uuid"));
+            else
+                setEarphoneUUID(null);
+            return null;
         }
         return null;
     }
@@ -317,6 +345,8 @@ public class BoomboxData {
         if (this.selectedMusic != null) tag.put("SelectedMusic", this.selectedMusic.createSavedTag());
         tag.putString("ContinuousType", this.continuousType.getName());
         tag.putString("LastMonitorType", this.lastMonitorType.getName());
+        if(earphoneUUID != null)
+            tag.putUUID("earphone", earphoneUUID);
 
 
         if (absolutely) {
@@ -359,6 +389,8 @@ public class BoomboxData {
         OENbtUtils.readUUIDMap(tag, "PlayerSelectPlaylists", playerSelectPlaylists);
         this.continuousType = ContinuousType.getByName(tag.getString("ContinuousType"));
         this.lastMonitorType = MonitorType.getByName(tag.getString("LastMonitorType"));
+        if(tag.contains("earphone"))
+            earphoneUUID = tag.getUUID("earphone");
 
         if (tag.contains("SelectedMusic"))
             this.selectedMusic = TagSerializable.loadSavedTag(tag.getCompound("SelectedMusic"), new Music());
@@ -540,10 +572,14 @@ public class BoomboxData {
         }
     }
 
+    public void setEarphoneUUID(UUID uuid){
+        this.earphoneUUID = uuid;
+        update();
+    }
 
-//    public ItemStack getOldCassetteTape() {
-//        return oldCassetteTape;
-//    }
+    public @Nullable UUID getEarphoneUUID() {
+        return earphoneUUID;
+    }
 
     public void setMonitorType(MonitorType monitorType) {
         this.monitorType = monitorType;
@@ -759,7 +795,7 @@ public class BoomboxData {
     }
 
     public static enum MonitorType {
-        OFF("off"), PLAYBACK("playback"), REMOTE_PLAYBACK("remote_playback"), REMOTE_PLAYBACK_SELECT("remote_playback_select"), RADIO("radio"), RADIO_SELECT("radio_select");
+        OFF("off"), PLAYBACK("playback"), REMOTE_PLAYBACK("remote_playback"), REMOTE_PLAYBACK_SELECT("remote_playback_select"), RADIO("radio"), RADIO_SELECT("radio_select"), EARPHONE("earphone");
         private final String name;
 
         private MonitorType(String name) {
@@ -811,7 +847,7 @@ public class BoomboxData {
     }
 
     public static enum ButtonType {
-        NONE("none", n -> false), POWER("power", n -> false), RADIO("radio", n -> n.radio()), START("start", n -> n.start()), PAUSE("pause", n -> n.pause()), STOP("stop", n -> false), LOOP("loop", n -> n.loop()), VOL_DOWN("volDown", n -> false), VOL_UP("volUp", n -> false), VOL_MUTE("volMute", n -> n.volMute()), VOL_MAX("volMax", n -> n.volMax());
+        NONE("none", n -> false), POWER("power", n -> false), RADIO("radio", n -> n.radio()), START("start", n -> n.start()), PAUSE("pause", n -> n.pause()), STOP("stop", n -> false), LOOP("loop", n -> n.loop()), VOL_DOWN("volDown", n -> false), VOL_UP("volUp", n -> false), VOL_MUTE("volMute", n -> n.volMute()), VOL_MAX("volMax", n -> n.volMax()), EARPHONE("earphone", n -> false);
         private final String name;
         private final Component component;
         private final Function<Buttons, Boolean> getter;

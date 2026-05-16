@@ -5,12 +5,15 @@ import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.client.gui.components.BoomboxButton;
 import dev.felnull.imp.client.gui.screen.monitor.boombox.BoomboxMonitor;
+import dev.felnull.imp.client.gui.screen.monitor.boombox.EarphoneMonitor;
 import dev.felnull.imp.inventory.BoomboxMenu;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import dev.felnull.imp.util.IMPItemUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.Tag;
 import org.modsauce.otyacraftenginerenewed.client.gui.screen.OEItemBEContainerBasedScreen;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,12 +24,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
     public static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/boombox/boombox_base.png");
@@ -88,6 +89,10 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
 
         this.addRenderableWidget(new BoomboxButton(leftPos + 5 + 19 * 9 + 14, topPos + 17, BoomboxData.ButtonType.VOL_MAX, n -> {
             insPressButton(BoomboxData.ButtonType.VOL_MAX);
+        }, this::getButtons));
+
+        this.addRenderableWidget(new BoomboxButton(leftPos + 5 + 19 * 9 + 14, topPos + 17 + 60, BoomboxData.ButtonType.EARPHONE, n -> {
+            insPressButton(BoomboxData.ButtonType.EARPHONE);
         }, this::getButtons));
 
         changeScreenMonitor(getRawMonitorType());
@@ -294,4 +299,12 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
             monitor.onFilesDrop(list);
     }
 
+    @Override
+    public void onInstructionReturn(String name, CompoundTag data) {
+        super.onInstructionReturn(name, data);
+        if(Objects.equals(name, "earphone") && getRawMonitorType() == BoomboxData.MonitorType.EARPHONE && monitor instanceof EarphoneMonitor earphoneMonitor){
+            var earphones = OENbtUtils.readList(data, "earphone", null, EarphoneSaveData.EarphoneLocation::load, Tag.TAG_COMPOUND);
+            earphoneMonitor.setEarphoneLocationList(earphones);
+        }
+    }
 }

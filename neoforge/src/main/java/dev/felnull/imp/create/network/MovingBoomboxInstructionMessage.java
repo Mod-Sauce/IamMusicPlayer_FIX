@@ -83,6 +83,11 @@ public record MovingBoomboxInstructionMessage(
                 BoomboxMovementBehaviour.saveData(content, getBlockState().setValue(IMPBaseEntityBlock.POWERED, isPowered()),
                         saveWithoutMetadata(content.world.registryAccess()));
             }
+
+            @Override
+            public void updateLyric() {
+
+            }
         };
         be.setBoomboxDataReally(new BoomboxData(null, new BoomboxData.DataAccess() {
             @Override

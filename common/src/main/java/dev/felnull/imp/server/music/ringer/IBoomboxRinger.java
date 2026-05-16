@@ -4,11 +4,15 @@ import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.music.MusicManager;
+import dev.felnull.imp.server.saveddata.EarphoneSaveData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 
 public interface IBoomboxRinger extends IMusicRinger {
@@ -127,5 +131,23 @@ public interface IBoomboxRinger extends IMusicRinger {
     @Override
     default @NotNull ItemStack getRingerAntenna() {
         return getRingerBoomboxData().getAntenna();
+    }
+
+    @Override
+    default boolean canListen(ServerPlayer player) {
+        var boomboxData = getRingerBoomboxData();
+        if(boomboxData.getEarphoneUUID() == null)return true;
+        var data = EarphoneSaveData.getInstance(player.serverLevel());
+        var location = data.get(player);
+        if(location == null)return false;
+        return Objects.equals(boomboxData.getEarphoneUUID(), location.earphoneUUID()) &&
+                earphoneOnHead(player, location);
+    }
+
+    private boolean earphoneOnHead(ServerPlayer player, EarphoneSaveData.EarphoneLocation location){
+        var item = EarphoneSaveData.findEarphone(player.serverLevel(), location);
+        if(item == null)return false;
+        var head = player.getItemBySlot(EquipmentSlot.HEAD);
+        return ItemStack.isSameItemSameComponents(item, head);
     }
 }

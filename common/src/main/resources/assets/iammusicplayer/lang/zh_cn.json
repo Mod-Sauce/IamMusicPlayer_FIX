@@ -327,5 +327,27 @@
   "imp.text.enterText.bilibili": "请输入视频 BV 号",
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "音频流获取参考了 tobyprime 的 Mcedia 项目",
   "text.autoconfig.iammusicplayer.option.openMcedia": "打开 Mcedia GitHub 地址",
-  "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌"
+  "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌",
+
+  "item.iammusicplayer.earphone": "耳机",
+  "item.iammusicplayer.earphone.desc": "享受你的私人音乐吧！",
+  "commands.imp.earphone.list.notFound": "未找到耳机",
+  "commands.imp.earphone.list.unlive": "不存在耳机：%s",
+  "commands.imp.earphone.list.entry": "%s: 属于%s",
+  "commands.imp.earphone.list": "现有的耳机如下：",
+  "imp.text.earphone.tip": "点击来连接",
+  "imp.text.earphone": "耳机",
+
+  "advancements.iammusicplayer.earphone.title": "耳机！",
+  "advancements.iammusicplayer.earphone.description": "末影唱片机……",
+
+  "text.autoconfig.iammusicplayer.option.disableHash": "禁用哈希检查",
+  "text.autoconfig.iammusicplayer.option.disableHash.tip": "警告：取消哈希检查可能会导致加载未知的库",
+
+  "imp.create.text.showTrans.title": "是否显示翻译",
+  "imp.create.text.showTrans.yes": "显示翻译",
+  "imp.create.text.showTrans.no": "不显示翻译",
+  "imp.create.text.lyric": "歌词",
+  "text.autoconfig.iammusicplayer.option.serverLyric": "服务端请求歌词",
+  "imp.create.text.lyric.disable": "未启用“服务端请求歌词”配置"
 }

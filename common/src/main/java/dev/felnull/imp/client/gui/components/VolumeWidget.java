@@ -57,8 +57,8 @@ public class VolumeWidget extends AbstractWidget implements IIMPSmartRender {
         if (OEClientUtils.isKeyInput(mc.options.keyShift))
             mv *= 10;
         if (OEClientUtils.isKeyInput(mc.options.keySprint))
-            mv *= 10;
-        int an = (int) (mv * f);
+            mv *= 50;
+        int an = (int) (mv * g);
         volume.accept(Mth.clamp(volume.get() + an, 0, 300));
         return true;
     }
