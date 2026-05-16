@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "iammusicplayer:boombox_controller",
+      "required": false
+    }
+  ]
+}

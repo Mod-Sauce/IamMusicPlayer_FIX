@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "iammusicplayer:block/boombox_controller" }
+  }
+}
