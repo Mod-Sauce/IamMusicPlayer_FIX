@@ -21,7 +21,7 @@ import dev.felnull.imp.create.block_entity.BoomboxControllerBlockEntity;
 import dev.felnull.imp.create.client.menu.BoomboxControllerMenu;
 import dev.felnull.imp.create.client.menu.MovingBoomboxMenu;
 import dev.felnull.imp.create.container.MovingBoomboxContainer;
-import dev.felnull.imp.create.displaySource.BoomboxLyricSource;
+import dev.felnull.imp.create.displaySource.*;
 import dev.felnull.imp.create.network.*;
 import dev.felnull.imp.create.pointType.IMPPointTypes;
 import net.minecraft.core.registries.Registries;
@@ -69,11 +69,28 @@ public class IMPCreate {
         else
             NetworkManager.registerS2CPayloadType(ContraptionChangedPacketSTC.TYPE, ContraptionChangedPacketSTC.STREAM_CODEC);
         bus.addListener(IMPCreate::onRegistry);
+
         REGISTRIES.displaySource("boombox_lyric", BoomboxLyricSource::new)
-                .onRegisterAfter(Registries.BLOCK_ENTITY_TYPE, boomboxLyricSource -> {
-                    DisplaySource.BY_BLOCK_ENTITY.add(IMPBlockEntities.BOOMBOX.get(), boomboxLyricSource);
-                })
+                .onRegisterAfter(Registries.BLOCK_ENTITY_TYPE, s ->
+                        DisplaySource.BY_BLOCK_ENTITY.add(IMPBlockEntities.BOOMBOX.get(), s))
                 .register();
+        REGISTRIES.displaySource("boombox_music_name", BoomboxMusicNameSource::new)
+                .onRegisterAfter(Registries.BLOCK_ENTITY_TYPE, s ->
+                        DisplaySource.BY_BLOCK_ENTITY.add(IMPBlockEntities.BOOMBOX.get(), s))
+                .register();
+        REGISTRIES.displaySource("boombox_play_list", BoomboxPlayListSource::new)
+                .onRegisterAfter(Registries.BLOCK_ENTITY_TYPE, s ->
+                        DisplaySource.BY_BLOCK_ENTITY.add(IMPBlockEntities.BOOMBOX.get(), s))
+                .register();
+        REGISTRIES.displaySource("boombox_play_mode", BoomboxPlayModeSource::new)
+                .onRegisterAfter(Registries.BLOCK_ENTITY_TYPE, s ->
+                        DisplaySource.BY_BLOCK_ENTITY.add(IMPBlockEntities.BOOMBOX.get(), s))
+                .register();
+        REGISTRIES.displaySource("boombox_play_percent", BoomboxPercentSource::new)
+                .onRegisterAfter(Registries.BLOCK_ENTITY_TYPE, s ->
+                        DisplaySource.BY_BLOCK_ENTITY.add(IMPBlockEntities.BOOMBOX.get(), s))
+                .register();
+
         REGISTRIES.registerEventListeners(bus);
     }
 

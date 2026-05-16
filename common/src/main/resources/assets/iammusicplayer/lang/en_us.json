@@ -361,5 +361,13 @@
   "imp.text.boombox_controller.modes": "Mode:",
   "imp.text.boombox_controller.add": "Add",
   "imp.text.boombox_controller.delete": "Delete",
-  "imp.text.boombox_controller.mode.switch_play_mode": "Switch Play Mode"
+  "imp.text.boombox_controller.mode.switch_play_mode": "Switch Play Mode",
+
+  "imp.create.text.play_list": "Playlist",
+  "imp.create.text.add_number.title": "Add Number?",
+  "imp.create.text.add_number.yes": "Add Number",
+  "imp.create.text.add_number.no": "No",
+  "imp.create.text.music_name": "Music Name",
+  "imp.create.text.play_mode": "Play Mode",
+  "imp.create.text.music_percent": "Progress Bar"
 }

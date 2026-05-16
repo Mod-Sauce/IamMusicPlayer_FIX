@@ -362,5 +362,13 @@
   "imp.text.boombox_controller.modes": "模式：",
   "imp.text.boombox_controller.add": "添加",
   "imp.text.boombox_controller.delete": "删除",
-  "imp.text.boombox_controller.mode.switch_play_mode": "切换播放模式"
+  "imp.text.boombox_controller.mode.switch_play_mode": "切换播放模式",
+
+  "imp.create.text.play_list": "播放列表",
+  "imp.create.text.add_number.title": "是否添加编号",
+  "imp.create.text.add_number.yes": "添加编号",
+  "imp.create.text.add_number.no": "不添加编号",
+  "imp.create.text.music_name": "音乐名称",
+  "imp.create.text.play_mode": "播放模式",
+  "imp.create.text.music_percent": "进度条"
 }
