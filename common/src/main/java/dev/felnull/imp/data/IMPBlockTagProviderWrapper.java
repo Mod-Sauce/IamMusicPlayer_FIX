@@ -1,6 +1,8 @@
 package dev.felnull.imp.data;
 
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
+import net.minecraft.resources.ResourceLocation;
 import org.modsauce.otyacraftenginerenewed.data.CrossDataGeneratorAccess;
 import org.modsauce.otyacraftenginerenewed.data.provider.BlockTagProviderWrapper;
 import net.minecraft.core.HolderLookup;
@@ -18,5 +20,8 @@ public class IMPBlockTagProviderWrapper extends BlockTagProviderWrapper {
     @Override
     public void generateTag(IntrinsicTagProviderAccess<Block> providerAccess) {
         providerAccess.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(IMPBlocks.BOOMBOX.get(), IMPBlocks.CASSETTE_DECK.get(), IMPBlocks.MUSIC_MANAGER.get());
+        providerAccess.tag(BlockTags.MINEABLE_WITH_PICKAXE).addOptional(ResourceLocation.fromNamespaceAndPath(
+                IamMusicPlayer.MODID, "boombox_controller"
+        ));
     }
 }

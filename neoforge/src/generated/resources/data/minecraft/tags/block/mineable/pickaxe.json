@@ -2,6 +2,10 @@
   "values": [
     "iammusicplayer:boombox",
     "iammusicplayer:cassette_deck",
-    "iammusicplayer:music_manager"
+    "iammusicplayer:music_manager",
+    {
+      "id": "iammusicplayer:boombox_controller",
+      "required": false
+    }
   ]
 }
