@@ -1,11 +1,9 @@
 {
   "required": true,
-  "package": "dev.felnull.imp.forge.mixin",
+  "package": "dev.felnull.imp.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "mixins": [
-    "ArmDancingMixin",
-    "UpdateTagsAccessor",
     "maid.MaidGeoRendererBoomboxMixin"
   ],
   "injectors": {

@@ -47,7 +47,7 @@ dependencies {
     modApi "me.shedaniel.cloth:cloth-config-neoforge:${rootProject.cloth_config_version}"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${rootProject.rei_version}"
     modApi "maven.modrinth:sound-physics-remastered:neoforge-${rootProject.sound_physics_remastered}"
-    modCompileOnly "curse.maven:touhou-little-maid-355044:7894267"
+    modCompileOnly "curse.maven:touhou-little-maid-355044:8061852"
     modApi "vazkii.patchouli:Patchouli:${rootProject.patchouli_version}-NEOFORGE"
 
     modCompileOnly("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
