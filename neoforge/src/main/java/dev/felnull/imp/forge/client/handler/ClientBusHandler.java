@@ -7,9 +7,9 @@ import dev.felnull.imp.client.gui.screen.CassetteDeckScreen;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.create.IMPCreate;
 import dev.felnull.imp.create.IMPCreateClient;
-import dev.felnull.imp.create.client.MovingBoomboxScreen;
+import dev.felnull.imp.create.client.screen.BoomboxControllerScreen;
+import dev.felnull.imp.create.client.screen.MovingBoomboxScreen;
 import dev.felnull.imp.integration.CreateIntegration;
-import dev.felnull.imp.inventory.IMPMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,7 +33,9 @@ public class ClientBusHandler {
         event.register(CASSETTE_DECK.get(), CassetteDeckScreen::new);
         event.register(BOOMBOX.get(), BoomboxScreen::new);
 
-        if(CreateIntegration.INSTANCE.isEnable())
+        if(CreateIntegration.INSTANCE.isEnable()) {
             event.register(IMPCreate.MOVING_BOOMBOX_MENU.get(), MovingBoomboxScreen::new);
+            event.register(IMPCreate.BOOMBOX_CONTROLLER_MENU.get(), BoomboxControllerScreen::new);
+        }
     }
 }

@@ -348,5 +348,18 @@
   "imp.create.text.showTrans.no": "Hide translation",
   "imp.create.text.lyric": "Lyrics",
   "text.autoconfig.iammusicplayer.option.serverLyric": "Request lyrics from server",
-  "imp.create.text.lyric.disable": "The \"Request lyrics from server\" configuration is not enabled"
+  "imp.create.text.lyric.disable": "The \"Request lyrics from server\" configuration is not enabled",
+
+  "block.iammusicplayer.boombox_controller": "Boombox Controller",
+  "block.iammusicplayer.boombox_controller.egg": "§mAdvanced Jukebox§r Boombox Controller",
+  "imp.text.boombox_controller.mode.none": "None",
+  "imp.text.boombox_controller.mode.playing": "Playing",
+  "imp.text.boombox_controller.mode.play": "Play",
+  "imp.text.boombox_controller.mode.stop": "Stop",
+  "imp.text.boombox_controller.mode.pause": "Pause",
+  "imp.text.boombox_controller.mode.next": "Next",
+  "imp.text.boombox_controller.modes": "Mode:",
+  "imp.text.boombox_controller.add": "Add",
+  "imp.text.boombox_controller.delete": "Delete",
+  "imp.text.boombox_controller.mode.switch_play_mode": "Switch Play Mode"
 }

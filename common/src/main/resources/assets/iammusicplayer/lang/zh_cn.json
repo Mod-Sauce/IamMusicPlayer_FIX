@@ -349,5 +349,18 @@
   "imp.create.text.showTrans.no": "不显示翻译",
   "imp.create.text.lyric": "歌词",
   "text.autoconfig.iammusicplayer.option.serverLyric": "服务端请求歌词",
-  "imp.create.text.lyric.disable": "未启用“服务端请求歌词”配置"
+  "imp.create.text.lyric.disable": "未启用“服务端请求歌词”配置",
+
+  "block.iammusicplayer.boombox_controller": "手提音响控制器",
+  "block.iammusicplayer.boombox_controller.egg": "§m高级唱片机§r手提音响控制器",
+  "imp.text.boombox_controller.mode.none": "无",
+  "imp.text.boombox_controller.mode.playing": "是否播放",
+  "imp.text.boombox_controller.mode.play": "播放",
+  "imp.text.boombox_controller.mode.stop": "停止",
+  "imp.text.boombox_controller.mode.pause": "暂停",
+  "imp.text.boombox_controller.mode.next": "下一个",
+  "imp.text.boombox_controller.modes": "模式：",
+  "imp.text.boombox_controller.add": "添加",
+  "imp.text.boombox_controller.delete": "删除",
+  "imp.text.boombox_controller.mode.switch_play_mode": "切换播放模式"
 }
