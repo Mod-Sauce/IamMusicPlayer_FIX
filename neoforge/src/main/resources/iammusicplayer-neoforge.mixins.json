@@ -5,9 +5,13 @@
   "minVersion": "0.8",
   "mixins": [
     "ArmDancingMixin",
-    "UpdateTagsAccessor"
+    "UpdateTagsAccessor",
+    "maid.MaidGeoRendererBoomboxMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "maid.MaidRendererBoomboxMixin"
+  ]
 }

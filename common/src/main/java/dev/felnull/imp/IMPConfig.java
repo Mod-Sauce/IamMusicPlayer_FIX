@@ -1,9 +1,13 @@
 package dev.felnull.imp;
 
-import dev.felnull.imp.client.gui.config.Button;
+import dev.felnull.imp.client.gui.config.button.Button;
+import dev.felnull.imp.client.gui.config.proxy.UserProxy;
+import dev.felnull.imp.util.ProxyUtil;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+
+import java.net.Proxy;
 
 @Config(name = IamMusicPlayer.MODID)
 @Config.Gui.Background("cloth-config2:transparent")
@@ -20,6 +24,15 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("client")
   public int sampleRate = 44100;
+
+  @ConfigEntry.Category("client")
+  public boolean enableCache = false;
+
+  @ConfigEntry.Category("client")
+  public boolean globalCache = true;
+
+  @ConfigEntry.Category("client")
+  public UserProxy proxy = UserProxy.of(ProxyUtil.getSystemProxy());
 
   @ConfigEntry.Category("client")
   public boolean useYoutubeDownloader = true;

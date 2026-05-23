@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "iammusicplayer:block/boombox_controller/bottom",
+    "down": "iammusicplayer:block/boombox_controller/bottom",
+    "up": "iammusicplayer:block/boombox_controller/top",
+    "north": "iammusicplayer:block/boombox_controller/side",
+    "south": "iammusicplayer:block/boombox_controller/side",
+    "east": "iammusicplayer:block/boombox_controller/side",
+    "west": "iammusicplayer:block/boombox_controller/side"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "dev.felnull.imp.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "mixins": [
+    "maid.MaidGeoRendererBoomboxMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "maid.MaidRendererBoomboxMixin"
+  ]
+}

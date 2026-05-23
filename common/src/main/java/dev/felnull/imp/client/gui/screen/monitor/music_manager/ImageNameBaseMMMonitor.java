@@ -492,7 +492,7 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
         private String uploadToImgur(byte[] data) throws IOException, InterruptedException {
             if (isStopped()) return null;
             HttpClient hc = HttpClient.newBuilder()
-                    .proxy(ProxySelector.of((InetSocketAddress) ProxyUtil.getSystemProxy().address()))
+                    .proxy(ProxySelector.of((InetSocketAddress) ProxyUtil.getProxy().address()))
                     .connectTimeout(Duration.ofSeconds(5))
                     .build();
             HttpRequest hr = HttpRequest.newBuilder(URI.create("https://api.imgur.com/3/image")).POST(HttpRequest.BodyPublishers.ofByteArray(data)).header("Authorization", "Client-ID " + IamMusicPlayer.getConfig().imgurClientID).build();

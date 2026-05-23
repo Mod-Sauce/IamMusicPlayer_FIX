@@ -262,7 +262,7 @@ public class LavaNativeManager {
         URL manifestUrl = new URI(manifestUrlString).toURL();
 
         HttpURLConnection connection =
-                (HttpURLConnection) manifestUrl.openConnection(ProxyUtil.getSystemProxy());
+                (HttpURLConnection) manifestUrl.openConnection(ProxyUtil.getProxy());
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
         connection.setReadTimeout(READ_TIMEOUT);
         connection.setRequestProperty("User-Agent", "IamMusicPlayer");
@@ -346,7 +346,7 @@ public class LavaNativeManager {
      */
     private void downloadFile(URL url, Path destination) throws IOException {
         LOGGER.info("Opening connection to: {}", url);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection(ProxyUtil.getSystemProxy());
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection(ProxyUtil.getProxy());
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
         connection.setReadTimeout(READ_TIMEOUT);
         connection.setRequestProperty("User-Agent", "IamMusicPlayer");

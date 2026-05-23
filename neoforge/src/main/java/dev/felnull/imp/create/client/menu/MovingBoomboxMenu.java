@@ -1,4 +1,4 @@
-package dev.felnull.imp.create.client;
+package dev.felnull.imp.create.client.menu;
 
 import dev.felnull.imp.create.IMPCreate;
 import dev.felnull.imp.inventory.BoomboxMenu;

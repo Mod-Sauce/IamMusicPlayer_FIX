@@ -1,4 +1,4 @@
-package dev.felnull.imp.client.gui.config;
+package dev.felnull.imp.client.gui.config.button;
 
 import me.shedaniel.autoconfig.gui.registry.api.GuiProvider;
 import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;

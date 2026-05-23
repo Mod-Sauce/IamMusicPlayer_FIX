@@ -1,5 +1,6 @@
 package dev.felnull.imp.client.music.lyric;
 
+import dev.felnull.imp.client.cache.LyricCacheManager;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
 import dev.felnull.imp.music.resource.Lyric;
 import dev.felnull.imp.music.resource.MusicSource;
@@ -57,6 +58,7 @@ public class NetEaseLyricGetter implements LyricGetter{
             } catch (IOException ignored) {
 
             }
+            LyricCacheManager.cacheAsync(source.getLoaderType() + "_" + source.getIdentifier(), lyric);
         }
     }
 }

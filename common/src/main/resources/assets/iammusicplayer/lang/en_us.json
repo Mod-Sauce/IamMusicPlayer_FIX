@@ -342,11 +342,39 @@
 
   "text.autoconfig.iammusicplayer.option.disableHash": "Disable hash check",
   "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries.",
+  "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "Warning: Disabling hash check may cause loading of unknown libraries.",
 
   "imp.create.text.showTrans.title": "Whether to show translation",
   "imp.create.text.showTrans.yes": "Show translation",
   "imp.create.text.showTrans.no": "Hide translation",
   "imp.create.text.lyric": "Lyrics",
   "text.autoconfig.iammusicplayer.option.serverLyric": "Request lyrics from server",
-  "imp.create.text.lyric.disable": "The \"Request lyrics from server\" configuration is not enabled"
+  "imp.create.text.lyric.disable": "The \"Request lyrics from server\" configuration is not enabled",
+
+  "block.iammusicplayer.boombox_controller": "Boombox Controller",
+  "block.iammusicplayer.boombox_controller.tip": "Place a boombox above it to control it via wireless redstone signals",
+  "block.iammusicplayer.boombox_controller.egg": "§mAdvanced Jukebox§r Boombox Controller",
+  "imp.text.boombox_controller.mode.none": "None",
+  "imp.text.boombox_controller.mode.playing": "Playing",
+  "imp.text.boombox_controller.mode.play": "Play",
+  "imp.text.boombox_controller.mode.stop": "Stop",
+  "imp.text.boombox_controller.mode.pause": "Pause",
+  "imp.text.boombox_controller.mode.next": "Next",
+  "imp.text.boombox_controller.modes": "Mode:",
+  "imp.text.boombox_controller.add": "Add",
+  "imp.text.boombox_controller.delete": "Delete",
+  "imp.text.boombox_controller.mode.switch_play_mode": "Switch Play Mode",
+
+  "imp.create.text.play_list": "Playlist",
+  "imp.create.text.add_number.title": "Add Number?",
+  "imp.create.text.add_number.yes": "Add Number",
+  "imp.create.text.add_number.no": "No",
+  "imp.create.text.music_name": "Music Name",
+  "imp.create.text.play_mode": "Play Mode",
+  "imp.create.text.music_percent": "Progress Bar",
+  "imp.text.proxy.error": "Invalid proxy input!",
+
+  "text.autoconfig.iammusicplayer.option.proxy": "Proxy",
+  "text.autoconfig.iammusicplayer.option.enableCache": "Enable Caching",
+  "text.autoconfig.iammusicplayer.option.globalCache": "Global Cache"
 }

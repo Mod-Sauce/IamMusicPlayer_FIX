@@ -328,6 +328,7 @@
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "音频流获取参考了 tobyprime 的 Mcedia 项目",
   "text.autoconfig.iammusicplayer.option.openMcedia": "打开 Mcedia GitHub 地址",
   "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌",
+  "text.autoconfig.iammusicplayer.option.proxy": "代理",
 
   "item.iammusicplayer.earphone": "耳机",
   "item.iammusicplayer.earphone.desc": "享受你的私人音乐吧！",
@@ -343,11 +344,38 @@
 
   "text.autoconfig.iammusicplayer.option.disableHash": "禁用哈希检查",
   "text.autoconfig.iammusicplayer.option.disableHash.tip": "警告：取消哈希检查可能会导致加载未知的库",
+  "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "警告：取消哈希检查可能会导致加载未知的库",
 
   "imp.create.text.showTrans.title": "是否显示翻译",
   "imp.create.text.showTrans.yes": "显示翻译",
   "imp.create.text.showTrans.no": "不显示翻译",
   "imp.create.text.lyric": "歌词",
   "text.autoconfig.iammusicplayer.option.serverLyric": "服务端请求歌词",
-  "imp.create.text.lyric.disable": "未启用“服务端请求歌词”配置"
+  "imp.create.text.lyric.disable": "未启用“服务端请求歌词”配置",
+
+  "block.iammusicplayer.boombox_controller": "手提音响控制器",
+  "block.iammusicplayer.boombox_controller.tip": "将音响放置在其上方后，即可使用无线红石信号进行控制",
+  "block.iammusicplayer.boombox_controller.egg": "§m高级唱片机§r手提音响控制器",
+  "imp.text.boombox_controller.mode.none": "无",
+  "imp.text.boombox_controller.mode.playing": "是否播放",
+  "imp.text.boombox_controller.mode.play": "播放",
+  "imp.text.boombox_controller.mode.stop": "停止",
+  "imp.text.boombox_controller.mode.pause": "暂停",
+  "imp.text.boombox_controller.mode.next": "下一个",
+  "imp.text.boombox_controller.modes": "模式：",
+  "imp.text.boombox_controller.add": "添加",
+  "imp.text.boombox_controller.delete": "删除",
+  "imp.text.boombox_controller.mode.switch_play_mode": "切换播放模式",
+
+  "imp.create.text.play_list": "播放列表",
+  "imp.create.text.add_number.title": "是否添加编号",
+  "imp.create.text.add_number.yes": "添加编号",
+  "imp.create.text.add_number.no": "不添加编号",
+  "imp.create.text.music_name": "音乐名称",
+  "imp.create.text.play_mode": "播放模式",
+  "imp.create.text.music_percent": "进度条",
+  "imp.text.proxy.error": "代理输入不合法！",
+
+  "text.autoconfig.iammusicplayer.option.enableCache": "启用缓存功能",
+  "text.autoconfig.iammusicplayer.option.globalCache": "全局缓存"
 }

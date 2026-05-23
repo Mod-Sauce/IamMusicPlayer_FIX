@@ -28,7 +28,7 @@ public class BiliBiliUtil {
     private static final Gson GSON = new Gson();
     private static final String USER_AGENT = "Mozilla/5.0";
     private static final HttpClient client = HttpClient.newBuilder()
-            .proxy(ProxySelector.of((InetSocketAddress) ProxyUtil.getSystemProxy().address())).build();
+            .proxy(ProxySelector.of((InetSocketAddress) ProxyUtil.getProxy().address())).build();
 
     public static String fetchAudioUrl(String bvid) throws IOException, InterruptedException {
         return fetchAudioUrl(bvid, 1, null);

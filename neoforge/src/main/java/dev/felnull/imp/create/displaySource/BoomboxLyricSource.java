@@ -19,12 +19,12 @@ public class BoomboxLyricSource extends DisplaySource {
                 Component.translatable("imp.create.text.lyric.disable")
         );
         if(!(displayLinkContext.getSourceBlockEntity() instanceof BoomboxBlockEntity boomboxBlockEntity))
-            return Collections.emptyList();
+            return EMPTY;
         boomboxBlockEntity.updateLyric();
         var lyric = boomboxBlockEntity.getLyric();
-        if(lyric == null)return Collections.emptyList();
+        if(lyric == null)return EMPTY;
         var part = lyric.getPart(boomboxBlockEntity.getRingerPosition() / 1000f);
-        if(part.getA() == null)return Collections.emptyList();
+        if(part.getA() == null)return EMPTY;
         if(displayLinkContext.sourceConfig().getInt("showTrans") == 0 && part.getB() != null)
             return List.of(Component.literal(part.getA()), Component.literal(part.getB()));
         return List.of(Component.literal(part.getA()));

@@ -1,5 +1,7 @@
 package dev.felnull.imp.music.resource;
 
+import dev.felnull.imp.client.cache.LyricDTO;
+import it.unimi.dsi.fastutil.floats.Float2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectSortedMap;
 import org.jetbrains.annotations.Nullable;
 import oshi.util.tuples.Pair;
@@ -54,5 +56,44 @@ public class Lyric {
 
     public boolean hasTrans(){
         return transLyrics != null && !transLyrics.isEmpty();
+    }
+
+    public static LyricDTO toDTO(Lyric lyric) {
+        if (lyric == null || lyric.isEmpty()) return null;
+
+        LyricDTO dto = new LyricDTO();
+
+        lyric.lyrics.forEach((time, text) -> {
+            dto.lyrics.add(new LyricDTO.LyricEntry(time, text));
+        });
+
+        if (lyric.transLyrics != null) {
+            lyric.transLyrics.forEach((time, text) -> {
+                dto.transLyrics.add(new LyricDTO.LyricEntry(time, text));
+            });
+        }
+
+        return dto;
+    }
+
+    public static Lyric fromDTO(LyricDTO dto) {
+        if (dto == null) return Lyric.EMPTY;
+
+        Float2ObjectSortedMap<String> lyrics = new Float2ObjectLinkedOpenHashMap<>();
+        Float2ObjectSortedMap<String> trans = new Float2ObjectLinkedOpenHashMap<>();
+
+        if (dto.lyrics != null) {
+            for (LyricDTO.LyricEntry e : dto.lyrics) {
+                lyrics.put(e.time, e.text);
+            }
+        }
+
+        if (dto.transLyrics != null) {
+            for (LyricDTO.LyricEntry e : dto.transLyrics) {
+                trans.put(e.time, e.text);
+            }
+        }
+
+        return new Lyric(lyrics, trans.isEmpty() ? null : trans);
     }
 }

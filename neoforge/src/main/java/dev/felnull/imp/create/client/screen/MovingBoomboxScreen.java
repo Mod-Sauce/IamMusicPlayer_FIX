@@ -1,10 +1,11 @@
-package dev.felnull.imp.create.client;
+package dev.felnull.imp.create.client.screen;
 
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.client.gui.screen.BoomboxScreen;
 import dev.felnull.imp.create.behaviour.BoomboxMovementBehaviour;
+import dev.felnull.imp.create.client.menu.MovingBoomboxMenu;
 import dev.felnull.imp.create.network.MovingBoomboxInstructionMessage;
 import dev.felnull.imp.inventory.BoomboxMenu;
 import net.minecraft.client.Minecraft;

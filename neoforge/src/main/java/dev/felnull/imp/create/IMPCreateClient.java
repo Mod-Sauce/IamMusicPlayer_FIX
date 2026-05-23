@@ -1,7 +1,7 @@
 package dev.felnull.imp.create;
 
 import dev.architectury.registry.menu.MenuRegistry;
-import dev.felnull.imp.create.client.MovingBoomboxScreen;
+import dev.felnull.imp.create.client.screen.MovingBoomboxScreen;
 
 public class IMPCreateClient {
     public static void init(){
