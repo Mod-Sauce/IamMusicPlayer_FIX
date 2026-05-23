@@ -375,5 +375,8 @@
 
   "text.autoconfig.iammusicplayer.option.proxy": "Proxy",
   "text.autoconfig.iammusicplayer.option.enableCache": "Enable Caching",
-  "text.autoconfig.iammusicplayer.option.globalCache": "Global Cache"
+  "text.autoconfig.iammusicplayer.option.globalCache": "Global Cache",
+
+  "commands.imp.cache.error": "An error occurred while caching",
+  "commands.imp.cache.success": "Started caching for %s item(s)"
 }

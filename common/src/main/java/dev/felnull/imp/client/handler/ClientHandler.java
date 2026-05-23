@@ -1,7 +1,9 @@
 package dev.felnull.imp.client.handler;
 
+import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.event.CompoundEventResult;
 import dev.architectury.event.EventResult;
+import dev.architectury.event.events.client.ClientCommandRegistrationEvent;
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientLifecycleEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
@@ -11,6 +13,7 @@ import dev.felnull.imp.IMPConfig;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.cache.AudioCacheManager;
+import dev.felnull.imp.client.commands.ClientMusicCommand;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.imp.client.music.MusicSyncManager;
@@ -29,6 +32,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.SoundOptionsScreen;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -69,6 +73,7 @@ public class ClientHandler {
     ClientEvent.HAND_ATTACK.register(ClientHandler::onHandAttack);
     ClientGuiEvent.SET_SCREEN.register(ClientHandler::onModifyScreen);
     ClientGuiEvent.INIT_POST.register(ClientHandler::onScreenInit);
+    ClientCommandRegistrationEvent.EVENT.register(ClientHandler::onCommandRegistry);
   }
 
   private static void onScreenInit(Screen screen, ScreenAccess screenAccess) {
@@ -196,5 +201,9 @@ public class ClientHandler {
     if (
       PatchouliIntegration.INSTANCE.isEnable()
     ) IMPItemRenderers.manualItemRenderer.tick();
+  }
+
+  private static void onCommandRegistry(CommandDispatcher<ClientCommandRegistrationEvent.ClientCommandSourceStack> dispatcher, CommandBuildContext context){
+    ClientMusicCommand.register(dispatcher);
   }
 }
