@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
+import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.client.music.netmusic.api.ExtraMusicList;
 import dev.felnull.imp.client.music.netmusic.api.NetEaseMusic;
 import dev.felnull.imp.client.music.netmusic.api.WebApi;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
+import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicSearch;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicSong;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Lyric;
@@ -232,5 +234,38 @@ public class NetMusicUtil {
             return new Pair<>(totalSeconds, text.trim());
         }
         return null;
+    }
+
+    public static List<MusicMediaResult> search(String keyword){
+        NetEaseMusicSearch search;
+        try {
+            search = GSON.fromJson(WEB_API.search(keyword), NetEaseMusicSearch.class);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+        if(search.getSongs().isEmpty())return Collections.emptyList();
+        var ids = new long[search.getSongs().size()];
+        List<NetEaseMusicSearch.Song> songs = search.getSongs();
+        for (int i = 0, songsSize = songs.size(); i < songsSize; i++) {
+            NetEaseMusicSearch.Song song = songs.get(i);
+            ids[i] = song.getId();
+        }
+        ExtraMusicList extra;
+        try{
+            extra = GSON.fromJson(WEB_API.songs(ids), ExtraMusicList.class);
+        }catch (Exception e){
+            return Collections.emptyList();
+        }
+        var result = new ArrayList<MusicMediaResult>();
+        for (NetEaseMusicList.Track track: extra.getTracks()){
+            var name = IamMusicPlayer.getConfig().netMusicConfig.withTransName && !track.getTransName().isEmpty() ?
+                    String.format("%s(%s)", track.getName(), track.getTransName()) :
+                    track.getName();
+            var author = String.join("、", track.getArtists());
+            var source = new MusicSource(IMPMusicMedias.NETEASE_MUSIC.getName(), String.valueOf(track.getId()), track.getDuration());
+            var image = new ImageInfo(ImageInfo.ImageType.URL, track.getAlbum().getPicUrl());
+            result.add(new MusicMediaResult(source, image, name, author));
+        }
+        return result;
     }
 }

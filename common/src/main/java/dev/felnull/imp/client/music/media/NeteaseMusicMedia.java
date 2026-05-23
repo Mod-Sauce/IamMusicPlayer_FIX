@@ -12,6 +12,8 @@ import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
     protected NeteaseMusicMedia(String name) {
         super(name);
@@ -40,7 +42,7 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public boolean isSearchable() {
-        return false;
+        return true;
     }
 
     @Override
@@ -79,5 +81,10 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
     @Override
     public int priority() {
         return 2;
+    }
+
+    @Override
+    public List<MusicMediaResult> search(String searchText) {
+        return NetMusicUtil.search(searchText);
     }
 }

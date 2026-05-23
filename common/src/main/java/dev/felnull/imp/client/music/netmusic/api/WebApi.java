@@ -31,15 +31,8 @@ public final class WebApi {
         return "https://music.163.com/api/search/get/web?s=%s&type=%d&limit=%d".formatted(escape, type, limit);
     }
 
-    /**
-     * 这个 URL 目前已经出问题了，无法使用
-     */
-    @Deprecated
-    public String search(String key, long size, long page, int type) throws Exception {
-        String url = "http://music.163.com/weapi/cloudsearch/get/web?csrf_token=";
-        String param = "{\"s\":\"" + key + "\",\"type\":" + type + ",\"offset\":" + (page - 1) * size + ",\"limit\":" + size + ",\"total\":true,\"csrf_token\":\"\"}";
-        String encrypt = EncryptUtils.encryptedParam(param);
-        return NetWorker.post(url, encrypt, requestPropertyData);
+    public String search(String key) throws Exception {
+        return NeteaseSearch.search(key);
     }
 
     public String album(long albumId) throws Exception {
