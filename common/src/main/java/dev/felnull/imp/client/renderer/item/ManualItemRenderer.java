@@ -131,7 +131,7 @@ public class ManualItemRenderer implements BEWLItemRenderer {
       light,
       9.85f,
       14.5f,
-      0.7f,
+      0.6f,
       false,
       0
     );
