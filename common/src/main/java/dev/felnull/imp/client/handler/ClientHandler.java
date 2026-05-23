@@ -10,6 +10,7 @@ import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IMPConfig;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
+import dev.felnull.imp.client.cache.AudioCacheManager;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.imp.client.music.MusicSyncManager;
@@ -152,6 +153,7 @@ public class ClientHandler {
     IMPConfig impConfig
   ) {
     MusicEngine.getInstance().destroy();
+    AudioCacheManager.updatePath();
     return InteractionResult.PASS;
   }
 

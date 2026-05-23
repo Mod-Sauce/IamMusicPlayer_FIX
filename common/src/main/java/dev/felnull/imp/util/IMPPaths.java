@@ -13,6 +13,10 @@ public class IMPPaths {
   }
 
   public static Path getTmpFolder() {
-    return Paths.get(IamMusicPlayer.MODID).resolve("tmp");
+    return Paths.get(IamMusicPlayer.getConfig().IMPRFolder).resolve("tmp");
+  }
+
+  public static Path getUserFolder(){
+    return Paths.get(System.getProperty("user.home"));
   }
 }

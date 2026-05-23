@@ -1,5 +1,7 @@
 package dev.felnull.imp.client.music.lyric;
 
+import dev.felnull.imp.client.cache.LyricCacheManager;
+import dev.felnull.imp.music.resource.Lyric;
 import dev.felnull.imp.music.resource.MusicSource;
 
 import java.util.HashMap;
@@ -14,6 +16,34 @@ public class IMPLyricGetter {
 
     public static LyricGetter getGetter(MusicSource source){
         if(!ALL_GETTER.containsKey(source.getLoaderType()))return null;
+        var cacheID = source.getLoaderType() + "_" + source.getIdentifier();
+        if(LyricCacheManager.has(cacheID))
+            return new LyricGetter() {
+                @Override
+                public void run(MusicSource musicSource) {
+
+                }
+
+                @Override
+                public void runAndWait(MusicSource musicSource) {
+
+                }
+
+                @Override
+                public void stop() {
+
+                }
+
+                @Override
+                public boolean isFinish() {
+                    return true;
+                }
+
+                @Override
+                public Lyric getLyric() {
+                    return LyricCacheManager.get(cacheID);
+                }
+            };
         return ALL_GETTER.get(source.getLoaderType()).getLyricGetter();
     }
 

@@ -373,5 +373,8 @@
   "imp.create.text.music_name": "音乐名称",
   "imp.create.text.play_mode": "播放模式",
   "imp.create.text.music_percent": "进度条",
-  "imp.text.proxy.error": "代理输入不合法！"
+  "imp.text.proxy.error": "代理输入不合法！",
+
+  "text.autoconfig.iammusicplayer.option.enableCache": "启用缓存功能",
+  "text.autoconfig.iammusicplayer.option.globalCache": "全局缓存"
 }

@@ -26,6 +26,12 @@ public class IMPConfig implements ConfigData {
   public int sampleRate = 44100;
 
   @ConfigEntry.Category("client")
+  public boolean enableCache = false;
+
+  @ConfigEntry.Category("client")
+  public boolean globalCache = true;
+
+  @ConfigEntry.Category("client")
   public UserProxy proxy = UserProxy.of(ProxyUtil.getSystemProxy());
 
   @ConfigEntry.Category("client")

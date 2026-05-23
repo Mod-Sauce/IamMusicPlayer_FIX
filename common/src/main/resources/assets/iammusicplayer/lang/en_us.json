@@ -373,5 +373,7 @@
   "imp.create.text.music_percent": "Progress Bar",
   "imp.text.proxy.error": "Invalid proxy input!",
 
-  "text.autoconfig.iammusicplayer.option.proxy": "Proxy"
+  "text.autoconfig.iammusicplayer.option.proxy": "Proxy",
+  "text.autoconfig.iammusicplayer.option.enableCache": "Enable Caching",
+  "text.autoconfig.iammusicplayer.option.globalCache": "Global Cache"
 }
