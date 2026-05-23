@@ -1,4 +1,4 @@
-package dev.felnull.imp.client.gui.config;
+package dev.felnull.imp.client.gui.config.button;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

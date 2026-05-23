@@ -1,4 +1,4 @@
-package dev.felnull.imp.client.gui.config;
+package dev.felnull.imp.client.gui.config.button;
 
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import net.minecraft.client.gui.GuiGraphics;

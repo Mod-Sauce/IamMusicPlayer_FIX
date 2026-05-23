@@ -1,5 +1,7 @@
 package dev.felnull.imp.util;
 
+import dev.felnull.imp.IamMusicPlayer;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
@@ -83,9 +85,13 @@ public class ProxyUtil {
         if (host != null && port != null) {
             try {
                 return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, Integer.parseInt(port)));
-            } catch (NumberFormatException e) {}
+            } catch (NumberFormatException ignored) {}
         }
 
         return Proxy.NO_PROXY;
+    }
+
+    public static Proxy getProxy(){
+        return IamMusicPlayer.getConfig().proxy.getProxy();
     }
 }

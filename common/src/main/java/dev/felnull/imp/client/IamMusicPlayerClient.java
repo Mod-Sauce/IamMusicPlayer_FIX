@@ -3,8 +3,10 @@ package dev.felnull.imp.client;
 import dev.architectury.platform.Platform;
 import dev.felnull.imp.IMPConfig;
 import dev.felnull.imp.IamMusicPlayer;
-import dev.felnull.imp.client.gui.config.Button;
-import dev.felnull.imp.client.gui.config.ButtonGuiProvider;
+import dev.felnull.imp.client.gui.config.button.Button;
+import dev.felnull.imp.client.gui.config.button.ButtonGuiProvider;
+import dev.felnull.imp.client.gui.config.proxy.ProxyGuiProvider;
+import dev.felnull.imp.client.gui.config.proxy.UserProxy;
 import dev.felnull.imp.client.gui.screen.IMPScreenFactorys;
 import dev.felnull.imp.client.gui.screen.monitor.boombox.BoomboxMonitor;
 import dev.felnull.imp.client.gui.screen.monitor.cassette_deck.CassetteDeckMonitor;
@@ -27,6 +29,8 @@ import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+
+import java.net.Proxy;
 
 public class IamMusicPlayerClient {
     public static final OptionInstance<Double> IMP_VOLUME_OPTION = new OptionInstance<>("soundCategory." + IamMusicPlayer.MODID, OptionInstance.noTooltip(), (component, val) -> {
@@ -67,5 +71,6 @@ public class IamMusicPlayerClient {
             return AutoConfig.getConfigScreen(IMPConfig.class, parent).get();
         });
         AutoConfig.getGuiRegistry(IMPConfig.class).registerAnnotationProvider(new ButtonGuiProvider(), Button.class);
+        AutoConfig.getGuiRegistry(IMPConfig.class).registerTypeProvider(new ProxyGuiProvider(), UserProxy.class);
     }
 }

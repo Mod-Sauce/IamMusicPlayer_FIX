@@ -322,4 +322,8 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     public @Nullable Lyric getLyric() {
         return lyric;
     }
+
+    public void clearLyric(){
+        lyric = null;
+    }
 }

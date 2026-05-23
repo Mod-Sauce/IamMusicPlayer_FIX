@@ -328,6 +328,7 @@
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "音频流获取参考了 tobyprime 的 Mcedia 项目",
   "text.autoconfig.iammusicplayer.option.openMcedia": "打开 Mcedia GitHub 地址",
   "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌",
+  "text.autoconfig.iammusicplayer.option.proxy": "代理",
 
   "item.iammusicplayer.earphone": "耳机",
   "item.iammusicplayer.earphone.desc": "享受你的私人音乐吧！",
@@ -342,7 +343,7 @@
   "advancements.iammusicplayer.earphone.description": "末影唱片机……",
 
   "text.autoconfig.iammusicplayer.option.disableHash": "禁用哈希检查",
-  "text.autoconfig.iammusicplayer.option.disableHash.tip": "警告：取消哈希检查可能会导致加载未知的库",
+  "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "警告：取消哈希检查可能会导致加载未知的库",
 
   "imp.create.text.showTrans.title": "是否显示翻译",
   "imp.create.text.showTrans.yes": "显示翻译",
@@ -370,5 +371,6 @@
   "imp.create.text.add_number.no": "不添加编号",
   "imp.create.text.music_name": "音乐名称",
   "imp.create.text.play_mode": "播放模式",
-  "imp.create.text.music_percent": "进度条"
+  "imp.create.text.music_percent": "进度条",
+  "imp.text.proxy.error": "代理输入不合法！"
 }

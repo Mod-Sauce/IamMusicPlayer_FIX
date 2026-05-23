@@ -180,6 +180,7 @@ public class BoomboxControllerBlockEntity extends OEBaseContainerBlockEntity{
                     BoomboxData.ContinuousType.values()[(boomboxBlockEntity.getBoomboxData().getContinuousType().ordinal() + 1) %
                             BoomboxData.ContinuousType.values().length]);
             case NEXT -> {
+                boomboxBlockEntity.clearLyric();
                 boomboxBlockEntity.setRingerPosition(0);
                 boomboxBlockEntity.ringerEnd();
                 boomboxBlockEntity.ringerRestart();

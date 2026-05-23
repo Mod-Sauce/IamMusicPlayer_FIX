@@ -327,7 +327,7 @@ public class IMPRHash {
             HttpClient client = HttpClient.newBuilder().proxy(new ProxySelector() {
                 @Override
                 public List<Proxy> select(URI uri) {
-                    return List.of(ProxyUtil.getSystemProxy());
+                    return List.of(ProxyUtil.getProxy());
                 }
 
                 @Override

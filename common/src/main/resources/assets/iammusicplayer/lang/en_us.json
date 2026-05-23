@@ -341,7 +341,7 @@
   "advancements.iammusicplayer.earphone.description": "The Ender music player...",
 
   "text.autoconfig.iammusicplayer.option.disableHash": "Disable hash check",
-  "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries.",
+  "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "Warning: Disabling hash check may cause loading of unknown libraries.",
 
   "imp.create.text.showTrans.title": "Whether to show translation",
   "imp.create.text.showTrans.yes": "Show translation",
@@ -369,5 +369,8 @@
   "imp.create.text.add_number.no": "No",
   "imp.create.text.music_name": "Music Name",
   "imp.create.text.play_mode": "Play Mode",
-  "imp.create.text.music_percent": "Progress Bar"
+  "imp.create.text.music_percent": "Progress Bar",
+  "imp.text.proxy.error": "Invalid proxy input!",
+
+  "text.autoconfig.iammusicplayer.option.proxy": "Proxy"
 }
