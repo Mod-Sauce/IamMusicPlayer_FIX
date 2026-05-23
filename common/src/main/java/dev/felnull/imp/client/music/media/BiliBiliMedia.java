@@ -54,7 +54,7 @@ public class BiliBiliMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public boolean match(AudioTrack track) {
-        return track.getSourceManager() instanceof HttpAudioSourceManager;
+        return track.getSourceManager() instanceof BilibiliHttpAudioSourceManager;
     }
 
     @Override
