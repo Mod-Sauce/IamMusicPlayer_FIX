@@ -11,25 +11,27 @@ import dev.felnull.imp.client.gui.IIMPSmartRender;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.util.FileChooserUtils;
-import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
-import org.modsauce.otyacraftenginerenewed.util.FlagThread;
-import org.modsauce.otyacraftenginerenewed.util.OEUtils;
+import dev.felnull.imp.util.ProxyUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 
 public class UploadMusicMMMonitor extends MusicManagerMonitor {
@@ -312,17 +314,35 @@ public class UploadMusicMMMonitor extends MusicManagerMonitor {
         private Pair<Long, JsonObject> getResponse(String url) {
             long st = System.currentTimeMillis();
             JsonObject jo = null;
+
+            HttpClient.Builder builder = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .followRedirects(HttpClient.Redirect.NORMAL);
+
+            ProxySelector proxySelector = ProxySelector.of((InetSocketAddress) ProxyUtil.getProxy().address());
+            builder.proxy(proxySelector);
+
+            HttpClient httpClient = builder.build();
+
             try {
-                jo = OEUtils.readJson(new URL(url), JsonObject.class);
-            } catch (IOException ignored) {
-            }
-           /* if (jo == null) {
-                try {
-                    st = System.currentTimeMillis();
-                    jo = OEURLUtil.getJson(new URL(url + "status"));
-                } catch (IOException ignored) {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .timeout(Duration.ofSeconds(30))
+                        .header("Accept", "application/json")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                int statusCode = response.statusCode();
+                if (statusCode >= 200 && statusCode < 300) {
+                    String body = response.body();
+                    Gson gson = new Gson();
+                    jo = gson.fromJson(body, JsonObject.class);
                 }
-            }*/
+            } catch (IOException | InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
             return Pair.of(System.currentTimeMillis() - st, jo);
         }
     }
@@ -391,7 +411,14 @@ public class UploadMusicMMMonitor extends MusicManagerMonitor {
     private JsonObject uploadToFile(byte[] data) throws IOException, InterruptedException {
         if (uploadUrl == null) return null;
         var url = uploadUrl + "music-upload";
-        var client = HttpClient.newHttpClient();
+        HttpClient.Builder builder = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .followRedirects(HttpClient.Redirect.NORMAL);
+
+        ProxySelector proxySelector = ProxySelector.of((InetSocketAddress) ProxyUtil.getProxy().address());
+        builder.proxy(proxySelector);
+
+        HttpClient client = builder.build();
         var req = HttpRequest.newBuilder(URI.create(url)).header("mc-uuid", IIMPSmartRender.mc.player.getGameProfile().getId().toString()).POST(HttpRequest.BodyPublishers.ofByteArray(data)).build();
         var res = client.send(req, HttpResponse.BodyHandlers.ofString());
         return GSON.fromJson(res.body(), JsonObject.class);
