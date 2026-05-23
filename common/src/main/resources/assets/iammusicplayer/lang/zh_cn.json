@@ -353,6 +353,7 @@
   "imp.create.text.lyric.disable": "未启用“服务端请求歌词”配置",
 
   "block.iammusicplayer.boombox_controller": "手提音响控制器",
+  "block.iammusicplayer.boombox_controller.tip": "将音响放置在其上方后，即可使用无线红石信号进行控制",
   "block.iammusicplayer.boombox_controller.egg": "§m高级唱片机§r手提音响控制器",
   "imp.text.boombox_controller.mode.none": "无",
   "imp.text.boombox_controller.mode.playing": "是否播放",

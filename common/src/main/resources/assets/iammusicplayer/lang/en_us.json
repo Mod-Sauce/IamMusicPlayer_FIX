@@ -351,6 +351,7 @@
   "imp.create.text.lyric.disable": "The \"Request lyrics from server\" configuration is not enabled",
 
   "block.iammusicplayer.boombox_controller": "Boombox Controller",
+  "block.iammusicplayer.boombox_controller.tip": "Place a boombox above it to control it via wireless redstone signals",
   "block.iammusicplayer.boombox_controller.egg": "§mAdvanced Jukebox§r Boombox Controller",
   "imp.text.boombox_controller.mode.none": "None",
   "imp.text.boombox_controller.mode.playing": "Playing",
