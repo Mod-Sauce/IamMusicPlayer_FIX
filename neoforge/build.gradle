@@ -59,6 +59,8 @@ dependencies {
     modCompileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")
 //    modRuntimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}")
     modCompileOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+    modCompileOnly "maven.modrinth:net-music:${rootProject.net_music_version}"
+    modCompileOnly "maven.modrinth:net-music-play-list:${rootProject.net_music_list_version}"
 
     compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-core:${rootProject.cct_version}")
     compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${rootProject.cct_version}")

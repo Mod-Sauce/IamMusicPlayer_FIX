@@ -130,6 +130,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("integration")
   public boolean sableIntegration = true;
 
+  @ConfigEntry.Category("integration")
+  public boolean netMusicListIntegration = true;
+
   @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
   @ConfigEntry.Category("sources")
   public NetMusicConfig netMusicConfig = new NetMusicConfig();

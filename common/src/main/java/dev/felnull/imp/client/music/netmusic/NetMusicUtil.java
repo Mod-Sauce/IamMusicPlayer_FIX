@@ -185,6 +185,57 @@ public class NetMusicUtil {
         return SONGS;
     }
 
+    public static List<Music> getMusicsData(List<Long> songIds) throws Exception {
+        updateCookie();
+        List<Music> SONGS = new ArrayList<>();
+        if (songIds == null || songIds.isEmpty())
+            return SONGS;
+        List<Long> ids = songIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        int batchSize = 100;
+        for (int i = 0; i < ids.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, ids.size());
+            long[] batchIds = new long[end - i];
+            for (int j = i; j < end; j++) {
+                batchIds[j - i] = ids.get(j);
+            }
+            String extraTrackInfo = WEB_API.songs(batchIds);
+            ExtraMusicList extra = GSON.fromJson(extraTrackInfo, ExtraMusicList.class);
+            if (extra == null || extra.getTracks() == null)
+                continue;
+            for (NetEaseMusicList.Track track : extra.getTracks()) {
+                var musicSource = new MusicSource(
+                        IMPMusicMedias.NETEASE_MUSIC.getName(),
+                        String.valueOf(track.getId()),
+                        track.getDuration()
+                );
+                var name = IamMusicPlayer.getConfig().netMusicConfig.withTransName
+                        && track.getTransName() != null
+                        && !track.getTransName().isEmpty()
+                        ? String.format("%s(%s)", track.getName(), track.getTransName())
+                        : track.getName();
+                ImageInfo imageInfo = new ImageInfo(
+                        ImageInfo.ImageType.URL,
+                        track.getAlbum().getPicUrl()
+                );
+                SONGS.add(new Music(
+                        UUID.randomUUID(),
+                        name,
+                        String.join("、", track.getArtists()),
+                        musicSource,
+                        imageInfo,
+                        Objects.requireNonNull(Minecraft.getInstance().player)
+                                .getGameProfile().getId(),
+                        track.getPublishTime()
+                ));
+            }
+        }
+
+        return SONGS;
+    }
+
     public static NetEaseMusicList.PlayList getMusicListInfo(long id) throws Exception {
         // 从网络音乐机里拿的代码
         NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
