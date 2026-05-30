@@ -1,7 +1,7 @@
 package dev.felnull.imp.client.gui.screen.monitor.boombox;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.gui.IIMPSmartRender;
 import dev.felnull.imp.client.gui.components.SmartButton;

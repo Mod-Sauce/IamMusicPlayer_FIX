@@ -50,6 +50,10 @@ dependencies {
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
         exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
     }
+    shadowIn("dev.lavalink.youtube:common:${rootProject.youtube_source_version}") {
+        exclude group: 'dev.arbjerg', module: 'lavaplayer'
+        exclude group: 'com.sedmelluq', module: 'lavaplayer'
+    }
     shadowIn('com.fasterxml.jackson.core:jackson-core:2.14.3')
     shadowIn('com.fasterxml.jackson.core:jackson-databind:2.14.3')
 
@@ -92,7 +96,9 @@ shadowJar {
     relocate('com.sedmelluq.discord.lavaplayer', 'dev.felnull.imp.include.com.sedmelluq.discord.lavaplayer') {
         exclude 'com.sedmelluq.discord.lavaplayer.natives.**'
     }
-
+    relocate 'dev.lavalink.youtube', 'dev.felnull.imp.include.dev.lavalink.youtube'
+    relocate 'com.grack.nanojson', 'dev.felnull.imp.include.com.grack.nanojson'
+    
     mergeServiceFiles {
         relocate 'javax.ws.rs.ext', 'dev.felnull.imp.include.javax.ws.rs.ext'
         //   relocate 'javax.script.ScriptEngineFactory', 'dev.felnull.imp.include.javax.script.ScriptEngineFactory'

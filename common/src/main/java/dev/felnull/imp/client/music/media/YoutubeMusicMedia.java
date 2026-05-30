@@ -4,10 +4,15 @@ import com.google.common.collect.ImmutableList;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
+import dev.felnull.imp.client.lava.YoutubeRemoteConfig;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeSourceOptions;
+import dev.lavalink.youtube.clients.AndroidMusic;
+import dev.lavalink.youtube.clients.AndroidVr;
+import dev.lavalink.youtube.clients.MWeb;
 import dev.lavalink.youtube.clients.Music;
-import dev.lavalink.youtube.clients.skeleton.Client;
+import dev.lavalink.youtube.clients.Web;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
@@ -24,7 +29,22 @@ public class YoutubeMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public void registerSourceManager(AudioPlayerManager audioPlayerManager) {
-        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager());
+        YoutubeRemoteConfig config = YoutubeRemoteConfig.load();
+        config.applyClientPoToken();
+
+        YoutubeSourceOptions options = new YoutubeSourceOptions()
+                .setAllowSearch(true)
+                .setRemoteCipher(config.cipherUrl, config.cipherPassword, config.getUserAgent());
+
+        YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(
+                options,
+                new AndroidVr(),
+                new AndroidMusic(),
+                new Music(),
+                new Web(),
+                new MWeb()
+        );
+        audioPlayerManager.registerSourceManager(source);
     }
 
     @Override

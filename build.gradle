@@ -55,7 +55,8 @@ allprojects {
             url "https://cursemaven.com"
         }
         maven {
-            url "https://maven.lavalink.dev/releases"
+            name = "lavalink"
+            url = 'https://maven.lavalink.dev/releases'
         }
     }
 
