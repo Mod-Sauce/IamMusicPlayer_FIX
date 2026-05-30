@@ -329,6 +329,7 @@
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "音频流获取参考了 tobyprime 的 Mcedia 项目",
   "text.autoconfig.iammusicplayer.option.openMcedia": "打开 Mcedia GitHub 地址",
   "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌",
+  "text.autoconfig.iammusicplayer.option.autoProxy": "自动检测代理",
   "text.autoconfig.iammusicplayer.option.proxy": "代理",
 
   "item.iammusicplayer.earphone": "耳机",

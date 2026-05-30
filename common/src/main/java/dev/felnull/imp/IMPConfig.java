@@ -32,6 +32,9 @@ public class IMPConfig implements ConfigData {
   public boolean globalCache = true;
 
   @ConfigEntry.Category("client")
+  public boolean autoProxy = true;
+
+  @ConfigEntry.Category("client")
   public UserProxy proxy = UserProxy.of(ProxyUtil.getSystemProxy());
 
   @ConfigEntry.Category("client")
