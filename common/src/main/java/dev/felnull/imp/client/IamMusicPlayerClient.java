@@ -20,6 +20,7 @@ import dev.felnull.imp.client.music.IMPMusicTrackerFactory;
 import dev.felnull.imp.client.music.loader.IMPMusicLoaders;
 import dev.felnull.imp.client.music.lyric.IMPLyricGetter;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
+import dev.felnull.imp.client.music.playlist.IMPPlaylistLoaders;
 import dev.felnull.imp.client.renderer.blockentity.IMPBlockEntityRenderers;
 import dev.felnull.imp.client.renderer.item.IMPItemRenderers;
 import dev.felnull.imp.networking.IMPPackets;
@@ -51,6 +52,7 @@ public class IamMusicPlayerClient {
         IMPMusicMedias.init();
         IMPMusicLoaders.init();
         IMPLyricGetter.init();
+        IMPPlaylistLoaders.init();
         IMPMusicTrackerFactory.init();
         LavaPlayerManager.getInstance().reload();
 

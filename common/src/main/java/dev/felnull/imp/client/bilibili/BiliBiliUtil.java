@@ -1,7 +1,7 @@
 package dev.felnull.imp.client.bilibili;
 
 import com.google.gson.*;
-import dev.felnull.imp.client.lava.hash.IMPRHash;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Lyric;
@@ -9,8 +9,6 @@ import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.util.ProxyUtil;
 import it.unimi.dsi.fastutil.floats.Float2ObjectRBTreeMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectSortedMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import oshi.util.tuples.Pair;
 
 import java.io.IOException;
@@ -20,6 +18,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +31,6 @@ public class BiliBiliUtil {
 
     public static String fetchAudioUrl(String bvid) throws IOException, InterruptedException {
         return fetchAudioUrl(bvid, 1, null);
-    }
-
-    public static String fetchAudioUrl(String bvid, int page) throws IOException, InterruptedException {
-        return fetchAudioUrl(bvid, page, null);
     }
 
     public static String fetchAudioUrl(String bvid, int page, String cookie) throws IOException, InterruptedException {
@@ -274,4 +269,110 @@ public class BiliBiliUtil {
             return null;
         }
     }
+
+    public static List<String> fetchFavBvids(long fid) throws Exception {
+        List<String> list = new ArrayList<>();
+        int pn = 1;
+
+        while (true) {
+
+            String url = "https://api.bilibili.com/x/v3/fav/resource/list"
+                    + "?media_id=" + fid
+                    + "&pn=" + pn
+                    + "&ps=20"
+                    + "&order=mtime"
+                    + "&platform=web";
+
+            JsonObject json = request(url);
+
+            if (json.get("code").getAsInt() != 0)
+                throw new RuntimeException(json.toString());
+
+            JsonObject data = json.getAsJsonObject("data");
+            JsonArray medias = data.getAsJsonArray("medias");
+
+            if (medias == null || medias.isEmpty())
+                break;
+
+            for (JsonElement e : medias) {
+                list.add(e.getAsJsonObject().get("bvid").getAsString());
+            }
+
+            pn++;
+
+            if(!data.get("has_more").getAsBoolean())
+                break;
+        }
+
+        return list;
+    }
+
+    public static VideoInfo fetchVideo(String bvid) throws Exception {
+        String url = "https://api.bilibili.com/x/web-interface/view?bvid=" + bvid;
+
+        JsonObject json = request(url);
+
+        if (json.get("code").getAsInt() != 0)
+            return null;
+
+        JsonObject v = json.getAsJsonObject("data");
+
+        return new VideoInfo(
+                bvid,
+                v.get("title").getAsString(),
+                v.get("pic").getAsString(),
+                v.getAsJsonObject("owner").get("name").getAsString(),
+                v.get("duration").getAsInt()
+        );
+    }
+
+    private static JsonObject request(String url) throws Exception {
+        var builder = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("User-Agent", "Mozilla/5.0")
+                .header("Referer", "https://www.bilibili.com/")
+                .GET();
+        var cookie = IamMusicPlayer.getConfig().bilibiliConfig.bilibiliCookie;
+        if(cookie != null && !cookie.isEmpty())
+            builder = builder.header("Cookie", cookie);
+        HttpRequest request = builder.build();
+
+        HttpResponse<String> response =
+                client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+        return GSON.fromJson(response.body(), JsonObject.class);
+    }
+
+    public static FavInfo fetchFavInfo(long fid) throws Exception {
+        String url = "https://api.bilibili.com/x/v3/fav/folder/info?media_id=" + fid;
+
+        JsonObject json = request(url);
+
+        if (json.get("code").getAsInt() != 0)
+            throw new RuntimeException(json.toString());
+
+        JsonObject data = json.getAsJsonObject("data");
+
+        return new FavInfo(
+                data.get("title").getAsString(),
+                data.get("cover").getAsString(),
+                data.get("media_count").getAsInt(),
+                data.getAsJsonObject("upper").get("name").getAsString()
+        );
+    }
+
+    public record FavInfo(
+            String title,
+            String cover,
+            int count,
+            String author
+    ) {}
+
+    public record VideoInfo(
+            String bvid,
+            String title,
+            String cover,
+            String author,
+            int duration
+    ) {}
 }

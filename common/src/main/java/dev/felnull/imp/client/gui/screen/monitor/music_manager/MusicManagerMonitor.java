@@ -87,7 +87,6 @@ public abstract class MusicManagerMonitor extends Monitor<MusicManagerBlockEntit
         registerMonitors(MusicManagerBlockEntity.MonitorType.ADD_MUSIC, AddMusicMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.SEARCH_MUSIC, SearchMusicMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.UPLOAD_MUSIC, UploadMusicMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST, ImportYoutubePlayListMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.EDIT_PLAY_LIST, EditPlayListMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.EDIT_MUSIC, EditMusicMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.DETAIL_PLAY_LIST, DetailPlayListMMMonitor::new);
@@ -96,10 +95,9 @@ public abstract class MusicManagerMonitor extends Monitor<MusicManagerBlockEntit
         registerMonitors(MusicManagerBlockEntity.MonitorType.DELETE_PLAY_LIST, DeletePlayListMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.DELETE_MUSIC, DeleteMusicMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT, ImportMusicsSelectMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST_MUSICS, ImportYoutubePlayListMusicsMMMonitor::new);
         registerMonitors(MusicManagerBlockEntity.MonitorType.AUTHORITY, AuthorityMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST_MUSICS, ImportNetEasePlayListMusicsMMMonitor::new);
-        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST, ImportNetEasePlayListMMMonitor::new);
+        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_MUSICS, ImportPlayListMusicsMMMonitor::new);
+        registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST, ImportPlayListMMMonitor::new);
     }
 
     public MusicManagerScreen getScreen() {
