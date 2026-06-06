@@ -230,7 +230,7 @@
   "text.autoconfig.iammusicplayer.option.sampleRate": "Sample rate",
   "text.autoconfig.iammusicplayer.option.useYoutubeDownloader": "Use YoutubeDownloader",
   "text.autoconfig.iammusicplayer.option.relayServerURL": "Relay server url",
-  "text.autoconfig.iammusicplayer.option.lavaPlayerNativesURL": "LavaPlayer native library url",
+  "text.autoconfig.iammusicplayer.option.lavaPlayerURLs": "Available URLs for LavaPlayer library",
   "text.autoconfig.iammusicplayer.option.neteaseCloudMusicApiURL": "Netease Cloud Music API url",
   "text.autoconfig.iammusicplayer.option.hideDisplaySprite": "Hide Display Sprite",
   "text.autoconfig.iammusicplayer.option.hideDecorativeAntenna": "Hide Decorative Antenna",

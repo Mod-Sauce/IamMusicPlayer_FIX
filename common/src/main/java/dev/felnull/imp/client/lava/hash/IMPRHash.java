@@ -5,10 +5,12 @@ import dev.felnull.fnjl.os.OSs.Type;
 import dev.felnull.fnjl.util.FNDataUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.LavaNativeManager;
-import java.io.*;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.SocketAddress;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,13 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Objects;
-
-import dev.felnull.imp.util.ProxyUtil;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class IMPRHash {
 
@@ -289,7 +285,7 @@ public class IMPRHash {
         String snakeos = os.toLowerCase();
         if (archisneeded) {
             String full_url =
-                    IamMusicPlayer.getConfig().hashBaseUrl.replaceFirst("/*$", "") +
+                    getHashBaseUrl().replaceFirst("/*$", "") +
                             "/" +
                             hash_folder +
                             "/" +
@@ -306,7 +302,7 @@ public class IMPRHash {
             }
         } else {
             String full_url =
-                    IamMusicPlayer.getConfig().hashBaseUrl.replaceFirst("/*$", "") +
+                    getHashBaseUrl().replaceFirst("/*$", "") +
                             "/" +
                             hash_folder +
                             "/" +
@@ -322,19 +318,9 @@ public class IMPRHash {
         }
     }
 
-    private String GetHash(String url) throws Exception {
+    private String GetHash(String url) {
         try {
-            HttpClient client = HttpClient.newBuilder().proxy(new ProxySelector() {
-                @Override
-                public List<Proxy> select(URI uri) {
-                    return List.of(ProxyUtil.getProxy());
-                }
-
-                @Override
-                public void connectFailed(URI uri, SocketAddress socketAddress, IOException e) {
-
-                }
-            }).build();
+            HttpClient client = getHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -373,7 +359,7 @@ public class IMPRHash {
         String hash_folder = "hash-" + natives_version;
         String snakeos = os.toLowerCase();
         String full_url_lib =
-                IamMusicPlayer.getConfig().hashBaseUrl.replaceFirst("/*$", "") +
+                getHashBaseUrl().replaceFirst("/*$", "") +
                         "/" +
                         hash_folder +
                         "/" +
@@ -397,7 +383,7 @@ public class IMPRHash {
         String hash_folder = "hash-" + natives_version;
         String snakeos = os.toLowerCase();
         String full_url_connector =
-                IamMusicPlayer.getConfig().hashBaseUrl.replaceFirst("/*$", "") +
+                getHashBaseUrl().replaceFirst("/*$", "") +
                         "/" +
                         hash_folder +
                         "/" +
@@ -414,5 +400,13 @@ public class IMPRHash {
             LOGGER.fatal("Something Failed during hash download: {}", e);
             return null;
         }
+    }
+
+    private String getHashBaseUrl(){
+        return LavaNativeManager.getInstance().getChoiceURL();
+    }
+
+    private HttpClient getHttpClient(){
+        return LavaNativeManager.HTTP_CLIENT;
     }
 }
