@@ -7,12 +7,14 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.architectury.event.events.client.ClientCommandRegistrationEvent;
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.bilibili.BiliBiliUtil;
 import dev.felnull.imp.client.cache.AudioCacheManager;
 import dev.felnull.imp.client.cache.LyricCacheManager;
 import dev.felnull.imp.client.music.lyric.IMPLyricGetter;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
 import dev.felnull.imp.music.resource.Lyric;
 import dev.felnull.imp.music.resource.Music;
+import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +27,7 @@ import java.util.concurrent.Executors;
 public class ClientMusicCommand {
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
     private static final Logger LOGGER = LogManager.getLogger(ClientMusicCommand.class);
+
     public static void register(CommandDispatcher<ClientCommandRegistrationEvent.ClientCommandSourceStack> dispatcher) {
         var node = dispatcher.register(
                 LiteralArgumentBuilder.<ClientCommandRegistrationEvent.ClientCommandSourceStack>literal(IamMusicPlayer.MODID + "Client")
@@ -34,6 +37,13 @@ public class ClientMusicCommand {
                                         .then(RequiredArgumentBuilder
                                                 .<ClientCommandRegistrationEvent.ClientCommandSourceStack, Long>argument("listID", LongArgumentType.longArg())
                                                 .executes(ClientMusicCommand::cacheNetease)
+                                        )
+                                )
+                                // bilibili
+                                .then(LiteralArgumentBuilder.<ClientCommandRegistrationEvent.ClientCommandSourceStack>literal("bilibili")
+                                        .then(RequiredArgumentBuilder
+                                                .<ClientCommandRegistrationEvent.ClientCommandSourceStack, Long>argument("fid", LongArgumentType.longArg())
+                                                .executes(ClientMusicCommand::cacheBilibili)
                                         )
                                 )
                         )
@@ -54,29 +64,29 @@ public class ClientMusicCommand {
 
         EXECUTOR_SERVICE.submit(() -> {
             LOGGER.info("Start caching...");
-            for (Music music: musicList){
+            for (Music music : musicList) {
                 var cacheID = "netease:" + music.getSource().getIdentifier();
-                if(AudioCacheManager.has(cacheID))continue;
+                if (AudioCacheManager.has(cacheID)) continue;
                 URL url;
-                try{
+                try {
                     url = NetMusicUtil.getNetMusicUrl(Long.parseLong(music.getSource().getIdentifier()));
-                }catch (Exception e) {
+                } catch (Exception e) {
                     LOGGER.error("Failed to cache {}:", music.getSource().getIdentifier(), e);
                     continue;
                 }
-                if(url == null)continue;
+                if (url == null) continue;
                 AudioCacheManager.cacheAsync(cacheID,
                         url.toString());
 
                 Lyric lyric;
-                try{
+                try {
                     var getter = IMPLyricGetter.getGetter(music.getSource());
-                    if(getter == null)continue;
+                    if (getter == null) continue;
                     getter.runAndWait(music.getSource());
                     lyric = getter.getLyric();
-                    if(lyric == null)continue;
+                    if (lyric == null) continue;
                     LyricCacheManager.cacheAsync("netease_" + music.getSource().getIdentifier(), lyric);
-                }catch (Exception e) {
+                } catch (Exception e) {
                     LOGGER.error("Failed to cache {} lyric:", music.getSource().getIdentifier(), e);
                 }
             }
@@ -85,6 +95,50 @@ public class ClientMusicCommand {
         commandContext.getSource().arch$sendSuccess(() -> Component.translatable("commands.imp.cache.success", musicList.size()),
                 false);
 
+        return 1;
+    }
+
+    private static int cacheBilibili(CommandContext<ClientCommandRegistrationEvent.ClientCommandSourceStack> commandContext) {
+        long id = LongArgumentType.getLong(commandContext, "fid");
+        List<String> musicList;
+        try {
+            musicList = BiliBiliUtil.fetchFavBvids(id);
+        } catch (Exception e) {
+            commandContext.getSource().arch$sendFailure(Component.translatable("commands.imp.cache.error"));
+            return 0;
+        }
+
+        EXECUTOR_SERVICE.submit(() -> {
+            LOGGER.info("Start caching...");
+            for (String bvid : musicList) {
+                var cacheID = "bilibili:" + bvid;
+                if (AudioCacheManager.has(cacheID)) continue;
+                URL url;
+                try {
+                    url = new URL(BiliBiliUtil.fetchAudioUrl(bvid));
+                } catch (Exception e) {
+                    LOGGER.error("Failed to cache {}:", bvid, e);
+                    continue;
+                }
+                AudioCacheManager.cacheAsync(cacheID,
+                        url.toString());
+
+                Lyric lyric;
+                try {
+                    var getter = IMPLyricGetter.getGetter("bilibili");
+                    if (getter == null) continue;
+                    getter.runAndWait(new MusicSource("bilibili", bvid, 114514));
+                    lyric = getter.getLyric();
+                    if (lyric == null) continue;
+                    LyricCacheManager.cacheAsync("bilibili_" + bvid, lyric);
+                } catch (Exception e) {
+                    LOGGER.error("Failed to cache {} lyric:", bvid, e);
+                }
+            }
+            LOGGER.info("Finished caching {} musics", musicList.size());
+        });
+        commandContext.getSource().arch$sendSuccess(() -> Component.translatable("commands.imp.cache.success", musicList.size()),
+                false);
         return 1;
     }
 }

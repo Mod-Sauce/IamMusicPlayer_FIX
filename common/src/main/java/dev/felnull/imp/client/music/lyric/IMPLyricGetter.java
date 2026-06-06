@@ -47,6 +47,12 @@ public class IMPLyricGetter {
         return ALL_GETTER.get(source.getLoaderType()).getLyricGetter();
     }
 
+    public static LyricGetter getGetter(String type){
+        var g = ALL_GETTER.get(type);
+        if(g == null)return null;
+        return g.getLyricGetter();
+    }
+
     public static void init(){
         register(new LyricGetterType() {
             @Override
