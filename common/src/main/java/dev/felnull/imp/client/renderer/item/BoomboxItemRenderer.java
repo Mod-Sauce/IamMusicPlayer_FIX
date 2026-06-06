@@ -36,8 +36,7 @@ public class BoomboxItemRenderer implements BEWLItemRenderer {
 
         float handleRaised = 1;
 
-        if (displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
-                || displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND) {
+        if (displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || displayContext == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
             handleRaised = 1f - BoomboxItem.getTransferProgress(itemStack, f);
         }
 

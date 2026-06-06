@@ -96,6 +96,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("integration")
   public boolean cctIntegration = true;
 
+  @ConfigEntry.Category("integration")
+  public boolean jadeIntegration = true;
+
   @ConfigEntry.Category("debug")
   public boolean showMusicLines = false;
 

@@ -381,5 +381,9 @@
   "commands.imp.cache.error": "An error occurred while caching",
   "commands.imp.cache.success": "Started caching for %s item(s)",
 
-  "text.autoconfig.iammusicplayer.option.autoProxy": "Auto-detect proxy"
+  "text.autoconfig.iammusicplayer.option.autoProxy": "Auto-detect proxy",
+
+  "text.autoconfig.iammusicplayer.option.jadeIntegration": "Jade Integration",
+  "config.jade.plugin_iammusicplayer.boombox": "Boombox",
+  "config.jade.plugin_iammusicplayer.cassette_deck": "Cassette Deck"
 }

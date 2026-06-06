@@ -381,5 +381,9 @@
   "text.autoconfig.iammusicplayer.option.globalCache": "全局缓存",
 
   "commands.imp.cache.error": "缓存时出现错误",
-  "commands.imp.cache.success": "已开始%s项目的缓存"
+  "commands.imp.cache.success": "已开始%s项目的缓存",
+
+  "text.autoconfig.iammusicplayer.option.jadeIntegration": "Jade 联动",
+  "config.jade.plugin_iammusicplayer.boombox": "手提音响",
+  "config.jade.plugin_iammusicplayer.cassette_deck": "录音座"
 }

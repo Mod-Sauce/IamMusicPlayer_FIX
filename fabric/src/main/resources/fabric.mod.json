@@ -26,8 +26,8 @@
     "otyacraftengine_client": [
       "dev.felnull.imp.client.entrypoint.IMPOEClientEntryPoint"
     ],
-    "little_maid_extension": [
-      "dev.felnull.imp.fabric.maid.IMPMaidPlugin"
+    "jade": [
+      "dev.felnull.imp.integration.jade.IMPJadePlugin"
     ]
   },
   "mixins": [
