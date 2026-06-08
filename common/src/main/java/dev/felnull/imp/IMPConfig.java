@@ -7,7 +7,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
-import java.net.Proxy;
+import java.util.List;
 
 @Config(name = IamMusicPlayer.MODID)
 @Config.Gui.Background("cloth-config2:transparent")
@@ -32,6 +32,9 @@ public class IMPConfig implements ConfigData {
   public boolean globalCache = true;
 
   @ConfigEntry.Category("client")
+  public boolean autoProxy = true;
+
+  @ConfigEntry.Category("client")
   public UserProxy proxy = UserProxy.of(ProxyUtil.getSystemProxy());
 
   @ConfigEntry.Category("client")
@@ -45,12 +48,10 @@ public class IMPConfig implements ConfigData {
     "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
 
   @ConfigEntry.Category("client")
-  public String lavaPlayerNativesURL =
-    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
-
-  @ConfigEntry.Category("client")
-  public String hashBaseUrl =
-    "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
+  public List<String> lavaPlayerURLs = List.of(
+          "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer",
+          "https://raw.giteeusercontent.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer"
+  );
 
   @ConfigEntry.Category("client")
   @ConfigEntry.Gui.Tooltip
@@ -95,6 +96,9 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("integration")
   public boolean cctIntegration = true;
 
+  @ConfigEntry.Category("integration")
+  public boolean jadeIntegration = true;
+
   @ConfigEntry.Category("debug")
   public boolean showMusicLines = false;
 
@@ -129,6 +133,9 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("integration")
   public boolean sableIntegration = true;
+
+  @ConfigEntry.Category("integration")
+  public boolean netMusicListIntegration = true;
 
   @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
   @ConfigEntry.Category("sources")

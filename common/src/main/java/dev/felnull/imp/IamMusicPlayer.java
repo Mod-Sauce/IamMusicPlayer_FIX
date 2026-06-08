@@ -11,9 +11,9 @@ import dev.felnull.imp.entity.village.IMPVillagerProfessions;
 import dev.felnull.imp.handler.CommonHandler;
 import dev.felnull.imp.integration.CCTIntegration;
 import dev.felnull.imp.inventory.IMPMenus;
-import dev.felnull.imp.item.component.IMPComponents;
 import dev.felnull.imp.item.IMPCreativeModeTabs;
 import dev.felnull.imp.item.IMPItems;
+import dev.felnull.imp.item.component.IMPComponents;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.handler.ServerHandler;
 import dev.felnull.imp.server.handler.ServerMusicHandler;
@@ -21,6 +21,8 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 public class IamMusicPlayer {
 
@@ -70,10 +72,10 @@ public class IamMusicPlayer {
       CONFIG.useYoutubeDownloader = true;
       CONFIG.relayServerURL =
         "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
-      CONFIG.lavaPlayerNativesURL =
-        "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer/natives_link.json";
-      CONFIG.hashBaseUrl =
-        "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer";
+      CONFIG.lavaPlayerURLs = List.of(
+              "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer",
+              "https://raw.giteeusercontent.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer"
+      );
       CONFIG.IMPRFolder = "iammusicplayerrenewed";
       CONFIG.lavaNativesFolder = "lavaplayer_natives";
       CONFIG.hideDisplaySprite = false;

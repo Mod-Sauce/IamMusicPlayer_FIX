@@ -2,7 +2,6 @@ package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ImportPlayListSelectMMMonitor extends ImportSelectBaseMMMonitor {
@@ -12,17 +11,13 @@ public class ImportPlayListSelectMMMonitor extends ImportSelectBaseMMMonitor {
     }
 
     @Override
-    public @NotNull MusicManagerBlockEntity.MonitorType getImportYoutubeMonitor() {
-        return MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST;
+    protected MusicManagerBlockEntity.MonitorType resolveMonitor() {
+        return MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST;
     }
 
-    @Override
-    public @NotNull MusicManagerBlockEntity.MonitorType getImportNeteaseMonitor() {
-        return MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST_MUSICS;
-    }
 
     @Override
     protected @Nullable MusicManagerBlockEntity.MonitorType getParentType() {
-        return MusicManagerBlockEntity.MonitorType.CREATE_PLAY_LIST;
+        return MusicManagerBlockEntity.MonitorType.ADD_PLAY_LIST;
     }
 }

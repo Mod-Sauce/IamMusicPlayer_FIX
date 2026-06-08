@@ -6,6 +6,7 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.blockentity.IMPBlockEntities;
 import dev.felnull.imp.item.BoomboxItem;
+import dev.felnull.imp.item.IMPItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -69,6 +70,24 @@ public class BoomboxBlock extends IMPBaseEntityBlock {
                 }
             }
         } else {
+            var be = level.getBlockEntity(blockPos);
+            if (be instanceof BoomboxBlockEntity boombox && blockHitResult.getDirection() == blockState.getValue(FACING)) {
+                if (boombox.getBoomboxData().isLidOpen()) {
+                    if(itemStack.is(IMPItemTags.CASSETTE_TAPE)) {
+                        boombox.setItem(0, itemStack.copyWithCount(1));
+                        itemStack.shrink(1);
+                        boombox.getBoomboxData().startLidOpen(false, level);
+                        if (boombox.getBoomboxData().canPlay())
+                            boombox.getBoomboxData().setPlaying(true);
+                        return ItemInteractionResult.SUCCESS;
+                    }else if(itemStack.isEmpty()){
+                        player.setItemInHand(interactionHand, boombox.getItem(0));
+                        boombox.setItem(0, ItemStack.EMPTY);
+                        boombox.getBoomboxData().startLidOpen(false, level);
+                        return ItemInteractionResult.SUCCESS;
+                    }
+                }
+            }
             return super.useItemOn(itemStack, blockState, level, blockPos, player, interactionHand, blockHitResult);
         }
         return ItemInteractionResult.SUCCESS;

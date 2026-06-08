@@ -3,8 +3,14 @@ package dev.felnull.imp.client.music.media;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.felnull.imp.util.ProxyUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.http.HttpHost;
+
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.SocketAddress;
 
 public class HttpMusicMedia extends LavaPlayerBaseMusicMedia {
     private static final Component URL_ENTER_TEXT = Component.translatable("imp.text.enterText.url");
@@ -15,7 +21,18 @@ public class HttpMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public void registerSourceManager(AudioPlayerManager audioPlayerManager) {
-        audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());
+        var manager = new HttpAudioSourceManager();
+        var netProxy = ProxyUtil.getProxy();
+        if (netProxy.type() == Proxy.Type.HTTP) {
+            SocketAddress addr = netProxy.address();
+            if (addr instanceof InetSocketAddress inetAddr) {
+                HttpHost httpHost = new HttpHost(inetAddr.getHostString(), inetAddr.getPort());
+                manager.configureBuilder(builder -> {
+                    builder.setProxy(httpHost);
+                });
+            }
+        }
+        audioPlayerManager.registerSourceManager(manager);
     }
 
     @Override

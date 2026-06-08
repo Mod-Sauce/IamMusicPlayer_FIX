@@ -152,7 +152,7 @@ public class CreatePlayListMMMonitor extends SavedPlayListBaseMMMonitor {
                 for (AudioTrack track : pl.getRight()) {
                     if (!track.getInfo().isStream) {
                         var ret = IMPMusicMedias.YOUTUBE.createResult(track);
-                        var en = new ImportYoutubePlayListMMMonitor.YoutubePlayListEntry(ret.name(), ret.author(), ret.source(), ret.imageInfo());
+                        var en = new ImportPlayListBaseMMMonitor.PlayListEntry(ret.name(), ret.author(), ret.source(), ret.imageInfo());
                         var music = new Music(UUID.randomUUID(), en.name(), en.artist(), en.source(), en.imageInfo(), mc.player.getGameProfile().getId(), System.currentTimeMillis());
                         musics.add(music);
                     }

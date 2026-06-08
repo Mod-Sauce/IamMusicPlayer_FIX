@@ -51,16 +51,6 @@ public class BoomboxPeripheral implements IPeripheral {
     // lua start
 
     @LuaFunction(mainThread = true)
-    public void pushItemsTo(String toName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot) throws LuaException {
-        PeripheralUtil.transferExact(boomboxBlockEntity, PeripheralUtil.findContainer(computerAccess, toName), fromSlot, toSlot.orElse(null), limit.orElse(null));
-    }
-
-    @LuaFunction(mainThread = true)
-    public void pullItemsFrom(String fromName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot) throws LuaException {
-        PeripheralUtil.transferExact(PeripheralUtil.findContainer(computerAccess, fromName), boomboxBlockEntity, fromSlot, toSlot.orElse(null), limit.orElse(null));
-    }
-
-    @LuaFunction(mainThread = true)
     public void setPower(boolean power){
         boomboxBlockEntity.setPower(power);
     }

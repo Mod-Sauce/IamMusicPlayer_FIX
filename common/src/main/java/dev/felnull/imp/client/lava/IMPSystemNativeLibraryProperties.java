@@ -3,12 +3,13 @@ package dev.felnull.imp.client.lava;
 import com.sedmelluq.lava.common.natives.NativeLibraryProperties;
 import com.sedmelluq.lava.common.natives.architecture.DefaultOperatingSystemTypes;
 import com.sedmelluq.lava.common.natives.architecture.SystemType;
-import java.util.function.Predicate;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.function.Predicate;
 
 public class IMPSystemNativeLibraryProperties
   implements NativeLibraryProperties
@@ -48,7 +49,8 @@ public class IMPSystemNativeLibraryProperties
       sys.formatLibraryName(libraryName)
     );
     if (!ret) {
-        throw new UnsatisfiedLinkError("Failed to load the library");
+      showError();
+      throw new UnsatisfiedLinkError("Failed to load the library");
     };
     var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);
     LOGGER.info(
@@ -94,5 +96,14 @@ public class IMPSystemNativeLibraryProperties
     }
     if (systemFilter != null && !systemFilter.test(systemType)) return null;
     return systemType;
+  }
+
+  private void showError(){
+    Minecraft.getInstance().getToasts().addToast(SystemToast.multiline(
+            Minecraft.getInstance(),
+            SystemToast.SystemToastId.NARRATOR_TOGGLE,
+            Component.translatable("imp.text.lava.failed1"),
+            Component.translatable("imp.text.lava.failed2")
+    ));
   }
 }

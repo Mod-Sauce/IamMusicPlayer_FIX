@@ -77,7 +77,7 @@ public final class AudioCacheManager {
 
                 Path file = AUDIO_DIR.resolve(fileName);
 
-                download(url, file);
+                download(id, url, file);
 
                 CacheEntry entry = new CacheEntry(id, fileName);
 
@@ -105,13 +105,17 @@ public final class AudioCacheManager {
         return INDEX.containsKey(id);
     }
 
-    private static void download(String urlStr, Path target) throws IOException {
+    private static void download(String id, String urlStr, Path target) throws IOException {
         Files.createDirectories(target.getParent());
         URL url = URI.create(urlStr).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setConnectTimeout(8000);
         conn.setReadTimeout(15000);
+        if(id.contains("bilibili")) {
+            conn.setRequestProperty("Referer", "https://www.bilibili.com/");
+            conn.setRequestProperty("Origin", "https://www.bilibili.com/");
+        }
 
         try (InputStream in = conn.getInputStream();
              OutputStream out = Files.newOutputStream(target,
@@ -166,5 +170,5 @@ public final class AudioCacheManager {
         }
     }
 
-    private static record CacheEntry(String id, String fileName) { }
+    private record CacheEntry(String id, String fileName) { }
 }

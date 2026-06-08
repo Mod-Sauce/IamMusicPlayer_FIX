@@ -11,16 +11,14 @@ import dev.felnull.imp.inventory.MusicManagerMenu;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
-import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.BeaconScreen;
-import net.minecraft.client.gui.screens.inventory.CartographyTableScreen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.Nullable;
+import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -34,6 +32,7 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
     private final Map<MusicManagerBlockEntity.MonitorType, MusicManagerMonitor> monitors = new HashMap<>();
     private final UUID musicPlayerId = UUID.randomUUID();
     public boolean lastSearch;
+    public String playlistLoaderType;
     protected MusicManagerMonitor monitor;
     public byte[] musicFileImage;
 

@@ -5,8 +5,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.hash.IMPRHash;
+import dev.felnull.imp.util.ProxyUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
+import oshi.util.tuples.Pair;
+
 import java.io.*;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -14,15 +25,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import dev.felnull.imp.util.ProxyUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Manager for handling LavaPlayer native library downloads and loading
@@ -37,8 +45,11 @@ public class LavaNativeManager {
     public static final String NATIVES_VERSION = "2.2.6";
     private static final int CONNECTION_TIMEOUT = 10000; // 10 seconds
     private static final int READ_TIMEOUT = 30000; // 30 seconds
+    private static final int TRY_URL_TIMEOUT = 5; // 5 seconds
     private static final int DOWNLOAD_RETRY_COUNT = 3;
     private static final long DOWNLOAD_RETRY_DELAY_MS = 1000;
+
+    public static HttpClient HTTP_CLIENT = createHttpClient();
 
     // Executor for background downloads
     private final ExecutorService downloadExecutor =
@@ -53,12 +64,76 @@ public class LavaNativeManager {
     private final Map<String, CompletableFuture<Boolean>> activeDownloads =
             new ConcurrentHashMap<>();
 
+    @Nullable
+    private String choiceURL;
+
     private LavaNativeManager() {
         // Private constructor for singleton
     }
 
+    private static HttpClient createHttpClient(){
+        return HttpClient.newBuilder()
+                .proxy(new IMPProxySelector(List.of(
+                        ProxyUtil.getProxy(),
+                        ProxyUtil.getSystemProxy()
+                )))
+                .connectTimeout(Duration.ofMillis(CONNECTION_TIMEOUT))
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
+    }
+
     public static LavaNativeManager getInstance() {
         return INSTANCE;
+    }
+
+    public void tryBestURL(){
+        if(choiceURL != null)return;
+        var finishedUrls = new ArrayList<Pair<String, Long>>();
+        for (String url: IamMusicPlayer.getConfig().lavaPlayerURLs){
+            var result = measureLatency(url);
+            if(result.isPresent()){
+                finishedUrls.add(new Pair<>(url, result.getAsLong()));
+            }
+        }
+        if(finishedUrls.isEmpty())
+            throw new RuntimeException("No valid link");
+        finishedUrls.sort(Comparator.comparingLong(Pair::getB));
+        choiceURL = finishedUrls.getFirst().getA();
+        LOGGER.info("Choice {}.", choiceURL);
+    }
+
+    public OptionalLong measureLatency(String url) {
+        LOGGER.info("Trying {} link.", url);
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .timeout(Duration.ofSeconds(TRY_URL_TIMEOUT))
+                    .method("HEAD", HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+            long start = System.currentTimeMillis();
+            HttpResponse<Void> response = HTTP_CLIENT.send(
+                    request, HttpResponse.BodyHandlers.discarding()
+            );
+            long latency = System.currentTimeMillis() - start;
+
+            if (response.statusCode() == 405) {
+                HttpRequest get = HttpRequest.newBuilder()
+                        .uri(new URI(url))
+                        .timeout(Duration.ofSeconds(TRY_URL_TIMEOUT))
+                        .GET()
+                        .build();
+                start = System.currentTimeMillis();
+                HTTP_CLIENT.send(get, HttpResponse.BodyHandlers.discarding());
+                latency = System.currentTimeMillis() - start;
+            }
+
+            LOGGER.info("Try successful, took {}ms.", latency);
+            return OptionalLong.of(latency);
+        } catch (Exception e) {
+            LOGGER.info("Try failed, continuing.");
+            return OptionalLong.empty();
+        }
     }
 
     /**
@@ -69,11 +144,16 @@ public class LavaNativeManager {
      * @return true if library is available, false otherwise
      */
     public boolean load(String osAndArch, String name) {
+        HTTP_CLIENT = createHttpClient();  // Reset Proxy
+
         Path nativesDir = LavaPlayerLoader.getNaiveLibraryFolder().resolve(
                 osAndArch
         );
         File nativesDirFile = nativesDir.toFile();
         Path nativeLibPath = nativesDir.resolve(name);
+
+        LOGGER.info("Selecting the best link.");
+        tryBestURL();
 
         // Check if natives directory exists and is valid
         if (!isValidNativesDirectory(nativesDirFile)) {
@@ -255,33 +335,27 @@ public class LavaNativeManager {
      * @return JsonObject containing the natives manifest
      */
     private JsonObject downloadManifest() throws Exception {
-        String manifestUrlString =
-                IamMusicPlayer.getConfig().lavaPlayerNativesURL;
+        String manifestUrlString = choiceURL + "/natives_link.json";
         LOGGER.info("Downloading natives manifest from: {}", manifestUrlString);
 
-        URL manifestUrl = new URI(manifestUrlString).toURL();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(manifestUrlString))
+                .timeout(Duration.ofMillis(READ_TIMEOUT))
+                .header("User-Agent", "IamMusicPlayer")
+                .GET()
+                .build();
 
-        HttpURLConnection connection =
-                (HttpURLConnection) manifestUrl.openConnection(ProxyUtil.getProxy());
-        connection.setConnectTimeout(CONNECTION_TIMEOUT);
-        connection.setReadTimeout(READ_TIMEOUT);
-        connection.setRequestProperty("User-Agent", "IamMusicPlayer");
+        HttpResponse<String> response = HTTP_CLIENT.send(
+                request, HttpResponse.BodyHandlers.ofString()
+        );
 
-        int responseCode = connection.getResponseCode();
-        if (responseCode != 200) {
+        if (response.statusCode() != 200) {
             throw new IOException(
-                    "Failed to download manifest. HTTP response code: " +
-                            responseCode
+                    "Failed to download manifest. HTTP response code: " + response.statusCode()
             );
         }
 
-        try (
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream())
-                )
-        ) {
-            return GSON.fromJson(reader, JsonObject.class);
-        }
+        return GSON.fromJson(response.body(), JsonObject.class);
     }
 
     /**
@@ -346,25 +420,35 @@ public class LavaNativeManager {
      */
     private void downloadFile(URL url, Path destination) throws IOException {
         LOGGER.info("Opening connection to: {}", url);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection(ProxyUtil.getProxy());
-        connection.setConnectTimeout(CONNECTION_TIMEOUT);
-        connection.setReadTimeout(READ_TIMEOUT);
-        connection.setRequestProperty("User-Agent", "IamMusicPlayer");
+        HttpRequest request;
+        try {
+            request = HttpRequest.newBuilder()
+                    .uri(url.toURI())
+                    .timeout(Duration.ofMillis(READ_TIMEOUT))
+                    .header("User-Agent", "IamMusicPlayer")
+                    .GET()
+                    .build();
+        } catch (URISyntaxException e) {
+            throw new IOException("Invalid URL: " + url, e);
+        }
 
-        int responseCode = connection.getResponseCode();
-        if (responseCode != 200) {
+        HttpResponse<InputStream> response;
+        try {
+            response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Download interrupted", e);
+        }
+
+        if (response.statusCode() != 200) {
             throw new IOException(
                     "Failed to download file. HTTP response code: " +
-                            responseCode +
-                            " for URL: " +
-                            url
+                            response.statusCode() + " for URL: " + url
             );
         }
 
         try (
-                ReadableByteChannel readChannel = Channels.newChannel(
-                        connection.getInputStream()
-                );
+                ReadableByteChannel readChannel = Channels.newChannel(response.body());
                 FileChannel writeChannel = FileChannel.open(
                         destination,
                         StandardOpenOption.CREATE,
@@ -372,35 +456,20 @@ public class LavaNativeManager {
                         StandardOpenOption.TRUNCATE_EXISTING
                 )
         ) {
-            long fileSize = connection.getContentLengthLong();
-            LOGGER.info(
-                    "Starting transfer from {} ({} bytes)",
-                    url,
-                    fileSize > 0 ? String.format("%,d", fileSize) : "unknown size"
-            );
+            long fileSize = response.headers().firstValueAsLong("content-length").orElse(-1);
+            LOGGER.info("Starting transfer from {} ({} bytes)", url,
+                    fileSize > 0 ? String.format("%,d", fileSize) : "unknown size");
 
-            // Transfer in chunks
             long position = 0;
             long bytesTransferred;
-            long chunkSize = 1024 * 1024; // 1MB chunks
+            long chunkSize = 1024 * 1024;
 
-            while (
-                    (bytesTransferred = writeChannel.transferFrom(
-                            readChannel,
-                            position,
-                            chunkSize
-                    )) >
-                            0
-            ) {
+            while ((bytesTransferred = writeChannel.transferFrom(readChannel, position, chunkSize)) > 0) {
                 position += bytesTransferred;
                 if (fileSize > 0) {
                     int progress = (int) ((position * 100) / fileSize);
                     if (progress % 10 == 0) {
-                        LOGGER.info(
-                                "Download progress for {}: {}%",
-                                url,
-                                progress
-                        );
+                        LOGGER.info("Download progress for {}: {}%", url, progress);
                     }
                 }
             }
@@ -633,5 +702,9 @@ public class LavaNativeManager {
             Thread.currentThread().interrupt();
             downloadExecutor.shutdownNow();
         }
+    }
+
+    public @Nullable String getChoiceURL() {
+        return choiceURL;
     }
 }

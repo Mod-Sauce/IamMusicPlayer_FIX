@@ -1,6 +1,6 @@
 package dev.felnull.imp.client.gui.components;
 
-import dev.felnull.imp.client.gui.screen.monitor.music_manager.ImportNetEasePlayListMMMonitor;
+import dev.felnull.imp.client.gui.screen.monitor.music_manager.ImportPlayListBaseMMMonitor;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -10,13 +10,13 @@ import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget
 
 import java.util.List;
 
-public class NeteasePlayListMusicsFixedListWidget extends IMPBaseFixedListWidget<ImportNetEasePlayListMMMonitor.NetEasePlayListEntry> {
-    public NeteasePlayListMusicsFixedListWidget(int x, int y, int width, int height, @NotNull Component message, int entryShowCount, @NotNull List<ImportNetEasePlayListMMMonitor.NetEasePlayListEntry> entryList, @Nullable FixedListWidget<ImportNetEasePlayListMMMonitor.NetEasePlayListEntry> old) {
+public class PlayListMusicsFixedListWidget extends IMPBaseFixedListWidget<ImportPlayListBaseMMMonitor.PlayListEntry> {
+    public PlayListMusicsFixedListWidget(int x, int y, int width, int height, @NotNull Component message, int entryShowCount, @NotNull List<ImportPlayListBaseMMMonitor.PlayListEntry> entryList, @Nullable FixedListWidget<ImportPlayListBaseMMMonitor.PlayListEntry> old) {
         super(x, y, width, height, message, entryShowCount, entryList, n -> Component.literal(n.name()), null, false, old);
     }
 
     @Override
-    protected void renderOneButton(GuiGraphics guiGraphics, ImportNetEasePlayListMMMonitor.NetEasePlayListEntry item, int lnum, int bnum, int bX, int bY, int mx, int my, float parTick, boolean selected) {
+    protected void renderOneButton(GuiGraphics guiGraphics, ImportPlayListBaseMMMonitor.PlayListEntry item, int lnum, int bnum, int bX, int bY, int mx, int my, float parTick, boolean selected) {
         drawSmartButtonBox(guiGraphics, bX, bY, getIndividualWidth(), getIndividualHeight(), this.getYImage(this.isEntryHovered(bnum)));
         var img = item.imageInfo();
         float sx = 1;
