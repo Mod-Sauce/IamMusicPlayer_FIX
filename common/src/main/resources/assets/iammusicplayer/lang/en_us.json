@@ -342,6 +342,7 @@
   "advancements.iammusicplayer.earphone.description": "The Ender music player...",
 
   "text.autoconfig.iammusicplayer.option.disableHash": "Disable hash check",
+  "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries.",
   "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "Warning: Disabling hash check may cause loading of unknown libraries.",
 
   "imp.create.text.showTrans.title": "Whether to show translation",
