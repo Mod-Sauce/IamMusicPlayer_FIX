@@ -230,7 +230,6 @@
   "text.autoconfig.iammusicplayer.option.sampleRate": "Sample rate",
   "text.autoconfig.iammusicplayer.option.useYoutubeDownloader": "Use YoutubeDownloader",
   "text.autoconfig.iammusicplayer.option.relayServerURL": "Relay server url",
-  "text.autoconfig.iammusicplayer.option.lavaPlayerURLs": "Available URLs for LavaPlayer library",
   "text.autoconfig.iammusicplayer.option.neteaseCloudMusicApiURL": "Netease Cloud Music API url",
   "text.autoconfig.iammusicplayer.option.hideDisplaySprite": "Hide Display Sprite",
   "text.autoconfig.iammusicplayer.option.hideDecorativeAntenna": "Hide Decorative Antenna",
@@ -341,9 +340,6 @@
   "advancements.iammusicplayer.earphone.title": "Earphones!",
   "advancements.iammusicplayer.earphone.description": "The Ender music player...",
 
-  "text.autoconfig.iammusicplayer.option.disableHash": "Disable hash check",
-  "text.autoconfig.iammusicplayer.option.disableHash.tip": "Warning: Disabling hash check may cause loading of unknown libraries.",
-  "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "Warning: Disabling hash check may cause loading of unknown libraries.",
 
   "imp.create.text.showTrans.title": "Whether to show translation",
   "imp.create.text.showTrans.yes": "Show translation",

@@ -7,7 +7,6 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
-import java.util.List;
 
 @Config(name = IamMusicPlayer.MODID)
 @Config.Gui.Background("cloth-config2:transparent")
@@ -46,16 +45,6 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("client")
   public String relayServerURL =
     "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
-
-  @ConfigEntry.Category("client")
-  public List<String> lavaPlayerURLs = List.of(
-          "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer",
-          "https://raw.giteeusercontent.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer"
-  );
-
-  @ConfigEntry.Category("client")
-  @ConfigEntry.Gui.Tooltip
-  public boolean disableHash = false;
 
   @ConfigEntry.Category("client")
   public String IMPRFolder = "iammusicplayerrenewed";
