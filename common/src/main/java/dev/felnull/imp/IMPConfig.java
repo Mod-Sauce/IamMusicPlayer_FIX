@@ -29,7 +29,7 @@ public class IMPConfig implements ConfigData {
   public boolean enableCache = false;
 
   @ConfigEntry.Category("client")
-  public boolean globalCache = true;
+  public boolean globalCache = false;
 
   @ConfigEntry.Category("client")
   public boolean autoProxy = true;
@@ -68,9 +68,6 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("client")
   public boolean hideDecorativeAntenna = false;
-
-  @ConfigEntry.Category("client")
-  public boolean tryUseGitee = true;
 
   @ConfigEntry.Category("server")
   public long maxWaitTime = 1000 * 10;
