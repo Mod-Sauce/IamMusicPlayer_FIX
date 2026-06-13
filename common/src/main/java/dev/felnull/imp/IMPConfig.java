@@ -1,6 +1,8 @@
 package dev.felnull.imp;
 
-import dev.felnull.imp.client.gui.config.Button;
+import dev.felnull.imp.client.gui.config.button.Button;
+import dev.felnull.imp.client.gui.config.proxy.UserProxy;
+import dev.felnull.imp.util.ProxyUtil;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
@@ -20,6 +22,18 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("client")
   public int sampleRate = 44100;
+
+  @ConfigEntry.Category("client")
+  public boolean enableCache = false;
+
+  @ConfigEntry.Category("client")
+  public boolean globalCache = true;
+
+  @ConfigEntry.Category("client")
+  public boolean autoProxy = true;
+
+  @ConfigEntry.Category("client")
+  public UserProxy proxy = UserProxy.of(ProxyUtil.getSystemProxy());
 
   @ConfigEntry.Category("client")
   public boolean useYoutubeDownloader = true;
@@ -81,9 +95,6 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("internal")
   @ConfigEntry.Gui.Excluded
   public String configVersion = "3";
-
-  @ConfigEntry.Category("client")
-  public boolean tryUseGitee = true;
 
   @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
   @ConfigEntry.Category("sources")

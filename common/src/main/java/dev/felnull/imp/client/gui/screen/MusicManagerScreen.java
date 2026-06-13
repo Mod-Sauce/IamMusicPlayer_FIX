@@ -41,7 +41,8 @@ public class MusicManagerScreen
   > monitors = new HashMap<>();
   private final UUID musicPlayerId = UUID.randomUUID();
   public boolean lastSearch;
-  protected MusicManagerMonitor monitor;
+    public String playlistLoaderType;
+    protected MusicManagerMonitor monitor;
   public byte[] musicFileImage;
 
   public MusicManagerScreen(

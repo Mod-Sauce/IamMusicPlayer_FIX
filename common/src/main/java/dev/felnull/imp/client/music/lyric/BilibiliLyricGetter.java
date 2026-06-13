@@ -2,6 +2,7 @@ package dev.felnull.imp.client.music.lyric;
 
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.bilibili.BiliBiliUtil;
+import dev.felnull.imp.client.cache.LyricCacheManager;
 import dev.felnull.imp.music.resource.Lyric;
 import dev.felnull.imp.music.resource.MusicSource;
 
@@ -12,6 +13,12 @@ public class BilibiliLyricGetter implements LyricGetter{
     public void run(MusicSource musicSource) {
         thread = new GetLyricThread(musicSource);
         thread.start();
+    }
+
+    @Override
+    public void runAndWait(MusicSource musicSource) {
+        run(musicSource);
+        try {thread.join();} catch (InterruptedException ignored) {}
     }
 
     @Override
@@ -44,6 +51,7 @@ public class BilibiliLyricGetter implements LyricGetter{
             }catch (Exception ignore){
 
             }
+            LyricCacheManager.cacheAsync(source.getLoaderType() + "_" + source.getIdentifier(), lyric);
         }
     }
 }

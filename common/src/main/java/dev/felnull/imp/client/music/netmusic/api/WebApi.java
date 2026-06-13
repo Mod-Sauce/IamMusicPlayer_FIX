@@ -42,6 +42,10 @@ public final class WebApi {
         return NetWorker.post(url, encrypt, requestPropertyData);
     }
 
+    public String search(String key) throws Exception {
+        return NeteaseSearch.search(key);
+    }
+
     public String album(long albumId) throws Exception {
         String url = "http://music.163.com/weapi/v1/album/" + albumId + "?id=" + albumId + "&offset=0&total=true&limit=12";
         String param = "{\"album_id\":" + albumId + ",\"csrf_token\":\"\"}";

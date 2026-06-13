@@ -1,7 +1,6 @@
 package dev.felnull.imp.client.music.media;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.bilibili.BiliBiliUtil;
@@ -54,7 +53,7 @@ public class BiliBiliMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public boolean match(AudioTrack track) {
-        return track.getSourceManager() instanceof HttpAudioSourceManager;
+        return track.getSourceManager() instanceof BilibiliHttpAudioSourceManager;
     }
 
     @Override

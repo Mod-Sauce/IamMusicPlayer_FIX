@@ -1,15 +1,17 @@
 package dev.felnull.imp.client.music.media;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
 import dev.felnull.imp.client.music.netmusic.URLType;
+import dev.felnull.imp.client.music.sourceManager.NeteaseSourceManager;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
 
 public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
     protected NeteaseMusicMedia(String name) {
@@ -18,7 +20,7 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public void registerSourceManager(AudioPlayerManager audioPlayerManager) {
-        audioPlayerManager.registerSourceManager(new HttpAudioSourceManager());
+        audioPlayerManager.registerSourceManager(new NeteaseSourceManager());
     }
 
     @Override
@@ -39,7 +41,7 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public boolean isSearchable() {
-        return false;
+        return true;
     }
 
     @Override
@@ -72,11 +74,16 @@ public class NeteaseMusicMedia extends LavaPlayerBaseMusicMedia {
 
     @Override
     public boolean match(AudioTrack track) {
-        return track.getSourceManager() instanceof HttpAudioSourceManager;
+        return track.getSourceManager() instanceof NeteaseSourceManager;
     }
 
     @Override
     public int priority() {
         return 2;
+    }
+
+    @Override
+    public List<MusicMediaResult> search(String searchText) {
+        return NetMusicUtil.search(searchText);
     }
 }

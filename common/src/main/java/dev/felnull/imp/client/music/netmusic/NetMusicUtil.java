@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
+import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.client.music.netmusic.api.ExtraMusicList;
 import dev.felnull.imp.client.music.netmusic.api.NetEaseMusic;
 import dev.felnull.imp.client.music.netmusic.api.WebApi;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
+import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicSearch;
 import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicSong;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Lyric;
@@ -22,9 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import oshi.util.tuples.Pair;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -185,6 +185,57 @@ public class NetMusicUtil {
         return SONGS;
     }
 
+    public static List<Music> getMusicsData(List<Long> songIds) throws Exception {
+        updateCookie();
+        List<Music> SONGS = new ArrayList<>();
+        if (songIds == null || songIds.isEmpty())
+            return SONGS;
+        List<Long> ids = songIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        int batchSize = 100;
+        for (int i = 0; i < ids.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, ids.size());
+            long[] batchIds = new long[end - i];
+            for (int j = i; j < end; j++) {
+                batchIds[j - i] = ids.get(j);
+            }
+            String extraTrackInfo = WEB_API.songs(batchIds);
+            ExtraMusicList extra = GSON.fromJson(extraTrackInfo, ExtraMusicList.class);
+            if (extra == null || extra.getTracks() == null)
+                continue;
+            for (NetEaseMusicList.Track track : extra.getTracks()) {
+                var musicSource = new MusicSource(
+                        IMPMusicMedias.NETEASE_MUSIC.getName(),
+                        String.valueOf(track.getId()),
+                        track.getDuration()
+                );
+                var name = IamMusicPlayer.getConfig().netMusicConfig.withTransName
+                        && track.getTransName() != null
+                        && !track.getTransName().isEmpty()
+                        ? String.format("%s(%s)", track.getName(), track.getTransName())
+                        : track.getName();
+                ImageInfo imageInfo = new ImageInfo(
+                        ImageInfo.ImageType.URL,
+                        track.getAlbum().getPicUrl()
+                );
+                SONGS.add(new Music(
+                        UUID.randomUUID(),
+                        name,
+                        String.join("、", track.getArtists()),
+                        musicSource,
+                        imageInfo,
+                        Objects.requireNonNull(Minecraft.getInstance().player)
+                                .getGameProfile().getId(),
+                        track.getPublishTime()
+                ));
+            }
+        }
+
+        return SONGS;
+    }
+
     public static NetEaseMusicList.PlayList getMusicListInfo(long id) throws Exception {
         // 从网络音乐机里拿的代码
         NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
@@ -234,5 +285,38 @@ public class NetMusicUtil {
             return new Pair<>(totalSeconds, text.trim());
         }
         return null;
+    }
+
+    public static List<MusicMediaResult> search(String keyword){
+        NetEaseMusicSearch search;
+        try {
+            search = GSON.fromJson(WEB_API.search(keyword), NetEaseMusicSearch.class);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+        if(search.getSongs().isEmpty())return Collections.emptyList();
+        var ids = new long[search.getSongs().size()];
+        List<NetEaseMusicSearch.Song> songs = search.getSongs();
+        for (int i = 0, songsSize = songs.size(); i < songsSize; i++) {
+            NetEaseMusicSearch.Song song = songs.get(i);
+            ids[i] = song.getId();
+        }
+        ExtraMusicList extra;
+        try{
+            extra = GSON.fromJson(WEB_API.songs(ids), ExtraMusicList.class);
+        }catch (Exception e){
+            return Collections.emptyList();
+        }
+        var result = new ArrayList<MusicMediaResult>();
+        for (NetEaseMusicList.Track track: extra.getTracks()){
+            var name = IamMusicPlayer.getConfig().netMusicConfig.withTransName && !track.getTransName().isEmpty() ?
+                    String.format("%s(%s)", track.getName(), track.getTransName()) :
+                    track.getName();
+            var author = String.join("、", track.getArtists());
+            var source = new MusicSource(IMPMusicMedias.NETEASE_MUSIC.getName(), String.valueOf(track.getId()), track.getDuration());
+            var image = new ImageInfo(ImageInfo.ImageType.URL, track.getAlbum().getPicUrl());
+            result.add(new MusicMediaResult(source, image, name, author));
+        }
+        return result;
     }
 }

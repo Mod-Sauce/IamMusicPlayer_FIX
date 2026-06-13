@@ -265,88 +265,26 @@ public abstract class MusicManagerMonitor
   }
 
   public static void firstInit() {
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.OFF,
-      OffMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.TEST,
-      TestMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.PLAY_LIST,
-      PlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.ADD_PLAY_LIST,
-      AddPlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.ADD_ONLINE_PLAY_LIST,
-      AddOnlinePlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.CREATE_PLAY_LIST,
-      CreatePlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.ADD_MUSIC,
-      AddMusicMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.SEARCH_MUSIC,
-      SearchMusicMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.UPLOAD_MUSIC,
-      UploadMusicMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST,
-      ImportYoutubePlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.EDIT_PLAY_LIST,
-      EditPlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.EDIT_MUSIC,
-      EditMusicMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.DETAIL_PLAY_LIST,
-      DetailPlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_SELECT,
-      ImportPlayListSelectMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.DETAIL_MUSIC,
-      DetailMusicMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.DELETE_PLAY_LIST,
-      DeletePlayListMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.DELETE_MUSIC,
-      DeleteMusicMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT,
-      ImportMusicsSelectMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.IMPORT_YOUTUBE_PLAY_LIST_MUSICS,
-      ImportYoutubePlayListMusicsMMMonitor::new
-    );
-    registerMonitors(
-      MusicManagerBlockEntity.MonitorType.AUTHORITY,
-      AuthorityMMMonitor::new
-    );
-    registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST_MUSICS, ImportNetEasePlayListMusicsMMMonitor::new);
-    registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_NETEASE_PLAY_LIST, ImportNetEasePlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.OFF, OffMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.TEST, TestMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.PLAY_LIST, PlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.ADD_PLAY_LIST, AddPlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.ADD_ONLINE_PLAY_LIST, AddOnlinePlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.CREATE_PLAY_LIST, CreatePlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.ADD_MUSIC, AddMusicMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.SEARCH_MUSIC, SearchMusicMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.UPLOAD_MUSIC, UploadMusicMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.EDIT_PLAY_LIST, EditPlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.EDIT_MUSIC, EditMusicMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.DETAIL_PLAY_LIST, DetailPlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_SELECT, ImportPlayListSelectMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.DETAIL_MUSIC, DetailMusicMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.DELETE_PLAY_LIST, DeletePlayListMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.DELETE_MUSIC, DeleteMusicMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT, ImportMusicsSelectMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.AUTHORITY, AuthorityMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST_MUSICS, ImportPlayListMusicsMMMonitor::new);
+      registerMonitors(MusicManagerBlockEntity.MonitorType.IMPORT_PLAY_LIST, ImportPlayListMMMonitor::new);
   }
 
   public MusicManagerScreen getScreen() {

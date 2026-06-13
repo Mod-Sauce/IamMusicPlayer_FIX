@@ -15,6 +15,7 @@ public class IMPMusicLoaders {
     register(YoutubeDownloaderMusicLoader::new);
     register(NeteaseMusicLoader::new);
     register(BiliBiliMusicLoader::new);
+    register(CacheMusicLoader::new);
   }
 
   public static void register(Supplier<MusicLoader> loaderSupplier) {

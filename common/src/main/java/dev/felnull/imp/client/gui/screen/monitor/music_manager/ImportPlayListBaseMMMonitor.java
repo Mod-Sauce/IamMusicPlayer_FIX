@@ -3,17 +3,16 @@ package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
-import dev.felnull.imp.client.gui.components.NeteasePlayListMusicsFixedListWidget;
+import dev.felnull.imp.client.gui.components.PlayListMusicsFixedListWidget;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
-import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
-import dev.felnull.imp.client.music.netmusic.URLType;
-import dev.felnull.imp.client.music.netmusic.api.pojo.NetEaseMusicList;
+import dev.felnull.imp.client.music.playlist.IMPPlaylistLoaders;
+import dev.felnull.imp.client.music.playlist.IPlaylistLoader;
+import dev.felnull.imp.client.music.playlist.IPlaylistResolver;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.otyacraftengine.client.util.OERenderUtils;
-import dev.felnull.otyacraftengine.util.FlagThread;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -21,29 +20,37 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMonitor {
-    private static final ResourceLocation IMPORT_YOUTUBE_PLAY_LIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/import_youtube_play_list.png");
+public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
+    private static final ResourceLocation IMPORT_PLAY_LIST_TEXTURE = new ResourceLocation(IamMusicPlayer.MODID, "textures/gui/container/music_manager/monitor/import_play_list.png");
     private static final Component BACK_TEXT = Component.translatable("gui.back");
     private static final Component LOADING_TEXT = Component.translatable("imp.text.playlistLoading");
-    private final List<NetEasePlayListEntry> neteasePlayListEntries = new ArrayList<>();
+    private List<PlayListEntry> playListEntries = new ArrayList<>();
+    private List<Music> musics = new ArrayList<>();
     private SmartButton importButton;
-    private PlayListLoadThread playListLoader;
     private EditBox playlistIdentifierEditBox;
-    private NeteasePlayListMusicsFixedListWidget neteasePlayListMusicsFixedButtonsList;
+    private PlayListMusicsFixedListWidget playListMusicsFixedButtonsList;
+    private IPlaylistLoader playlistLoader;
+    private IPlaylistResolver playlistLoaderThread;
 
     private ImageInfo importImageInfo = ImageInfo.EMPTY;
 
-    public ImportNetEasePlayListBaseMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
+    public ImportPlayListBaseMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
         super(type, screen);
+        if(screen == null){
+            playlistLoader = null;
+            return;
+        }
+        this.playlistLoader = IMPPlaylistLoaders.getLoader(getScreen().playlistLoaderType);
     }
 
     @Override
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
+        this.playlistLoader = IMPPlaylistLoaders.getLoader(getScreen().playlistLoaderType);
 
         addRenderWidget(new SmartButton(getStartX() + 5, getStartY() + 180, 87, 15, BACK_TEXT, n -> {
             if (getParentType() != null)
@@ -51,18 +58,22 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
             resetImport();
         }));
 
-        this.importButton = addRenderWidget(new SmartButton(getStartX() + 95, getStartY() + 180, 87, 15, CreatePlayListMMMonitor.IMPORT_TEXT, n -> {
-            onImport();
-        }));
+        this.importButton = addRenderWidget(new SmartButton(getStartX() + 95, getStartY() + 180, 87, 15, CreatePlayListMMMonitor.IMPORT_TEXT, n -> onImport()));
         this.importButton.active = canImport();
 
-        this.playlistIdentifierEditBox = addRenderWidget(new EditBox(mc.font, getStartX() + 6, getStartY() + 164, 175, 12, Component.translatable("imp.editBox.youtubePlaylistIdentifier")){
+        this.playlistIdentifierEditBox = addRenderWidget(new EditBox(mc.font, getStartX() + 6, getStartY() + 164, 175, 12,
+                playlistLoader == null ? Component.empty() : Component.translatable(String.format("imp.editBox.%sPlaylistIdentifier", playlistLoader.getID()))){
             @Override
             public boolean keyPressed(int i, int j, int k) {
                 if (this.isActive() && this.isFocused() && Screen.isPaste(i)) {
                     var text = Minecraft.getInstance().keyboardHandler.getClipboard();
-                    if(URLType.SONG_LIST.isMatch(text)) {
-                        insertText(URLType.SONG_LIST.getMatch(text));
+                    if(playlistLoader == null){
+                        insertText(text);
+                        return true;
+                    }
+                    var auto = playlistLoader.autoPasteFromClipboard(text);
+                    if(auto.isPresent()) {
+                        insertText(auto.get());
                     }else{
                         insertText(text);
                     }
@@ -75,16 +86,20 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
         this.playlistIdentifierEditBox.setResponder(this::startPlayListLoad);
         this.playlistIdentifierEditBox.setValue(getImportPlayList());
 
-        this.neteasePlayListMusicsFixedButtonsList = addRenderWidget(new NeteasePlayListMusicsFixedListWidget(getStartX() + 1, getStartY() + 10, 368, 148, Component.translatable("imp.fixedList.youtubePlayListMusics"), 4, neteasePlayListEntries, this.neteasePlayListMusicsFixedButtonsList));
+        this.playListMusicsFixedButtonsList = addRenderWidget(new PlayListMusicsFixedListWidget(getStartX() + 1, getStartY() + 10, 368, 148,
+                Component.translatable(String.format("imp.fixedList.%sPlayListMusics", playlistLoader == null ? "" : playlistLoader.getID())),
+                4, playListEntries, this.playListMusicsFixedButtonsList));
 
-        if(tryAutoFillID())
+        if(tryAutoFillID() && playlistLoader != null)
             startPlayListLoad(playlistIdentifierEditBox.getValue());
     }
 
     private boolean tryAutoFillID(){
+        if(playlistLoader == null)return false;
         var text = Minecraft.getInstance().keyboardHandler.getClipboard();
-        if(URLType.SONG_LIST.isMatch(text)) {
-            playlistIdentifierEditBox.setValue(URLType.SONG_LIST.getMatch(text));
+        var r = playlistLoader.autoPasteFromClipboard(text);
+        if(r.isPresent()) {
+            playlistIdentifierEditBox.setValue(r.get());
             return true;
         }
         return false;
@@ -95,7 +110,7 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
     @Override
     public void render(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
         super.render(guiGraphics, f, mouseX, mouseY);
-        OERenderUtils.drawTexture(IMPORT_YOUTUBE_PLAY_LIST_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0f, 0f, width, height, width, height);
+        OERenderUtils.drawTexture(IMPORT_PLAY_LIST_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0f, 0f, width, height, width, height);
         if (isPlayListLoading()) {
             drawSmartText(guiGraphics, LOADING_TEXT, getStartX() + 2, getStartY() + 11);
         }
@@ -109,7 +124,7 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
         super.renderAppearance(blockEntity, poseStack, multiBufferSource, i, j, f, monitorWidth, monitorHeight);
         float onPxW = monitorWidth / (float) width;
         float onPxH = monitorHeight / (float) height;
-        OERenderUtils.renderTextureSprite(IMPORT_YOUTUBE_PLAY_LIST_TEXTURE, poseStack, multiBufferSource, 0, 0, OERenderUtils.MIN_BREADTH * 2, 0, 0, 0, monitorWidth, monitorHeight, 0, 0, width, height, width, height, i, j);
+        OERenderUtils.renderTextureSprite(IMPORT_PLAY_LIST_TEXTURE, poseStack, multiBufferSource, 0, 0, OERenderUtils.MIN_BREADTH * 2, 0, 0, 0, monitorWidth, monitorHeight, 0, 0, width, height, width, height, i, j);
 
         renderSmartButtonSprite(poseStack, multiBufferSource, 5, 180, OERenderUtils.MIN_BREADTH * 4, 87, 15, i, j, onPxW, onPxH, monitorHeight, BACK_TEXT, true);
         renderSmartButtonSprite(poseStack, multiBufferSource, 95, 180, OERenderUtils.MIN_BREADTH * 4, 87, 15, i, j, onPxW, onPxH, monitorHeight, CreatePlayListMMMonitor.IMPORT_TEXT, true, !canImport(blockEntity));
@@ -125,6 +140,29 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
     @Override
     public void tick() {
         super.tick();
+        if(playlistLoader == null) {
+            insMonitor(getParentType() == null ? MusicManagerBlockEntity.MonitorType.PLAY_LIST : getParentType());
+            return;
+        }
+        if(playlistLoaderThread != null && !playlistLoaderThread.isAlive()){
+            if(playlistLoaderThread.isFailure())
+                resetImport();
+            else{
+                var r = playlistLoaderThread.getResult();
+                if(r == null)resetImport();
+                else {
+                    setImportPlayList(r.id());
+                    setImportPlayListAuthor(r.author());
+                    setImportPlayListName(r.name());
+                    setImportPlayListMusicCount(r.count());
+                    setImportPlayListIco(r.ico());
+                    playListEntries.clear();
+                    playListEntries.addAll(r.musicEntries());
+                    musics.clear();
+                    musics.addAll(r.musics());
+                }
+            }
+        }
         this.importButton.active = canImport();
     }
 
@@ -180,7 +218,7 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
     }
 
     protected boolean isPlayListLoading() {
-        return playListLoader != null && playListLoader.isAlive();
+        return playlistLoaderThread != null && playlistLoaderThread.isAlive();
     }
 
     protected void setImportPlayListAuthor(String author) {
@@ -218,76 +256,34 @@ public abstract class ImportNetEasePlayListBaseMMMonitor extends MusicManagerMon
         setImportPlayListAuthor("");
         setImportPlayListName("");
         setImportPlayListMusicCount(0);
+        playlistLoaderThread = null;
     }
 
     protected void startPlayListLoad(String id) {
+        if(playlistLoader == null)return;
         stopPlayListLoad();
-        neteasePlayListEntries.clear();
+        playListEntries.clear();
+        musics.clear();
         resetImport();
-        playListLoader = new PlayListLoadThread(id);
-        playListLoader.start();
+        playlistLoaderThread = playlistLoader.getResolver(id);
+        playlistLoaderThread.start();
     }
 
     protected void stopPlayListLoad() {
-        if (playListLoader != null) {
-            playListLoader.stopped();
-            playListLoader = null;
+        if (playlistLoaderThread != null) {
+            playlistLoaderThread.stopped();
+            playlistLoaderThread = null;
         }
     }
 
-    private class PlayListLoadThread extends FlagThread {
-        private final String id;
-
-        public PlayListLoadThread(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public void run() {
-            long listID;
-            try {
-                listID = Long.parseLong(id);
-            } catch (NumberFormatException e) {
-                if(URLType.SONG.isMatch(id)){
-                    try {
-                        listID = Long.parseLong(Objects.requireNonNull(URLType.SONG.getMatch(id)));
-                    } catch (NumberFormatException | NullPointerException e1) {
-                        return;
-                    }
-                }else return;
-            }
-
-            NetEaseMusicList.PlayList data;
-            try {
-                data = NetMusicUtil.getMusicListInfo(listID);
-                if(data == null) throw new RuntimeException();
-            } catch (Exception e) {
-                throw new RuntimeException("解析失败：", e);
-            }
-
-            if (isStopped()) return;
-
-            List<Music> musics;
-            try {
-                musics = NetMusicUtil.getMusicList(listID);
-            } catch (Exception e) {
-                throw new RuntimeException("解析失败：", e);
-            }
-
-            if (isStopped()) return;
-
-            for (Music music : musics) {
-                var item = new NetEasePlayListEntry(music.getName(), music.getAuthor(), music.getSource(), music.getImage());
-                neteasePlayListEntries.add(item);
-            }
-            setImportPlayList(String.valueOf(listID));
-            setImportPlayListMusicCount(neteasePlayListEntries.size());
-            setImportPlayListName(data.getName());
-            setImportPlayListAuthor(data.getCreator().getNickname());
-            setImportPlayListIco(new ImageInfo(ImageInfo.ImageType.URL, data.getCoverImgUrl()));
-        }
+    public record PlayListEntry(String name, String artist, MusicSource source, ImageInfo imageInfo) {
     }
 
-    public record NetEasePlayListEntry(String name, String artist, MusicSource source, ImageInfo imageInfo) {
+    public IPlaylistLoader getPlaylistLoader() {
+        return playlistLoader;
+    }
+
+    public List<Music> getMusics() {
+        return musics;
     }
 }

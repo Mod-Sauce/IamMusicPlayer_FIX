@@ -1,6 +1,7 @@
-package dev.felnull.imp.client.gui.config;
+package dev.felnull.imp.client.gui.config.button;
 
 import com.sedmelluq.discord.lavaplayer.natives.ConnectorNativeLibLoader;
+import dev.felnull.imp.client.gui.config.HUDSettingScreen;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;

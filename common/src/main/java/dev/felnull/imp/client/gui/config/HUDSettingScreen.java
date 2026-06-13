@@ -23,7 +23,7 @@ public class HUDSettingScreen extends Screen {
     private static final int hudWidth = 200;
     private static final int hudHeight = 59;
     private MusicInfoWidget widget;
-    protected HUDSettingScreen(Screen parent) {
+    public HUDSettingScreen(Screen parent) {
         super(Component.empty());
         this.parent = parent;
     }
