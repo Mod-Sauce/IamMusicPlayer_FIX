@@ -345,6 +345,7 @@
   "advancements.iammusicplayer.earphone.description": "末影唱片机……",
 
   "text.autoconfig.iammusicplayer.option.disableHash": "禁用哈希检查",
+  "text.autoconfig.iammusicplayer.option.disableHash.tip": "警告：取消哈希检查可能会导致加载未知的库",
   "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "警告：取消哈希检查可能会导致加载未知的库",
 
   "imp.create.text.showTrans.title": "是否显示翻译",
