@@ -85,7 +85,8 @@ public class IMPConfig implements ConfigData {
   public boolean soundPhysicsRemasteredIntegration = true;
 
   @ConfigEntry.Category("integration")
-  public boolean touhouLittleMaidIntegration = true;
+  @ConfigEntry.Gui.Excluded
+  public boolean touhouLittleMaidIntegration = false;
 
   @ConfigEntry.Category("integration")
   public boolean patchouliIntegration = true;

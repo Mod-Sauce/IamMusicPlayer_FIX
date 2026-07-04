@@ -304,7 +304,6 @@
   "text.autoconfig.iammusicplayer.option.enableMusicInfoHUD": "Enable Music Info HUD",
   "imp.text.lava.success": "Lava Player loaded successfully",
   "imp.text.lava.reload": "Reload Lava Player",
-  "text.autoconfig.iammusicplayer.option.touhouLittleMaidIntegration": "Touhou Little Maid Integration",
   "text.autoconfig.iammusicplayer.option.createIntegration": "Create Integration",
   "text.autoconfig.iammusicplayer.option.netMusicListIntegration": "NetMusic: Playlist Integration",
   "text.autoconfig.iammusicplayer.option.tryUseGitee": "Attempt to use Gitee (typically disabled for users outside mainland China)",
