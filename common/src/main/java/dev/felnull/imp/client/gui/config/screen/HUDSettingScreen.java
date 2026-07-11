@@ -1,4 +1,4 @@
-package dev.felnull.imp.client.gui.config;
+package dev.felnull.imp.client.gui.config.screen;
 
 import dev.felnull.imp.IMPConfig;
 import dev.felnull.imp.IamMusicPlayer;

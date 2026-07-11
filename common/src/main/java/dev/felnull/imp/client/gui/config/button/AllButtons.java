@@ -1,7 +1,8 @@
 package dev.felnull.imp.client.gui.config.button;
 
 import com.sedmelluq.discord.lavaplayer.natives.ConnectorNativeLibLoader;
-import dev.felnull.imp.client.gui.config.HUDSettingScreen;
+import dev.felnull.imp.client.gui.config.screen.HUDSettingScreen;
+import dev.felnull.imp.client.gui.config.screen.NeteaseLoginScreen;
 import dev.felnull.imp.client.lava.LavaPlayerLoader;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
 import net.minecraft.Util;
@@ -56,5 +57,8 @@ public class AllButtons {
                 Util.getPlatform().openUri(
                         "https://github.com/tobyprime/Mcedia"
                 ));
+        registry("loginNetease", Component.translatable("text.autoconfig.iammusicplayer.option.loginNetease"), button -> {
+            Minecraft.getInstance().setScreen(new NeteaseLoginScreen(Minecraft.getInstance().screen));
+        });
     }
 }

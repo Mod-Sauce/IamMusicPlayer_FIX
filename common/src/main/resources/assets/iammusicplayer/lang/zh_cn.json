@@ -385,5 +385,15 @@
 
   "text.autoconfig.iammusicplayer.option.jadeIntegration": "Jade 联动",
   "config.jade.plugin_iammusicplayer.boombox": "手提音响",
-  "config.jade.plugin_iammusicplayer.cassette_deck": "录音座"
+  "config.jade.plugin_iammusicplayer.cassette_deck": "录音座",
+
+  "imp.text.login.netease.title": "网易云登录",
+  "imp.text.login.netease.failed": "登录失败",
+  "imp.text.login.netease.expired": "二维码失效",
+  "imp.text.login.netease.success": "网易云登录成功",
+  "imp.text.login.netease.confirm": "等待确认",
+  "imp.text.login.netease.scan": "等待扫码",
+  "imp.text.login.netease.cancel": "取消",
+  "imp.text.login.netease.loading": "加载中……",
+  "text.autoconfig.iammusicplayer.option.loginNetease": "扫码登录"
 }

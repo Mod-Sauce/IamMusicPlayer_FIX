@@ -148,6 +148,9 @@ public class IMPConfig implements ConfigData {
 
     public boolean withTransName = true;
 
+    @Button("loginNetease")
+    public Void loginNetease;
+
     public String neteaseCookie = "";
 
     @ConfigEntry.Gui.PrefixText
