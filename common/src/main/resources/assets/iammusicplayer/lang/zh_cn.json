@@ -234,6 +234,7 @@
   "text.autoconfig.iammusicplayer.option.dropItemRing": "是否在丢弃的物品中播放",
   "text.autoconfig.iammusicplayer.category.integration": "联动",
   "text.autoconfig.iammusicplayer.option.patchouliIntegration": "帕秋莉手册联动",
+  "text.autoconfig.iammusicplayer.option.touhouLittleMaidIntegration": "车万女仆联动",
   "text.autoconfig.iammusicplayer.option.cctIntegration": "CC:Tweaked 联动",
   "text.autoconfig.iammusicplayer.option.sableIntegration": "Sable 联动 (航空学)",
   "text.autoconfig.iammusicplayer.option.netMusicListIntegration": "网络音乐机：播放列表联动",
