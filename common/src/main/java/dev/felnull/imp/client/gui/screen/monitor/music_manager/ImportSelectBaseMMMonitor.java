@@ -16,6 +16,7 @@ public abstract class ImportSelectBaseMMMonitor extends MusicManagerMonitor {
     private static final int BUTTON_WIDTH = 270;
     private static final int BUTTON_HEIGHT = 15;
     private static final int BUTTON_SPACING = 20;
+    private boolean autoTested = false;
     public ImportSelectBaseMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
         super(type, screen);
     }
@@ -43,10 +44,29 @@ public abstract class ImportSelectBaseMMMonitor extends MusicManagerMonitor {
                     BUTTON_HEIGHT,
                     buildText(loader),
                     n -> {
-                        getScreen().playlistLoaderType = loader.getID();
+                        getScreen().insImportPlayListType(loader.getID());
                         insMonitor(resolveMonitor());
                     }
             ));
+        }
+
+        autoTested = false;
+    }
+
+    @Override
+    public void tick() {
+        if(!autoTested){
+            autoTested = true;
+            List<IPlaylistLoader> loaders = IMPPlaylistLoaders.getAllLoaders().stream().toList();
+            String clipboard = mc.keyboardHandler.getClipboard();
+            for (IPlaylistLoader loader: loaders){
+                var r = loader.autoPasteFromClipboard(clipboard);
+                if(r.isPresent()){
+                    getScreen().insImportPlayListType(loader.getID());
+                    insMonitor(resolveMonitor());
+                    return;
+                }
+            }
         }
     }
 

@@ -32,7 +32,6 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
     private final Map<MusicManagerBlockEntity.MonitorType, MusicManagerMonitor> monitors = new HashMap<>();
     private final UUID musicPlayerId = UUID.randomUUID();
     public boolean lastSearch;
-    public String playlistLoaderType;
     protected MusicManagerMonitor monitor;
     public byte[] musicFileImage;
 
@@ -206,6 +205,12 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
         var tag = new CompoundTag();
         tag.putString("author", author);
         instruction("set_music_author", tag);
+    }
+
+    public void insImportPlayListType(String type){
+        var tag = new CompoundTag();
+        tag.putString("type", type);
+        instruction("set_import_playlist_type", tag);
     }
 
     @Override
