@@ -21,7 +21,13 @@ public class BoomboxPlayListSource extends DisplaySource {
         var select = boomboxBlockEntity.getBoomboxData().getSelectedMusic();
         if(select == null)return EMPTY;
         var mode = displayLinkContext.sourceConfig().getInt("add_number");
-        var max_count = Math.clamp(Integer.parseInt(displayLinkContext.sourceConfig().getString("max_count")), 1, Integer.MAX_VALUE);
+        int count;
+        try{
+            count = Integer.parseInt(displayLinkContext.sourceConfig().getString("max_count"));
+        }catch (NumberFormatException ignored){
+            count = 1;
+        }
+        var max_count = Math.clamp(count, 1, Integer.MAX_VALUE);
 
         var play_list = MusicManager.getInstance().getPlaylistByMusic(boomboxBlockEntity.getServerLevel().getServer(), select.getUuid());
         var musics = MusicSaveData.get(boomboxBlockEntity.getServerLevel().getServer()).getMusics();
