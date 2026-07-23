@@ -142,6 +142,10 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("sources")
   public BilibiliConfig bilibiliConfig = new BilibiliConfig();
 
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public QQMusicConfig QQMusicConfig = new QQMusicConfig();
+
   public static class NetMusicConfig{
     public boolean enableNetease = true;
 
@@ -165,5 +169,11 @@ public class IMPConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     @Button("openMcedia")
     public Void openMcedia = null;
+  }
+
+  public static class QQMusicConfig{
+    public boolean enableQQMusic = true;
+
+    public String QQMusicCookie = "";
   }
 }

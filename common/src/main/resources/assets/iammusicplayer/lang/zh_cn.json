@@ -396,5 +396,11 @@
   "imp.text.login.netease.scan": "等待扫码",
   "imp.text.login.netease.cancel": "取消",
   "imp.text.login.netease.loading": "加载中……",
-  "text.autoconfig.iammusicplayer.option.loginNetease": "扫码登录"
+  "text.autoconfig.iammusicplayer.option.loginNetease": "扫码登录",
+
+  "imp.fixedList.QQMusicPlayListMusics": "导入 QQ音乐 播放列表",
+  "imp.loaderType.qq_music": "QQ音乐",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ音乐",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "启用 QQ音乐",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.QQMusicCookie": "QQ音乐 Cookie"
 }
