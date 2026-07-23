@@ -105,6 +105,14 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set("dev-shadow")
 
+    exclude 'natives/linux-arm/**' // exclude arm native libraries
+    exclude 'natives/linux-aarch32/**' // exclude linux aarch32 native libraries
+    exclude 'natives/linux-musl-aarch64/**' // exclude linux musl aarch64 native libraries
+    exclude 'natives/linux-musl-x86_64/**' // exclude linux musl x86_64 native libraries
+    exclude 'natives/linux-x86/**' // exclude linux x86 (not x86_64) native libraries
+    exclude 'natives/linux-armhf/**' // exclude linux armhf native libraries
+    exclude 'natives/win-x86/**' // exclude win x86 (not x86_64) native libraries
+
     // relocations here (all your relocate calls)
     mergeServiceFiles {
         relocate 'javax.ws.rs.ext', 'dev.felnull.imp.include.javax.ws.rs.ext'
