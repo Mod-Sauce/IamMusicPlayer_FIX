@@ -22,7 +22,6 @@ import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
 
 public class IamMusicPlayer {
 
@@ -72,10 +71,6 @@ public class IamMusicPlayer {
       CONFIG.useYoutubeDownloader = true;
       CONFIG.relayServerURL =
         "https://raw.githubusercontent.com/TeamFelnull/IamMusicPlayer/master/relay_server.json";
-      CONFIG.lavaPlayerURLs = List.of(
-              "https://raw.githubusercontent.com/Mod-Sauce/test_lavaplayer_IMP/refs/heads/main/lavaplayer",
-              "https://raw.giteeusercontent.com/gly091020/test_lavaplayer_IMP/raw/main/lavaplayer"
-      );
       CONFIG.IMPRFolder = "iammusicplayerrenewed";
       CONFIG.lavaNativesFolder = "lavaplayer_natives";
       CONFIG.hideDisplaySprite = false;
