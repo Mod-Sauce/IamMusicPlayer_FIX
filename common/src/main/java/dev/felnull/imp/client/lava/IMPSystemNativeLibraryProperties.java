@@ -7,92 +7,88 @@ import java.util.function.Predicate;
 import org.apache.logging.log4j.*;
 
 public class IMPSystemNativeLibraryProperties
-  implements NativeLibraryProperties
+    implements NativeLibraryProperties
 {
 
-  private static final Logger LOGGER = LogManager.getLogger(
-    IMPSystemNativeLibraryProperties.class
-  );
-  private final Predicate<SystemType> systemFilter;
-  private final String libraryName;
-
-  public IMPSystemNativeLibraryProperties(
-    String libraryName,
-    Predicate<SystemType> systemFilter
-  ) {
-    this.systemFilter = systemFilter;
-    this.libraryName = libraryName;
-  }
-
-  @Override
-  public String getLibraryPath() {
-    return null;
-  }
-
-  @Override
-  public String getLibraryDirectory() {
-    var sys = detectMatchingSystemType(this, systemFilter);
-    if (sys == null) throw new IllegalStateException(
-      "System type is null"
+    private static final Logger LOGGER = LogManager.getLogger(
+        IMPSystemNativeLibraryProperties.class
     );
-    //   var natName = sys.osType.identifier() + "-" + sys.architectureType.identifier();
+    private final Predicate<SystemType> systemFilter;
+    private final String libraryName;
 
-    var natName = sys.osType.identifier();
-    if (sys.osType != DefaultOperatingSystemTypes.DARWIN) natName +=
-      "-" + sys.architectureType.identifier();
-
-    boolean ret = LavaNativeManager.getInstance().load(
-      natName,
-      sys.formatLibraryName(libraryName)
-    );
-    if (!ret) throw new UnsatisfiedLinkError(
-      "Failed to load the library"
-    );
-    var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);
-    LOGGER.info(
-      "The path for lava loader is: " + p.toAbsolutePath().toString()
-    );
-    return p.toAbsolutePath().toString();
-  }
-
-  @Override
-  public String getExtractionPath() {
-    return null;
-  }
-
-  @Override
-  public String getSystemName() {
-    return null;
-  }
-
-  @Override
-  public String getLibraryFileNamePrefix() {
-    return null;
-  }
-
-  @Override
-  public String getLibraryFileNameSuffix() {
-    return null;
-  }
-
-  @Override
-  public String getArchitectureName() {
-    return null;
-  }
-
-  private static SystemType detectMatchingSystemType(
-    NativeLibraryProperties properties,
-    Predicate<SystemType> systemFilter
-  ) {
-    SystemType systemType;
-    try {
-      systemType = SystemType.detect(properties);
-    } catch (IllegalArgumentException e) {
-      return null;
+    public IMPSystemNativeLibraryProperties(
+        String libraryName,
+        Predicate<SystemType> systemFilter
+    ) {
+        this.systemFilter = systemFilter;
+        this.libraryName = libraryName;
     }
-    if (
-      systemFilter != null && !systemFilter.test(systemType)
-    ) return null;
-    return systemType;
-  }
+
+    @Override
+    public String getLibraryPath() {
+        return null;
+    }
+
+    @Override
+    public String getLibraryDirectory() {
+        var sys = detectMatchingSystemType(this, systemFilter);
+        if (sys == null) throw new IllegalStateException("System type is null");
+        //   var natName = sys.osType.identifier() + "-" + sys.architectureType.identifier();
+
+        var natName = sys.osType.identifier();
+        if (sys.osType != DefaultOperatingSystemTypes.DARWIN) natName +=
+            "-" + sys.architectureType.identifier();
+
+        boolean hasConfiguredNative = LavaNativeManager.getInstance().load(
+            natName,
+            sys.formatLibraryName(libraryName)
+        );
+        if (!hasConfiguredNative) {
+            return null;
+        }
+        var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);
+        LOGGER.info(
+            "The path for lava loader is: " + p.toAbsolutePath().toString()
+        );
+        return p.toAbsolutePath().toString();
+    }
+
+    @Override
+    public String getExtractionPath() {
+        return null;
+    }
+
+    @Override
+    public String getSystemName() {
+        return null;
+    }
+
+    @Override
+    public String getLibraryFileNamePrefix() {
+        return null;
+    }
+
+    @Override
+    public String getLibraryFileNameSuffix() {
+        return null;
+    }
+
+    @Override
+    public String getArchitectureName() {
+        return null;
+    }
+
+    private static SystemType detectMatchingSystemType(
+        NativeLibraryProperties properties,
+        Predicate<SystemType> systemFilter
+    ) {
+        SystemType systemType;
+        try {
+            systemType = SystemType.detect(properties);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        if (systemFilter != null && !systemFilter.test(systemType)) return null;
+        return systemType;
+    }
 }

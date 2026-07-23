@@ -63,7 +63,8 @@ public class IamMusicPlayer {
     }
 
     private static void checkAndResetConfig() {
-        boolean needsReset = CONFIG.configVersion == null ||
+        boolean needsReset =
+            CONFIG.configVersion == null ||
             CONFIG.configVersion.isEmpty() ||
             !CONFIG.configVersion.equals(CONFIG_VERSION);
 

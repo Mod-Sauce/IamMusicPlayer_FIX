@@ -68,12 +68,20 @@ processResources {
 
 shadowJar {
     configurations = [project.configurations.shadowIn]
+
+    exclude 'natives/linux-arm/**' // exclude arm native libraries
+    exclude 'natives/linux-aarch32/**' // exclude linux aarch32 native libraries
+    exclude 'natives/linux-musl-aarch64/**' // exclude linux musl aarch64 native libraries
+    exclude 'natives/linux-musl-x86_64/**' // exclude linux musl x86_64 native libraries
+    exclude 'natives/linux-x86/**' // exclude linux x86 (not x86_64) native libraries
+    exclude 'natives/linux-armhf/**' // exclude linux armhf native libraries
+    exclude 'natives/win-x86/**' // exclude win x86 (not x86_64) native libraries
+
     relocate 'org.json', 'dev.felnull.imp.include.org.json'
     relocate 'org.slf4j', 'dev.felnull.imp.include.org.slf4j'
     relocate 'certificates', 'dev.felnull.imp.include.certificates'
     relocate 'com.fasterxml', 'dev.felnull.imp.include.com.fasterxml'
     relocate 'org.jsoup', 'dev.felnull.imp.include.org.jsoup'
-    relocate 'natives', 'dev.felnull.imp.include.natives'
     relocate 'mozilla', 'dev.felnull.imp.include.mozilla'
     relocate 'net.iharder', 'dev.felnull.imp.include.net.iharder'
     relocate 'com.sedmelluq.lava', 'dev.felnull.imp.include.com.sedmelluq.lava'
