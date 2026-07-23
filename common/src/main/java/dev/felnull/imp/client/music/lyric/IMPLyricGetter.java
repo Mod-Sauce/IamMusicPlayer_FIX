@@ -77,5 +77,17 @@ public class IMPLyricGetter {
                 return new BilibiliLyricGetter();
             }
         });
+
+        register(new LyricGetterType() {
+            @Override
+            public String getLoaderType() {
+                return "qq_music";
+            }
+
+            @Override
+            public LyricGetter getLyricGetter() {
+                return new QQMusicLyricGetter();
+            }
+        });
     }
 }

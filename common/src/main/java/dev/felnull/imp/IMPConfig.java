@@ -28,7 +28,7 @@ public class IMPConfig implements ConfigData {
   public boolean enableCache = false;
 
   @ConfigEntry.Category("client")
-  public boolean globalCache = true;
+  public boolean globalCache = false;
 
   @ConfigEntry.Category("client")
   public boolean autoProxy = true;
@@ -57,9 +57,6 @@ public class IMPConfig implements ConfigData {
 
   @ConfigEntry.Category("client")
   public boolean hideDecorativeAntenna = false;
-
-  @ConfigEntry.Category("client")
-  public boolean tryUseGitee = true;
 
   @ConfigEntry.Category("server")
   public long maxWaitTime = 1000 * 10;
@@ -134,10 +131,17 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("sources")
   public BilibiliConfig bilibiliConfig = new BilibiliConfig();
 
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public QQMusicConfig QQMusicConfig = new QQMusicConfig();
+
   public static class NetMusicConfig{
     public boolean enableNetease = true;
 
     public boolean withTransName = true;
+
+    @Button("loginNetease")
+    public Void loginNetease;
 
     public String neteaseCookie = "";
 
@@ -154,5 +158,11 @@ public class IMPConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     @Button("openMcedia")
     public Void openMcedia = null;
+  }
+
+  public static class QQMusicConfig{
+    public boolean enableQQMusic = true;
+
+    public String QQMusicCookie = "";
   }
 }

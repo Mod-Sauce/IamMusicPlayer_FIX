@@ -382,5 +382,21 @@
 
   "text.autoconfig.iammusicplayer.option.jadeIntegration": "Jade Integration",
   "config.jade.plugin_iammusicplayer.boombox": "Boombox",
-  "config.jade.plugin_iammusicplayer.cassette_deck": "Cassette Deck"
+  "config.jade.plugin_iammusicplayer.cassette_deck": "Cassette Deck",
+
+  "imp.text.login.netease.title": "Netease Cloud Login",
+  "imp.text.login.netease.failed": "Login failed",
+  "imp.text.login.netease.expired": "QR code expired",
+  "imp.text.login.netease.success": "Netease Cloud login successful",
+  "imp.text.login.netease.confirm": "Awaiting confirmation",
+  "imp.text.login.netease.scan": "Awaiting scan",
+  "imp.text.login.netease.cancel": "Cancel",
+  "imp.text.login.netease.loading": "Loading…",
+  "text.autoconfig.iammusicplayer.option.loginNetease": "Scan QR code to login",
+
+  "imp.fixedList.QQMusicPlayListMusics": "Import QQ Music Playlist",
+  "imp.loaderType.qq_music": "QQ Music",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ Music",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "Enable QQ Music",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.QQMusicCookie": "QQ Music Cookie"
 }

@@ -33,6 +33,8 @@ dependencies {
     api "dev.ryanhcode.sable-companion:sable-companion-common-${project.minecraft_version}:${project.sable_companion_version}"
 
     modCompileOnly "maven.modrinth:jade:${rootProject.jade_version}"
+
+    implementation("com.google.zxing:core:3.5.3")
 }
 /*
 publishing {

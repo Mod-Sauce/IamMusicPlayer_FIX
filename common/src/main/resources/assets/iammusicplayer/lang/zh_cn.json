@@ -382,5 +382,21 @@
 
   "text.autoconfig.iammusicplayer.option.jadeIntegration": "Jade 联动",
   "config.jade.plugin_iammusicplayer.boombox": "手提音响",
-  "config.jade.plugin_iammusicplayer.cassette_deck": "录音座"
+  "config.jade.plugin_iammusicplayer.cassette_deck": "录音座",
+
+  "imp.text.login.netease.title": "网易云登录",
+  "imp.text.login.netease.failed": "登录失败",
+  "imp.text.login.netease.expired": "二维码失效",
+  "imp.text.login.netease.success": "网易云登录成功",
+  "imp.text.login.netease.confirm": "等待确认",
+  "imp.text.login.netease.scan": "等待扫码",
+  "imp.text.login.netease.cancel": "取消",
+  "imp.text.login.netease.loading": "加载中……",
+  "text.autoconfig.iammusicplayer.option.loginNetease": "扫码登录",
+
+  "imp.fixedList.QQMusicPlayListMusics": "导入 QQ音乐 播放列表",
+  "imp.loaderType.qq_music": "QQ音乐",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ音乐",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "启用 QQ音乐",
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.QQMusicCookie": "QQ音乐 Cookie"
 }
