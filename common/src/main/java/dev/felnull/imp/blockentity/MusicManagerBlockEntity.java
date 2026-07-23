@@ -444,6 +444,19 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
         setChanged();
     }
 
+    public void setImportPlayListType(ServerPlayer player, String type) {
+        getPlayerData(player).putString("ImportPlayListType", type);
+        setChanged();
+    }
+
+    public String getImportPlayListType(Player player){
+        var tag = getPlayerData(player);
+        if (tag == null)
+            tag = new CompoundTag();
+
+        return tag.getString("ImportPlayListType");
+    }
+
     public void setImage(ServerPlayer player, ImageInfo image) {
         getPlayerData(player).put("Image", image.createSavedTag());
         setChanged();
@@ -614,6 +627,9 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
             return null;
         } else if ("set_import_playlist_music_count".equals(name)) {
             setImportPlayListMusicCount(player, data.getInt("count"));
+            return null;
+        } else if ("set_import_playlist_type".equals(name)) {
+            setImportPlayListType(player, data.getString("type"));
             return null;
         } else if ("set_selected_music".equals(name)) {
             if (data.contains("music")) {

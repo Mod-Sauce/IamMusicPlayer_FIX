@@ -46,11 +46,30 @@ public final class AudioCacheManager {
         }
     }
 
-    public static void updatePath(){
-        if(IamMusicPlayer.getConfig().globalCache)
-            BASE_DIR = IMPPaths.getUserFolder().resolve("IamCache");
+    public static void updatePath() {
+        if (IamMusicPlayer.getConfig().globalCache)
+            BASE_DIR = IMPPaths.getUserCacheDir();
         else
             BASE_DIR = IMPPaths.getTmpFolder();
+
+        if (IamMusicPlayer.getConfig().globalCache) {
+            var oldDir = IMPPaths.getUserFolder().resolve("IamCache");
+            if (oldDir.toFile().exists() && !BASE_DIR.toFile().exists()) {
+                try {
+                    Files.createDirectories(BASE_DIR.getParent());
+                    Files.move(oldDir, BASE_DIR);
+                } catch (IOException e) {
+                    LOGGER.warn("Failed to migrate old cache dir", e);
+                }
+            }
+        }
+
+        try {
+            Files.createDirectories(BASE_DIR);
+        } catch (IOException e) {
+            LOGGER.warn(e);
+        }
+
         AUDIO_DIR = BASE_DIR.resolve("audio");
         INDEX_FILE = BASE_DIR.resolve("index.json");
         LyricCacheManager.setCacheDir(BASE_DIR.resolve("lyric"));
