@@ -14,6 +14,6 @@ public class IMPResourceNativeLibraryBinaryProvider extends ResourceNativeLibrar
 
     @Override
     public InputStream getLibraryStream(SystemType systemType, String libraryName) {
-        return null;
+        return super.getLibraryStream(systemType, libraryName);
     }
 }

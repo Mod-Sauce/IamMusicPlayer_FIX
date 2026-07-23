@@ -227,7 +227,6 @@
   "text.autoconfig.iammusicplayer.option.maxPlayCont": "音乐最大音量播放控制",
   "text.autoconfig.iammusicplayer.option.spatial": "空间音效",
   "text.autoconfig.iammusicplayer.option.relayServerURL": "中继服务器地址",
-  "text.autoconfig.iammusicplayer.option.lavaPlayerURLs": "LavaPlayer 库可用地址",
   "text.autoconfig.iammusicplayer.category.server": "服务端",
   "text.autoconfig.iammusicplayer.option.maxWaitTime": "最长等待时间",
   "text.autoconfig.iammusicplayer.option.retryTime": "重试时间",
@@ -344,10 +343,6 @@
   "advancements.iammusicplayer.earphone.title": "耳机！",
   "advancements.iammusicplayer.earphone.description": "末影唱片机……",
 
-  "text.autoconfig.iammusicplayer.option.disableHash": "禁用哈希检查",
-  "text.autoconfig.iammusicplayer.option.disableHash.tip": "警告：取消哈希检查可能会导致加载未知的库",
-  "text.autoconfig.iammusicplayer.option.disableHash.@Tooltip": "警告：取消哈希检查可能会导致加载未知的库",
-
   "imp.create.text.showTrans.title": "是否显示翻译",
   "imp.create.text.showTrans.yes": "显示翻译",
   "imp.create.text.showTrans.no": "不显示翻译",
@@ -398,7 +393,8 @@
   "imp.text.login.netease.loading": "加载中……",
   "text.autoconfig.iammusicplayer.option.loginNetease": "扫码登录",
 
-  "imp.fixedList.QQMusicPlayListMusics": "导入 QQ音乐 播放列表",
+  "imp.fixedList.QQMusicPlayListMusics": "QQ音乐 播放列表",
+  "imp.button.importQQMusicPlayList": "导入 QQ音乐 播放列表",
   "imp.loaderType.qq_music": "QQ音乐",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ音乐",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "启用 QQ音乐",
