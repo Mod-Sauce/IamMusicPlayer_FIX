@@ -398,7 +398,8 @@
   "imp.text.login.netease.loading": "Loading…",
   "text.autoconfig.iammusicplayer.option.loginNetease": "Scan QR code to login",
 
-  "imp.fixedList.QQMusicPlayListMusics": "Import QQ Music Playlist",
+  "imp.fixedList.QQMusicPlayListMusics": "QQ Music Playlist",
+  "imp.button.importQQMusicPlayList": "Import QQ Music Playlist",
   "imp.loaderType.qq_music": "QQ Music",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ Music",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "Enable QQ Music",

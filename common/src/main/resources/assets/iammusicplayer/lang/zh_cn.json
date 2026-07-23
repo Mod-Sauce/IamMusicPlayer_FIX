@@ -398,7 +398,8 @@
   "imp.text.login.netease.loading": "加载中……",
   "text.autoconfig.iammusicplayer.option.loginNetease": "扫码登录",
 
-  "imp.fixedList.QQMusicPlayListMusics": "导入 QQ音乐 播放列表",
+  "imp.fixedList.QQMusicPlayListMusics": "QQ音乐 播放列表",
+  "imp.button.importQQMusicPlayList": "导入 QQ音乐 播放列表",
   "imp.loaderType.qq_music": "QQ音乐",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ音乐",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "启用 QQ音乐",
