@@ -44,14 +44,13 @@ public class IMPSystemNativeLibraryProperties
     if (sys.osType != DefaultOperatingSystemTypes.DARWIN) natName +=
       "-" + sys.architectureType.identifier();
 
-    boolean ret = LavaNativeManager.getInstance().load(
+    boolean hasConfiguredNative = LavaNativeManager.getInstance().load(
       natName,
       sys.formatLibraryName(libraryName)
     );
-    if (!ret) {
-      showError();
-      throw new UnsatisfiedLinkError("Failed to load the library");
-    };
+    if (!hasConfiguredNative) {
+      return null;
+    }
     var p = LavaPlayerLoader.getNaiveLibraryFolder().resolve(natName);
     LOGGER.info(
       "The path for lava loader is: " + p.toAbsolutePath().toString()

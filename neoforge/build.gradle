@@ -66,9 +66,7 @@ dependencies {
     compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge:${rootProject.cct_version}")
     compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${rootProject.cct_version}")
 
-    shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
-        exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
-    }
+    shadowIn("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}")
     shadowIn "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
     shadowIn "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
     shadowIn "com.mpatric:mp3agic:0.9.1"
@@ -78,9 +76,7 @@ dependencies {
 
     // fuck
     forgeRuntimeLibrary "dev.felnull:felnull-java-library:${rootProject.felnull_version}"
-    forgeRuntimeLibrary ("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}") {
-        exclude group: 'dev.arbjerg', module: 'lavaplayer-natives'
-    }
+    forgeRuntimeLibrary ("dev.arbjerg:lavaplayer:${rootProject.lava_version_youtube}")
     forgeRuntimeLibrary "com.github.sealedtx:java-youtube-downloader:${rootProject.ytdownloader}"
     forgeRuntimeLibrary "com.mpatric:mp3agic:0.9.1"
     forgeRuntimeLibrary ("dev.lavalink.youtube:v2:${rootProject.lavalink}")
@@ -109,6 +105,14 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier.set("dev-shadow")
 
+    exclude 'natives/linux-arm/**' // exclude arm native libraries
+    exclude 'natives/linux-aarch32/**' // exclude linux aarch32 native libraries
+    exclude 'natives/linux-musl-aarch64/**' // exclude linux musl aarch64 native libraries
+    exclude 'natives/linux-musl-x86_64/**' // exclude linux musl x86_64 native libraries
+    exclude 'natives/linux-x86/**' // exclude linux x86 (not x86_64) native libraries
+    exclude 'natives/linux-armhf/**' // exclude linux armhf native libraries
+    exclude 'natives/win-x86/**' // exclude win x86 (not x86_64) native libraries
+
     // relocations here (all your relocate calls)
     mergeServiceFiles {
         relocate 'javax.ws.rs.ext', 'dev.felnull.imp.include.javax.ws.rs.ext'
@@ -118,7 +122,7 @@ shadowJar {
     relocate 'org.slf4j', 'dev.felnull.imp.include.org.slf4j'
     relocate 'certificates', 'dev.felnull.imp.include.certificates'
     relocate 'com.fasterxml', 'dev.felnull.imp.include.com.fasterxml'
-    relocate 'natives', 'dev.felnull.imp.include.natives'
+    // Keep lavaplayer native resources at /natives so NativeLibraryLoader can extract them from the mod jar.
     relocate 'mozilla', 'dev.felnull.imp.include.mozilla'
     relocate 'net.iharder', 'dev.felnull.imp.include.net.iharder'
     relocate 'com.sedmelluq.lava', 'dev.felnull.imp.include.com.sedmelluq.lava'
