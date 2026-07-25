@@ -5,10 +5,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.music.loader.IMPMusicLoaders;
+import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.client.qqMusic.resource.QQMusicData;
 import dev.felnull.imp.client.qqMusic.resource.QQMusicURLData;
 import dev.felnull.imp.client.qqMusic.resource.QQPlaylistData;
+import dev.felnull.imp.client.qqMusic.resource.QQSearchData;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Lyric;
 import dev.felnull.imp.music.resource.MusicSource;
@@ -21,6 +24,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
 
 public class QQMusicUtil {
     public static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
@@ -115,6 +119,23 @@ public class QQMusicUtil {
         return result;
     }
 
+    public static JsonElement buildSearchData(String keyword) {
+        var search = new JsonObject();
+        search.addProperty("module", "music.search.SearchCgiService");
+        search.addProperty("method", "DoSearchForQQMusicDesktop");
+
+        var param = new JsonObject();
+        param.addProperty("query", keyword);
+        param.addProperty("search_type", 0);
+        param.addProperty("page_num", 1);
+        param.addProperty("num_per_page", 30);
+        param.addProperty("remoteplace", "txt.yqq.top");
+
+        search.add("param", param);
+
+        return buildRequestData("req_0", search);
+    }
+
     public static JsonElement buildSongInfoData(long musicID){
         var songInfo = new JsonObject();
         songInfo.addProperty("module", "music.pf_song_detail_svr");
@@ -194,5 +215,48 @@ public class QQMusicUtil {
         var lyric = data.getLyric();
         if(lyric == null)return Lyric.EMPTY;
         return lyric;
+    }
+
+    public static QQSearchData search(String keyword) {
+        try {
+            var data = buildSearchData(keyword);
+
+            var request = HttpRequest.newBuilder(MUSIC_U_URL)
+                    .POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(data)))
+                    .header("User-Agent", "Mozilla/5.0")
+                    .header("Referer", "https://y.qq.com/")
+                    .header("Content-Type", "application/json")
+                    .header("Cookie", getCookie())
+                    .timeout(TIMEOUT)
+                    .build();
+
+            var result = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return GSON.fromJson(result.body(), QQSearchData.class);
+
+        } catch (Exception e) {
+            LOGGER.debug("Error:", e);
+        }
+        return null;
+    }
+
+    public static List<MusicMediaResult> searchMusicResult(String keyword){
+        if(keyword.isEmpty())return List.of();
+        var search = search(keyword);
+        if(search == null)return List.of();
+        return search.getSongs().stream().map(
+                info -> {
+                    ImageInfo img;
+                    if(info.getPicUrl() == null)
+                        img = ImageInfo.EMPTY;
+                    else img = new ImageInfo(ImageInfo.ImageType.URL, info.getPicUrl());
+                    return new MusicMediaResult(
+                            new MusicSource(IMPMusicMedias.QQ_MUSIC.getName(), String.valueOf(info.id), info.length),
+                            img,
+                            info.name,
+                            info.getSingerString()
+                    );
+                }
+        ).toList();
     }
 }

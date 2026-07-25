@@ -6,6 +6,8 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.sourceManager.QQMusicAudioSourceManager;
 import dev.felnull.imp.client.qqMusic.QQMusicUtil;
 
+import java.util.List;
+
 public class QQMusicMedia extends LavaPlayerBaseMusicMedia{
     public QQMusicMedia(String name) {
         super(name);
@@ -29,6 +31,11 @@ public class QQMusicMedia extends LavaPlayerBaseMusicMedia{
 
     @Override
     public boolean isSearchable() {
-        return false;
+        return true;
+    }
+
+    @Override
+    public List<MusicMediaResult> search(String searchText) {
+        return QQMusicUtil.searchMusicResult(searchText);
     }
 }
