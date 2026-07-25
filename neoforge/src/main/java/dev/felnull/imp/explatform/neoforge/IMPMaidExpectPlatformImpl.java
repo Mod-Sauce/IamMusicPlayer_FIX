@@ -37,10 +37,10 @@ public class IMPMaidExpectPlatformImpl {
         }
         ItemStack stack = entityMaid.getMainHandItem();
         if(stack.is(IMPBlocks.BOOMBOX.get().asItem()))
-            BoomboxItem.tick(entityMaid.level(), entity, stack, true);
+            return stack;
         stack = entityMaid.getOffhandItem();
         if(stack.is(IMPBlocks.BOOMBOX.get().asItem()))
-            BoomboxItem.tick(entityMaid.level(), entity, stack, true);
+            return stack;
         return ItemStack.EMPTY;
     }
 }

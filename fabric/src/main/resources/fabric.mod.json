@@ -28,6 +28,9 @@
     ],
     "jade": [
       "dev.felnull.imp.integration.jade.IMPJadePlugin"
+    ],
+    "little_maid_extension": [
+      "dev.felnull.imp.maid.IMPMaidPlugin"
     ]
   },
   "mixins": [
