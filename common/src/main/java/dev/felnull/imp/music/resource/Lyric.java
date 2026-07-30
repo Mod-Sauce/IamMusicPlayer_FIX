@@ -31,6 +31,7 @@ public class Lyric {
 
     @SuppressWarnings("all")
     public Pair<String, String> getPart(float second){
+        if(isEmpty())return new Pair<>("", "");
         var keyList = lyrics.keySet().stream().toList();
         var valueList = lyrics.values().stream().toList();
         var text = "";

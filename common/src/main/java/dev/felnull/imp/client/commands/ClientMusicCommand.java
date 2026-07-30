@@ -85,6 +85,7 @@ public class ClientMusicCommand {
                     getter.runAndWait(music.getSource());
                     lyric = getter.getLyric();
                     if (lyric == null) continue;
+                    if(lyric.isEmpty())continue;
                     LyricCacheManager.cacheAsync("netease_" + music.getSource().getIdentifier(), lyric);
                 } catch (Exception e) {
                     LOGGER.error("Failed to cache {} lyric:", music.getSource().getIdentifier(), e);

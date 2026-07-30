@@ -23,6 +23,7 @@ public class BoomboxLyricSource extends DisplaySource {
         boomboxBlockEntity.updateLyric();
         var lyric = boomboxBlockEntity.getLyric();
         if(lyric == null)return EMPTY;
+        if(lyric.isEmpty())return EMPTY;
         var part = lyric.getPart(boomboxBlockEntity.getRingerPosition() / 1000f);
         if(part.getA() == null)return EMPTY;
         if(displayLinkContext.sourceConfig().getInt("showTrans") == 0 && part.getB() != null)
