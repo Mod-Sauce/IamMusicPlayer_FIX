@@ -119,6 +119,7 @@ shadowJar {
         relocate 'org.glassfish.jersey.internal.spi', 'dev.felnull.imp.include.org.glassfish.jersey.internal.spi'
     }
     relocate 'org.json', 'dev.felnull.imp.include.org.json'
+    relocate 'org.jsoup', 'dev.felnull.imp.include.org.jsoup'
     relocate 'org.slf4j', 'dev.felnull.imp.include.org.slf4j'
     relocate 'certificates', 'dev.felnull.imp.include.certificates'
     relocate 'com.fasterxml', 'dev.felnull.imp.include.com.fasterxml'
