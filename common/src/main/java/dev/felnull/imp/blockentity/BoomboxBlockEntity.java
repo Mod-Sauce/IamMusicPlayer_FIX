@@ -96,6 +96,12 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     }
 
     @Override
+    public void ringerRestart() {
+        IBoomboxRinger.super.ringerRestart();
+        clearLyric();
+    }
+
+    @Override
     public ItemStack removeItem(int i, int j) {
         if (i == 0) {
             var old = getItem(0).copy();
