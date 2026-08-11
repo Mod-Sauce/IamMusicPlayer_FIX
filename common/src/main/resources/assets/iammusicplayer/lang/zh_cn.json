@@ -277,7 +277,6 @@
   "book.imp.landing_text": "本书介绍了如何使用Iam Music Player Renewed。$(br2)如果您发现此 Mod 中存在错误或与其他 Mod 冲突，请在$(l:https://codeberg.org/Mod-Sauce/IamMusicPlayerRenewed/issues)GitHub 中反馈$(/l).",
   "_comment.cr": "创造标签",
   "itemGroup.iammusicplayer.iammusicplayer": "Iam Music Player Renewed",
-
   "item.iammusicplayer.radio_antenna.desc": "可以直接收听广播流媒体",
   "item.iammusicplayer.parabolic_antenna.desc": "可以不使用磁带直接收听音乐",
   "item.iammusicplayer.invalid_item.patchouli.desc": "必须安装帕秋莉手册",
@@ -315,14 +314,12 @@
   "_comment.other": "其他",
   "modmenu.descriptionTranslation.iammusicplayer": "添加了许多播放音乐的新方式……\n一个 ikisugi 的音乐播放模组。",
   "_comment.la": "最后",
-
   "text.autoconfig.iammusicplayer.option.hud_pos": "HUD 位置调整……",
   "text.autoconfig.iammusicplayer.option.hud_pos.example_title": "音乐标题",
   "text.autoconfig.iammusicplayer.option.hud_pos.example_author": "音乐作者",
   "text.autoconfig.iammusicplayer.option.hud_pos.ok": "确定",
   "text.autoconfig.iammusicplayer.option.hud_pos.cancel": "取消",
   "text.autoconfig.iammusicplayer.option.hud_pos.reset": "恢复默认",
-
   "imp.loaderType.bilibili": "哔哩哔哩",
   "imp.text.enterText.bilibili": "请输入视频 BV 号",
   "text.autoconfig.iammusicplayer.option.bilibiliConfig.openMcedia.@PrefixText": "音频流获取参考了 tobyprime 的 Mcedia 项目",
@@ -330,7 +327,6 @@
   "text.autoconfig.iammusicplayer.option.imgurClientID": "Imgur 令牌",
   "text.autoconfig.iammusicplayer.option.autoProxy": "自动检测代理",
   "text.autoconfig.iammusicplayer.option.proxy": "代理",
-
   "item.iammusicplayer.earphone": "耳机",
   "item.iammusicplayer.earphone.desc": "享受你的私人音乐吧！",
   "commands.imp.earphone.list.notFound": "未找到耳机",
@@ -339,18 +335,14 @@
   "commands.imp.earphone.list": "现有的耳机如下：",
   "imp.text.earphone.tip": "点击来连接",
   "imp.text.earphone": "耳机",
-
   "advancements.iammusicplayer.earphone.title": "耳机！",
   "advancements.iammusicplayer.earphone.description": "末影唱片机……",
-
-
   "imp.create.text.showTrans.title": "是否显示翻译",
   "imp.create.text.showTrans.yes": "显示翻译",
   "imp.create.text.showTrans.no": "不显示翻译",
   "imp.create.text.lyric": "歌词",
   "text.autoconfig.iammusicplayer.option.serverLyric": "服务端请求歌词",
   "imp.create.text.lyric.disable": "未启用“服务端请求歌词”配置",
-
   "block.iammusicplayer.boombox_controller": "手提音响控制器",
   "block.iammusicplayer.boombox_controller.tip": "将音响放置在其上方后，即可使用无线红石信号进行控制",
   "block.iammusicplayer.boombox_controller.egg": "§m高级唱片机§r手提音响控制器",
@@ -364,7 +356,6 @@
   "imp.text.boombox_controller.add": "添加",
   "imp.text.boombox_controller.delete": "删除",
   "imp.text.boombox_controller.mode.switch_play_mode": "切换播放模式",
-
   "imp.create.text.play_list": "播放列表",
   "imp.create.text.add_number.title": "是否添加编号",
   "imp.create.text.add_number.yes": "添加编号",
@@ -373,17 +364,13 @@
   "imp.create.text.play_mode": "播放模式",
   "imp.create.text.music_percent": "进度条",
   "imp.text.proxy.error": "代理输入不合法！",
-
   "text.autoconfig.iammusicplayer.option.enableCache": "启用缓存功能",
   "text.autoconfig.iammusicplayer.option.globalCache": "全局缓存",
-
   "commands.imp.cache.error": "缓存时出现错误",
   "commands.imp.cache.success": "已开始%s项目的缓存",
-
   "text.autoconfig.iammusicplayer.option.jadeIntegration": "Jade 联动",
   "config.jade.plugin_iammusicplayer.boombox": "手提音响",
   "config.jade.plugin_iammusicplayer.cassette_deck": "录音座",
-
   "imp.text.login.netease.title": "网易云登录",
   "imp.text.login.netease.failed": "登录失败",
   "imp.text.login.netease.expired": "二维码失效",
@@ -393,7 +380,6 @@
   "imp.text.login.netease.cancel": "取消",
   "imp.text.login.netease.loading": "加载中……",
   "text.autoconfig.iammusicplayer.option.loginNetease": "扫码登录",
-
   "imp.fixedList.QQMusicPlayListMusics": "QQ音乐 播放列表",
   "imp.button.importQQMusicPlayList": "导入 QQ音乐 播放列表",
   "imp.loaderType.qq_music": "QQ音乐",
