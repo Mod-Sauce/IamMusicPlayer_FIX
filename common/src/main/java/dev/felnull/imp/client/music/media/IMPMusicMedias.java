@@ -17,6 +17,7 @@ public class IMPMusicMedias {
   );
   public static final NeteaseMusicMedia NETEASE_MUSIC = new NeteaseMusicMedia("netease");
   public static final BiliBiliMedia BILIBILI = new BiliBiliMedia("bilibili");
+  public static final QQMusicMedia QQ_MUSIC = new QQMusicMedia("qq_music");
 
   public static void init() {
     register("youtube", YOUTUBE);
@@ -24,6 +25,7 @@ public class IMPMusicMedias {
     register("http", HTTP);
     register("netease", NETEASE_MUSIC);
     register("bilibili", BILIBILI);
+    register("qq_music", QQ_MUSIC);
   }
 
   public static void register(String name, MusicMedia media) {

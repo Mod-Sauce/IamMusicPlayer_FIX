@@ -656,6 +656,19 @@ public class MusicManagerBlockEntity
     setChanged();
   }
 
+  public void setImportPlayListType(ServerPlayer player, String type) {
+    getPlayerData(player).putString("ImportPlayListType", type);
+    setChanged();
+  }
+
+  public String getImportPlayListType(Player player){
+    var tag = getPlayerData(player);
+    if (tag == null)
+      tag = new CompoundTag();
+
+    return tag.getString("ImportPlayListType");
+  }
+
   public MonitorType getMonitor(Player player) {
     var tag = getPlayerData(player);
     if (tag == null) tag = new CompoundTag();
@@ -781,6 +794,9 @@ public class MusicManagerBlockEntity
       } else {
         setSelectedPlayer(player, null);
       }
+      return null;
+    } else if ("set_import_playlist_type".equals(name)) {
+      setImportPlayListType(player, data.getString("type"));
       return null;
     }
     return super.onInstruction(player, name, data);

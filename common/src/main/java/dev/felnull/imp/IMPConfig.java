@@ -104,6 +104,10 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("sources")
   public BilibiliConfig bilibiliConfig = new BilibiliConfig();
 
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public QQMusicConfig QQMusicConfig = new QQMusicConfig();
+
   public static class NetMusicConfig{
     public boolean enableNetease = true;
 
@@ -143,4 +147,10 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Gui.Excluded
   @ConfigEntry.Category("hud")
   public int hudY = 10;
+
+  public static class QQMusicConfig{
+    public boolean enableQQMusic = true;
+
+    public String QQMusicCookie = "";
+  }
 }

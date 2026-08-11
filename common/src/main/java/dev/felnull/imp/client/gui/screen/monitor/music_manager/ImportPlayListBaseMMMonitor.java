@@ -44,13 +44,18 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
             playlistLoader = null;
             return;
         }
-        this.playlistLoader = IMPPlaylistLoaders.getLoader(getScreen().playlistLoaderType);
+        this.playlistLoader = IMPPlaylistLoaders.getLoader(getLoaderType());
+    }
+
+    private String getLoaderType(){
+        if(!(getScreen().getBlockEntity() instanceof MusicManagerBlockEntity blockEntity))return "";
+        return blockEntity.getImportPlayListType(mc.player);
     }
 
     @Override
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
-        this.playlistLoader = IMPPlaylistLoaders.getLoader(getScreen().playlistLoaderType);
+        this.playlistLoader = IMPPlaylistLoaders.getLoader(getLoaderType());
 
         addRenderWidget(new SmartButton(getStartX() + 5, getStartY() + 180, 87, 15, BACK_TEXT, n -> {
             if (getParentType() != null)

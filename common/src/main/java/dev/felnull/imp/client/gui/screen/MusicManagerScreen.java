@@ -41,7 +41,6 @@ public class MusicManagerScreen
   > monitors = new HashMap<>();
   private final UUID musicPlayerId = UUID.randomUUID();
   public boolean lastSearch;
-    public String playlistLoaderType;
     protected MusicManagerMonitor monitor;
   public byte[] musicFileImage;
 
@@ -347,5 +346,11 @@ public class MusicManagerScreen
 
   public MusicEntry getMusicPlayer() {
     return getMusicEngine().getMusicEntry(musicPlayerId);
+  }
+
+  public void insImportPlayListType(String type){
+    var tag = new CompoundTag();
+    tag.putString("type", type);
+    instruction("set_import_playlist_type", tag);
   }
 }

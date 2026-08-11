@@ -23,5 +23,6 @@ public class IMPPlaylistLoaders {
         registry(new NeteasePlaylistLoader());
         registry(new YoutubePlayListLoader());
         registry(new BilibiliPlaylistLoader());
+        registry(new QQMusicPlaylistLoader());
     }
 }
