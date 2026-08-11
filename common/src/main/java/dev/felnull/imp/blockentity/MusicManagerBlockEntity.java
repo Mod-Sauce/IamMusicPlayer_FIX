@@ -8,7 +8,6 @@ import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.otyacraftengine.server.level.TagSerializable;
 import dev.felnull.otyacraftengine.util.OENbtUtils;
-import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +21,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 public class MusicManagerBlockEntity
   extends IMPBaseEntityBlockEntity
@@ -655,6 +656,19 @@ public class MusicManagerBlockEntity
     setChanged();
   }
 
+  public void setImportPlayListType(ServerPlayer player, String type) {
+    getPlayerData(player).putString("ImportPlayListType", type);
+    setChanged();
+  }
+
+  public String getImportPlayListType(Player player){
+    var tag = getPlayerData(player);
+    if (tag == null)
+      tag = new CompoundTag();
+
+    return tag.getString("ImportPlayListType");
+  }
+
   public MonitorType getMonitor(Player player) {
     var tag = getPlayerData(player);
     if (tag == null) tag = new CompoundTag();
@@ -781,6 +795,9 @@ public class MusicManagerBlockEntity
         setSelectedPlayer(player, null);
       }
       return null;
+    } else if ("set_import_playlist_type".equals(name)) {
+      setImportPlayListType(player, data.getString("type"));
+      return null;
     }
     return super.onInstruction(player, name, data);
   }
@@ -807,12 +824,9 @@ public class MusicManagerBlockEntity
     DETAIL_MUSIC("detail_music", true),
     EDIT_MUSIC("edit_music", true),
     DELETE_MUSIC("delete_music", true),
-    IMPORT_YOUTUBE_PLAY_LIST("import_youtube_play_list", false),
+    IMPORT_PLAY_LIST("import_play_list", false),
     IMPORT_MUSICS_SELECT("import_musics_select", true),
-    IMPORT_YOUTUBE_PLAY_LIST_MUSICS(
-      "import_youtube_play_list_musics",
-      true
-    ),
+    IMPORT_PLAY_LIST_MUSICS("import_play_list_musics", true),
     AUTHORITY("authority", true);
 
     private final String name;
@@ -861,7 +875,7 @@ public class MusicManagerBlockEntity
       return (
         this == CREATE_PLAY_LIST ||
         this == IMPORT_PLAY_LIST_SELECT ||
-        this == IMPORT_YOUTUBE_PLAY_LIST
+        this == IMPORT_PLAY_LIST
       );
     }
 
@@ -869,7 +883,7 @@ public class MusicManagerBlockEntity
       return (
         this == ADD_MUSIC ||
         this == IMPORT_MUSICS_SELECT ||
-        this == IMPORT_YOUTUBE_PLAY_LIST_MUSICS
+        this == IMPORT_PLAY_LIST_MUSICS
       );
     }
 

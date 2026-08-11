@@ -3,6 +3,10 @@ package dev.felnull.imp.client;
 import dev.architectury.platform.Platform;
 import dev.felnull.imp.IMPConfig;
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.gui.config.button.Button;
+import dev.felnull.imp.client.gui.config.button.ButtonGuiProvider;
+import dev.felnull.imp.client.gui.config.proxy.ProxyGuiProvider;
+import dev.felnull.imp.client.gui.config.proxy.UserProxy;
 import dev.felnull.imp.client.gui.screen.IMPScreenFactorys;
 import dev.felnull.imp.client.gui.screen.monitor.boombox.BoomboxMonitor;
 import dev.felnull.imp.client.gui.screen.monitor.cassette_deck.CassetteDeckMonitor;
@@ -14,7 +18,9 @@ import dev.felnull.imp.client.lava.LavaPlayerLoader;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
 import dev.felnull.imp.client.music.IMPMusicTrackerFactory;
 import dev.felnull.imp.client.music.loader.IMPMusicLoaders;
+import dev.felnull.imp.client.music.lyric.IMPLyricGetter;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
+import dev.felnull.imp.client.music.playlist.IMPPlaylistLoaders;
 import dev.felnull.imp.client.renderer.blockentity.IMPBlockEntityRenderers;
 import dev.felnull.imp.client.renderer.item.IMPItemRenderers;
 import dev.felnull.imp.networking.IMPPackets;
@@ -65,6 +71,9 @@ public class IamMusicPlayerClient {
     IMPMusicLoaders.init();
     IMPMusicTrackerFactory.init();
     LavaPlayerManager.getInstance().reload();
+
+    IMPLyricGetter.init();
+    IMPPlaylistLoaders.init();
   }
 
   private static void configInit() {
@@ -76,5 +85,7 @@ public class IamMusicPlayerClient {
         ).get();
       }
     );
+      AutoConfig.getGuiRegistry(IMPConfig.class).registerAnnotationProvider(new ButtonGuiProvider(), Button.class);
+      AutoConfig.getGuiRegistry(IMPConfig.class).registerTypeProvider(new ProxyGuiProvider(), UserProxy.class);
   }
 }

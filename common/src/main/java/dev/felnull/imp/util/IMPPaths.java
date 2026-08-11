@@ -15,4 +15,8 @@ public class IMPPaths {
   public static Path getTmpFolder() {
     return Paths.get(IamMusicPlayer.MODID).resolve("tmp");
   }
+
+  public static Path getUserFolder(){
+    return Paths.get(System.getProperty("user.home"));
+  }
 }

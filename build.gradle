@@ -10,7 +10,7 @@ architectury {
 }
 
 forgix {
-  autoRun = true
+  autoRun = false
 }
 
 changelog {
