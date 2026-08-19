@@ -159,7 +159,8 @@
   "imp.text.enterText.youtube": "Video ID or Youtube URL",
   "imp.text.enterText.soundcloud": "Sound Cloud URL",
   "imp.text.enterText.neteasecloudmusic": "Netease Cloud Music Song ID",
-  "imp.text.enterText.url": "Music URL",
+  "imp.text.enterText.url": "Enter URL",
+  "imp.text.enterText.webdav": "Browse or enter a path relative to your configured WebDAV root",
   "imp.text.loadFailure": "Could not load",
   "imp.text.loadFailure.auto": "Could not guess",
   "imp.text.musicAuthor": "Author: %s",
@@ -397,7 +398,16 @@
   "imp.fixedList.QQMusicPlayListMusics": "QQ Music Playlist",
   "imp.button.importQQMusicPlayList": "Import QQ Music Playlist",
   "imp.loaderType.qq_music": "QQ Music",
+  "imp.loaderType.webdav": "WebDAV",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ Music",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "Enable QQ Music",
-  "text.autoconfig.iammusicplayer.option.QQMusicConfig.QQMusicCookie": "QQ Music Cookie"
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.QQMusicCookie": "QQ Music Cookie",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.baseUrl.@PrefixText": "⚠ Warning: WebDAV credentials are shared with the Server (not with other Players).",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig": "WebDAV",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.enableWebDAV": "Enable WebDAV",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.baseUrl": "Base URL",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.rootPath": "Root Path",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.username": "Username",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.password": "Password"
+
 }

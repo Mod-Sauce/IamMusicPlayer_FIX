@@ -10,6 +10,8 @@ import dev.felnull.imp.music.resource.MusicPlayList;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
+import dev.felnull.imp.server.webdav.ServerWebDAVProxyManager;
+import dev.felnull.imp.webdav.WebDAVSourceUtil;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.*;
@@ -71,7 +73,11 @@ public class ServerMessageHandler {
             var mm = MusicManager.getInstance();
             var pl = mm.getSaveData(packetContext.getPlayer().getServer()).getPlayLists().get(message.playlist);
             if (pl != null && pl.getAuthority().getAuthorityType(packetContext.getPlayer().getGameProfile().getId()).canAddMusic()) {
-                var m = new Music(UUID.randomUUID(), message.name, message.author, message.source, message.image, packetContext.getPlayer().getGameProfile().getId(), System.currentTimeMillis());
+                var source = message.source;
+                if (WebDAVSourceUtil.isWebDAV(source) && !WebDAVSourceUtil.isOwnedIdentifier(source.getIdentifier())) {
+                    source = new dev.felnull.imp.music.resource.MusicSource(source.getLoaderType(), WebDAVSourceUtil.encodeOwnedPath(packetContext.getPlayer().getUUID(), source.getIdentifier()), source.getDuration());
+                }
+                var m = new Music(UUID.randomUUID(), message.name, message.author, source, message.image, packetContext.getPlayer().getGameProfile().getId(), System.currentTimeMillis());
                 mm.addMusicToPlayList((ServerPlayer) packetContext.getPlayer(), pl.getUuid(), m);
             }
         });
@@ -115,6 +121,15 @@ public class ServerMessageHandler {
                     be.setSelectedPlayList((ServerPlayer) packetContext.getPlayer(), pl.getUuid());
             }
         });
+    }
+
+    public static void onWebDAVProfileSync(IMPPackets.WebDAVProfileSyncMessage message, NetworkManager.PacketContext packetContext) {
+        packetContext.queue(() -> ServerWebDAVProxyManager.updateProfile((ServerPlayer) packetContext.getPlayer(), message.baseUrl, message.rootPath, message.username, message.password));
+    }
+
+    public static void onWebDAVProxyRequest(IMPPackets.WebDAVProxyRequestMessage message, NetworkManager.PacketContext packetContext) {
+        ServerPlayer player = (ServerPlayer) packetContext.getPlayer();
+        java.util.concurrent.CompletableFuture.runAsync(() -> ServerWebDAVProxyManager.streamToClient(player, message.sessionId));
     }
 
     public static void onMusicSyncRequestMessage(IMPPackets.MusicSyncRequestMessage message, NetworkManager.PacketContext packetContext) {

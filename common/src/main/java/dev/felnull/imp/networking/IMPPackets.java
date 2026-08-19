@@ -38,6 +38,12 @@ public class IMPPackets {
     public static final ResourceLocation MUSIC_RING_UPDATE_RESULT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_update_result");
     public static final ResourceLocation MULTIPLE_MUSIC_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "multiple_music_add");
     public static final ResourceLocation HAND_LID_CYCLE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "hand_lid_cycle");
+    public static final ResourceLocation WEBDAV_PROFILE_SYNC_CTS = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "webdav_profile_sync_cts");
+    public static final ResourceLocation WEBDAV_PROXY_REQUEST_CTS = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "webdav_proxy_request_cts");
+    public static final ResourceLocation WEBDAV_PROXY_START_STC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "webdav_proxy_start_stc");
+    public static final ResourceLocation WEBDAV_PROXY_CHUNK_STC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "webdav_proxy_chunk_stc");
+    public static final ResourceLocation WEBDAV_PROXY_END_STC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "webdav_proxy_end_stc");
+    public static final ResourceLocation WEBDAV_PROXY_ERROR_STC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "webdav_proxy_error_stc");
 
     public static void init() {
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_SYNC_CTS, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicSyncRequestMessage(new MusicSyncRequestMessage(friendlyByteBuf), packetContext));
@@ -51,12 +57,18 @@ public class IMPPackets {
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_OR_PLAYLIST_DELETE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicOrPlayListDeleteMessage(new MusicOrPlayListDeleteMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MULTIPLE_MUSIC_ADD, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMultipleMusicAdd(new MultipleMusicAddMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), HAND_LID_CYCLE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onHandLidCycleMessage(new LidCycleMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), WEBDAV_PROFILE_SYNC_CTS, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onWebDAVProfileSync(new WebDAVProfileSyncMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), WEBDAV_PROXY_REQUEST_CTS, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onWebDAVProxyRequest(new WebDAVProxyRequestMessage(friendlyByteBuf), packetContext));
 
         // These code snippets are useful as they prevent errors caused by the server missing STC packets.
         if(Platform.getEnv() == EnvType.SERVER) {
             NetworkManager.registerS2CPayloadType(MUSIC_SYNC_STC);
             NetworkManager.registerS2CPayloadType(MUSIC_RING_READY);
             NetworkManager.registerS2CPayloadType(MUSIC_RING_STATE);
+            NetworkManager.registerS2CPayloadType(WEBDAV_PROXY_START_STC);
+            NetworkManager.registerS2CPayloadType(WEBDAV_PROXY_CHUNK_STC);
+            NetworkManager.registerS2CPayloadType(WEBDAV_PROXY_END_STC);
+            NetworkManager.registerS2CPayloadType(WEBDAV_PROXY_ERROR_STC);
         }
     }
 
@@ -64,6 +76,10 @@ public class IMPPackets {
         NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_SYNC_STC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicSyncResponseMessage(new MusicSyncResponseMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_READY, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingReadyResponseMessage(new MusicReadyMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.s2c(), MUSIC_RING_STATE, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onMusicRingStateResponseMessage(new MusicRingStateMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.s2c(), WEBDAV_PROXY_START_STC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onWebDAVProxyStart(new WebDAVProxyStartMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.s2c(), WEBDAV_PROXY_CHUNK_STC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onWebDAVProxyChunk(new WebDAVProxyChunkMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.s2c(), WEBDAV_PROXY_END_STC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onWebDAVProxyEnd(new WebDAVProxyEndMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.s2c(), WEBDAV_PROXY_ERROR_STC, (friendlyByteBuf, packetContext) -> ClientMessageHandler.onWebDAVProxyError(new WebDAVProxyErrorMessage(friendlyByteBuf), packetContext));
     }
 
     public static class LidCycleMessage implements PacketMessage {
@@ -487,6 +503,142 @@ public class IMPPackets {
         public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeInt(syncType.ordinal());
             buf.writeUUID(syncId);
+            return buf;
+        }
+    }
+
+    public static class WebDAVProfileSyncMessage implements PacketMessage {
+        public final String baseUrl;
+        public final String rootPath;
+        public final String username;
+        public final String password;
+
+        public WebDAVProfileSyncMessage(FriendlyByteBuf buf) {
+            this.baseUrl = buf.readUtf();
+            this.rootPath = buf.readUtf();
+            this.username = buf.readUtf();
+            this.password = buf.readUtf();
+        }
+
+        public WebDAVProfileSyncMessage(String baseUrl, String rootPath, String username, String password) {
+            this.baseUrl = baseUrl;
+            this.rootPath = rootPath;
+            this.username = username;
+            this.password = password;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUtf(baseUrl);
+            buf.writeUtf(rootPath);
+            buf.writeUtf(username);
+            buf.writeUtf(password);
+            return buf;
+        }
+    }
+
+    public static class WebDAVProxyRequestMessage implements PacketMessage {
+        public final UUID sessionId;
+
+        public WebDAVProxyRequestMessage(FriendlyByteBuf buf) {
+            this.sessionId = buf.readUUID();
+        }
+
+        public WebDAVProxyRequestMessage(UUID sessionId) {
+            this.sessionId = sessionId;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(sessionId);
+            return buf;
+        }
+    }
+
+    public static class WebDAVProxyStartMessage implements PacketMessage {
+        public final UUID sessionId;
+        public final long totalSize;
+        public final String relativePath;
+
+        public WebDAVProxyStartMessage(FriendlyByteBuf buf) {
+            this.sessionId = buf.readUUID();
+            this.totalSize = buf.readLong();
+            this.relativePath = buf.readUtf();
+        }
+
+        public WebDAVProxyStartMessage(UUID sessionId, long totalSize, String relativePath) {
+            this.sessionId = sessionId;
+            this.totalSize = totalSize;
+            this.relativePath = relativePath;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(sessionId);
+            buf.writeLong(totalSize);
+            buf.writeUtf(relativePath);
+            return buf;
+        }
+    }
+
+    public static class WebDAVProxyChunkMessage implements PacketMessage {
+        public final UUID sessionId;
+        public final byte[] chunk;
+
+        public WebDAVProxyChunkMessage(FriendlyByteBuf buf) {
+            this.sessionId = buf.readUUID();
+            this.chunk = buf.readByteArray();
+        }
+
+        public WebDAVProxyChunkMessage(UUID sessionId, byte[] chunk) {
+            this.sessionId = sessionId;
+            this.chunk = chunk;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(sessionId);
+            buf.writeByteArray(chunk);
+            return buf;
+        }
+    }
+
+    public static class WebDAVProxyEndMessage implements PacketMessage {
+        public final UUID sessionId;
+
+        public WebDAVProxyEndMessage(FriendlyByteBuf buf) {
+            this.sessionId = buf.readUUID();
+        }
+
+        public WebDAVProxyEndMessage(UUID sessionId) {
+            this.sessionId = sessionId;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(sessionId);
+            return buf;
+        }
+    }
+
+    public static class WebDAVProxyErrorMessage implements PacketMessage {
+        public final UUID sessionId;
+        public final String error;
+
+        public WebDAVProxyErrorMessage(FriendlyByteBuf buf) {
+            this.sessionId = buf.readUUID();
+            this.error = buf.readUtf();
+        }
+
+        public WebDAVProxyErrorMessage(UUID sessionId, String error) {
+            this.sessionId = sessionId;
+            this.error = error;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(sessionId);
+            buf.writeUtf(error);
             return buf;
         }
     }

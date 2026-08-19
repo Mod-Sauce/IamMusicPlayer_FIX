@@ -196,15 +196,20 @@ public class MusicEntry {
         var me = MusicEngine.getInstance();
         var runner = createDestroyRunner();
 
+        me.getLogger().info("[MusicEntry] loadStart playerId={} loaderType='{}' identifier='{}' position={} duration={}", musicPlayerId, source.getLoaderType(), source.getIdentifier(), startPosition, source.getDuration());
+
         var cf = CompletableFuture.supplyAsync(() -> {
             var loader = selectLoader(source);
             if (loader == null)
                 throw new RuntimeException("No available loaders found");
+            me.getLogger().info("[MusicEntry] Selected loader {} for playerId={}", loader.getClass().getName(), musicPlayerId);
             return loader;
         }, me.getMusicAsyncExecutor()).thenApplyAsync(ret -> {
+            me.getLogger().info("[MusicEntry] Creating music player via {} for playerId={}", ret.getClass().getName(), musicPlayerId);
             return ret.createMusicPlayer(musicPlayerId);
         }, me.getMusicTickExecutor()).thenApplyAsync(ret -> {
             musicPlayer.set(ret);
+            me.getLogger().info("[MusicEntry] Music player created: {} for playerId={}", ret.getClass().getName(), musicPlayerId);
 
             runner.run(ret::destroyNonThrow);
             return ret;
@@ -213,16 +218,21 @@ public class MusicEntry {
                 reserveTrackers.forEach(this::addSpeaker);
                 reserveTrackers.clear();
             }
+            me.getLogger().info("[MusicEntry] Speakers prepared for playerId={}, speakerCount={}", musicPlayerId, ret.getSpeakerCount());
             runner.run(ret::destroyNonThrow);
             return ret;
         }, me.getMusicTickExecutor()).thenApplyAsync(ret -> {
+            me.getLogger().info("[MusicEntry] Calling loadStart on playerId={}", musicPlayerId);
             return new MusicLoadStartResult(ret, ret.loadStart(startPosition));
         }, me.getMusicTickExecutor()).thenApplyAsync(ret -> {
             try {
+                me.getLogger().info("[MusicEntry] Calling loadAsync on playerId={}", musicPlayerId);
                 var aret = ret.loadAsync();
+                me.getLogger().info("[MusicEntry] loadAsync finished for playerId={}", musicPlayerId);
                 runner.run(() -> ret.musicPlayer().destroyNonThrow());
                 return new MusicLoadAsyncResult(new LoadResult(true, null), aret, ret.musicPlayer());
             } catch (Exception e) {
+                me.getLogger().error("[MusicEntry] loadAsync failed for playerId={}", musicPlayerId, e);
                 return new MusicLoadAsyncResult(new LoadResult(false, e), null, null);
             }
         }, me.getMusicAsyncExecutor()).thenApplyAsync(ret -> {
@@ -231,6 +241,7 @@ public class MusicEntry {
             });
 
             if (ret.musicLoadEndResult() != null) {
+                me.getLogger().info("[MusicEntry] Applying load result for playerId={}", musicPlayerId);
                 ret.musicLoadEndResult().apply();
                 runner.run(() -> ret.musicLoadEndResult().musicPlayer().destroyNonThrow());
             }
@@ -239,6 +250,7 @@ public class MusicEntry {
 
         cf.whenCompleteAsync((ret, throwable) -> {
             loaded = ret != null && ret.success;
+            me.getLogger().info("[MusicEntry] whenComplete playerId={} loaded={} retSuccess={} throwable={} hasPlayer={} error={}", musicPlayerId, loaded, ret != null && ret.success, throwable != null, musicPlayer.get() != null, ret != null ? ret.error : null);
 
             if (throwable != null) {
                 loadFailed = true;
@@ -256,12 +268,16 @@ public class MusicEntry {
     }
 
     private MusicLoader selectLoader(MusicSource source) {
+        var logger = MusicEngine.getInstance().getLogger();
         List<MusicLoader> loaders = IMPMusicLoaders.getAllLoader().stream().map(Supplier::get).sorted(Comparator.comparingInt(MusicLoader::priority).reversed()).toList();
         for (MusicLoader loader : loaders) {
             try {
+                logger.info("[MusicEntry] Trying loader {} for type='{}' identifier='{}'", loader.getClass().getName(), source.getLoaderType(), source.getIdentifier());
                 loader.tryLoad(source);
+                logger.info("[MusicEntry] Loader {} accepted source", loader.getClass().getName());
                 return loader;
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                logger.info("[MusicEntry] Loader {} rejected source: {}", loader.getClass().getName(), e.toString());
             }
         }
         return null;

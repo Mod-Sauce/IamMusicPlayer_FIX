@@ -5,6 +5,7 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.advancements.IMPCriteriaTriggers;
 import dev.felnull.imp.music.tracker.MusicTrackerEntry;
 import dev.felnull.imp.networking.IMPPackets;
+import dev.felnull.imp.server.webdav.ServerWebDAVProxyManager;
 import org.modsauce.otyacraftenginerenewed.advancement.ModInvolvementTrigger;
 import java.util.*;
 import net.minecraft.server.level.ServerLevel;
@@ -35,7 +36,7 @@ public class MusicRing {
 
   protected void tick() {
       var stopRingers = new ArrayList<UUID>();
-  
+
       // Capture current ring time once at start for better consistency in logs
       long startTime = getTime();
       LOGGER.debug(
@@ -44,10 +45,10 @@ public class MusicRing {
         startTime,
         ringers.size()
       );
-  
+
       for (IMusicRinger ringer : ringers.values()) {
         var uuid = ringer.getRingerUUID();
-        
+
         // ADD THIS CHECK: Stop ringer if it no longer exists OR has changed dimensions
         if (!ringer.exists() || ringer.getRingerLevel() != this.level) {
           stopRingers.add(uuid);
@@ -69,7 +70,7 @@ public class MusicRing {
                 startTime
               );
             }
-  
+
             if (rpi.tick(startTime)) {
               waitRingers.remove(uuid);
               long currentTime = getTime();
@@ -87,7 +88,7 @@ public class MusicRing {
                 currentTime,
                 eq
               );
-  
+
               if (duration >= prevPos + eq || isStream) {
                 var sc = ringer.getRingerMusicSource();
                 long newPos = clamp(
@@ -260,7 +261,8 @@ public class MusicRing {
         ) NetworkManager.sendToPlayer(
           serverPlayer,
           IMPPackets.MUSIC_RING_READY,
-          new IMPPackets.MusicReadyMessage(
+          ServerWebDAVProxyManager.createReadyMessage(
+            serverPlayer,
             infoUUID,
             ringerUUID,
             getRinger().getRingerMusicSource(),
@@ -292,7 +294,8 @@ public class MusicRing {
         NetworkManager.sendToPlayer(
           serverPlayer,
           IMPPackets.MUSIC_RING_READY,
-          new IMPPackets.MusicReadyMessage(
+          ServerWebDAVProxyManager.createReadyMessage(
+            serverPlayer,
             infoUUID,
             ringerUUID,
             getRinger().getRingerMusicSource(),
