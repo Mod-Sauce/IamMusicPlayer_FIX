@@ -141,7 +141,11 @@ public class MusicManager {
         if (pl == null) return;
         if (!pl.getAuthority().getAuthorityType(player.getGameProfile().getId()).canAddMusic()) return;
         for (Music music : musics) {
-            var am = new Music(UUID.randomUUID(), music.getName(), music.getAuthor(), music.getSource(), music.getImage(), player.getGameProfile().getId(), System.currentTimeMillis());
+            var actualSource = music.getSource();
+            if (dev.felnull.imp.webdav.WebDAVSourceUtil.isWebDAV(actualSource) && !dev.felnull.imp.webdav.WebDAVSourceUtil.isOwnedIdentifier(actualSource.getIdentifier())) {
+                actualSource = new dev.felnull.imp.music.resource.MusicSource(actualSource.getLoaderType(), dev.felnull.imp.webdav.WebDAVSourceUtil.encodeOwnedPath(player.getUUID(), actualSource.getIdentifier()), actualSource.getDuration());
+            }
+            var am = new Music(UUID.randomUUID(), music.getName(), music.getAuthor(), actualSource, music.getImage(), player.getGameProfile().getId(), System.currentTimeMillis());
             addMusicToPlayList(player, pl.getUuid(), am);
         }
     }

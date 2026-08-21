@@ -4,6 +4,7 @@ import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.client.music.IMPMusicTrackerFactory;
 import dev.felnull.imp.client.music.MusicRingerEngineConnector;
 import dev.felnull.imp.client.music.MusicSyncManager;
+import dev.felnull.imp.client.webdav.proxy.WebDAVProxyStreamManager;
 import dev.felnull.imp.music.resource.MusicPlayList;
 import dev.felnull.imp.networking.IMPPackets;
 import net.minecraft.client.Minecraft;
@@ -33,6 +34,22 @@ public class ClientMessageHandler {
                 NetworkManager.sendToServer(IMPPackets.MUSIC_RING_READY_RESULT, new IMPPackets.MusicRingReadyResultMessage(message.waitId(), message.uuid(), success, retry, time).toRFBB());
             });
         });
+    }
+
+    public static void onWebDAVProxyStart(IMPPackets.WebDAVProxyStartMessage message, NetworkManager.PacketContext packetContext) {
+        packetContext.queue(() -> WebDAVProxyStreamManager.begin(message.sessionId, message.totalSize, message.relativePath));
+    }
+
+    public static void onWebDAVProxyChunk(IMPPackets.WebDAVProxyChunkMessage message, NetworkManager.PacketContext packetContext) {
+        packetContext.queue(() -> WebDAVProxyStreamManager.append(message.sessionId, message.chunk));
+    }
+
+    public static void onWebDAVProxyEnd(IMPPackets.WebDAVProxyEndMessage message, NetworkManager.PacketContext packetContext) {
+        packetContext.queue(() -> WebDAVProxyStreamManager.finish(message.sessionId));
+    }
+
+    public static void onWebDAVProxyError(IMPPackets.WebDAVProxyErrorMessage message, NetworkManager.PacketContext packetContext) {
+        packetContext.queue(() -> WebDAVProxyStreamManager.fail(message.sessionId, message.error));
     }
 
     public static void onMusicSyncResponseMessage(IMPPackets.MusicSyncResponseMessage

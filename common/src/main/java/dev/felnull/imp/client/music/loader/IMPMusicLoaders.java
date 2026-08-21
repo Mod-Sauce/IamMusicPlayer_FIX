@@ -1,19 +1,22 @@
 package dev.felnull.imp.client.music.loader;
 
 import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class IMPMusicLoaders {
-    private static final List<Supplier<MusicLoader>> LOADER_FACTORIES = new ArrayList<>();
+
+    private static final List<Supplier<MusicLoader>> LOADER_FACTORIES =
+        new ArrayList<>();
 
     public static void init() {
         register(LavaMusicLoader::new);
         register(YoutubeDownloaderMusicLoader::new);
+        register(WebDAVProxyMusicLoader::new);
         register(NeteaseMusicLoader::new);
         register(BiliBiliMusicLoader::new);
+        register(WebDAVMusicLoader::new);
         register(CacheMusicLoader::new);
         register(QQMusicLoader::new);
     }

@@ -9,16 +9,18 @@ import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.player.LavaMusicPlayer;
 import dev.felnull.imp.client.music.player.MusicPlayer;
 import dev.felnull.imp.music.resource.MusicSource;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Objects;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
-public class CacheMusicLoader implements MusicLoader{
+public class CacheMusicLoader implements MusicLoader {
+
     private MusicSource musicSource;
     private AudioTrack audioTrack;
 
-    private static final LocalAudioSourceManager MANAGER = new LocalAudioSourceManager();
+    private static final LocalAudioSourceManager MANAGER =
+        new LocalAudioSourceManager();
+
     @Override
     public @NotNull MusicPlayer<?, ?> createMusicPlayer(UUID musicPlayerId) {
         return new LavaMusicPlayer(musicPlayerId, audioTrack, musicSource);
@@ -27,20 +29,34 @@ public class CacheMusicLoader implements MusicLoader{
     @Override
     public void tryLoad(@NotNull MusicSource source) {
         var id = source.getIdentifier();
-        if(Objects.equals(source.getLoaderType(), IMPMusicMedias.NETEASE_MUSIC.getName()))
-            id = "netease:" + id;
-        else if(Objects.equals(source.getLoaderType(), IMPMusicMedias.BILIBILI.getName()))
-            id = "bilibili:" + id;
-        if(!AudioCacheManager.has(id))
-            throw new RuntimeException();
+        if (
+            Objects.equals(
+                source.getLoaderType(),
+                IMPMusicMedias.NETEASE_MUSIC.getName()
+            )
+        ) id = "netease:" + id;
+        else if (
+            Objects.equals(
+                source.getLoaderType(),
+                IMPMusicMedias.BILIBILI.getName()
+            )
+        ) id = "bilibili:" + id;
+        else if (
+            Objects.equals(
+                source.getLoaderType(),
+                IMPMusicMedias.WEBDAV.getName()
+            )
+        ) id = "webdav:" + id;
+        else if (Objects.equals(source.getLoaderType(), "webdav_proxy")) id = "webdav_proxy:" + id;
+        if (!AudioCacheManager.has(id)) throw new RuntimeException();
         var file = AudioCacheManager.getPath(id);
-        if(file == null)
-            throw new RuntimeException();
+        if (file == null) throw new RuntimeException();
 
-        var result = MANAGER.loadItem(LavaPlayerManager.getInstance().getAudioPlayerManager(), new AudioReference(file.toString(),
-                ""));
-        if(!(result instanceof AudioTrack track))
-            throw new RuntimeException();
+        var result = MANAGER.loadItem(
+            LavaPlayerManager.getInstance().getAudioPlayerManager(),
+            new AudioReference(file.toString(), "")
+        );
+        if (!(result instanceof AudioTrack track)) throw new RuntimeException();
         audioTrack = track;
         musicSource = source;
     }
