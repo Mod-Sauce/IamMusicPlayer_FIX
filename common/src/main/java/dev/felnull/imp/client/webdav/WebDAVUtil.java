@@ -1,6 +1,7 @@
 package dev.felnull.imp.client.webdav;
 
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.cache.AudioCacheManager;
 import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.MusicSource;
@@ -147,7 +148,7 @@ public class WebDAVUtil {
                         HttpStatus.SC_BAD_REQUEST
                 ) return null;
                 Path dir =
-                    dev.felnull.imp.client.cache.AudioCacheManager.getBaseDir().resolve(
+                    AudioCacheManager.getBaseDir().resolve(
                         "webdav_direct"
                     );
                 Files.createDirectories(dir);

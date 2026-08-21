@@ -1,6 +1,7 @@
 package dev.felnull.imp.server.webdav;
 
 import dev.architectury.networking.NetworkManager;
+import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.saveddata.WebDAVProfileSaveData;
 import dev.felnull.imp.webdav.WebDAVSourceUtil;
@@ -57,7 +58,7 @@ public final class ServerWebDAVProxyManager {
         ServerPlayer listener,
         UUID waitId,
         UUID ringerId,
-        dev.felnull.imp.music.resource.MusicSource source,
+        MusicSource source,
         net.minecraft.nbt.CompoundTag tracker,
         long position
     ) {
@@ -83,7 +84,7 @@ public final class ServerWebDAVProxyManager {
         return new IMPPackets.MusicReadyMessage(
             waitId,
             ringerId,
-            new dev.felnull.imp.music.resource.MusicSource(
+            new MusicSource(
                 WebDAVSourceUtil.PROXY_LOADER_TYPE,
                 sessionId.toString(),
                 source.getDuration()

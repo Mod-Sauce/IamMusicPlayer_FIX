@@ -154,7 +154,7 @@
   "imp.text.enterText.auto": "可识别链接",
   "imp.text.enterText.youtube": "视频ID或Youtube链接",
   "imp.text.enterText.soundcloud": "Sound Cloud链接",
-  "imp.text.enterText.url": "音乐直链",
+  "imp.text.enterText.url": "输入音乐直链",
   "imp.text.loadFailure": "无法加载",
   "imp.text.loadFailure.auto": "无法检测",
   "imp.text.musicAuthor": "作者：%s",
@@ -399,5 +399,15 @@
   "imp.loaderType.qq_music": "QQ音乐",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig": "QQ音乐",
   "text.autoconfig.iammusicplayer.option.QQMusicConfig.enableQQMusic": "启用 QQ音乐",
-  "text.autoconfig.iammusicplayer.option.QQMusicConfig.QQMusicCookie": "QQ音乐 Cookie"
+  "text.autoconfig.iammusicplayer.option.QQMusicConfig.QQMusicCookie": "QQ音乐 Cookie",
+
+  "imp.text.enterText.webdav": "浏览或输入相对于已配置的 WebDAV 根目录的路径",
+  "imp.loaderType.webdav": "WebDAV",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.baseUrl.@PrefixText": "⚠ 警告：WebDAV 凭据与服务器共享（不与其他玩家共享）。",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig": "WebDAV",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.enableWebDAV": "启用 WebDAV",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.baseUrl": "基础 URL",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.rootPath": "根路径",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.username": "用户名",
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.password": "密码"
 }

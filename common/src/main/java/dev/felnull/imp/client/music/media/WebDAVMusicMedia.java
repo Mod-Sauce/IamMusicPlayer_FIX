@@ -5,7 +5,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
+import dev.felnull.imp.client.webdav.WebDAVClientProfileSync;
 import dev.felnull.imp.client.webdav.WebDAVUtil;
+import dev.felnull.imp.music.resource.MusicSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -45,19 +47,19 @@ public class WebDAVMusicMedia implements MusicMedia {
     @Override
     public MusicMediaResult load(String sourceName) throws Exception {
         if (!IamMusicPlayer.getConfig().webDAVConfig.enableWebDAV) return null;
-        dev.felnull.imp.client.webdav.WebDAVClientProfileSync.sync();
+        WebDAVClientProfileSync.sync();
         var normalized = WebDAVUtil.normalizeRelativePath(sourceName);
         var file = WebDAVUtil.downloadToTempFile(normalized);
         if (file == null) return null;
         var result = LOCAL_MANAGER.loadItem(LavaPlayerManager.getInstance().getAudioPlayerManager(), new AudioReference(file.toString(), ""));
         if (!(result instanceof AudioTrack track) || track.getInfo().isStream) return null;
-        var source = new dev.felnull.imp.music.resource.MusicSource(name, normalized, track.getDuration());
+        var source = new MusicSource(name, normalized, track.getDuration());
         return new MusicMediaResult(source, null, track.getInfo().title, track.getInfo().author);
     }
 
     @Override
     public List<MusicMediaResult> search(String searchText) {
-        dev.felnull.imp.client.webdav.WebDAVClientProfileSync.sync();
+        WebDAVClientProfileSync.sync();
         return WebDAVUtil.list(searchText);
     }
 }

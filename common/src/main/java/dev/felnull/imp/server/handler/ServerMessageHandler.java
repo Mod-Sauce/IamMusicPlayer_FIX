@@ -7,6 +7,7 @@ import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.music.resource.AuthorityInfo;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicPlayList;
+import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
@@ -75,7 +76,7 @@ public class ServerMessageHandler {
             if (pl != null && pl.getAuthority().getAuthorityType(packetContext.getPlayer().getGameProfile().getId()).canAddMusic()) {
                 var source = message.source;
                 if (WebDAVSourceUtil.isWebDAV(source) && !WebDAVSourceUtil.isOwnedIdentifier(source.getIdentifier())) {
-                    source = new dev.felnull.imp.music.resource.MusicSource(source.getLoaderType(), WebDAVSourceUtil.encodeOwnedPath(packetContext.getPlayer().getUUID(), source.getIdentifier()), source.getDuration());
+                    source = new MusicSource(source.getLoaderType(), WebDAVSourceUtil.encodeOwnedPath(packetContext.getPlayer().getUUID(), source.getIdentifier()), source.getDuration());
                 }
                 var m = new Music(UUID.randomUUID(), message.name, message.author, source, message.image, packetContext.getPlayer().getGameProfile().getId(), System.currentTimeMillis());
                 mm.addMusicToPlayList((ServerPlayer) packetContext.getPlayer(), pl.getUuid(), m);

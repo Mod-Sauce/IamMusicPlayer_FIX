@@ -1,11 +1,9 @@
 package dev.felnull.imp.server.music;
 
 import dev.felnull.imp.advancements.IMPCriteriaTriggers;
-import dev.felnull.imp.music.resource.AuthorityInfo;
-import dev.felnull.imp.music.resource.ImageInfo;
-import dev.felnull.imp.music.resource.Music;
-import dev.felnull.imp.music.resource.MusicPlayList;
+import dev.felnull.imp.music.resource.*;
 import dev.felnull.imp.server.saveddata.MusicSaveData;
+import dev.felnull.imp.webdav.WebDAVSourceUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -142,8 +140,8 @@ public class MusicManager {
         if (!pl.getAuthority().getAuthorityType(player.getGameProfile().getId()).canAddMusic()) return;
         for (Music music : musics) {
             var actualSource = music.getSource();
-            if (dev.felnull.imp.webdav.WebDAVSourceUtil.isWebDAV(actualSource) && !dev.felnull.imp.webdav.WebDAVSourceUtil.isOwnedIdentifier(actualSource.getIdentifier())) {
-                actualSource = new dev.felnull.imp.music.resource.MusicSource(actualSource.getLoaderType(), dev.felnull.imp.webdav.WebDAVSourceUtil.encodeOwnedPath(player.getUUID(), actualSource.getIdentifier()), actualSource.getDuration());
+            if (WebDAVSourceUtil.isWebDAV(actualSource) && !WebDAVSourceUtil.isOwnedIdentifier(actualSource.getIdentifier())) {
+                actualSource = new MusicSource(actualSource.getLoaderType(), WebDAVSourceUtil.encodeOwnedPath(player.getUUID(), actualSource.getIdentifier()), actualSource.getDuration());
             }
             var am = new Music(UUID.randomUUID(), music.getName(), music.getAuthor(), actualSource, music.getImage(), player.getGameProfile().getId(), System.currentTimeMillis());
             addMusicToPlayList(player, pl.getUuid(), am);
