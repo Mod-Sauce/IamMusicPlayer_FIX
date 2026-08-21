@@ -25,7 +25,8 @@ public class SearchMusicsFixedListWidget extends IMPBaseFixedListWidget<MusicMed
             sx += getIndividualHeight() - 2 + 1;
             PlayImageRenderer.getInstance().draw(img, guiGraphics.pose(), bX + 1, bY + 1, getIndividualHeight() - 2, false);
         }
-        drawSmartFixedWidthText(guiGraphics, Component.literal(item.name()), bX + sx, bY + 2, getIndividualWidth() - sx - 2);
+        var name = item.directory() ? Component.literal("[DIR] " + item.name()) : Component.literal(item.name());
+        drawSmartFixedWidthText(guiGraphics, name, bX + sx, bY + 2, getIndividualWidth() - sx - 2);
         drawSmartFixedWidthText(guiGraphics, Component.literal(item.author()), bX + sx, bY + 12, getIndividualWidth() - sx - 2);
     }
 }

@@ -36,9 +36,14 @@ public class SearchMusicMMMonitor extends MusicManagerMonitor {
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
         this.searchMusicsFixedButtonsList = this.addRenderWidget(new SearchMusicsFixedListWidget(getStartX() + 2, getStartY() + 25, 366, 172, Component.translatable("imp.fixedList.searchMusic"), 4, searchMusics, (widget, item) -> {
-            setMusicSourceName(item.source().getIdentifier());
-            getScreen().lastSearch = true;
-            insMonitor(MusicManagerBlockEntity.MonitorType.ADD_MUSIC);
+            if (item.directory()) {
+                this.searchNameEditBox.setValue(item.source().getIdentifier());
+                setMusicSearchName(item.source().getIdentifier());
+            } else {
+                setMusicSourceName(item.source().getIdentifier());
+                getScreen().lastSearch = true;
+                insMonitor(MusicManagerBlockEntity.MonitorType.ADD_MUSIC);
+            }
         }, this.searchMusicsFixedButtonsList));
 
         this.searchNameEditBox = new EditBox(IIMPSmartRender.mc.font, getStartX() + 2, getStartY() + 11, 367, 12, Component.translatable("imp.editBox.musicSearchName"));
@@ -61,7 +66,7 @@ public class SearchMusicMMMonitor extends MusicManagerMonitor {
     public void render(GuiGraphics guiGraphics, float f, int mouseX, int mouseY) {
         super.render(guiGraphics, f, mouseX, mouseY);
         OERenderUtils.drawTexture(SEARCH_MUSIC_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0f, 0f, width, height, width, height);
-        if (searchMusics.isEmpty() && !getMusicSearchName().isEmpty() && searchThread != null && searchThread.isAlive())
+        if (searchMusics.isEmpty() && searchThread != null && searchThread.isAlive())
             drawSmartText(guiGraphics, SEARCHING_TEXT, getStartX() + 3, getStartY() + 27);
     }
 

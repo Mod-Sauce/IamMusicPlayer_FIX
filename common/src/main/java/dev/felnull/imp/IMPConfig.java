@@ -135,6 +135,10 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("sources")
   public QQMusicConfig QQMusicConfig = new QQMusicConfig();
 
+  @ConfigEntry.Gui.CollapsibleObject(startExpanded = true)
+  @ConfigEntry.Category("sources")
+  public WebDAVConfig webDAVConfig = new WebDAVConfig();
+
   public static class NetMusicConfig{
     public boolean enableNetease = true;
 
@@ -164,5 +168,18 @@ public class IMPConfig implements ConfigData {
     public boolean enableQQMusic = true;
 
     public String QQMusicCookie = "";
+  }
+
+  public static class WebDAVConfig{
+    public boolean enableWebDAV = true;
+
+    @ConfigEntry.Gui.PrefixText
+    public String baseUrl = "";
+
+    public String rootPath = "";
+
+    public String username = "";
+
+    public String password = "";
   }
 }
