@@ -6,6 +6,8 @@ Changelog to track updates for this mod.
 ## [Unreleased]
 
 ### Added
+- Experimental Android Java-launcher audio support with Android/Bionic native selection and private-storage extraction.
+- A pinned four-ABI Android native build pipeline, JNI compatibility checks, and Android-capable Fabric/NeoForge packaging.
 
 ### Changed
 

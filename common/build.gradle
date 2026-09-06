@@ -36,6 +36,56 @@ dependencies {
 
     implementation("com.google.zxing:core:3.5.3")
 }
+// Android binaries are built separately with the NDK, never downloaded at game startup.
+def androidNativesDir = rootProject.file(rootProject.findProperty('androidNativesDir')
+    ?: 'native-resources/android/resources')
+sourceSets.main.resources.srcDir(androidNativesDir)
+
+processResources {
+    from(rootProject.file('LICENSE')) { into 'META-INF/imp-licenses' }
+    from(rootProject.files('THIRD_PARTY_NOTICES.md', 'RELEASING.md')) { into 'META-INF/imp-licenses' }
+    from(rootProject.file('licenses')) { into 'META-INF/imp-licenses/licenses' }
+    from(rootProject.file('scripts/android-natives/LICENSE')) {
+        into 'META-INF/imp-licenses'
+        rename { 'android-tooling-APACHE-2.0.txt' }
+    }
+    inputs.property('requireAndroidNatives', rootProject.findProperty('withAndroidNatives') ?: 'false')
+    inputs.property('androidLavaplayerVersion', rootProject.lava_version_youtube)
+    doFirst {
+        boolean required = rootProject.findProperty('withAndroidNatives') == 'true'
+            || rootProject.hasProperty('androidNativesDir')
+        if (required || androidNativesDir.exists()) {
+            if (rootProject.lava_version_youtube != '2.2.4') {
+                throw new GradleException('Re-audit Android JNI compatibility before changing LavaPlayer 2.2.4.')
+            }
+            ['android-aarch64', 'android-armhf', 'android-x86', 'android-x86-64'].each { target ->
+                ["natives/${target}/libconnector.so", "META-INF/android-natives/${target}/provenance.json"].each { resource ->
+                    if (!new File(androidNativesDir, resource).isFile()) {
+                        throw new GradleException("Missing Android native resource: ${resource}. See scripts/android-natives/README.md.")
+                    }
+                }
+            }
+        } else {
+            logger.lifecycle('Building without Android natives. See scripts/android-natives/README.md to enable Pojav support.')
+        }
+    }
+}
+
+sourceSets {
+    androidNativeTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+tasks.register('androidNativeSupportTest', JavaExec) {
+    dependsOn androidNativeTestClasses
+    classpath = sourceSets.androidNativeTest.runtimeClasspath
+    mainClass = 'dev.felnull.imp.client.lava.AndroidNativeSupportTest'
+}
+tasks.named('check') {
+    dependsOn tasks.named('androidNativeSupportTest')
+}
+
 /*
 publishing {
     publications {
