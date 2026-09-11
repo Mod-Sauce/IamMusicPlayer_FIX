@@ -9,6 +9,8 @@ import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
@@ -44,6 +46,20 @@ public class HUDSettingScreen extends Screen {
         this.addRenderableWidget(Button.builder(Component.translatable("text.autoconfig.iammusicplayer.option.hud_pos.cancel"), button -> Minecraft.getInstance().setScreen(parent)).pos(width - 115, height - 30)
                 .size(50, 20)
                 .build());
+        var slider = new AbstractSliderButton(width - 170 - 110, height - 30, 100, 20, Component.translatable("text.autoconfig.iammusicplayer.option.hud_pos.scale"),
+                IamMusicPlayer.getConfig().hudScale) {
+            @Override
+            protected void updateMessage() {
+                setMessage(Component.translatable("text.autoconfig.iammusicplayer.option.hud_pos.scale", value));
+            }
+
+            @Override
+            protected void applyValue() {
+                IamMusicPlayer.getConfig().hudScale = (float) Math.clamp(value + 0.5, 0.5, 1.5);
+            }
+        };
+        slider.updateMessage();
+        this.addRenderableWidget(slider);
         widget = new MusicInfoWidget(0, 0, hudWidth, hudHeight, 37);
         widget.setPosition((int) (x * width / 2f), y * hudHeight);
         widget.setMusic(new Music(UUID.randomUUID(),

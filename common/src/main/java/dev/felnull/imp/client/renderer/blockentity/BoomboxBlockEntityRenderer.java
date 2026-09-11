@@ -2,6 +2,7 @@ package dev.felnull.imp.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.block.MusicManagerBlock;
@@ -9,11 +10,13 @@ import dev.felnull.imp.blockentity.BoomboxBlockEntity;
 import dev.felnull.imp.client.gui.screen.monitor.boombox.BoomboxMonitor;
 import dev.felnull.imp.client.model.IMPModels;
 import dev.felnull.imp.client.renderer.item.AntennaItemRenderer;
+import dev.felnull.imp.integration.SableIntegration;
+import dev.felnull.imp.integration.sable.SableClientUtil;
 import dev.felnull.imp.item.IMPItems;
 import dev.felnull.imp.util.IMPItemUtil;
-import org.modsauce.otyacraftenginerenewed.client.renderer.blockentity.AbstractBlockEntityRenderer;
-import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -21,6 +24,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import org.modsauce.otyacraftenginerenewed.client.renderer.blockentity.AbstractBlockEntityRenderer;
+import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +44,7 @@ public class BoomboxBlockEntityRenderer extends AbstractBlockEntityRenderer<Boom
         var state = blockEntity.getBlockState();
         var data = blockEntity.getBoomboxData();
         renderBoombox(poseStack, multiBufferSource, state.getValue(MusicManagerBlock.FACING), i, j, f, data, data.getHandleRaisedProgress(f) / (float) data.getHandleRaisedMax(), multiBufferSource.getBuffer(Sheets.cutoutBlockSheet()));
+        renderLyric(blockEntity, f, poseStack, multiBufferSource, i);
     }
 
     public static void renderBoombox(PoseStack poseStack, MultiBufferSource multiBufferSource, Direction direction, int i, int j, float f, BoomboxData data, float handleRaised, VertexConsumer vertexConsumer) {
@@ -174,5 +181,48 @@ public class BoomboxBlockEntityRenderer extends AbstractBlockEntityRenderer<Boom
         var monitor = BoomboxMonitor.createdBoomBoxMonitor(type, null);
         monitors.put(type, monitor);
         return monitor;
+    }
+
+    private void renderLyric(BoomboxBlockEntity blockEntity, float f, PoseStack poseStack, MultiBufferSource multiBufferSource, int i){
+        blockEntity.updateLyric();
+        var l = blockEntity.getLyric();
+        if(l == null){return;}
+        Camera camera = getContext().getBlockEntityRenderDispatcher().camera;
+        poseStack.pushPose();
+        poseStack.translate(0.5, 1.625, 0.5);
+
+        Vec3 lookVector = SableIntegration.INSTANCE.isEnable() ?
+                SableClientUtil.getLookVector(blockEntity.getBlockPos(), camera, f) : null;
+        if (lookVector != null) {
+            double length = Math.sqrt(lookVector.x * lookVector.x + lookVector.z * lookVector.z);
+            float yRot = (float) Math.toDegrees(Math.atan2(-lookVector.x, lookVector.z));
+            float xRot = (float) -Math.toDegrees(Math.atan2(lookVector.y, length));
+            poseStack.mulPose(Axis.YN.rotationDegrees(yRot));
+            poseStack.mulPose(Axis.XN.rotationDegrees(-xRot));
+        } else {
+            poseStack.mulPose(Axis.YN.rotationDegrees(camera.getYRot()));
+            poseStack.mulPose(Axis.XN.rotationDegrees(-camera.getXRot()));
+        }
+        var font = getContext().getFont();
+        poseStack.scale(-0.025F, -0.025F, 0.025F);
+        float opacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
+        int bgColor = (int) (opacity * 255.0F) << 24;
+        var part = l.getPart((float) blockEntity.getRingerPosition() / 1000);
+        float y = 0f;
+
+        if (part.getA() != null && !part.getA().isEmpty()) {
+            float currentLineWidth = (float) (-font.width(part.getA()) / 2);
+            font.drawInBatch(part.getA(), currentLineWidth, -y, 0xFF_AAAAAA, false,
+                    poseStack.last().pose(), multiBufferSource, Font.DisplayMode.NORMAL,
+                    bgColor, i);
+        }
+
+        if (part.getB() != null && !part.getB().isEmpty()) {
+            float translatedLineWidth = (float) (-font.width(part.getB()) / 2);
+            font.drawInBatch(part.getB(), translatedLineWidth, -y - 12, 0xFF_FFFFFF, false,
+                    poseStack.last().pose(), multiBufferSource, Font.DisplayMode.NORMAL,
+                    bgColor, i);
+        }
+        poseStack.popPose();
     }
 }

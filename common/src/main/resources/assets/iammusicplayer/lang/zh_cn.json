@@ -409,5 +409,7 @@
   "text.autoconfig.iammusicplayer.option.webDAVConfig.baseUrl": "基础 URL",
   "text.autoconfig.iammusicplayer.option.webDAVConfig.rootPath": "根路径",
   "text.autoconfig.iammusicplayer.option.webDAVConfig.username": "用户名",
-  "text.autoconfig.iammusicplayer.option.webDAVConfig.password": "密码"
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.password": "密码",
+  "text.autoconfig.iammusicplayer.option.hud_pos.scale": "缩放：%.1f",
+  "imp.text.webdav.warning": "[IamMusicPlayer] WebDAV 加密正在使用默认的后备密钥。请在服务器环境中设置 IMP_WEBDAV_SECRET，以保护已存储的 WebDAV 凭据。"
 }

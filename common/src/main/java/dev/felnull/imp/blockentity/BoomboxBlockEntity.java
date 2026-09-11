@@ -6,7 +6,7 @@ import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.music.lyric.IMPLyricGetter;
 import dev.felnull.imp.integration.SableIntegration;
-import dev.felnull.imp.integration.sable.PosGetter;
+import dev.felnull.imp.integration.sable.SableUtil;
 import dev.felnull.imp.inventory.BoomboxMenu;
 import dev.felnull.imp.inventory.IMPMenus;
 import dev.felnull.imp.item.BoomboxItem;
@@ -44,7 +44,6 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     private final UUID ringerUUID = UUID.randomUUID();
 
     @Nullable
-    // Server-side only
     private volatile Lyric lyric;
     private volatile boolean gettingLyric = false;
 
@@ -283,7 +282,7 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
             }
         }
         if(SableIntegration.INSTANCE.isEnable())
-            return PosGetter.getReallyPos(level, getBlockPos());
+            return SableUtil.getReallyPos(level, getBlockPos());
         return getBlockPos().getCenter();
     }
 
@@ -304,7 +303,8 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
     }
 
     public void updateLyric(){
-        if(IamMusicPlayer.getConfig().serverLyric && lyric == null && !gettingLyric && boomboxData.isPlaying()) {
+        if(level == null)return;
+        if((IamMusicPlayer.getConfig().serverLyric || level.isClientSide) && lyric == null && !gettingLyric && boomboxData.isPlaying()) {
             var source = getRingerMusicSource();
             if(source == null)return;
             var getter = IMPLyricGetter.getGetter(source);
@@ -324,7 +324,6 @@ public class BoomboxBlockEntity extends IMPBaseEntityBlockEntity implements IBoo
         }
     }
 
-    // Server-side only
     public @Nullable Lyric getLyric() {
         return lyric;
     }

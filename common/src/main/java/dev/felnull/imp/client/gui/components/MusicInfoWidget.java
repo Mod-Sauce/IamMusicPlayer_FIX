@@ -86,11 +86,15 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
             height = 59;
         else
             height = 49;
+
+        var poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.scale(IamMusicPlayer.getConfig().hudScale, IamMusicPlayer.getConfig().hudScale, IamMusicPlayer.getConfig().hudScale);
+
         OERenderUtils.drawFill(guiGraphics.pose(), getX(), getY(), width + getX(), height + getY(),
                 0xFFDCDCDC);
         OERenderUtils.drawFill(guiGraphics.pose(), getX() + 1, getY() + 1, width + getX() - 1, height + getY() - 1, 0xFFFFFFFF);
 
-        var poseStack = guiGraphics.pose();
         poseStack.pushPose();
         poseStack.translate(0, mc.font.lineHeight + 3, OERenderUtils.MIN_BREADTH * 2);
         OERenderUtils.drawTexture(PLAYING_BG_TEXTURE, poseStack, getX(), getY(), 0f, 0f, width, baseHeight, width, baseHeight);
@@ -158,6 +162,7 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
                             width - 5,
                             "...")),
                     getX() + width / 2f, getY() + baseHeight + 2 + mc.font.lineHeight);
+        poseStack.popPose();
     }
 
     @Override

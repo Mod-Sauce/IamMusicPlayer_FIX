@@ -408,6 +408,7 @@
   "text.autoconfig.iammusicplayer.option.webDAVConfig.baseUrl": "Base URL",
   "text.autoconfig.iammusicplayer.option.webDAVConfig.rootPath": "Root Path",
   "text.autoconfig.iammusicplayer.option.webDAVConfig.username": "Username",
-  "text.autoconfig.iammusicplayer.option.webDAVConfig.password": "Password"
-
+  "text.autoconfig.iammusicplayer.option.webDAVConfig.password": "Password",
+  "text.autoconfig.iammusicplayer.option.hud_pos.scale": "Scale: %.1f",
+  "imp.text.webdav.warning": "[IamMusicPlayer] WebDAV encryption is using the default fallback secret. Set IMP_WEBDAV_SECRET in the server environment to protect stored WebDAV credentials."
 }

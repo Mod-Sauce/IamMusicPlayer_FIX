@@ -113,6 +113,10 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("hud")
   public int hudY = 10;
 
+  @ConfigEntry.Gui.Excluded
+  @ConfigEntry.Category("hud")
+  public float hudScale = 1;
+
   @ConfigEntry.Category("integration")
   @ConfigEntry.Gui.RequiresRestart
   public boolean createIntegration = true;

@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 public final class ServerWebDAVSecurityHandler {
     private static final Logger LOGGER = LogManager.getLogger(ServerWebDAVSecurityHandler.class);
     private static final int PLAYER_WARNING_DELAY_TICKS = 60;
-    private static final Component DEFAULT_SECRET_WARNING = Component.literal("[IamMusicPlayer] WebDAV encryption is using the default fallback secret. Set IMP_WEBDAV_SECRET in the server environment to protect stored WebDAV credentials.")
+    private static final Component DEFAULT_SECRET_WARNING = Component.translatable("imp.text.webdav.warning")
             .withStyle(ChatFormatting.YELLOW);
 
     private static boolean warnInConsole;
