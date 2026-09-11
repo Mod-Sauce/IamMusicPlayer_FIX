@@ -22,3 +22,4 @@ classes/
 *.launch
 .env
 .cache/
+/native-resources/

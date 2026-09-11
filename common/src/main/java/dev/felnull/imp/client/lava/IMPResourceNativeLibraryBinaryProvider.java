@@ -14,6 +14,13 @@ public class IMPResourceNativeLibraryBinaryProvider extends ResourceNativeLibrar
 
     @Override
     public InputStream getLibraryStream(SystemType systemType, String libraryName) {
-        return super.getLibraryStream(systemType, libraryName);
+        InputStream stream = super.getLibraryStream(systemType, libraryName);
+        if (stream == null && systemType.formatSystemName().startsWith("android-")) {
+            throw new UnsatisfiedLinkError("This IMP build does not include /natives/"
+                + systemType.formatSystemName() + "/" + systemType.formatLibraryName(libraryName)
+                + ". Install a build packaged with the Android native resources. "
+                + "Desktop Linux and unmodified MoeMusic connector binaries are not compatible.");
+        }
+        return stream;
     }
 }

@@ -1,0 +1,181 @@
+name: Android Lavaplayer natives
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/android-natives/**
+      - .github/workflows/android-natives.yml
+      - common/src/main/java/dev/felnull/imp/client/lava/**
+      - common/src/androidNativeTest/java/dev/felnull/imp/client/lava/**
+      - '**/*.gradle'
+      - gradle.properties
+      - licenses/**
+      - LICENSE
+      - THIRD_PARTY_NOTICES.md
+      - RELEASING.md
+  pull_request:
+    paths:
+      - scripts/android-natives/**
+      - .github/workflows/android-natives.yml
+      - common/src/main/java/dev/felnull/imp/client/lava/**
+      - common/src/androidNativeTest/java/dev/felnull/imp/client/lava/**
+      - '**/*.gradle'
+      - gradle.properties
+      - licenses/**
+      - LICENSE
+      - THIRD_PARTY_NOTICES.md
+      - RELEASING.md
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a, x86, x86_64]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install host tools and pinned NDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y cmake make autoconf automake libtool pkg-config curl python3
+          echo "JAVA_HOME=${JAVA_HOME_17_X64}" >> "$GITHUB_ENV"
+          echo "${JAVA_HOME_17_X64}/bin" >> "$GITHUB_PATH"
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --install 'ndk;27.3.13750724'
+          echo "ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/27.3.13750724" >> "$GITHUB_ENV"
+      - name: Test pipeline guards
+        run: python3 -B scripts/android-natives/test_pipeline.py
+      - name: Audit, build and validate
+        run: python3 -B scripts/android-natives/build.py --abi '${{ matrix.abi }}'
+      - name: Upload validated ABI resources
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-native-resource-${{ matrix.abi }}
+          path: build/android-natives/${{ matrix.abi }}/package/resources/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Archive corresponding sources and relink objects
+        shell: bash
+        run: |
+          tar -czf 'build/android-natives/rebuild-${{ matrix.abi }}.tar.gz' \
+            scripts/android-natives \
+            build/android-natives/downloads \
+            'build/android-natives/${{ matrix.abi }}/fork' \
+            'build/android-natives/${{ matrix.abi }}/deps' \
+            'build/android-natives/${{ matrix.abi }}/cmake' \
+            'build/android-natives/${{ matrix.abi }}/reports' \
+            'build/android-natives/${{ matrix.abi }}/package/resources/META-INF/android-natives' \
+            LICENSE licenses THIRD_PARTY_NOTICES.md RELEASING.md
+      - name: Upload source and relink kit (retain with releases)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-rebuild-${{ matrix.abi }}
+          path: build/android-natives/rebuild-${{ matrix.abi }}.tar.gz
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload diagnostic reports
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-native-diagnostics-${{ matrix.abi }}
+          path: build/android-natives/${{ matrix.abi }}/reports/
+          if-no-files-found: ignore
+
+  package:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: android-native-resource-*
+          merge-multiple: true
+          path: package/resources
+      - name: Check complete resource set and checksum package
+        shell: bash
+        run: |
+          set -euo pipefail
+          for target in android-aarch64 android-armhf android-x86 android-x86-64; do
+            test -s "package/resources/natives/${target}/libconnector.so"
+            test -s "package/resources/META-INF/android-natives/${target}/provenance.json"
+          done
+          cd package
+          find resources -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+          sha256sum -c SHA256SUMS
+      - name: Upload resource overlay for local builds and releases
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-natives-resources
+          path: package/
+          if-no-files-found: error
+          retention-days: 30
+
+  mod-build:
+    needs: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Select Java 21
+        shell: bash
+        run: |
+          echo "JAVA_HOME=${JAVA_HOME_21_X64}" >> "$GITHUB_ENV"
+          echo "${JAVA_HOME_21_X64}/bin" >> "$GITHUB_PATH"
+      - name: Download Android resources outside Gradle's clean directory
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: android-natives-resources
+          path: native-resources/android
+      - name: Verify resource checksums
+        working-directory: native-resources/android
+        run: sha256sum -c SHA256SUMS
+      - name: Test launcher detection
+        run: |
+          javac -d build/android-native-tests common/src/main/java/dev/felnull/imp/client/lava/AndroidNativeSupport.java common/src/androidNativeTest/java/dev/felnull/imp/client/lava/AndroidNativeSupportTest.java
+          java -cp build/android-native-tests dev.felnull.imp.client.lava.AndroidNativeSupportTest
+      - name: Build Android-capable mods
+        run: sh gradlew build -PwithAndroidNatives=true --no-daemon
+      - name: Verify final mod jars
+        run: |
+          python3 -B - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts/android-natives')
+          from verify_mod import verify
+          for platform in ('fabric', 'neoforge'):
+              jars = [p for p in Path(platform, 'build/libs').glob('*.jar')
+                      if not p.name.endswith(('-sources.jar', '-dev.jar', '-dev-shadow.jar'))]
+              if len(jars) != 1:
+                  raise SystemExit(f'Expected one final {platform} jar, got {jars}')
+              verify(jars[0])
+          PY
+      - name: Archive exact project source for distribution
+        run: git --no-pager archive --format=tar.gz --prefix=imp-source/ --output=build/imp-source.tar.gz HEAD
+      - name: Upload Android-capable Fabric and NeoForge mods
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-capable-mods
+          path: |
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+            build/imp-source.tar.gz
+            LICENSE
+            licenses/
+            THIRD_PARTY_NOTICES.md
+            RELEASING.md
+            !**/*-dev-shadow.jar
+            !**/*-dev.jar
+            !**/*-sources.jar
+          if-no-files-found: error
+          retention-days: 30
