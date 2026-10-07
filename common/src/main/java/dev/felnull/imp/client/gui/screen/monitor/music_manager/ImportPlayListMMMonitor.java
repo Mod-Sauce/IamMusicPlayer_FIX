@@ -2,6 +2,7 @@ package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
+import dev.felnull.imp.client.bilibili.BiliBiliSpaceUtil;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.music.playlist.IPlaylistResolver;
 import dev.felnull.imp.networking.IMPPackets;
@@ -28,7 +29,9 @@ public class ImportPlayListMMMonitor extends ImportPlayListBaseMMMonitor{
     }
 
     @Override
-    protected MusicManagerBlockEntity.MonitorType getParentType() {
+    protected MusicManagerBlockEntity.MonitorType fallbackParentType() {
+        // Fallback for "origin unknown" only: overriding getParentType() would shadow the
+        // base "return to the real origin" branch.
         return MusicManagerBlockEntity.MonitorType.ADD_ONLINE_PLAY_LIST;
     }
 
@@ -53,7 +56,9 @@ public class ImportPlayListMMMonitor extends ImportPlayListBaseMMMonitor{
 
     private void startImportMusicLoader(String id) {
         stopImportMusicLoader();
-        importMusicLoaderThread = getPlaylistLoader().getResolver(id);
+        // ⚠️ Not getPlaylistLoader().getResolver(id) directly: in "UP 主页" mode the videos are already loaded and
+        // the resolver must not walk the space a second time (see ImportPlayListBaseMMMonitor#createImportResolver).
+        importMusicLoaderThread = createImportResolver(id);
         importMusicLoaderThread.start();
     }
 
@@ -80,8 +85,23 @@ public class ImportPlayListMMMonitor extends ImportPlayListBaseMMMonitor{
         NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_ADD, new IMPPackets.MusicPlayListMessage(getImportPlayListName(),
                 getImportImageInfo(), false,
                 false, List.of(),
-                BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), getMusics()).toRFBB());
+                BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity()), getMusics(), importSource()).toRFBB());
         resetImport();
         insMonitor(MusicManagerBlockEntity.MonitorType.PLAY_LIST);
+    }
+
+    /**
+     * The 歌单来源 the import creates the playlist with ({@code space:<mid>} / {@code fav:<fid>} / empty); 「刷新」 works
+     * from it. **Only** the B站 loader may set it — another platform's numeric id reads as a B站 favourites folder.
+     */
+    private String importSource() {
+        var loader = getPlaylistLoader();
+        if (loader == null || !"bilibili".equals(loader.getID()))
+            return "";
+        // 用**解析结果**的 id（`space:<mid>` / 裸 fid），别用输入框原文：粘链接时 `sourceOf(原文)` 是空串，
+        // 那个歌单就没有来源、永远不出现「刷新」键。
+        var res = importMusicLoaderThread == null ? null : importMusicLoaderThread.getResult();
+        var id = res == null ? null : res.id();
+        return BiliBiliSpaceUtil.sourceOf(id == null || id.isBlank() ? getImportPlayList() : id);
     }
 }

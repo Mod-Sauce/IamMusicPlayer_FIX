@@ -7,8 +7,10 @@ import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonit
 import dev.felnull.imp.client.music.IMPMusicTrackerFactory;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.imp.client.music.MusicEntry;
+import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.inventory.MusicManagerMenu;
 import dev.felnull.imp.music.resource.ImageInfo;
+import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.music.tracker.IMPMusicTrackers;
 import net.minecraft.client.Minecraft;
@@ -21,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,10 @@ import java.util.UUID;
 public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu> {
     private static final Minecraft mc = Minecraft.getInstance();
     private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "textures/gui/container/music_manager/music_manager_base.png");
+    /** [Diagnostic] Last logged "insSelectedPlayList" line: the log is written only when this line changes (one fixed key). */
+    private static final Map<String, String> SEL_PLAYLIST_LAST_LOG = new HashMap<>();
+    /** Same-key cap: a long session would otherwise pile up keys; 64 is far above the real key count. */
+    private static final int SEL_PLAYLIST_MAX_KEYS = 64;
     private final Map<MusicManagerBlockEntity.MonitorType, MusicManagerMonitor> monitors = new HashMap<>();
     private final UUID musicPlayerId = UUID.randomUUID();
     public boolean lastSearch;
@@ -52,12 +59,73 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
     }
 
     public void insMonitor(MusicManagerBlockEntity.MonitorType type) {
+        // A 简介-link visit only survives on the pages that can show that video
+        if (type != MusicManagerBlockEntity.MonitorType.DETAIL_MUSIC
+                && type != MusicManagerBlockEntity.MonitorType.BILIBILI_PARTS)
+            guestMusic = null;
         if (monitor != null && monitor.getType() != type)
             stopMusic();
+
+        // The back target of the import-related screens: IMP navigation relies on the server-side BE type sync, so a screen's own
+        // hard-coded parent type is not the real origin (the import pages are pulled in by the clipboard auto-jump from any screen).
+        // The real origin is recorded here for them to use: {@link #getLastMonitorType()}.
+        if (monitor != null && monitor.getType() != type)
+            lastMonitorType = monitor.getType();
 
         var tag = new CompoundTag();
         tag.putString("type", type.getName());
         instruction("set_monitor", tag);
+    }
+
+    /** Previous screen (only **client-initiated** jumps record it); null = no client jump yet in this session. */
+    @Nullable
+    public MusicManagerBlockEntity.MonitorType getLastMonitorType() {
+        return lastMonitorType;
+    }
+
+    @Nullable
+    private MusicManagerBlockEntity.MonitorType lastMonitorType;
+
+    /**
+     * The latest batch of "search music" results.
+     */
+    private final List<MusicMediaResult> searchResults = new ArrayList<>();
+
+    /**
+     * The **channel** that produced this batch (`MusicMedia` name, such as `kugou` / `netease`).
+     */
+    private volatile String searchResultsLoaderType = "auto";
+
+    /** A **snapshot** of the search results (written by the worker thread, read by the render thread, hence the locked copy). */
+    public List<MusicMediaResult> getSearchResults() {
+        synchronized (searchResults) {
+            return List.copyOf(searchResults);
+        }
+    }
+
+    /** Whether any search results from **this channel** are left: empty **or** a different channel counts as "no". */
+    public boolean hasSearchResultsFor(@Nullable String loaderType) {
+        synchronized (searchResults) {
+            return !searchResults.isEmpty() && loaderType != null
+                    && loaderType.equals(searchResultsLoaderType);
+        }
+    }
+
+    /** Replace with a new batch of results (called by the search thread). `loaderType` = which channel produced them. */
+    public void setSearchResults(@Nullable List<MusicMediaResult> results, String loaderType) {
+        synchronized (searchResults) {
+            searchResults.clear();
+            if (results != null)
+                searchResults.addAll(results);
+            if (loaderType != null)
+                searchResultsLoaderType = loaderType;
+        }
+    }
+
+    public void clearSearchResults() {
+        synchronized (searchResults) {
+            searchResults.clear();
+        }
     }
 
     public void insAddPlayList(UUID playListId) {
@@ -155,17 +223,62 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
     }
 
     public void insSelectedPlayList(UUID selectedPlayList) {
+        // [Diagnostic] Log every **client-initiated** selection change (to tell "the client cleared it" from "the
+        // server lost it"), and only when the value changes, so a repeat call does not log the same thing again.
+        if (dev.felnull.imp.client.music.link.LinkDebug.isEnabled()) {
+            var selNow = selectedPlayList == null ? "null" : selectedPlayList.toString();
+            if (!selNow.equals(SEL_PLAYLIST_LAST_LOG.get("insSelectedPlayList"))) {
+                if (SEL_PLAYLIST_LAST_LOG.size() > SEL_PLAYLIST_MAX_KEYS)
+                    SEL_PLAYLIST_LAST_LOG.clear();
+                SEL_PLAYLIST_LAST_LOG.put("insSelectedPlayList", selNow);
+                dev.felnull.imp.client.music.link.LinkDebug.log("insSelectedPlayList",
+                        "to", selNow,
+                        "from", callerFrame());
+            }
+        }
         var tag = new CompoundTag();
         if (selectedPlayList != null)
             tag.putUUID("playlist", selectedPlayList);
         instruction("set_selected_playlist", tag);
     }
 
+    /** For diagnostics: the first non-JDK frame in the current thread (who changed the selection). */
+    private static String callerFrame() {
+        try {
+            for (var e : Thread.currentThread().getStackTrace()) {
+                var cn = e.getClassName();
+                if (cn.startsWith("java.") || cn.startsWith("jdk.") || cn.startsWith("sun.")
+                        || cn.equals(MusicManagerScreen.class.getName()))
+                    continue;
+                return cn + "#" + e.getMethodName() + ":" + e.getLineNumber();
+            }
+        } catch (Throwable ignored) {
+        }
+        return "(unknown)";
+    }
+
     public void insSelectedMusic(@Nullable UUID selectedMusic) {
+        // Picking another song ends a 简介-link visit
+        guestMusic = null;
         var tag = new CompoundTag();
         if (selectedMusic != null)
             tag.putUUID("music", selectedMusic);
         instruction("set_selected_music", tag);
+    }
+
+    /** A video opened from a description link: the 详情/视频信息 pages show it until the user picks another song. */
+    @Nullable
+    private Music guestMusic;
+
+    @Nullable
+    public Music getGuestMusic() {
+        return guestMusic;
+    }
+
+    /** Opens a description link inside the mod (never added to the playlist). */
+    public void openGuestMusic(Music music) {
+        this.guestMusic = music;
+        insMonitor(MusicManagerBlockEntity.MonitorType.DETAIL_MUSIC);
     }
 
     public void insSelectedPlayer(@Nullable UUID selectedPlayer) {
@@ -255,6 +368,16 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
                 changeScreenMonitor(getBEMonitorType());
             monitor.tick();
         }
+    }
+
+    /**
+     * Key events are handed to the current monitor first ({@code MusicManagerMonitor}), then to the default handling.
+     */
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (monitor != null && monitor.keyPressed(keyCode, scanCode, modifiers))
+            return true;
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

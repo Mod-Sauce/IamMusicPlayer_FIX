@@ -3,6 +3,7 @@ package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
+import dev.felnull.imp.client.music.MusicSyncManager;
 import dev.felnull.imp.client.music.playlist.IPlaylistResolver;
 import dev.felnull.imp.networking.IMPPackets;
 import net.minecraft.client.gui.GuiGraphics;
@@ -43,7 +44,8 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
     }
 
     @Override
-    protected MusicManagerBlockEntity.MonitorType getParentType() {
+    protected MusicManagerBlockEntity.MonitorType fallbackParentType() {
+        // Fallback for "origin unknown" only (see the base method of the same name).
         return MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT;
     }
 
@@ -53,7 +55,9 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
 
     private void startImportMusicLoader(String id) {
         stopImportMusicLoader();
-        importMusicLoaderThread = getPlaylistLoader().getResolver(id);
+        // ⚠️ Not getPlaylistLoader().getResolver(id) directly: in "UP 主页" mode the videos are already loaded and
+        // the resolver must not walk the space a second time (see ImportPlayListBaseMMMonitor#createImportResolver).
+        importMusicLoaderThread = createImportResolver(id);
         importMusicLoaderThread.start();
     }
 
@@ -71,8 +75,13 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
         if(isImporting())return;
         if(importMusicLoaderThread.isFailure())return;
 
-        if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock)
-            NetworkManager.sendToServer(IMPPackets.MULTIPLE_MUSIC_ADD, new IMPPackets.MultipleMusicAddMessage(musicManagerBlock.getSelectedPlayList(mc.player), getMusics(), BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toRFBB());
+        if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock) {
+            var playList = musicManagerBlock.getSelectedPlayList(mc.player);
+            NetworkManager.sendToServer(IMPPackets.MULTIPLE_MUSIC_ADD, new IMPPackets.MultipleMusicAddMessage(playList, getMusics(), BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toRFBB());
+            // The server broadcasts nothing after an add, so drop this list's sync stamp or the songs we just imported
+            // would not show up until the 60 s cache expired / the page was reopened (see MusicSyncManager#invalidateMusics).
+            MusicSyncManager.getInstance().invalidateMusics(playList);
+        }
         resetImport();
         importMusicLoaderThread = null;
         insMonitor(MusicManagerBlockEntity.MonitorType.PLAY_LIST);
