@@ -16,18 +16,30 @@ public class MusicPlayList implements TagSerializable, IIMPComparable {
     private AuthorityInfo authority;
     private List<UUID> musicList = new ArrayList<>();
     private long createDate;
+    /**
+     * Where this playlist was imported from — empty for a non-import ({@code space:<mid>} = an UP's submissions,
+     * {@code fav:<fid>} = a favourites folder); this is what the 「刷新」 key works from, and it is NBT only, so an old
+     * save reads it as empty and a jar without the field ignores it.
+     */
+    private String source = "";
 
     public MusicPlayList() {
 
     }
 
     public MusicPlayList(UUID uuid, String name, ImageInfo image, AuthorityInfo authority, List<UUID> musicList, long createDate) {
+        this(uuid, name, image, authority, musicList, createDate, "");
+    }
+
+    /** Full form: only the import paths know a {@link #getSource() source}, everything else uses the 6-argument one. */
+    public MusicPlayList(UUID uuid, String name, ImageInfo image, AuthorityInfo authority, List<UUID> musicList, long createDate, String source) {
         this.uuid = uuid;
         this.name = name;
         this.image = image;
         this.authority = authority;
         this.musicList = musicList;
         this.createDate = createDate;
+        this.source = source == null ? "" : source;
     }
 
     @Override
@@ -38,6 +50,7 @@ public class MusicPlayList implements TagSerializable, IIMPComparable {
         tag.put("Authority", authority.createSavedTag());
         OENbtUtils.writeUUIDList(tag, "MusicList", musicList);
         tag.putLong("CreateDate", createDate);
+        tag.putString("Source", source == null ? "" : source);
     }
 
     @Override
@@ -48,6 +61,28 @@ public class MusicPlayList implements TagSerializable, IIMPComparable {
         this.authority = TagSerializable.loadSavedTag(tag.getCompound("Authority"), new AuthorityInfo());
         OENbtUtils.readUUIDList(tag, "MusicList", musicList);
         this.createDate = tag.getLong("CreateDate");
+        // Missing key (an older save) = "no import source" — never null
+        this.source = tag.contains("Source") ? tag.getString("Source") : "";
+    }
+
+    /** The import source (see the field); never {@code null}. */
+    public String getSource() {
+        return source == null ? "" : source;
+    }
+
+    /** Used by the import (on creation) and by the 「刷新」 claim path (see {@code MusicManager#setPlayListSource}). */
+    public void setSource(String source) {
+        this.source = source == null ? "" : source;
+    }
+
+    /** Cover setter for the narrow refresh write path (see {@code MusicManager#setPlayListSource}). */
+    public void setImage(ImageInfo image) {
+        this.image = image;
+    }
+
+    /** Name setter for the same narrow write path (a legacy "&lt;UP 名&gt; 的投稿" gets its space dropped). */
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getName() {

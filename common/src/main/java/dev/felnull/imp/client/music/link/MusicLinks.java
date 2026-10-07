@@ -254,9 +254,10 @@ public final class MusicLinks {
             // Part: take ?p=N from the original text and append it to the identifier as the suffix -p<N> (non-Bilibili platform text never has it, so they are unaffected)
             if ("bilibili".equals(loaderId)) {
                 // The space form resolves to a prefixed identifier (a bare mid would be ambiguous with a
-                // favourites-folder id) and never carries a part suffix, so it returns before the page handling
-                var space = SPACE_URL.matcher(text);
-                if (space.find())
+                // favourites-folder id) and never carries a part suffix, so it returns before the page handling.
+                // Only when that rule matched: a favourites link carries a space URL too, so it must not hijack it.
+                var space = matcher.pattern() == SPACE_URL ? SPACE_URL.matcher(text) : null;
+                if (space != null && space.find())
                     return new MusicLink(name, loaderId, kind, BiliBiliSpaceUtil.ID_PREFIX + space.group(1));
 
                 var urlPage = URL_PAGE_PARAM.matcher(text);
