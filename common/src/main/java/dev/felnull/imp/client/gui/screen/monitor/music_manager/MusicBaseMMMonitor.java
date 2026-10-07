@@ -42,7 +42,10 @@ public abstract class MusicBaseMMMonitor extends ImageNameBaseMMMonitor {
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
         this.playControlButton = this.addRenderWidget(new SmartButton(getStartX() + this.playBackX, getStartY() + this.playBackY, 20, 20, PLAYBACK_CONTROL_TEXT, n -> {
-            if (getScreen().isMusicPlaying()) {
+            // ⚠️ This criterion must match the **button icon** (see `isMusicPlaying() || isMusicLoading()` in tick()), otherwise the loading state
+            // takes the else branch and restarts the playback. Clicking "stop" = cancel the in-flight load as well
+            // (MusicEngine.stop → the loading side throws MusicLoadCancelled).
+            if (getScreen().isMusicPlaying() || getScreen().isMusicLoading()) {
                 getScreen().stopMusic();
             } else {
                 if (!getMusicSource().isEmpty())
