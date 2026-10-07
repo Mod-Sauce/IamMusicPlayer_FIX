@@ -1,9 +1,9 @@
 package dev.felnull.imp.client.gui.screen.monitor.cassette_deck;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.architectury.utils.value.BooleanValue;
 import dev.architectury.utils.value.FloatValue;
 import dev.architectury.utils.value.IntValue;
+import dev.architectury.utils.value.Value;
 import dev.felnull.fnjl.util.FNStringUtil;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.CassetteDeckBlockEntity;
@@ -67,17 +67,22 @@ public class PlaybackCDMonitor extends CassetteDeckMonitor {
 
         this.playBackControlWidget.visible = isPlayBack();
 
-        this.loopControlWidget = this.addRenderWidget(new LoopControlWidget(getStartX() + 189, getStartY() + 31, new BooleanValue() {
+        this.loopControlWidget = this.addRenderWidget(new LoopControlWidget(getStartX() + 189, getStartY() + 31, new Value<>() {
             @Override
-            public void accept(boolean t) {
-                getScreen().insLoop(t);
+            public void accept(Integer t) {
+                // LoopControlWidget's "states" are numbered by the boombox state semantics:
+                // **state0 = repeat one (loop arrow), state1 = sequential (right arrow)**.
+                // The cassette deck has only on/off: state0 = loop on, state1 = off.
+                getScreen().insLoop(t != null && t == 0);
             }
 
             @Override
-            public boolean getAsBoolean() {
-                return getScreen().isLoop();
+            public Integer get() {
+                // On = state0 (loop arrow), off = state1 (right arrow) — matching the cassette deck's
+                // "off = right arrow, on = loop arrow" appearance.
+                return getScreen().isLoop() ? 0 : 1;
             }
-        }));
+        }, 1));
 
         this.loopControlWidget.visible = isPlayBack();
 

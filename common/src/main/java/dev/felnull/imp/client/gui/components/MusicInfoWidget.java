@@ -70,11 +70,19 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
             lyricGetter = null;
         }
         if(music == null)return;
+        // ⚠️ The lyric text on the HUD is **opt-in** (`enableHudLyric`, off by default): when it is off we do not even
+        // start the getter, so nothing is fetched and no lyric request is spent on a box that will not show it.
+        if(!HudLyricEnabled())return;
         var getter = IMPLyricGetter.getGetter(music.getSource());
         if(getter != null){
             lyricGetter = getter;
             lyricGetter.run(music.getSource());
         }
+    }
+
+    /** Whether the HUD shows lyric text at all (config, default off). */
+    public static boolean HudLyricEnabled() {
+        return dev.felnull.imp.IamMusicPlayer.getConfig().enableHudLyric;
     }
 
     @Override
@@ -148,7 +156,11 @@ public class MusicInfoWidget extends AbstractWidget implements IIMPSmartRender {
 
         if(lyric == null)return;
         if(lyric.isEmpty())return;
-        var part = lyric.getPart(data.getMusicPosition() / 1000f);
+        // The box height above already accounts for the lyric lines, but a config change while the widget lives must
+        // not draw text the user switched off
+        if(!HudLyricEnabled())return;
+        // The same audio-latency compensation as the in-world lyrics (see IMPConfig#lyricOffsetMs).
+        var part = lyric.getPart(data.getMusicPosition() / 1000f - Lyric.lyricOffsetSeconds());
         drawSmartCenterText(guiGraphics, Component.translatable(OEClientUtils.getWidthOmitText(part.getA(),
                         width - 5,
                         "...")),

@@ -21,6 +21,9 @@ public class LavaMusicPlayer extends BaseMusicPlayer {
     public LavaMusicPlayer(UUID musicPlayerId, AudioTrack audioTrack, MusicSource musicSource) {
         super(musicPlayerId, new AudioInfo(LavaPlayerManager.getInstance().getChannel(), LavaPlayerManager.getInstance().getSampleRate(), LavaPlayerManager.getInstance().getBit()), musicSource, audioTrack.getInfo().isStream ? 5 : 16);
         this.audioTrack = audioTrack;
+        // The stream's own length: the playlist entry may store more than the playable audio (a multi-part video stores the sum of all parts while this track is part 1 alone),
+        // and LavaPlayer feeds silence forever after a track ends, so without this bound the tail is dead air while the progress bar keeps running.
+        setRealDuration(audioTrack.getDuration());
     }
 
     @Override

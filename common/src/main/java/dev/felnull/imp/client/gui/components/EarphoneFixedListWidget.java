@@ -3,6 +3,7 @@ package dev.felnull.imp.client.gui.components;
 import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.NotNull;
@@ -32,5 +33,11 @@ public class EarphoneFixedListWidget extends IMPBaseFixedListWidget<EarphoneSave
 
     public void setConnected(@Nullable UUID connected) {
         this.connected = connected;
+    }
+
+    /** The row background is drawn **by ourselves** (using the mod's own `widgets.png`), not left to the library default. */
+    @Override
+    protected void renderOneButton(GuiGraphics guiGraphics, EarphoneSaveData.EarphoneLocation item, int lnum, int bnum, int bX, int bY, int mx, int my, float parTick, boolean selected) {
+        drawSmartButtonBox(guiGraphics, bX, bY, getIndividualWidth(), getIndividualHeight(), this.getYImage(this.isEntryHovered(bnum)));
     }
 }

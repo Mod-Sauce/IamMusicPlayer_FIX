@@ -1,8 +1,8 @@
 package dev.felnull.imp.client.gui.screen.monitor.boombox;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.architectury.utils.value.BooleanValue;
 import dev.architectury.utils.value.FloatValue;
+import dev.architectury.utils.value.Value;
 import dev.felnull.fnjl.util.FNStringUtil;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.client.gui.components.LoopControlWidget;
@@ -25,17 +25,18 @@ public abstract class PlayBackFiniteBaseBMMonitor extends PlayBackBaseBMonitor {
     @Override
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
-        this.loopControlWidget = this.addRenderWidget(new LoopControlWidget(getStartX() + (isShortTipProgressBar() ? 156 : 189), getStartY() + (isShortTipProgressBar() ? 15 : 26), new BooleanValue() {
+        // The loop widget uses **the same three states as the loop button** (0 sequential / 1 repeat one / 2 shuffle), maxState=2.
+        this.loopControlWidget = this.addRenderWidget(new LoopControlWidget(getStartX() + (isShortTipProgressBar() ? 156 : 189), getStartY() + (isShortTipProgressBar() ? 15 : 26), new Value<>() {
             @Override
-            public void accept(boolean t) {
-                setLoop(t);
+            public void accept(Integer t) {
+                insLoopState(t == null ? 0 : t);
             }
 
             @Override
-            public boolean getAsBoolean() {
-                return isLoop();
+            public Integer get() {
+                return getLoopState();
             }
-        }));
+        }, 2));
 
         this.loopControlWidget.visible = canPlay();
 
@@ -78,12 +79,13 @@ public abstract class PlayBackFiniteBaseBMMonitor extends PlayBackBaseBMonitor {
         return (isShortProgressBar(data) ? 133 : 176) - (isShortTipProgressBar() ? (isShortProgressBar(data) ? 2 : 10) : 0);
     }
 
-    private void setLoop(boolean loop) {
-        getScreen().insLoop(loop);
+    /** Three loop states (0 sequential / 1 repeat one / 2 shuffle) — the same data as the loop button. */
+    private int getLoopState() {
+        return getScreen().getLoopState();
     }
 
-    private boolean isLoop() {
-        return getScreen().isLoop();
+    private void insLoopState(int state) {
+        getScreen().insLoopState(state);
     }
 
     private void setPause() {
@@ -116,7 +118,7 @@ public abstract class PlayBackFiniteBaseBMMonitor extends PlayBackBaseBMonitor {
         float onPxH = monitorHeight / (float) height;
 
         renderSmartTextSpriteColorSprite(poseStack, multiBufferSource, ptx, 38f - (isShortProgressBar(data) ? 0 : 36f), 17f, OERenderUtils.MIN_BREADTH * 2, onPxW, onPxH, monitorHeight, 0XFF115D0E, i);
-        renderLoopControl(poseStack, multiBufferSource, isShortTipProgressBar() ? 156 : 189, isShortTipProgressBar() ? 15 : 26, OERenderUtils.MIN_BREADTH * 2, i, j, onPxW, onPxH, monitorHeight, data.isLoop());
+        renderLoopControl(poseStack, multiBufferSource, isShortTipProgressBar() ? 156 : 189, isShortTipProgressBar() ? 15 : 26, OERenderUtils.MIN_BREADTH * 2, i, j, onPxW, onPxH, monitorHeight, data.getLoopState());
         renderPlayProgress(poseStack, multiBufferSource, isShortProgressBar(data) ? 48 : 12, 28, OERenderUtils.MIN_BREADTH * 2, i, j, onPxW, onPxH, monitorHeight, getProgressBarWidth(data), (float) data.getMusicPosition() / (float) getPlayBackSource(data).getDuration());
     }
 }

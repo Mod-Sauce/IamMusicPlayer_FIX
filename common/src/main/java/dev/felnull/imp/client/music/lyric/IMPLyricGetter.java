@@ -89,5 +89,17 @@ public class IMPLyricGetter {
                 return new QQMusicLyricGetter();
             }
         });
+
+        register(new LyricGetterType() {
+            @Override
+            public String getLoaderType() {
+                return "kugou";
+            }
+
+            @Override
+            public LyricGetter getLyricGetter() {
+                return new KuGouLyricGetter();
+            }
+        });
     }
 }

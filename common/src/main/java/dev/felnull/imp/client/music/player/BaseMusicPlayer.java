@@ -27,6 +27,8 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     private final Map<UUID, MusicSpeaker> speakers = new HashMap<>();
     private final Map<UUID, MusicSpeaker> preSpeakers = new HashMap<>();
     private final List<ReadEntry> readEntries = new ArrayList<>();
+    /** Speakers that were already there when the load started (their queue head is `startPosition`). */
+    private final Set<UUID> loadTimeSpeakers = new HashSet<>();
     private final Map<Long, ReadWait> waits = new HashMap<>();
     private final AudioInfo audioInfo;
     private final MusicSource musicSource;
@@ -42,11 +44,15 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     private boolean finished;
     private boolean loadEnd;
     private long delay;
+    /** The skip the speakers really applied; it differs from `delay` when that is negative or clamped, and the lyric clock has to follow the audio, not the request. */
+    private long appliedSkip = Long.MIN_VALUE;
     private long startPosition = -1;
     private long startTime = -1;
     private long pauseTime = -1;
     private long totalPauseTime;
     private long totalReadTime;
+    /** Real length of the loaded stream in ms ({@code <= 0} = unknown); see {@link #playBoundMs()}. */
+    private long realDuration = -1;
     private AudioInputStream stream;
 
     protected BaseMusicPlayer(UUID musicPlayerId, AudioInfo audioInfo, MusicSource musicSource, int aheadLoad) {
@@ -65,16 +71,30 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     }
 
     @Override
+    public java.util.Map<UUID, dev.felnull.imp.music.tracker.MusicTracker> getSpeakerTrackers() {
+        var out = new java.util.LinkedHashMap<UUID, dev.felnull.imp.music.tracker.MusicTracker>();
+        speakers.forEach((id, sp) -> out.put(id, sp.getTracker()));
+        preSpeakers.forEach((id, sp) -> out.put(id, sp.getTracker()));
+        return out;
+    }
+
+    @Override
     public void play(long delay) {
         this.delay = delay;
         this.startTime = System.currentTimeMillis();
         this.playing = true;
 
+        // [Sync probe] One line per playback start: `delay` is what the server told us to skip (client load time).
+        dev.felnull.imp.client.music.link.LinkDebug.log(
+                "IMP music sync | play",
+                "delay", delay, "startPosition", startPosition,
+                "live", musicSource.isLive(), "source", musicSource.getIdentifier());
+
         if (pause)
             this.pauseTime = System.currentTimeMillis();
 
-        for (MusicSpeaker value : speakers.values()) {
-            speakerUpdate(value);
+        for (Map.Entry<UUID, MusicSpeaker> entry : speakers.entrySet()) {
+            speakerUpdate(entry.getKey(), entry.getValue());
         }
 
         for (UUID uuid : preSpeakers.keySet()) {
@@ -127,7 +147,8 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public void pause() {
-        if (playing)
+        // An already-open window keeps its first stamp: re-stamping would under-count `totalPauseTime`, which moves the lyric clock forward past whole lines.
+        if (playing && this.pauseTime < 0)
             this.pauseTime = System.currentTimeMillis();
 
         this.pause = true;
@@ -145,7 +166,8 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public void resume() {
-        if (playing) {
+        // Only a really open window may be closed: `pauseTime` is -1 otherwise, and `now - (-1)` would poison the clock.
+        if (playing && this.pauseTime >= 0) {
             this.totalPauseTime += System.currentTimeMillis() - this.pauseTime;
             this.pauseTime = -1;
         }
@@ -179,7 +201,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
                 return;
             }
             speaker.tick();
-            speakerUpdate(speaker);
+            speakerUpdate(id, speaker);
             speaker.releaseBuffers();
         });
 
@@ -292,9 +314,24 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         }
     }
 
-    private void speakerUpdate(MusicSpeaker speaker) {
-        if (!this.pause && playing && !speaker.isPlaying() && speaker.canPlay())
-            speaker.play(0);
+    private void speakerUpdate(UUID id, MusicSpeaker speaker) {
+        if (!this.pause && playing && !speaker.isPlaying() && speaker.canPlay()) {
+            // [Sync fix] The lyric clock already includes the load time the server told us to skip (`delay`) while this queue head still sits at `startPosition`,
+            // so the audio must skip the same amount or the lyrics run `delay` ms ahead. Only speakers present at load time start at `startPosition`; late-added ones must not skip.
+            boolean loadTime = loadTimeSpeakers.contains(id);
+            long skip = loadTime
+                    ? Math.max(0, Math.min(getPosition() - startPosition, Math.max(0, totalReadTime - 1000)))
+                    : 0;
+            // The first speaker to start pins the clock: a negative or clamped delay never reaches the audio, and a later speaker's larger skip must not move it.
+            if (loadTime && this.appliedSkip == Long.MIN_VALUE)
+                this.appliedSkip = skip;
+            dev.felnull.imp.client.music.link.LinkDebug.log(
+                    "IMP music sync | audioStart",
+                    "delay", delay, "skip", skip,
+                    "lyricClock", getPosition(), "heardBase", startPosition + skip,
+                    "queuedMs", totalReadTime, "source", musicSource.getIdentifier());
+            speaker.play(skip);
+        }
     }
 
     @Override
@@ -365,6 +402,9 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         this.stream = loadedData.stream;
 
         var spks = loadedData.speakers;
+        // Speakers present at load time are the only ones whose audio queue starts at `startPosition`
+        // (see speakerUpdate: only those may skip ahead).
+        loadTimeSpeakers.addAll(spks);
         for (UUID spk : spks) {
             var sp = preSpeakers.remove(spk);
             if (sp != null) speakers.put(spk, sp);
@@ -390,13 +430,14 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public long getPosition() {
+        long d = this.appliedSkip != Long.MIN_VALUE ? this.appliedSkip : this.delay;
         if (this.startTime < 0)
-            return this.startPosition + delay;
+            return this.startPosition + d;
 
         long pt = this.totalPauseTime;
         if (this.pauseTime >= 0)
             pt += System.currentTimeMillis() - this.pauseTime;
-        return System.currentTimeMillis() - this.startTime - pt + this.startPosition + this.delay;
+        return System.currentTimeMillis() - this.startTime - pt + this.startPosition + d;
     }
 
 
@@ -407,7 +448,25 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public boolean waitDestroy() {
-        return finished || (!musicSource.isLive() && getPosition() >= musicSource.getDuration());
+        return finished || (playBoundMs() >= 0 && getPosition() >= playBoundMs());
+    }
+
+    /**
+     * The length playback must actually stop at, in ms ({@code -1} = live stream, no bound) — not simply
+     * {@link MusicSource#getDuration()}: a B站 multi-part entry stores the sum of all parts while only part 1 plays, so
+     * the smaller of it and the subclass's real length ({@link #setRealDuration}) wins: dead air only, never audio.
+     */
+    protected long playBoundMs() {
+        if (musicSource.isLive())
+            return -1;
+        if (realDuration <= 0)
+            return musicSource.getDuration();
+        return Math.min(musicSource.getDuration(), realDuration);
+    }
+
+    /** The real length of the loaded stream (from the audio track); see {@link #playBoundMs()}. */
+    protected void setRealDuration(long durationMs) {
+        this.realDuration = durationMs;
     }
 
     @Override
@@ -469,7 +528,14 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         for (int i = 0; i < input.aheadLoad(); i++) {
             if (isDestroy()) break;
 
-            if (!musicSource.isLive() && (st + 1000) > musicSource.getDuration()) {
+            // [Silent tail] The stored duration is the whole multi-part video while only part 1 is playable, and LavaPlayer keeps feeding silence after a track ends,
+            // so reading to the stored duration produced dead air — stop at the real audio length instead (see {@link #playBoundMs()}).
+            if (playBoundMs() >= 0 && st >= playBoundMs()) {
+                end = true;
+                break;
+            }
+
+            if (!musicSource.isLive() && (st + 1000) > playBoundMs()) {
                 Arrays.fill(buffer, (byte) 0);
             }
 
@@ -511,10 +577,11 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     }
 
     private void insertBuffer(MusicSpeakerFixedInfo info, MusicBuffer buffer) {
-        for (MusicSpeaker value : speakers.values()) {
+        for (Map.Entry<UUID, MusicSpeaker> entry : speakers.entrySet()) {
+            var value = entry.getValue();
             if (!value.isDead() && value.getFixedInfo().equals(info)) value.insertBuffer(buffer);
 
-            speakerUpdate(value);
+            speakerUpdate(entry.getKey(), value);
         }
     }
 
