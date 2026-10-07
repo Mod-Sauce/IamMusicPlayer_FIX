@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.Date;
@@ -35,7 +36,7 @@ public class JoinPlayListFixedListWidget extends PlayListFixedListWidget {
         drawSmartFixedWidthText(poseStack, Component.literal(item.getName()), bX + sx, bY + 3, 90);
         drawSmartFixedWidthText(poseStack, Component.literal(MyPlayListFixedListWidget.dateFormat.format(new Date(item.getCreateDate()))), bX + sx, bY + 17, 90);
 
-        OERenderUtils.drawPlayerFace(poseStack, item.getAuthority().getOwnerName(), bX + sx + 101, bY + 2, 9);
+        PlayerFaceRenderer.drawFace(poseStack, item.getAuthority().getOwner(), bX + sx + 101, bY + 2, 9);
         drawSmartFixedWidthText(poseStack, Component.literal(item.getAuthority().getOwnerName()), bX + sx + 112, bY + 3, 90);
         drawSmartFixedWidthText(poseStack, Component.translatable("imp.text.musicCount", item.getMusicList().size()), bX + sx + 101, bY + 17, 45);
         drawSmartFixedWidthText(poseStack, Component.translatable("imp.text.playerCount", item.getPlayerCount()), bX + sx + 156, bY + 17, 45);
@@ -62,7 +63,7 @@ public class JoinPlayListFixedListWidget extends PlayListFixedListWidget {
         drawSmartFixedWidthText(guiGraphics, Component.literal(item.getName()), bX + sx, bY + 3, 90);
         drawSmartFixedWidthText(guiGraphics, Component.literal(MyPlayListFixedListWidget.dateFormat.format(new Date(item.getCreateDate()))), bX + sx, bY + 17, 90);
 
-        OERenderUtils.drawPlayerFace(guiGraphics.pose(), item.getAuthority().getOwnerName(), bX + sx + 101, bY + 2, 9);
+        PlayerFaceRenderer.drawFace(guiGraphics.pose(), item.getAuthority().getOwner(), bX + sx + 101, bY + 2, 9);
         drawSmartFixedWidthText(guiGraphics, Component.literal(item.getAuthority().getOwnerName()), bX + sx + 112, bY + 3, 90);
         drawSmartFixedWidthText(guiGraphics, Component.translatable("imp.text.musicCount", item.getMusicList().size()), bX + sx + 101, bY + 17, 45);
         drawSmartFixedWidthText(guiGraphics, Component.translatable("imp.text.playerCount", item.getPlayerCount()), bX + sx + 156, bY + 17, 45);

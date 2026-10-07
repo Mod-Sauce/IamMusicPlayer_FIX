@@ -1,12 +1,13 @@
 package dev.felnull.imp.client.gui.components;
 
+import dev.felnull.imp.client.gui.PlayerNameUtil;
 import dev.felnull.imp.music.resource.MusicPlayList;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
-import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,10 +34,11 @@ public class MemberPlayersFixedListWidget extends PlayersFixedListWidget {
 
     @Override
     protected void renderOneButton(GuiGraphics guiGraphics, UUID item, int lnum, int bnum, int bX, int bY, int mx, int my, float parTick, boolean selected) {
-        drawSmartButtonBox(guiGraphics, bX, bY, getIndividualWidth(), getIndividualHeight(), this.getYImage(this.isEntryHovered(bnum)));
-        OERenderUtils.drawPlayerFace(guiGraphics.pose(), item, bX + 1, bY + 1, getIndividualHeight() - 2);
-        drawSmartFixedWidthText(guiGraphics, getMessage(lnum), bX + getIndividualHeight() + 1, bY + 2f, getIndividualWidth() - 2 - getIndividualHeight() - 1);
         var mp = playListSupplier.get();
+        drawSmartButtonBox(guiGraphics, bX, bY, getIndividualWidth(), getIndividualHeight(), this.getYImage(this.isEntryHovered(bnum)));
+        PlayerFaceRenderer.drawFace(guiGraphics.pose(), item, bX + 1, bY + 1, getIndividualHeight() - 2);
+        // Names go through PlayerNameUtil: for the playlist owner use the name stored in the data (still there when offline), the rest go through the original lookup chain.
+        drawSmartFixedWidthText(guiGraphics, PlayerNameUtil.playerNameComponent(mp, item), bX + getIndividualHeight() + 1, bY + 2f, getIndividualWidth() - 2 - getIndividualHeight() - 1);
         if (mp != null) {
             drawSmartFixedWidthText(guiGraphics, mp.getAuthority().getAuthorityType(item).getText(), bX + getIndividualHeight() + 1, bY + 11f, getIndividualWidth() - 2 - getIndividualHeight() - 1);
         }

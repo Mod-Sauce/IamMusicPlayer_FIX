@@ -12,11 +12,15 @@ import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IMPConfig;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
+import dev.felnull.imp.client.IMPKeyMappings;
 import dev.felnull.imp.client.cache.AudioCacheManager;
+import dev.felnull.imp.client.cache.PlayerNameCache;
 import dev.felnull.imp.client.commands.ClientMusicCommand;
+import dev.felnull.imp.client.gui.screen.PartJumpScreen;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.client.music.MusicEngine;
 import dev.felnull.imp.client.music.MusicSyncManager;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import dev.felnull.imp.client.renderer.item.IMPItemRenderers;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.entity.IRingerPartyParrot;
@@ -152,11 +156,18 @@ public class ClientHandler {
     }
   }
 
+  /** 上一次保存时"会让已加载音频失效"的开关值（缓存相关）：只有它们变了才值得打断播放去重载引擎。 */
+  private static String audioReloadKey;
+
   private static InteractionResult onConfigSave(
     ConfigHolder<IMPConfig> configHolder,
     IMPConfig impConfig
   ) {
-    MusicEngine.getInstance().destroy();
+    // 不能无条件 destroy：保存配置（点排序、改音量…）也会走到这里，会把正在播的歌打断。
+    var key = impConfig.globalCache + "|" + impConfig.enableCache;
+    if (audioReloadKey != null && !audioReloadKey.equals(key))
+      MusicEngine.getInstance().destroy();
+    audioReloadKey = key;
     AudioCacheManager.updatePath();
     return InteractionResult.PASS;
   }
@@ -196,6 +207,19 @@ public class ClientHandler {
   }
 
   private static void ontClientTick(Minecraft instance) {
+    // Warm the faces of the people the UI is about to show (one lookup every few ticks, stops when done) — so opening
+    // a page does not mean watching every avatar load. See PlayerFaceRenderer#warmUp for why the sync is the moment.
+    PlayerFaceRenderer.tick();
+    // 「跳分P」 hotkey (default `~`): opens the bottom input line. ⚠️ `consumeClick` is drained on every tick, screens
+    // included — otherwise presses queue up and fire in a burst when the player returns to the world; and the line is
+    // only opened from the world, since once up it owns the keyboard itself (see PartJumpScreen).
+    while (IMPKeyMappings.PART_JUMP.consumeClick()) {
+      if (instance.screen == null && instance.player != null)
+        instance.setScreen(new PartJumpScreen());
+    }
+    // Record the names of "who is currently online" into the local cache (internally throttled to 2 seconds + saved only on change) —
+    // this way, when the other player is offline later, the UI still shows the real name instead of a UUID string (see PlayerNameCache / PlayerNameUtil).
+    PlayerNameCache.tick(instance);
     if (
       PatchouliIntegration.INSTANCE.isEnable()
     ) IMPItemRenderers.manualItemRenderer.tick();

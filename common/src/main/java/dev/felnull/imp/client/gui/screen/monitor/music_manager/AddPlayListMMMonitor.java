@@ -12,6 +12,7 @@ import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.music.MusicSyncManager;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import dev.felnull.imp.music.resource.MusicPlayList;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -99,7 +100,7 @@ public class AddPlayListMMMonitor extends MusicManagerMonitor {
 
                 poseStack.pushPose();
                 poseStack.translate((sx + 101) * onPxW, monitorHeight - (20 + (k * 28) + 2 + 9) * onPxH, OERenderUtils.MIN_BREADTH * 4);
-                OERenderUtils.renderPlayerFaceSprite(poseStack, multiBufferSource, playList.getAuthority().getOwnerName(), onPxH * 9, i, j);
+                PlayerFaceRenderer.drawFaceSprite(poseStack, multiBufferSource, playList.getAuthority().getOwner(), onPxH * 9, i, j);
                 poseStack.popPose();
 
                 renderSmartTextSprite(poseStack, multiBufferSource, Component.literal(playList.getAuthority().getOwnerName()), sx + 114, 20 + (k * 28) + 5, OERenderUtils.MIN_BREADTH * 4, onPxW, onPxH, monitorHeight, i);

@@ -48,4 +48,22 @@ public class IMPNbtUtil {
     public static void readMusicPlayLists(CompoundTag tag, String name, List<MusicPlayList> musics) {
         OENbtUtils.readList(tag, name, musics, n -> TagSerializable.loadSavedTag(((CompoundTag) n).getCompound("m"), new MusicPlayList()), Tag.TAG_COMPOUND);
     }
+
+    /**
+     * The **transport stage** of server-sent names: a flat name map (UUID → display name), carried at the tail of the sync packet.
+     */
+    public static CompoundTag writePlayerNames(CompoundTag tag, String name, Map<UUID, String> names) {
+        return OENbtUtils.writeUUIDKeyMap(tag, name, names, n -> {
+            var rettag = new CompoundTag();
+            rettag.putString("n", n == null ? "" : n);
+            return rettag;
+        });
+    }
+
+    public static void readPlayerNames(CompoundTag tag, String name, Map<UUID, String> names) {
+        OENbtUtils.readUUIDKeyMap(tag, name, names, n -> {
+            var n2 = ((CompoundTag) n).getString("n");
+            return n2.isEmpty() ? null : n2;
+        }, Tag.TAG_COMPOUND);
+    }
 }

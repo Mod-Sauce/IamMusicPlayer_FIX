@@ -4,9 +4,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import dev.felnull.imp.client.gui.PlayerNameUtil;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget;
-import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
-import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,8 +14,7 @@ import java.util.UUID;
 public class PlayersFixedListWidget extends IMPBaseFixedListWidget<UUID> {
     public PlayersFixedListWidget(int x, int y, int width, int height, @NotNull Component message, int entryShowCount, @NotNull List<UUID> entryList, @Nullable FixedListWidget.PressEntry<UUID> onPressEntry, @Nullable FixedListWidget<UUID> old) {
         super(x, y, width, height, message, entryShowCount, entryList, n -> {
-            var str = OEClientUtils.getPlayerNameByUUID(n).orElseGet(n::toString);
-            return Component.literal(str);
+            return PlayerNameUtil.playerNameComponent(n);
         }, onPressEntry, false, old);
     }
 
@@ -29,7 +28,7 @@ public class PlayersFixedListWidget extends IMPBaseFixedListWidget<UUID> {
     @Override
     protected void renderOneButton(GuiGraphics guiGraphics, UUID item, int lnum, int bnum, int bX, int bY, int mx, int my, float parTick, boolean selected) {
         drawSmartButtonBox(guiGraphics, bX, bY, getIndividualWidth(), getIndividualHeight(), this.getYImage(this.isEntryHovered(bnum)));
-        OERenderUtils.drawPlayerFace(guiGraphics.pose(), item, bX + 1, bY + 1, getIndividualHeight() - 2);
+        PlayerFaceRenderer.drawFace(guiGraphics.pose(), item, bX + 1, bY + 1, getIndividualHeight() - 2);
         drawSmartFixedWidthText(guiGraphics, getMessage(lnum), bX + getIndividualHeight() + 1, bY + (getIndividualHeight() - 6.5f) / 2f, getIndividualWidth() - 2 - getIndividualHeight() - 1);
     }
 }
