@@ -2,6 +2,7 @@ package dev.felnull.imp.server.handler;
 
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.TickEvent;
+import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
 import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import net.minecraft.server.MinecraftServer;
@@ -25,5 +26,7 @@ public class ServerMusicHandler {
 
     private static void serverStopping(MinecraftServer server) {
         MusicRingManager.getInstance().clear();
+        // The undo table is transient server state and must not leak into a world loaded later in this JVM.
+        MusicManager.getInstance().clearUndoCache();
     }
 }

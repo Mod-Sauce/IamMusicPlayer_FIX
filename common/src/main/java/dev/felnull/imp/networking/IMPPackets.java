@@ -7,6 +7,7 @@ import dev.felnull.imp.client.handler.ClientMessageHandler;
 import dev.felnull.imp.music.resource.*;
 import dev.felnull.imp.server.handler.ServerMessageHandler;
 import dev.felnull.imp.util.IMPNbtUtil;
+import io.netty.handler.codec.DecoderException;
 import net.fabricmc.api.EnvType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.modsauce.otyacraftenginerenewed.item.location.PlayerItemLocation;
@@ -20,7 +21,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class IMPPackets {
@@ -28,28 +31,52 @@ public class IMPPackets {
     public static final ResourceLocation MUSIC_SYNC_CTS = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_sync_cts");
     public static final ResourceLocation MUSIC_PLAYLIST_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_add");
     public static final ResourceLocation MUSIC_PLAYLIST_EDIT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_edit");
+    /**
+     * Writes only the import source (and the cover when one is sent); **not** {@code MUSIC_PLAYLIST_EDIT} — that one rebuilds the whole authority from the client's data.
+     */
+    public static final ResourceLocation MUSIC_PLAYLIST_SOURCE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_source");
     public static final ResourceLocation MUSIC_PLAYLIST_CHANGE_AUTHORITY = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_change_authority");
     public static final ResourceLocation MUSIC_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_add");
     public static final ResourceLocation MUSIC_EDIT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_edit");
     public static final ResourceLocation MUSIC_OR_PLAYLIST_DELETE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_or_playlist_delete");
+    /** Batch music deletion (used by the music management page): carries multiple musicIds at once, the server judges each one by authority. */
+    public static final ResourceLocation MUSIC_DELETE_BATCH = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_delete_batch");
+    /** Undo the last batch deletion: carries the deleted songs' uuids; the server restores the content from its own copy (the 6-second undo on the music management page). */
+    public static final ResourceLocation MUSIC_DELETE_BATCH_UNDO = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_delete_batch_undo");
     public static final ResourceLocation MUSIC_RING_READY = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_ready");
     public static final ResourceLocation MUSIC_RING_READY_RESULT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_ready_result");
     public static final ResourceLocation MUSIC_RING_STATE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_state");
     public static final ResourceLocation MUSIC_RING_UPDATE_RESULT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_update_result");
     public static final ResourceLocation MULTIPLE_MUSIC_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "multiple_music_add");
+    /**
+     * The client hands the server the part list it learned for one B站 video, so the boombox can continue with the next part without that part being a playlist entry.
+     */
+    public static final ResourceLocation BILIBILI_PARTS = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_parts");
+    /** 客户端上报 B站 投稿时间，服务端拿它排「投稿日期」那一档。 */
+    public static final ResourceLocation BILIBILI_PUBDATES = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_pubdates");
+    /**
+     * The listener asks the boombox playing for them to jump to part N of the video it is on; only the part number travels, the server resolves which boombox is meant.
+     */
+    public static final ResourceLocation BOOMBOX_PART_JUMP = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "boombox_part_jump");
     public static final ResourceLocation HAND_LID_CYCLE = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "hand_lid_cycle");
 
     public static void init() {
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_SYNC_CTS, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicSyncRequestMessage(new MusicSyncRequestMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_PLAYLIST_ADD, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicPlayListAddMessage(new MusicPlayListMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_PLAYLIST_EDIT, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicPlayListEditMessage(new MusicPlayListMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_PLAYLIST_SOURCE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicPlayListSourceMessage(new PlayListSourceMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_PLAYLIST_CHANGE_AUTHORITY, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicPlayListChangeAuthority(new MusicPlayListChangeAuthorityMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_ADD, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicAddMessage(new MusicMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_EDIT, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicEditMessage(new MusicMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_RING_READY_RESULT, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicReadyResultMessage(new MusicRingReadyResultMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_RING_UPDATE_RESULT, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicUpdateResultMessage(new MusicRingUpdateResultMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_OR_PLAYLIST_DELETE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicOrPlayListDeleteMessage(new MusicOrPlayListDeleteMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_DELETE_BATCH, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicDeleteBatchMessage(new MusicDeleteBatchMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), MUSIC_DELETE_BATCH_UNDO, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMusicDeleteBatchUndoMessage(new MusicDeleteUndoMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), MULTIPLE_MUSIC_ADD, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMultipleMusicAdd(new MultipleMusicAddMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), BILIBILI_PARTS, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onBiliBiliPartsMessage(new BiliBiliPartsMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), BILIBILI_PUBDATES, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onBiliBiliPubdatesMessage(new BiliBiliPubdatesMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), BOOMBOX_PART_JUMP, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onBoomboxPartJumpMessage(new BoomboxPartJumpMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), HAND_LID_CYCLE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onHandLidCycleMessage(new LidCycleMessage(friendlyByteBuf), packetContext));
 
         // These code snippets are useful as they prevent errors caused by the server missing STC packets.
@@ -121,18 +148,34 @@ public class IMPPackets {
     public static class MultipleMusicAddMessage implements PacketMessage {
         public final UUID playlist;
         public final List<Music> musics;
+        /**
+         * Optional, one entry per music (empty = append everything): what each song is inserted directly behind — the 分P parts belong right behind their video.
+         */
+        public final List<UUID> afterMusics;
         public final BlockEntityExistence blockEntityExistence;
 
         public MultipleMusicAddMessage(FriendlyByteBuf bf) {
             this.playlist = bf.readUUID();
             this.musics = new ArrayList<>();
             IMPNbtUtil.readMusics(bf.readNbt(), "Musics", musics);
+            this.afterMusics = new ArrayList<>();
+            if (bf.readBoolean()) {
+                int n = bf.readVarInt();
+                for (int i = 0; i < n; i++)
+                    this.afterMusics.add(bf.readUUID());
+            }
             this.blockEntityExistence = BlockEntityExistence.read(bf);
         }
 
         public MultipleMusicAddMessage(UUID playlist, List<Music> musics, BlockEntityExistence blockEntityExistence) {
+            this(playlist, musics, List.of(), blockEntityExistence);
+        }
+
+        public MultipleMusicAddMessage(UUID playlist, List<Music> musics, List<UUID> afterMusics,
+                                       BlockEntityExistence blockEntityExistence) {
             this.playlist = playlist;
             this.musics = musics;
+            this.afterMusics = afterMusics == null ? List.of() : afterMusics;
             this.blockEntityExistence = blockEntityExistence;
         }
 
@@ -140,7 +183,107 @@ public class IMPPackets {
         public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeUUID(this.playlist);
             buf.writeNbt(IMPNbtUtil.writeMusics(new CompoundTag(), "Musics", musics));
+            // Written in the same order both sides read it: a flag, then the count, then the uuids (nothing at all
+            // when the list is empty — the import path keeps sending exactly the bytes it used to)
+            buf.writeBoolean(!afterMusics.isEmpty());
+            if (!afterMusics.isEmpty()) {
+                buf.writeVarInt(afterMusics.size());
+                for (var id : afterMusics)
+                    buf.writeUUID(id);
+            }
             this.blockEntityExistence.write(buf);
+            return buf;
+        }
+    }
+
+    /**
+     * One B站 video's part list (client → server, once per video; only the client can ask B站): parallel name/length lists, an empty name = labelled by its number.
+     */
+    public static class BiliBiliPartsMessage implements PacketMessage {
+        public final String bvid;
+        public final List<String> names;
+        public final List<Long> durations;
+
+        public BiliBiliPartsMessage(FriendlyByteBuf bf) {
+            this.bvid = bf.readUtf();
+            int n = bf.readVarInt();
+            this.names = new ArrayList<>(n);
+            this.durations = new ArrayList<>(n);
+            for (int i = 0; i < n; i++) {
+                this.names.add(bf.readUtf());
+                this.durations.add(bf.readLong());
+            }
+        }
+
+        public BiliBiliPartsMessage(String bvid, List<String> names, List<Long> durations) {
+            this.bvid = bvid;
+            this.names = names;
+            this.durations = durations;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUtf(this.bvid == null ? "" : this.bvid);
+            buf.writeVarInt(this.names.size());
+            for (int i = 0; i < this.names.size(); i++) {
+                buf.writeUtf(this.names.get(i) == null ? "" : this.names.get(i));
+                buf.writeLong(i < this.durations.size() && this.durations.get(i) != null ? this.durations.get(i) : 0L);
+            }
+            return buf;
+        }
+    }
+
+    /**
+     * B站 投稿时间批量上报（客户端 → 服务端）：服务端排序要用，只有客户端拿得到；bvids 与 pubdates 平行列表，重复报同一 bvid 直接覆盖。
+     */
+    public static class BiliBiliPubdatesMessage implements PacketMessage {
+        public final List<String> bvids;
+        public final List<Long> pubdates;
+
+        public BiliBiliPubdatesMessage(FriendlyByteBuf bf) {
+            int n = bf.readVarInt();
+            this.bvids = new ArrayList<>(n);
+            this.pubdates = new ArrayList<>(n);
+            for (int i = 0; i < n; i++) {
+                this.bvids.add(bf.readUtf());
+                this.pubdates.add(bf.readLong());
+            }
+        }
+
+        public BiliBiliPubdatesMessage(List<String> bvids, List<Long> pubdates) {
+            this.bvids = bvids;
+            this.pubdates = pubdates;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeVarInt(this.bvids.size());
+            for (int i = 0; i < this.bvids.size(); i++) {
+                buf.writeUtf(this.bvids.get(i) == null ? "" : this.bvids.get(i));
+                buf.writeLong(i < this.pubdates.size() && this.pubdates.get(i) != null ? this.pubdates.get(i) : 0L);
+            }
+            return buf;
+        }
+    }
+
+    /**
+     * Jump to one part of the B站 video a boombox is playing: only the part number travels, the server derives which boombox the player hears (the client cannot know).
+     */
+    public static class BoomboxPartJumpMessage implements PacketMessage {
+        /** 1-based part number the listener typed. */
+        public final int page;
+
+        public BoomboxPartJumpMessage(FriendlyByteBuf bf) {
+            this.page = bf.readVarInt();
+        }
+
+        public BoomboxPartJumpMessage(int page) {
+            this.page = page;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeVarInt(this.page);
             return buf;
         }
     }
@@ -171,6 +314,85 @@ public class IMPPackets {
             buf.writeUUID(this.musicID);
             this.blockEntityExistence.write(buf);
             buf.writeBoolean(this.music);
+            return buf;
+        }
+    }
+
+    /**
+     * Batch music deletion (music management page).
+     */
+    public static class MusicDeleteBatchMessage implements PacketMessage {
+        /**
+         * Max musics one batch may delete. The cap must really block: {@code n} comes from the client, so sizing an {@code ArrayList} with it would let a forged n crash the connection.
+         */
+        public static final int MAX_BATCH = 4096;
+
+        public final UUID playListID;
+        public final List<UUID> musicIDs;
+        public final BlockEntityExistence blockEntityExistence;
+
+        public MusicDeleteBatchMessage(FriendlyByteBuf bf) {
+            this.playListID = bf.readUUID();
+            int n = bf.readInt();
+            if (n < 0 || n > MAX_BATCH)
+                throw new DecoderException("music delete batch size: " + n);
+            var ids = new ArrayList<UUID>(n);
+            for (int i = 0; i < n; i++)
+                ids.add(bf.readUUID());
+            this.musicIDs = ids;
+            this.blockEntityExistence = BlockEntityExistence.read(bf);
+        }
+
+        public MusicDeleteBatchMessage(UUID playListID, List<UUID> musicIDs, BlockEntityExistence blockEntityExistence) {
+            this.playListID = playListID;
+            this.musicIDs = musicIDs;
+            this.blockEntityExistence = blockEntityExistence;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(this.playListID);
+            buf.writeInt(this.musicIDs.size());
+            for (UUID id : this.musicIDs)
+                buf.writeUUID(id);
+            this.blockEntityExistence.write(buf);
+            return buf;
+        }
+    }
+
+    /**
+     * Undo the last batch deletion: the sent music objects are used as a uuid list only, the content is restored from the server's own copy, so a forged object injects nothing.
+     */
+    public static class MusicDeleteUndoMessage implements PacketMessage {
+        public final UUID playListID;
+        public final List<Music> musics;
+        public final BlockEntityExistence blockEntityExistence;
+
+        public MusicDeleteUndoMessage(FriendlyByteBuf bf) {
+            this.playListID = bf.readUUID();
+            this.musics = new ArrayList<>();
+            // readNbt() returns null on an EndTag (empty compound) ⇒ guard before reading, otherwise
+            // OENbtUtils.readList dereferences null (same convention as MusicSyncResponseMessage below).
+            var musicsTag = bf.readNbt();
+            if (musicsTag != null) IMPNbtUtil.readMusics(musicsTag, "Musics", musics);
+            // Cap the decoded batch like MusicDeleteBatchMessage: this list comes from the client and is
+            // written into save data, so an oversized one is rejected instead of stored.
+            if (this.musics.size() > MusicDeleteBatchMessage.MAX_BATCH)
+                throw new DecoderException("music delete undo size: " + this.musics.size());
+            this.blockEntityExistence = BlockEntityExistence.read(bf);
+        }
+
+        public MusicDeleteUndoMessage(UUID playListID, List<Music> musics, BlockEntityExistence blockEntityExistence) {
+            this.playListID = playListID;
+            this.musics = musics;
+            this.blockEntityExistence = blockEntityExistence;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(this.playListID);
+            buf.writeNbt(IMPNbtUtil.writeMusics(new CompoundTag(), "Musics", musics));
+            this.blockEntityExistence.write(buf);
             return buf;
         }
     }
@@ -393,6 +615,10 @@ public class IMPPackets {
         public final List<UUID> invitePlayers;
         public final BlockEntityExistence blockEntityExistence;
         public final List<Music> importMusics;
+        /**
+         * Import source of a **new** playlist ({@code space:<mid>} / {@code fav:<fid>} / empty) — travels last; {@code MUSIC_PLAYLIST_EDIT} ignores it.
+         */
+        public final String source;
 
         public MusicPlayListMessage(FriendlyByteBuf bf) {
             this.uuid = bf.readUUID();
@@ -405,13 +631,23 @@ public class IMPPackets {
             this.blockEntityExistence = BlockEntityExistence.read(bf);
             this.importMusics = new ArrayList<>();
             IMPNbtUtil.readMusics(bf.readNbt(), "ImportMusics", importMusics);
+            this.source = bf.readUtf();
         }
 
         public MusicPlayListMessage(String name, ImageInfo image, boolean publiced, boolean initMember, List<UUID> invitePlayers, BlockEntityExistence blockEntityExistence, List<Music> importMusics) {
-            this(UUID.randomUUID(), name, image, publiced, initMember, invitePlayers, blockEntityExistence, importMusics);
+            this(name, image, publiced, initMember, invitePlayers, blockEntityExistence, importMusics, "");
+        }
+
+        /** The import path: same as above plus the source the created playlist should remember. */
+        public MusicPlayListMessage(String name, ImageInfo image, boolean publiced, boolean initMember, List<UUID> invitePlayers, BlockEntityExistence blockEntityExistence, List<Music> importMusics, String source) {
+            this(UUID.randomUUID(), name, image, publiced, initMember, invitePlayers, blockEntityExistence, importMusics, source);
         }
 
         public MusicPlayListMessage(UUID uuid, String name, ImageInfo image, boolean publiced, boolean initMember, List<UUID> invitePlayers, BlockEntityExistence blockEntityExistence, List<Music> importMusics) {
+            this(uuid, name, image, publiced, initMember, invitePlayers, blockEntityExistence, importMusics, "");
+        }
+
+        public MusicPlayListMessage(UUID uuid, String name, ImageInfo image, boolean publiced, boolean initMember, List<UUID> invitePlayers, BlockEntityExistence blockEntityExistence, List<Music> importMusics, String source) {
             this.uuid = uuid;
             this.name = name;
             this.image = image;
@@ -420,6 +656,7 @@ public class IMPPackets {
             this.invitePlayers = invitePlayers;
             this.blockEntityExistence = blockEntityExistence;
             this.importMusics = importMusics;
+            this.source = source == null ? "" : source;
         }
 
         @Override
@@ -434,6 +671,51 @@ public class IMPPackets {
             buf.writeNbt(OENbtUtils.writeUUIDList(new CompoundTag(), "InvitePlayers", invitePlayers));
             blockEntityExistence.write(buf);
             buf.writeNbt(IMPNbtUtil.writeMusics(new CompoundTag(), "ImportMusics", importMusics));
+            buf.writeUtf(this.source == null ? "" : this.source);
+            return buf;
+        }
+    }
+
+    /**
+     * 「刷新」 bookkeeping: remember/correct the import source, optionally a fresh cover and a rename (legacy names are **stored data**, so fixing the generator cannot touch them).
+     */
+    public static class PlayListSourceMessage implements PacketMessage {
+        public final UUID uuid;
+        public final String source;
+        public final ImageInfo image;
+        /** Optional new name; empty = keep the current one. */
+        public final String name;
+        public final BlockEntityExistence blockEntityExistence;
+
+        public PlayListSourceMessage(FriendlyByteBuf bf) {
+            this.uuid = bf.readUUID();
+            this.source = bf.readUtf();
+            this.image = TagSerializable.loadSavedTag(bf.readNbt().getCompound("Image"), new ImageInfo());
+            this.name = bf.readUtf();
+            this.blockEntityExistence = BlockEntityExistence.read(bf);
+        }
+
+        public PlayListSourceMessage(UUID uuid, String source, ImageInfo image, BlockEntityExistence blockEntityExistence) {
+            this(uuid, source, image, "", blockEntityExistence);
+        }
+
+        public PlayListSourceMessage(UUID uuid, String source, ImageInfo image, String name, BlockEntityExistence blockEntityExistence) {
+            this.uuid = uuid;
+            this.source = source == null ? "" : source;
+            this.image = image == null ? ImageInfo.EMPTY : image;
+            this.name = name == null ? "" : name;
+            this.blockEntityExistence = blockEntityExistence;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUUID(this.uuid);
+            buf.writeUtf(this.source);
+            var tag = new CompoundTag();
+            tag.put("Image", image.createSavedTag());
+            buf.writeNbt(tag);
+            buf.writeUtf(this.name);
+            blockEntityExistence.write(buf);
             return buf;
         }
     }
@@ -443,6 +725,10 @@ public class IMPPackets {
         public final UUID syncId;
         public final List<MusicPlayList> playLists;
         public final List<Music> musics;
+        /**
+         * Server-sent names: a **flat name map** (UUID → display name, see {@code IMPNbtUtil#writePlayerNames}).
+         */
+        public final Map<UUID, String> playerNames;
 
         public MusicSyncResponseMessage(FriendlyByteBuf bf) {
             this.syncType = MusicSyncType.getById(bf.readInt());
@@ -451,13 +737,37 @@ public class IMPPackets {
             IMPNbtUtil.readMusicPlayLists(bf.readNbt(), "PlayLists", playLists);
             this.musics = new ArrayList<>();
             IMPNbtUtil.readMusics(bf.readNbt(), "Musics", musics);
+            this.playerNames = new LinkedHashMap<>();
+            // Fallback: packets from an old server (without this name map) have no bytes left here ⇒ check isReadable first,
+            // so readNbt() does not throw IndexOutOfBounds and kick the player off the server.
+            if (bf.isReadable()) {
+                var namesTag = bf.readNbt();
+                if (namesTag != null) IMPNbtUtil.readPlayerNames(namesTag, "PlayerNames", playerNames);
+            }
+            applyPlayerNames();
         }
 
-        public MusicSyncResponseMessage(MusicSyncType syncType, UUID syncId, List<MusicPlayList> playLists, List<Music> musics) {
+        public MusicSyncResponseMessage(MusicSyncType syncType, UUID syncId, List<MusicPlayList> playLists, List<Music> musics, Map<UUID, String> playerNames) {
             this.syncType = syncType;
             this.syncId = syncId;
             this.playLists = playLists;
             this.musics = musics;
+            this.playerNames = playerNames;
+        }
+
+        /**
+         * Attaches the name map back onto the objects just received; an empty map returns immediately, so old peers are unaffected.
+         */
+        private void applyPlayerNames() {
+            if (playerNames == null || playerNames.isEmpty()) return;
+            for (var playList : playLists) {
+                if (playList != null && playList.getAuthority() != null)
+                    playList.getAuthority().setMemberNames(playerNames);
+            }
+            for (var music : musics) {
+                if (music != null && music.getOwner() != null)
+                    music.setOwnerName(playerNames.get(music.getOwner()));
+            }
         }
 
         @Override
@@ -466,6 +776,7 @@ public class IMPPackets {
             buf.writeUUID(syncId);
             buf.writeNbt(IMPNbtUtil.writeMusicPlayLists(new CompoundTag(), "PlayLists", playLists));
             buf.writeNbt(IMPNbtUtil.writeMusics(new CompoundTag(), "Musics", musics));
+            buf.writeNbt(IMPNbtUtil.writePlayerNames(new CompoundTag(), "PlayerNames", playerNames));
             return buf;
         }
     }
@@ -496,7 +807,11 @@ public class IMPPackets {
         PLAYLIST_CAN_JOIN,
         PLAYLIST_MY_LIST,
         MUSIC_BY_PLAYLIST,
-        UPDATE;
+        UPDATE,
+        /**
+         * Playlists I was invited to (not accepted yet). Must stay last: {@code syncType} travels by {@code ordinal()}.
+         */
+        PLAYLIST_INVITES;
 
         private static MusicSyncType getById(int id) {
             if (values().length > id)

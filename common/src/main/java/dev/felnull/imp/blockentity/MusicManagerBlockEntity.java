@@ -681,7 +681,12 @@ public class MusicManagerBlockEntity extends IMPBaseEntityBlockEntity {
         IMPORT_PLAY_LIST("import_play_list", false),
         IMPORT_MUSICS_SELECT("import_musics_select", true),
         IMPORT_PLAY_LIST_MUSICS("import_play_list_musics", true),
-        AUTHORITY("authority", true);
+        AUTHORITY("authority", true),
+        /** Music Management page: lists the music of the current playlist, supporting batch delete after selection and "delete the music a player uploaded". */
+        MUSIC_MANAGE("music_manage", true),
+        /** 「分P」 page of the selected music: lists a B站 video's parts and **previews one of them on click**; nothing is
+         * written to the playlist by it — a multi-P video stays a single entry (see {@code BiliBiliParts}). */
+        BILIBILI_PARTS("bilibili_parts", true);
         private final String name;
         private final boolean needSelectPlayList;
 
