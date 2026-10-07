@@ -118,11 +118,13 @@ public class NetEaseMusicList {
         @SerializedName("name")
         private String name;
 
+        // ⚠️ The counts below use long: a popular playlist's playCount can reach ten billion, and int would fail the whole
+        // JSON deserialization -> playlist import reports "Expected an int but was ...".
         @SerializedName("trackCount")
-        private int trackCount;
+        private long trackCount;
 
         @SerializedName("playCount")
-        private int playCount;
+        private long playCount;
 
         @SerializedName("creator")
         private Creator creator;
@@ -131,10 +133,10 @@ public class NetEaseMusicList {
         private long createTime;
 
         @SerializedName("subscribedCount")
-        private int subscribedCount;
+        private long subscribedCount;
 
         @SerializedName("shareCount")
-        private int shareCount;
+        private long shareCount;
 
         @SerializedName("tags")
         private List<String> tags = Lists.newArrayList();
@@ -155,19 +157,19 @@ public class NetEaseMusicList {
             return name;
         }
 
-        public int getTrackCount() {
+        public long getTrackCount() {
             return trackCount;
         }
 
-        public int getPlayCount() {
+        public long getPlayCount() {
             return playCount;
         }
 
-        public int getSubscribedCount() {
+        public long getSubscribedCount() {
             return subscribedCount;
         }
 
-        public int getShareCount() {
+        public long getShareCount() {
             return shareCount;
         }
 

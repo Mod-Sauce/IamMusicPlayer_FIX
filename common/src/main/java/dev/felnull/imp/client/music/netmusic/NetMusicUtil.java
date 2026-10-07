@@ -1,6 +1,7 @@
 package dev.felnull.imp.client.music.netmusic;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
@@ -39,34 +40,34 @@ public class NetMusicUtil {
 
         while (maxRedirects-- > 0) {
             connection = (HttpURLConnection) currentUrl.openConnection();
-            connection.setInstanceFollowRedirects(false); // 手动处理重定向
+            connection.setInstanceFollowRedirects(false); // handle redirects manually
 
-            // 设置请求头
+            // Set the request headers
             if (headers != null) {
                 headers.forEach(connection::setRequestProperty);
             }
 
             int responseCode = connection.getResponseCode();
 
-            // 如果是 200，直接返回当前 URL
+            // If it is 200, return the current URL directly
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 return currentUrl;
             }
 
-            // 处理 302/301/307/308 等重定向
+            // Handle redirects such as 302/301/307/308
             if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
                     responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
                     responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
                     responseCode == 307 || responseCode == 308) {
 
                 String location = connection.getHeaderField("Location");
-                connection.disconnect(); // 关闭当前连接
+                connection.disconnect(); // close the current connection
 
                 if (location == null) {
                     throw new IOException("Redirect with no Location header: " + responseCode);
                 }
 
-                // 处理相对路径的 Location
+                // Handle a relative-path Location
                 currentUrl = new URL(currentUrl, location);
             } else {
                 throw new IOException("Unexpected HTTP status: " + responseCode);
@@ -97,6 +98,146 @@ public class NetMusicUtil {
         }catch (Exception e){
             return null;
         }
+    }
+
+    /** Where the anonymous address API finally 302s to when Netease "cannot play this one" — used to decide restriction. */
+    private static final String RESTRICTED_URL_MARK = "music.163.com/404";
+
+    /** Hard cap for radio import (page guard: if the server ignores offset, without a cap it would keep requesting forever). */
+    private static final int MAX_RADIO_PROGRAMS = 5000;
+
+    /**
+     * Probe "can this music really fetch audio right now": walks the very address-fetch path used during playback (Cookie included), so the verdict matches playback.
+     */
+    public static boolean isAudioUnavailable(long id) {
+        try {
+            // The throwing variant is required: getNetMusicUrl swallows exceptions into null, which would be judged
+            // "restricted" and make the UI falsely report "login required" for songs that can play.
+            URL url = resolveAudioUrl(id);
+            if (url == null)
+                return true;
+            return url.toString().contains(RESTRICTED_URL_MARK);
+        } catch (Exception e) {
+            // A failure of the probe itself (offline, timeout, API error) is **not reported**, to avoid false positives
+            LOGGER.debug("网易云可用性探测失败：", e);
+            return false;
+        }
+    }
+
+    /**
+     * Same as {@link #getNetMusicUrl} but throwing instead of returning null, so the availability probe can tell "restricted" apart from "probe failed".
+     */
+    private static URL resolveAudioUrl(long id) throws Exception {
+        updateCookie();
+        final String baseURL = "https://music.163.com/song/media/outer/url?id=%d.mp3";
+        String url = String.format(baseURL, id);
+        if (!IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty()) {
+            var url1 = LoginNeedUtil.pasteVIPUrl(id);
+            if (url1 != null) url = url1;
+        }
+        return resolveRedirect(URL.of(new URI(url), null), WEB_API.getRequestPropertyData());
+    }
+
+    /** Whether a Netease Cookie is configured — used to tell "login required" apart from "login does not help either". */
+    public static boolean hasCookie() {
+        try {
+            return !IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * [Audio-address probe] Conclusion of {@link #probeAudioUrl}: is the address resolved by a platform really audio.
+     */
+    public enum AudioProbe {
+        /** The address answers with audio ⇒ hand it to LavaPlayer as before. */
+        OK,
+        /** The address answers with a non-audio page (404/HTML) or refuses (4xx/5xx) ⇒ must fail now. */
+        NOT_AUDIO,
+        /**
+         * The CDN **refused the request itself** (401/403/412) — a request-identity problem (headers, risk control, expired sign), **not** a paid/restricted track; must stay distinct from {@code NOT_AUDIO}.
+         */
+        REJECTED,
+        /** The probe itself failed (timeout/DNS/offline) ⇒ **not reported**: an unreachable-here address must not fail a track that may well play. */
+        UNKNOWN;
+    }
+
+    /**
+     * One lightweight probe of a resolved address: GET + {@code Range: bytes=0-1023}, never HEAD (several CDNs answer HEAD 403/405); only an explicit non-audio Content-Type counts, and a 3xx is {@link AudioProbe#UNKNOWN}.
+     */
+    public static AudioProbe probeAudioUrl(String url) {
+        return probeAudioUrl(url, null);
+    }
+
+    /**
+     * @param headers extra request headers on top of {@code Range} ({@code null} allowed); required wherever the
+     *                target CDN refuses a request that does not look like a browser — see above.
+     */
+    public static AudioProbe probeAudioUrl(String url, @Nullable Map<String, String> headers) {
+        if (url == null || url.isBlank())
+            return AudioProbe.NOT_AUDIO;
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) URI.create(url).toURL().openConnection();
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Range", "bytes=0-1023");
+            if (headers != null)
+                headers.forEach(conn::setRequestProperty);
+            // Timeouts kept at the value the other probes in this repo already use (KuGouUtil's 5s): a hung CDN must not stall the loading thread.
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(1000);
+            int code = conn.getResponseCode();
+            if (code < 200 || code > 299) {
+                // 3xx is "unknown" on purpose: see the note above (LavaPlayer's own client may still follow it successfully)
+                if (code >= 300 && code < 400)
+                    return AudioProbe.UNKNOWN;
+                // 401/403/412 = the CDN refused *us*, which is a header/identity problem rather than a bad address
+                if (code == 401 || code == 403 || code == 412)
+                    return AudioProbe.REJECTED;
+                return AudioProbe.NOT_AUDIO;
+            }
+            var type = conn.getContentType();
+            if (type == null || type.isBlank()) {
+                // No Content-Type header: read the head of the body instead, since a 404 page served as "audio" often carries no type
+                try (var in = conn.getInputStream()) {
+                    var head = in.readNBytes(1024);
+                    return looksLikeAudioHead(head) ? AudioProbe.OK : AudioProbe.NOT_AUDIO;
+                }
+            }
+            var t = type.toLowerCase(Locale.ROOT);
+            if (t.startsWith("audio/") || t.contains("octet-stream"))
+                return AudioProbe.OK;
+            if (t.contains("html") || t.contains("json") || t.contains("xml") || t.startsWith("text/"))
+                return AudioProbe.NOT_AUDIO;
+            // Any other type (a video container, a vendor-specific one) is passed through: the decoder is the final judge
+            return AudioProbe.OK;
+        } catch (Exception e) {
+            return AudioProbe.UNKNOWN;
+        } finally {
+            if (conn != null)
+                conn.disconnect();
+        }
+    }
+
+    /**
+     * Fallback for a missing Content-Type: an audio/mp4 file starts with {@code ftyp} / {@code ID3} / an MPEG sync word, which an HTML error page does not.
+     */
+    private static boolean looksLikeAudioHead(byte[] head) {
+        var n = head.length;
+        for (var i = 0; i + 1 < n; i++) {
+            // MP3 frame sync (LavaPlayer hands Netease streams to its MP3 decoder as-is)
+            if ((head[i] & 0xFF) == 0xFF && (head[i + 1] & 0xE0) == 0xE0)
+                return true;
+        }
+        var tag = new String(head, 0, Math.min(n, 32), java.nio.charset.StandardCharsets.ISO_8859_1);
+        return tag.contains("ftyp") || tag.startsWith("ID3") || tag.startsWith("OggS") || tag.startsWith("fLaC");
+    }
+
+    /** A one-line "what the probe saw" for the log; the UI text is supplied by the caller. */
+    public static String describeProbe(String url) {
+        return "probe not audio | url=" + dev.felnull.imp.client.music.link.LinkDebug.safeUrl(url);
     }
 
     @Nullable
@@ -133,19 +274,16 @@ public class NetMusicUtil {
         var data = (Map<String, Object>)GSON.fromJson(json, new TypeToken<Map<String, Object>>(){}.getType());
         var song = (Map<String, Object>)((List<Object>)data.get("songs")).get(0);
         var album = song.get("album");
-        // 大力出奇迹.png
         return new URL((String) ((Map<String, Object>)album).get("picUrl"));
     }
 
     public static List<Music> getMusicList(long id) throws Exception {
-        // 从网络音乐机里拿的代码
         updateCookie();
         var SONGS = new ArrayList<Music>();
         NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
         int count = pojo.getPlayList().getTracks().size();
         int size = Math.min(pojo.getPlayList().getTrackIds().size(), 114514);
         if (count < size) {
-            // ids过多时会无法解析，这里分开解析
             long[] ids = new long[size - count];
 
             for(int i = count; i < size; ++i) {
@@ -237,9 +375,160 @@ public class NetMusicUtil {
     }
 
     public static NetEaseMusicList.PlayList getMusicListInfo(long id) throws Exception {
-        // 从网络音乐机里拿的代码
         NetEaseMusicList pojo = GSON.fromJson(WEB_API.list(id), NetEaseMusicList.class);
         return pojo.getPlayList();
+    }
+
+    /**
+     * Fetch all programs under a "radio / host radio (podcast)".
+     */
+    public static List<Music> getRadioPrograms(long radioId) throws Exception {
+        updateCookie();
+        var songs = new ArrayList<Music>();
+        int offset = 0;
+        int limit = 1000;
+
+        while (true) {
+            var url = "https://music.163.com/api/dj/program/byradio?radioId=" + radioId
+                    + "&limit=" + limit + "&offset=" + offset;
+            var connection = (HttpURLConnection) new URL(url).openConnection();
+            WEB_API.getRequestPropertyData().forEach(connection::setRequestProperty);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(15000);
+
+            String body;
+            try (var in = connection.getInputStream()) {
+                body = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            }
+
+            var json = GSON.fromJson(body, JsonObject.class);
+            if (json == null || !json.has("programs")) break;
+            var programs = json.getAsJsonArray("programs");
+            if (programs == null || programs.isEmpty()) break;
+
+            for (var element : programs) {
+                if (!element.isJsonObject()) continue;
+                // One bad program **must not fail the whole radio import**: toMusicFromProgram calls getAsLong/getAsString
+                // on JsonNull for missing fields and throws, so isolating that single entry is enough.
+                try {
+                    var music = toMusicFromProgram(element.getAsJsonObject());
+                    if (music != null)
+                        songs.add(music);
+                } catch (Exception ex) {
+                    LOGGER.debug("跳过一条无法解析的节目：", ex);
+                }
+            }
+
+            boolean more = json.has("more") && json.get("more").getAsBoolean();
+            // Advance by the number the server actually returned, not by "how many I requested": a shortened page
+            // would break early with silent gaps, and adding `limit` on top skipped a whole page.
+            offset += programs.size();
+            if (!more || programs.isEmpty() || offset > MAX_RADIO_PROGRAMS) break;
+        }
+
+        return songs;
+    }
+
+    /**
+     * Fetch a **single program** ({@code program?id=<program id>} / {@code dj?id=<program id>}) and turn it into one music entry.
+     */
+    @Nullable
+    public static Music getProgram(long programId) throws Exception {
+        updateCookie();
+        var url = "https://music.163.com/api/dj/program/detail?id=" + programId;
+        var connection = (HttpURLConnection) new URL(url).openConnection();
+        WEB_API.getRequestPropertyData().forEach(connection::setRequestProperty);
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(15000);
+
+        String body;
+        try (var in = connection.getInputStream()) {
+            body = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+
+        var json = GSON.fromJson(body, JsonObject.class);
+        if (json == null || !json.has("program") || !json.get("program").isJsonObject())
+            return null;
+
+        return toMusicFromProgram(json.getAsJsonObject("program"));
+    }
+
+    /**
+     * Converts one Netease "program" into a Music: its {@code mainSong} (the podcast audio) yields a real address through {@code song/media/outer/url}, so it plays right after import.
+     */
+    @Nullable
+    private static Music toMusicFromProgram(JsonObject program) {
+        if (!program.has("mainSong") || !program.get("mainSong").isJsonObject())
+            return null;
+        var song = program.getAsJsonObject("mainSong");
+
+        // Field reads must all guard against JsonNull: `has("x")` returns **true** for `"x": null`,
+        // and getAsLong/getAsString then throw UnsupportedOperationException (one bad field ruins the whole import).
+        long songId = jsonLong(song, "id", 0);
+        if (songId <= 0)
+            return null;
+
+        var name = jsonStr(song, "name", "");
+        long duration = jsonLong(song, "duration", 0);
+
+        // Author: prefer the audio's own artists, falling back to the host the program belongs to
+        var author = "";
+        if (song.has("artists") && song.get("artists").isJsonArray()) {
+            var names = new ArrayList<String>();
+            for (var artist : song.getAsJsonArray("artists")) {
+                if (artist.isJsonObject()) {
+                    var n = jsonStr(artist.getAsJsonObject(), "name", "");
+                    if (!n.isEmpty())
+                        names.add(n);
+                }
+            }
+            author = String.join("、", names);
+        }
+        if (author.isEmpty() && program.has("dj") && program.get("dj").isJsonObject()) {
+            author = jsonStr(program.getAsJsonObject("dj"), "nickname", "");
+        }
+
+        String picUrl = null;
+        if (program.has("coverUrl") && !program.get("coverUrl").isJsonNull())
+            picUrl = program.get("coverUrl").getAsString();
+
+        var musicSource = new MusicSource(IMPMusicMedias.NETEASE_MUSIC.getName(),
+                String.valueOf(songId), duration);
+        var imageInfo = (picUrl == null || picUrl.isEmpty())
+                ? ImageInfo.EMPTY
+                : new ImageInfo(ImageInfo.ImageType.URL, picUrl);
+
+        return new Music(UUID.randomUUID(),
+                name,
+                author,
+                musicSource,
+                imageInfo,
+                Objects.requireNonNull(Minecraft.getInstance().player).getGameProfile().getId(),
+                System.currentTimeMillis());
+    }
+
+    /**
+     * Read a string field, returning {@code def} when the field is missing or the value is {@code null}.
+     */
+    private static String jsonStr(JsonObject json, String key, String def) {
+        if (json == null || !json.has(key) || json.get(key).isJsonNull())
+            return def;
+        try {
+            return json.get(key).getAsString();
+        } catch (Exception e) {
+            return def;
+        }
+    }
+
+    /** Read a long field, returning {@code def} when the field is missing / {@code null} / of the wrong type (reasoning in {@link #jsonStr}). */
+    private static long jsonLong(JsonObject json, String key, long def) {
+        if (json == null || !json.has(key) || json.get(key).isJsonNull())
+            return def;
+        try {
+            return json.get(key).getAsLong();
+        } catch (Exception e) {
+            return def;
+        }
     }
 
     @SuppressWarnings("all")
@@ -253,19 +542,30 @@ public class NetMusicUtil {
         if(lrc.isEmpty()){
             return null;
         }
+        // [offset:±N] in the LRC header shifts every timestamp (ms). The translation carries no offset of its own,
+        // so it inherits the original's — the two maps must keep identical keys (getPart looks up by the original's time).
+        int offsetMillis = Lyric.getLrcOffsetMillis(lrc, 0);
+        int transOffsetMillis = Lyric.getLrcOffsetMillis(transformlLrc, offsetMillis);
+        // [credit-line filter] Drop production-crew / copyright lines ("作词 : 黄家驹"); a line without an mm:ss
+        // stamp ([ti:]/[ar:]/[offset:]) never reaches here.
+        boolean filterCredits = Lyric.isCreditLineFilterEnabled();
         Float2ObjectSortedMap<String> lyricMap;
         Float2ObjectSortedMap<String> transformLyricMap = null;
         if(!transformlLrc.isEmpty()){
             transformLyricMap = new Float2ObjectLinkedOpenHashMap<>();
             for(String part: transformlLrc.split("\n")){
                 var p = getLyricPair(part);
-                if(p != null){transformLyricMap.put(p.getA(), p.getB());}
+                if(p != null && !(filterCredits && Lyric.isCreditLine(p.getB()))){
+                    transformLyricMap.put(Lyric.applyLrcOffset(p.getA(), transOffsetMillis), p.getB());
+                }
             }
         }
         lyricMap = new Float2ObjectLinkedOpenHashMap<>();
         for(String part: lrc.split("\n")){
             var p = getLyricPair(part);
-            if(p != null){lyricMap.put(p.getA(), p.getB());}
+            if(p != null && !(filterCredits && Lyric.isCreditLine(p.getB()))){
+                lyricMap.put(Lyric.applyLrcOffset(p.getA(), offsetMillis), p.getB());
+            }
         }
         return new Lyric(lyricMap, transformLyricMap);
     }
@@ -280,7 +580,7 @@ public class NetMusicUtil {
             int milliseconds = Integer.parseInt(matcher.group(3));
             String text = matcher.group(4);
 
-            // 计算总秒数（带小数）
+            // compute the total seconds (with fraction)
             float totalSeconds = minutes * 60 + seconds + milliseconds / 1000f;
             return new Pair<>(totalSeconds, text.trim());
         }

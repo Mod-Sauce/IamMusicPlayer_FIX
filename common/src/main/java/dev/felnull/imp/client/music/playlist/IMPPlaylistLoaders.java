@@ -21,8 +21,11 @@ public class IMPPlaylistLoaders {
 
     public static void init(){
         registry(new NeteasePlaylistLoader());
+        registry(new NeteaseRadioPlaylistLoader());
+        registry(new NeteaseProgramPlaylistLoader());
         registry(new YoutubePlayListLoader());
         registry(new BilibiliPlaylistLoader());
         registry(new QQMusicPlaylistLoader());
+        registry(new KuGouPlaylistLoader());
     }
 }
