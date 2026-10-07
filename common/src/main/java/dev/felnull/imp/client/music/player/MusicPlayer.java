@@ -19,6 +19,11 @@ public interface MusicPlayer<T, E> extends MusicPlayerAccess {
 
     List<MusicSpeaker> getSpeakerList();
 
+    /** 重新起一次音频时要用：这个播放器上所有 (speakerId → tracker)。 */
+    default java.util.Map<UUID, dev.felnull.imp.music.tracker.MusicTracker> getSpeakerTrackers() {
+        return java.util.Map.of();
+    }
+
     /**
      * 音楽プレイヤーを終了
      * リソースなどを解放

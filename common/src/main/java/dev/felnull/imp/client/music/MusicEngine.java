@@ -125,6 +125,11 @@ public class MusicEngine implements MusicEngineAccess {
     public void tick() {
         long startTime = System.currentTimeMillis();
 
+        if (audioRebuildRequested) {
+            audioRebuildRequested = false;
+            rebuildAudio();
+        }
+
         MusicUtils.runInvokeTasks(musicTickExecutor, "Music Engine");
 
         List<UUID> destroys = new ArrayList<>();
@@ -169,10 +174,36 @@ public class MusicEngine implements MusicEngineAccess {
         musicDestroyRunner.destroy();
         musicDestroyRunner = new MusicEngineDestroyRunner();
 
-        if (musicLoaderExecutor != null) musicLoaderExecutor.shutdown();
+        // 旧池不 shutdown：调用方可能已持有旧引用提交后续阶段，关掉会 RejectedExecutionException
         musicLoaderExecutor = createMusicLoadExecutor();
 
         LavaPlayerManager.getInstance().reload();
+    }
+
+    /** 音效引擎重载后 OpenAL 上下文被换掉：置位，下一 tick 重建音频。 */
+    private boolean audioRebuildRequested;
+
+    public void requestAudioRebuild() {
+        audioRebuildRequested = true;
+    }
+
+    /**
+     * 把在放的曲子按当前进度重载：MC 重载音效引擎会重建 OpenAL 上下文、老 source/buffer 全失效，不重建就只剩「进度在走但没声音」。
+     */
+    public void rebuildAudio() {
+        for (UUID id : new ArrayList<>(musicEntries.keySet())) {
+            var entry = musicEntries.get(id);
+            if (entry == null || !entry.isPlaying()) continue;
+            var source = entry.getSource();
+            if (source == null) continue;
+            var player = entry.getMusicPlayer();
+            var trackers = player == null ? java.util.Map.<UUID, MusicTracker>of() : player.getSpeakerTrackers();
+            long position = Math.max(0L, entry.getCurrentPosition());
+            getLogger().info("Music engine audio rebuild | id=" + id + " | position=" + position + " | speakers=" + trackers.size());
+            stop(id);
+            if (!loadAndPlay(id, source, position, false)) continue;
+            trackers.forEach((speakerId, tracker) -> addSpeaker(id, speakerId, tracker));
+        }
     }
 
     /**

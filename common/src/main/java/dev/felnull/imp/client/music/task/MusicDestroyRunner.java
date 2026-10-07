@@ -6,7 +6,10 @@ public interface MusicDestroyRunner {
     default void run(Runnable ifDestroy) {
         if (isDestroy()) {
             MusicUtils.runOnMusicTick(ifDestroy);
-            throw new RuntimeException("Stopped!");
+            // A **dedicated exception type** expresses "this slot was stopped" (cancelled) instead of matching on
+            // message text: the consumer (MusicEntry) needs it to tell "normal cancellation" from "a real failure",
+            // and matching on the message would silently break whenever the wording changes.
+            throw new dev.felnull.imp.client.music.MusicEntry.MusicLoadCancelled();
         }
     }
 

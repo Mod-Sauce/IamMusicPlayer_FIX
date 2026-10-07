@@ -2,6 +2,7 @@ package dev.felnull.imp.client.music;
 
 import dev.felnull.imp.client.music.loader.IMPMusicLoaders;
 import dev.felnull.imp.client.music.loader.MusicLoader;
+import dev.felnull.imp.client.music.link.LinkDebug;
 import dev.felnull.imp.client.music.player.MusicLoadChunk;
 import dev.felnull.imp.client.music.player.MusicPlayer;
 import dev.felnull.imp.client.music.speaker.MusicSpeaker;
@@ -9,6 +10,7 @@ import dev.felnull.imp.client.music.task.MusicDestroyRunner;
 import dev.felnull.imp.client.music.task.MusicLoaderDestroyRunner;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.music.tracker.MusicTracker;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -83,17 +85,29 @@ public class MusicEntry {
     }
 
     protected void playStart(long delay) {
+        if (LinkDebug.isEnabled())
+            LinkDebug.log("MusicEntry.playStart", "loaderType", source.getLoaderType(),
+                    "id", source.getIdentifier(), "delay", delay,
+                    "entryLoaded", loaded, "playerFields", playerFields());
         musicPlayer.get().play(delay);
     }
 
     protected boolean tick() {
         if (loadFailed) {
+            if (LinkDebug.isEnabled())
+                LinkDebug.log("MusicEntry.tick->destroy", "reason", "loadFailed=true",
+                        "loaderType", source.getLoaderType(), "id", source.getIdentifier(),
+                        "playerFields", playerFields());
             destroy();
             return false;
         }
 
         if (musicPlayer.get() != null) {
             if (musicPlayer.get().waitDestroy()) {
+                if (LinkDebug.isEnabled())
+                    LinkDebug.log("MusicEntry.tick->destroy", "reason", "waitDestroy=true",
+                            "loaderType", source.getLoaderType(), "id", source.getIdentifier(),
+                            "playerFields", playerFields());
                 destroy();
                 return false;
             }
@@ -105,6 +119,48 @@ public class MusicEntry {
         }
 
         return true;
+    }
+
+    /**
+     * [Diagnostic log only, read-only] Reads the player's private fields ({@code waitDestroy() = finished || position >= duration}), so the raw fields tell which fired; returns a placeholder when reflection fails.
+     */
+    private String playerFields() {
+        var p = musicPlayer.get();
+        if (p == null)
+            return "player=null";
+        var sb = new StringBuilder();
+        for (var f : new String[]{"loaded", "playing", "finished", "loadEnd", "reading",
+                "pause", "destroy", "totalReadTime", "startTime", "startPosition"}) {
+            try {
+                var fd = findField(p.getClass(), f);
+                if (fd == null) {
+                    sb.append(f).append("=? ");
+                    continue;
+                }
+                fd.setAccessible(true);
+                sb.append(f).append('=').append(fd.get(p)).append(' ');
+            } catch (Throwable t) {
+                sb.append(f).append("=! ");
+            }
+        }
+        try {
+            var m = p.getClass().getMethod("getLoadChunks");
+            var chunks = m.invoke(p);
+            sb.append("chunks=").append(chunks instanceof java.util.Collection<?> c ? c.size() : "?");
+        } catch (Throwable t) {
+            sb.append("chunks=!");
+        }
+        return sb.toString();
+    }
+
+    private static java.lang.reflect.Field findField(Class<?> c, String name) {
+        for (Class<?> k = c; k != null; k = k.getSuperclass()) {
+            try {
+                return k.getDeclaredField(name);
+            } catch (NoSuchFieldException ignored) {
+            }
+        }
+        return null;
     }
 
     protected void pause() {
@@ -121,8 +177,38 @@ public class MusicEntry {
 
     protected void destroy() {
         stopped = true;
+
+        // [Diagnostic log, only when LinkDebug is on] Prints the caller and the three states (from = the first **non-JDK** frame in that thread's stack).
+        if (LinkDebug.isEnabled()) {
+            var p = musicPlayer.get();
+            LinkDebug.log("MusicEntry.destroy", "loaderType", source.getLoaderType(),
+                    "id", source.getIdentifier(), "stopped->", true,
+                    "player", p == null ? "null" : p.getClass().getSimpleName(),
+                    "playing", p != null && p.isPlaying(), "isLoaded", p != null && p.isLoaded(),
+                    "entryLoaded", loaded,
+                    "playerFields", playerFields(),
+                    "from", callerFrame());
+        }
+
         if (musicPlayer.get() != null)
             musicPlayer.get().destroyNonThrow();
+    }
+
+    /** The first non-JDK / non-this-class frame in the current thread's stack. */
+    private static String callerFrame() {
+        try {
+            var st = Thread.currentThread().getStackTrace();
+            for (var e : st) {
+                var cn = e.getClassName();
+                if (cn.startsWith("java.") || cn.startsWith("jdk.") || cn.startsWith("sun.")
+                        || cn.equals(MusicEntry.class.getName()))
+                    continue;
+                return cn + "#" + e.getMethodName() + ":" + e.getLineNumber();
+            }
+            return "(no non-jdk frame)";
+        } catch (Throwable t) {
+            return "(stack unavailable)";
+        }
     }
 
     public boolean isLoaded() {
@@ -191,6 +277,14 @@ public class MusicEntry {
         return new MusicLoaderDestroyRunner(me.getMusicDestroyRunner(), () -> stopped);
     }
 
+    /**
+     * Appends a concrete reason to generic failures such as "no available loaders" (empty when there is none); each platform records it via {@link MusicLoadFailure}.
+     */
+    private static String reasonSuffix(@org.jetbrains.annotations.Nullable String identifier) {
+        var r = dev.felnull.imp.client.music.MusicLoadFailure.reason(identifier);
+        return r == null || r.isBlank() ? "" : " - " + r;
+    }
+
     protected void loadStart(LoadCompleteListener listener) {
         final long startTime = System.currentTimeMillis();
         var me = MusicEngine.getInstance();
@@ -199,7 +293,9 @@ public class MusicEntry {
         var cf = CompletableFuture.supplyAsync(() -> {
             var loader = selectLoader(source);
             if (loader == null)
-                throw new RuntimeException("No available loaders found");
+                // **Append the platform's concrete reason** to the generic sentence (e.g. kugou's "no copyright" /
+                // "payment required"): the concrete reason is recorded into MusicLoadFailure by each platform at the failure point.
+                throw new RuntimeException("No available loaders found" + reasonSuffix(source.getIdentifier()));
             return loader;
         }, me.getMusicAsyncExecutor()).thenApplyAsync(ret -> {
             return ret.createMusicPlayer(musicPlayerId);
@@ -240,11 +336,40 @@ public class MusicEntry {
         cf.whenCompleteAsync((ret, throwable) -> {
             loaded = ret != null && ret.success;
 
+            // [Hint & auto stop] Record whether this source can actually load: success / normal cancel clears the record, a real failure sets one.
+            // The boombox UI needs it to show the hint — otherwise there is no hint, no sound, and the time bar still runs.
+            if (loaded || isCancelled(throwable))
+                dev.felnull.imp.client.music.MusicLoadFailure.clear(source.getIdentifier());
+            else
+                dev.felnull.imp.client.music.MusicLoadFailure.report(source.getLoaderType(), source.getIdentifier());
+
+            if (LinkDebug.isEnabled())
+                LinkDebug.log("MusicEntry.loadComplete", "loaderType", source.getLoaderType(),
+                        "id", source.getIdentifier(), "ret", ret == null ? "null" : "success=" + ret.success,
+                        "throwable", throwable == null ? "none"
+                                : throwable.getClass().getSimpleName() + ": " + throwable.getMessage(),
+                        "playerFields", playerFields());
+
             if (throwable != null) {
                 loadFailed = true;
 
-                if (!(throwable instanceof RuntimeException))
-                    MusicEngine.getInstance().getLogger().error("Music load error", throwable);
+                // A load failure must be logged unconditionally with its source and identifier: the loaders throw plain RuntimeExceptions that would otherwise be silent in the log.
+                // A cancel (MusicLoadCancelled = "this slot was already stopped") also reaches here and is an ordinary INFO, not a fault.
+                var message = String.valueOf(throwable.getMessage());
+                // The identifier string may be **a whole URL** (for the direct-link / upload channels), possibly carrying a signature or token ⇒ mask it before logging.
+                var safeId = LinkDebug.safeIdentifier(source.getIdentifier());
+                var failReason = dev.felnull.imp.client.music.MusicLoadFailure.reason(source.getIdentifier());
+                if (isCancelled(throwable))
+                    MusicEngine.getInstance().getLogger().info(
+                            "Music load cancelled (slot stopped) | loaderType={} | identifier={} | {}",
+                            source.getLoaderType(), safeId, message);
+                else
+                    MusicEngine.getInstance().getLogger().error(
+                            "Music load error | loaderType={} | identifier={} | reason={} | ex={}: {}",
+                            source.getLoaderType(), safeId,
+                            failReason == null ? "(none)" : failReason,
+                            throwable.getClass().getName(), message,
+                            throwable);
 
                 listener.onComplete(false, 0, throwable, musicPlayer.get() != null);
                 return;
@@ -288,5 +413,25 @@ public class MusicEntry {
     }
 
     public static record MusicLoadRange(long first, long last) {
+    }
+
+    /**
+     * "This slot has already been stopped" (cancelled) — thrown by {@code MusicDestroyRunner}.
+     */
+    public static class MusicLoadCancelled extends RuntimeException {
+        public MusicLoadCancelled() {
+            super("Stopped!");
+        }
+    }
+
+    /**
+     * Whether this exception is a "cancel".
+     */
+    private static boolean isCancelled(@Nullable Throwable throwable) {
+        for (var t = throwable; t != null; t = t.getCause()) {
+            if (t instanceof MusicLoadCancelled)
+                return true;
+        }
+        return false;
     }
 }
