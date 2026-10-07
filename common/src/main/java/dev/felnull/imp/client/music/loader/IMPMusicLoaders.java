@@ -16,6 +16,7 @@ public class IMPMusicLoaders {
         register(BiliBiliMusicLoader::new);
         register(CacheMusicLoader::new);
         register(QQMusicLoader::new);
+        register(KuGouMusicLoader::new);
     }
 
     public static void register(Supplier<MusicLoader> loaderSupplier) {
