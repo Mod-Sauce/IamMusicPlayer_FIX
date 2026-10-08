@@ -46,8 +46,10 @@ public class BilibiliHttpAudioSourceManager extends HttpAudioSourceManager {
     @Override
     public AudioItem loadItem(AudioPlayerManager manager, AudioReference reference) {
         // [logging only] All three "return null" spots below get a line: without them the log only shows
-        // "No available loaders found".
-        dev.felnull.imp.client.music.link.LinkDebug.log("BiliBili loadItem", "identifier", reference.identifier);
+        // "No available loaders found". The label names the manager, not the identifier — this one is asked
+        // about **every** source (the netease/kugou ones reach it too) and says so instead of "BiliBili …".
+        dev.felnull.imp.client.music.link.LinkDebug.log("sourceManager loadItem", "manager", "bilibili",
+                "identifier", reference.identifier);
         if(!reference.identifier.contains("bilibili:"))return null;
         var bvRaw = reference.identifier.substring(9);
         var bv = BiliBiliUtil.stripPage(bvRaw);   // the address API takes the bare video number (the part is expressed by the page parameter)

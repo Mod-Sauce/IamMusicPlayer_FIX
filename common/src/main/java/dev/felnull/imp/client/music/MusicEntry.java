@@ -26,10 +26,13 @@ public class MusicEntry {
     private boolean loaded;
     private boolean stopped;
     private boolean loadFailed;
+    /** World playback (boombox / cassette) instead of the playlist page — see {@link #isRingLoad()}. */
+    private boolean ringLoad;
 
     public float getCurrentPositionProgress() {
         if (source.isLive())
             return 0;
+        // 位置与时长都是**视频时间**（跳段之后位置会跟着跳），所以这里直接除即可。
         return (float) getCurrentPosition() / (float) source.getDuration();
     }
 
@@ -44,9 +47,19 @@ public class MusicEntry {
     }
 
     protected MusicEntry(UUID musicPlayerId, MusicSource source, long position) {
+        this(musicPlayerId, source, position, false);
+    }
+
+    protected MusicEntry(UUID musicPlayerId, MusicSource source, long position, boolean ringLoad) {
         this.musicPlayerId = musicPlayerId;
         this.source = source;
         this.startPosition = position;
+        this.ringLoad = ringLoad;
+    }
+
+    /** True when this entry plays through a world ringer (boombox / cassette) rather than the playlist page. */
+    public boolean isRingLoad() {
+        return ringLoad;
     }
 
     public MusicSource getSource() {
@@ -384,6 +397,7 @@ public class MusicEntry {
         List<MusicLoader> loaders = IMPMusicLoaders.getAllLoader().stream().map(Supplier::get).sorted(Comparator.comparingInt(MusicLoader::priority).reversed()).toList();
         for (MusicLoader loader : loaders) {
             try {
+                loader.setRingLoad(ringLoad);
                 loader.tryLoad(source);
                 return loader;
             } catch (Exception ignored) {

@@ -201,7 +201,10 @@ public class MusicRing {
   
             if (rpi.tick(startTime)) {
               waitRingers.remove(uuid);
-              long currentTime = getTime();
+              // The tick-interval base, not "now": `lastTime` is this tick's own start, so summing `eq`
+              // reproduces the wall clock exactly (sampling it here and stamping the end of the tick dropped
+              // the tail of every tick — the ringer clock ran ~0.2-3 % slow, so the bottom HUD lyric drifted behind).
+              long currentTime = startTime;
               long eq = currentTime - lastTime;
               long prevPos = ringer.getRingerPosition();
               boolean isStream = ringer.isRingerStream();
@@ -219,11 +222,19 @@ public class MusicRing {
   
               if (duration >= prevPos + eq || isStream) {
                 var sc = ringer.getRingerMusicSource();
+                long dur = sc != null ? sc.getDuration() : 0;
                 long newPos = clamp(
                   prevPos + eq,
                   0,
-                  sc != null ? sc.getDuration() : 0
+                  dur
                 );
+                // [跳段] 客户端在读取端把赞助/广告片段那几秒丢掉了 ⇒ "正在播的位置"要落到片段之后。
+                // 时间轴仍是**视频时间**（音响存下的 RingerPosition、HUD/歌词、加入者的起点都用它），
+                // 所以这里只是位置往前走一段；曲末靠它自然提前到（不必再算内容时长）。片段表由客户端上报。
+                if (sc != null && !isStream) {
+                  newPos = Math.min(dur, dev.felnull.imp.server.music.BiliBiliSponsorCache.getInstance()
+                    .positionAfterSkips(sc.getIdentifier(), newPos));
+                }
                 ringer.setRingerPosition(newPos);
                 LOGGER.debug("Set ringer {} position -> {}", uuid, newPos);
               } else {
@@ -245,7 +256,7 @@ public class MusicRing {
         }
       }
       stopRingers.forEach(this::stopRinger);
-      lastTime = getTime();
+      lastTime = startTime;
       LOGGER.debug("MusicRing.tick end - new lastTime: {}", lastTime);
     }
 

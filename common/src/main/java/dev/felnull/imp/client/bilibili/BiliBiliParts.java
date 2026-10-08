@@ -23,8 +23,11 @@ import java.util.UUID;
  * {@link BiliBiliArcTags} — never during an import; {@code BV…-p2} identifiers already play without this.
  */
 public final class BiliBiliParts {
-    /** Gap between two lookups of the "展开分P"/sweep walks; the walk's workers overlap their round trips behind a pacer. */
-    public static final long REQUEST_GAP_MS = 150L;
+    /**
+     * Gap between two lookups of the 「展开分P」 walk; the walk's workers overlap their round trips behind a pacer.
+     * 真正决定速度的是**并发数 × 单请求延迟**，不是这个间隔 —— 它与 worker 下限（{@code MusicManageMMMonitor} 里的 8）是一对。
+     */
+    public static final long REQUEST_GAP_MS = 40L;
 
     private BiliBiliParts() {
     }

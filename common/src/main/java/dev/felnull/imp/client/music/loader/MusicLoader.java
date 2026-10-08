@@ -37,4 +37,9 @@ public interface MusicLoader {
      * @return 優先権
      */
     int priority();
+
+    /** Marks a load for **world playback** (boombox / cassette ringer) rather than the playlist page; only a
+     * loader that can tell a trial clip apart needs to read it. */
+    default void setRingLoad(boolean ringLoad) {
+    }
 }

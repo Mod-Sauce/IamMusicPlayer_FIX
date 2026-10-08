@@ -276,6 +276,10 @@ public class BiliBiliUtil {
             cid = viewData.get("cid").getAsLong();
         }
 
+        // 顺手记下"这首歌是哪个分P 的 cid"：SponsorBlock 的片段按 cid 存，播放时要靠它归类，这样不必再多打一次请求。
+        BiliBiliSponsorSegments.rememberCid(bvid,
+                pagesArray != null && pagesArray.size() > 1 && page > 0 && page <= pagesArray.size() ? page : 1, cid);
+
         String playApi = "https://api.bilibili.com/x/player/playurl?bvid=" + bvid +
                 "&cid=" + cid + "&fnval=4048";
 

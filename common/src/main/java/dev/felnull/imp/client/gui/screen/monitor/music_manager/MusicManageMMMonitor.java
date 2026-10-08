@@ -1146,7 +1146,8 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
             return;
 
         partsExpandResult = null;
-        var job = new PartsExpansion(videos, IamMusicPlayer.getConfig().bilibiliConfig.spaceParallelism);
+        var job = new PartsExpansion(videos, Math.max(PARTS_WALK_MIN_PARALLELISM,
+                IamMusicPlayer.getConfig().bilibiliConfig.spaceParallelism));
         job.setName("IMP-BiliBili-Parts");
         job.setDaemon(true);
         partsExpansion = job;
@@ -1264,6 +1265,11 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     private static final long DEAD_SCAN_GAP_MS = 20L;
     /** Workers for the sweep; the floor of 8 matters — with the 分P walk's 3 workers the sweep managed under 7 videos per second. */
     private static final int DEAD_SCAN_MIN_PARALLELISM = 8;
+    /**
+     * 「查询选中分P」的 worker 下限，理由同 {@link #DEAD_SCAN_MIN_PARALLELISM}：实际速率 ≈ 并发数 ÷ 单请求延迟，
+     * 8 个 worker 才吃得到收紧后的间隔。
+     */
+    private static final int PARTS_WALK_MIN_PARALLELISM = 8;
     /** Videos answered within this window are skipped, so a repeat press costs (almost) nothing. */
     private static final long DEAD_SCAN_TTL_MS = 12L * 60 * 60 * 1000L;
 
