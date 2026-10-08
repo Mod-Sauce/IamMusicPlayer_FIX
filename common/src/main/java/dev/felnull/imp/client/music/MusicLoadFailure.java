@@ -15,6 +15,11 @@ public final class MusicLoadFailure {
     private static final java.util.Map<String, String> reasons = new java.util.HashMap<>();
     /** Reason table cap: it grows as tracks are changed, and the whole table is cleared when exceeded (hints only). */
     private static final int REASON_LIMIT = 32;
+    /**
+     * "Plays, but not as it should" notices (e.g. a paid track handed out as a 30s trial fragment), kept apart from
+     * {@link #reasons}: {@link #clear} runs on a **successful** load and would erase this one.
+     */
+    private static final java.util.Map<String, String> notices = new java.util.HashMap<>();
 
     private MusicLoadFailure() {
     }
@@ -59,15 +64,47 @@ public final class MusicLoadFailure {
     /** The **concrete** failure reason of this identifier; null when there is none (nobody reported) — only then does the caller fall back to the generic hint. */
     @Nullable
     public static synchronized String reason(@Nullable String id) {
+        return lookup(reasons, id);
+    }
+
+    /** Records a "plays, but not as it should" notice (see {@link #notices}). */
+    public static synchronized void noteNotice(@Nullable String id, @Nullable String notice) {
+        if (id == null || id.isEmpty() || notice == null)
+            return;
+        var n = notice.trim();
+        if (n.isEmpty())
+            return;
+        if (notices.size() >= REASON_LIMIT && !notices.containsKey(id))
+            notices.clear();
+        notices.put(id, n);
+    }
+
+    /** Drops the notice of this identifier — called when a **full-length** track came back again. */
+    public static synchronized void clearNotice(@Nullable String id) {
+        if (id == null || id.isEmpty())
+            return;
+        notices.remove(id);
+        var suffix = ":" + id;
+        notices.keySet().removeIf(k -> k.endsWith(suffix));
+    }
+
+    /** The notice of this identifier, or null (same prefixed-key fallback as {@link #reason}). */
+    @Nullable
+    public static synchronized String notice(@Nullable String id) {
+        return lookup(notices, id);
+    }
+
+    @Nullable
+    private static String lookup(java.util.Map<String, String> table, @Nullable String id) {
         if (id == null || id.isEmpty())
             return null;
-        var r = reasons.get(id);
+        var r = table.get(id);
         if (r != null)
             return r;
         // [Fallback] The key may carry a source prefix (`kugou:<hash>`, `qq_music:<id>` from LavaPlayer's AudioReference) while callers look up the bare identifier,
         // so a suffix match keeps a prefixed key from silently degrading to the generic hint.
         var suffix = ":" + id;
-        for (var e : reasons.entrySet())
+        for (var e : table.entrySet())
             if (e.getKey().endsWith(suffix))
                 return e.getValue();
         return null;

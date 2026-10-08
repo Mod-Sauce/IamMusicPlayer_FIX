@@ -35,4 +35,25 @@ public class LoginNeedUtil {
         }
         return null;
     }
+
+    /**
+     * The same request as {@link #pasteVIPUrl}, but keeping the whole first {@code data[]} entry: its
+     * {@code freeTrialInfo} / {@code time} tell the caller the address is only a trial clip (the decoded audio cannot).
+     */
+    @Nullable
+    @SuppressWarnings("all")
+    public static Map<String, Object> pasteVIPData(long id) {
+        if (IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty()) return null;
+        var args = new HashMap<>(WEB_API.getRequestPropertyData());
+        try {
+            var json = NetWorker.get(String.format(BASE_URL, id), args);
+            var j = GSON.fromJson(json, TypeToken.get(Object.class));
+            var data = (List<Object>) ((Map<String, Object>) j).get("data");
+            if (data == null || data.isEmpty()) return null;
+            return (Map<String, Object>) data.get(0);
+        } catch (Exception ignored) {
+
+        }
+        return null;
+    }
 }

@@ -10,7 +10,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.felnull.imp.IamMusicPlayer;
-import dev.felnull.imp.client.cache.AudioCacheManager;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.media.LavaPlayerBaseMusicMedia;
 import dev.felnull.imp.client.music.media.MusicMedia;
@@ -112,8 +111,6 @@ public class LavaPlayerManager {
             @Override
             public void trackLoaded(AudioTrack track) {
                 audioTrack.set(track);
-                if(!Objects.equals(track.getSourceManager().getSourceName(), "local"))
-                    AudioCacheManager.cacheAsync(track.getIdentifier(), track.getInfo().uri);
             }
 
             @Override

@@ -121,10 +121,12 @@ public class RemotePlayBackBMonitor extends PlayBackFiniteBaseBMMonitor {
 
         // [Load failure hint] Drawn after the background (otherwise the background covers it). **One short line only**, do not smear the UI.
         var m = getScreen().getBoomBoxData().getSelectedMusic();
-        if (m != null && m.getSource() != null
-                && dev.felnull.imp.client.music.MusicLoadFailure.isFailed(m.getSource().getIdentifier())) {
-            drawSmartCenterText(guiGraphics, failHintText(m.getSource().getLoaderType(), m.getSource().getIdentifier()),
-                    getStartX() + width / 2f, getStartY() + height - 10, 0xFFFF5555);
+        if (m != null && m.getSource() != null) {
+            var id = m.getSource().getIdentifier();
+            if (dev.felnull.imp.client.music.MusicLoadFailure.isFailed(id)) {
+                drawSmartCenterText(guiGraphics, failHintText(m.getSource().getLoaderType(), id),
+                        getStartX() + width / 2f, getStartY() + height - 10, 0xFFFF5555);
+            }
         }
     }
 

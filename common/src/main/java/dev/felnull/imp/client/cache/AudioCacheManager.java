@@ -3,9 +3,11 @@ package dev.felnull.imp.client.cache;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.music.link.LinkDebug;
 import dev.felnull.imp.util.IMPPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -86,24 +88,33 @@ public final class AudioCacheManager {
     }
 
     public static void cacheAsync(String id, String url) {
+        cacheAsync(id, url, null);
+    }
+
+    /**
+     * {@code headers} = what the CDN demands of the real fetch; Bilibili refuses a header-less request (403), so the
+     * caller passes the same shared header set the stream uses.
+     */
+    public static void cacheAsync(String id, String url, @Nullable Map<String, String> headers) {
         if(!IamMusicPlayer.getConfig().enableCache)return;
         if (!isValidUrl(url)) return;
         if (INDEX.containsKey(id)) return;
 
         EXECUTOR.submit(() -> {
             try {
-                String fileName = UUID.randomUUID().toString();
+                // Keep the stream's extension: the local decode path picks the container from the file name.
+                String fileName = UUID.randomUUID() + ".m4s";
 
                 Path file = AUDIO_DIR.resolve(fileName);
 
-                download(id, url, file);
+                download(url, file, headers);
 
                 CacheEntry entry = new CacheEntry(id, fileName);
 
                 INDEX.put(id, entry);
                 saveIndex();
 
-                LOGGER.debug("[AudioCache] cached: {}", id);
+                LinkDebug.log("AudioCache cached", "id", id, "file", fileName, "bytes", Files.size(file));
 
             } catch (Exception e) {
                 LOGGER.error("[AudioCache] failed: {}", id, e);
@@ -116,25 +127,48 @@ public final class AudioCacheManager {
         if (entry == null) return null;
 
         Path path = AUDIO_DIR.resolve(entry.fileName);
-        return Files.exists(path) ? path : null;
+        if (!Files.exists(path)) {
+            // [Self-heal] A file removed by hand (or a leftover entry after a cache wipe) used to break this source
+            // forever: `has` said yes while the path was null ⇒ CacheMusicLoader threw every time — so drop the entry
+            // (saving off-thread: `has` is also called from the client command, on the main thread).
+            INDEX.remove(id);
+            EXECUTOR.submit(AudioCacheManager::saveIndex);
+            return null;
+        }
+        return path;
     }
 
     public static boolean has(String id){
         if(!IamMusicPlayer.getConfig().enableCache)return false;
-        return INDEX.containsKey(id);
+        // The index alone is not a hit: check the file too, otherwise a hand-deleted file keeps looking cacheable.
+        return getPath(id) != null;
     }
 
-    private static void download(String id, String urlStr, Path target) throws IOException {
+    /**
+     * Drops one entry — file and index — used when a cached copy turned out to be a trial fragment: keeping it would
+     * make the source play 30 s forever, even after a VIP cookie arrives.
+     */
+    public static void drop(String id) {
+        CacheEntry entry = INDEX.remove(id);
+        if (entry == null) return;
+        try {
+            Files.deleteIfExists(AUDIO_DIR.resolve(entry.fileName));
+        } catch (Exception e) {
+            LOGGER.warn("[AudioCache] drop failed: {}", id, e);
+        }
+        // Save off-thread: this is called from the loader executor, but `has` is also used from the main thread.
+        EXECUTOR.submit(AudioCacheManager::saveIndex);
+    }
+
+    private static void download(String urlStr, Path target, @Nullable Map<String, String> headers) throws IOException {
         Files.createDirectories(target.getParent());
         URL url = URI.create(urlStr).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
         conn.setConnectTimeout(8000);
         conn.setReadTimeout(15000);
-        if(id.contains("bilibili")) {
-            conn.setRequestProperty("Referer", "https://www.bilibili.com/");
-            conn.setRequestProperty("Origin", "https://www.bilibili.com/");
-        }
+        if (headers != null)
+            headers.forEach(conn::setRequestProperty);
 
         try (InputStream in = conn.getInputStream();
              OutputStream out = Files.newOutputStream(target,

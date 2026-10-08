@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.music.TrialClip;
+import dev.felnull.imp.client.music.link.LinkDebug;
 import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.client.music.media.MusicMediaResult;
 import dev.felnull.imp.client.music.netmusic.api.ExtraMusicList;
@@ -89,15 +91,58 @@ public class NetMusicUtil {
         updateCookie();
         final String baseURL = "https://music.163.com/song/media/outer/url?id=%d.mp3";
         String url = String.format(baseURL, id);
+        boolean viaVipApi = false;
+        long apiClipMs = -1;
         if(!IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty()){
-            var url1 = LoginNeedUtil.pasteVIPUrl(id);
-            if(url1 != null)url = url1;
+            var data = LoginNeedUtil.pasteVIPData(id);
+            var url1 = urlOf(data);
+            if(url1 != null){ url = url1; viaVipApi = true; }
+            apiClipMs = clipMsOf(data);
+            // [Diagnosis] On a fresh load the decoded length cannot tell a trial apart (a remote track's length is
+            // unknown then), so log what the platform answered — that is the only place the truth is visible.
+            LinkDebug.log("netease vip data", "id", id, "hasUrl", url1 != null,
+                    "time", field(data, "time"), "size", field(data, "size"), "fee", field(data, "fee"),
+                    "level", field(data, "level"), "freeTrialInfo", field(data, "freeTrialInfo"),
+                    "keys", data == null ? null : data.keySet());
         }
+        if (apiClipMs >= 0) TrialClip.remember(NETEASE, String.valueOf(id), apiClipMs);
+        else TrialClip.forget(NETEASE, String.valueOf(id));
         try{
-            return resolveRedirect(URL.of(new URI(url), null), WEB_API.getRequestPropertyData());
+            var resolved = resolveRedirect(URL.of(new URI(url), null), WEB_API.getRequestPropertyData());
+            // [Diagnosis] "Did the Cookie path answer at all" is *the* question when a track plays only 30 s:
+            // without this line the log says nothing about where the audio actually came from.
+            LinkDebug.log("netease url", "id", id, "hasCookie", hasCookie(), "viaVipApi", viaVipApi,
+                    "apiClipMs", apiClipMs, "final", LinkDebug.safeUrl(resolved.toString()));
+            return resolved;
         }catch (Exception e){
+            LinkDebug.log("netease url FAIL", "id", id, "hasCookie", hasCookie(), "viaVipApi", viaVipApi,
+                    "ex", e.getClass().getSimpleName() + ": " + e.getMessage());
             return null;
         }
+    }
+
+    /** Loader type of this channel (`MusicSource#getLoaderType`), used as the {@link TrialClip} key half. */
+    private static final String NETEASE = "netease";
+
+    @Nullable
+    private static Object field(@Nullable java.util.Map<String, Object> data, String key) {
+        return data == null ? null : data.get(key);
+    }
+
+    /** The {@code url} of a {@code player/url/v1} entry, or null when Netease handed out none. */
+    @Nullable
+    private static String urlOf(@Nullable java.util.Map<String, Object> data) {
+        var u = field(data, "url");
+        return u instanceof String s && !s.isEmpty() ? s : null;
+    }
+
+    /**
+     * How long the address Netease handed out really is, in ms: {@code -1} = the answer says nothing, {@code 0} = a trial flagged without a length.
+     */
+    private static long clipMsOf(@Nullable java.util.Map<String, Object> data) {
+        var t = field(data, "time");
+        if (t instanceof Number n && n.longValue() > 0) return n.longValue();
+        return field(data, "freeTrialInfo") != null ? 0 : -1;
     }
 
     /** Where the anonymous address API finally 302s to when Netease "cannot play this one" — used to decide restriction. */
@@ -132,10 +177,13 @@ public class NetMusicUtil {
         final String baseURL = "https://music.163.com/song/media/outer/url?id=%d.mp3";
         String url = String.format(baseURL, id);
         if (!IamMusicPlayer.getConfig().netMusicConfig.neteaseCookie.isEmpty()) {
-            var url1 = LoginNeedUtil.pasteVIPUrl(id);
+            var url1 = urlOf(LoginNeedUtil.pasteVIPData(id));
             if (url1 != null) url = url1;
         }
-        return resolveRedirect(URL.of(new URI(url), null), WEB_API.getRequestPropertyData());
+        var resolved = resolveRedirect(URL.of(new URI(url), null), WEB_API.getRequestPropertyData());
+        // Same diagnosis line as `getNetMusicUrl` — this is the variant the availability probe walks.
+        LinkDebug.log("netease url (probe)", "id", id, "final", LinkDebug.safeUrl(resolved.toString()));
+        return resolved;
     }
 
     /** Whether a Netease Cookie is configured — used to tell "login required" apart from "login does not help either". */
@@ -567,7 +615,18 @@ public class NetMusicUtil {
                 lyricMap.put(Lyric.applyLrcOffset(p.getA(), offsetMillis), p.getB());
             }
         }
-        return new Lyric(lyricMap, transformLyricMap);
+        // 逐字（yrc）：行表与译文都不动，只多挂一份"每行的词"；没有 yrc 时返回 null = 原来的整行行为
+        var wordLyrics = NetEaseYrc.attach(yrcOf(data), offsetMillis, lyricMap);
+        return new Lyric(lyricMap, transformLyricMap, wordLyrics);
+    }
+
+    /** {@code yrc} 字段（形如 {@code {"lyric": "..."}}）；缺字段 / 结构不符 / 空串时返回 null。 */
+    @SuppressWarnings("all")
+    private static String yrcOf(Map<String, Object> data) {
+        if (!(data.get("yrc") instanceof Map))
+            return null;
+        var lyric = ((Map<String, Object>) data.get("yrc")).get("lyric");
+        return lyric instanceof String s && !s.isEmpty() ? s : null;
     }
 
     private static Pair<Float, String> getLyricPair(String input){
