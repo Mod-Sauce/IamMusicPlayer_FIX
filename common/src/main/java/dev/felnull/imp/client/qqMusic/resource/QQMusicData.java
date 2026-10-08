@@ -78,6 +78,15 @@ public class QQMusicData {
 
         @SerializedName("album")
         public Album album;
+
+        /** QQ keeps the playable file under its own media mid, so the file-name chain has to be built from that one. */
+        @SerializedName("file")
+        public FileInfo file;
+    }
+
+    public static class FileInfo{
+        @SerializedName("media_mid")
+        public String mediaMid;
     }
 
     public static class Album{
@@ -108,6 +117,17 @@ public class QQMusicData {
         if(soundInfo.soundInfo == null)return null;
         if(soundInfo.soundInfo.trackInfo == null)return null;
         return soundInfo.soundInfo.trackInfo.mid;
+    }
+
+    /** Media mid of the playable file; null when QQ does not report one (the caller then falls back to the song mid). */
+    @Nullable
+    public String getMediaMID(){
+        if(soundInfo == null)return null;
+        if(soundInfo.soundInfo == null)return null;
+        if(soundInfo.soundInfo.trackInfo == null)return null;
+        if(soundInfo.soundInfo.trackInfo.file == null)return null;
+        var mid = soundInfo.soundInfo.trackInfo.file.mediaMid;
+        return mid == null || mid.isEmpty() ? null : mid;
     }
 
     @Nullable

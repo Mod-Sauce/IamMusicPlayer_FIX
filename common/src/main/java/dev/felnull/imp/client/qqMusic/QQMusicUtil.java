@@ -49,15 +49,18 @@ public class QQMusicUtil {
         return c != null && !c.isEmpty();
     }
 
-    /**
-     * Small songId → mid cache so the availability probe right after the load phase can reuse the details it just fetched (saves one request). Bounded, can be refetched anytime.
-     */
-    private static final java.util.Map<Long, String> midCache = new java.util.concurrent.ConcurrentHashMap<>();
+    private record CachedIds(String mid, String mediaMid) {
+    }
 
-    private static void cacheMid(long songId, String mid){
+    /**
+     * Small songId → ids cache so the availability probe right after the load phase can reuse the details it just fetched (saves one request). Bounded, can be refetched anytime.
+     */
+    private static final java.util.Map<Long, CachedIds> idsCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static void cacheIds(long songId, String mid, String mediaMid){
         if (mid == null || mid.isEmpty()) return;
-        if (midCache.size() > 256) midCache.clear();
-        midCache.put(songId, mid);
+        if (idsCache.size() > 256) idsCache.clear();
+        idsCache.put(songId, new CachedIds(mid, mediaMid));
     }
 
     /**
@@ -85,14 +88,17 @@ public class QQMusicUtil {
      * requests yield a real purl, so judging them dead puts a false "Cookie required" notice on playable songs. */
     public static AudioStatus probeAudioStatus(long songId){
         try {
-            var mid = midCache.get(songId);
+            var cached = idsCache.get(songId);
+            var mid = cached == null ? null : cached.mid();
+            var mediaMid = cached == null ? null : cached.mediaMid();
             if (mid == null) {
                 var data = getSongData(songId);
                 mid = data == null ? null : data.getMID();
+                mediaMid = data == null ? null : data.getMediaMID();
             }
             if (mid == null || mid.isEmpty())
                 return AudioStatus.UNAVAILABLE;
-            var url = getMusicUrl(mid);
+            var url = getMusicUrl(mid, mediaMid);
             var ok = !isShellUrl(url);
             // The address must be redacted: QQ's playback address puts the signature in the query string (?vkey=…), and logging it in full would leak a credential.
             LinkDebug.log("QQ audio-probe", "id", songId, "mid", mid, "url", LinkDebug.safeUrl(url), "ok", ok,
@@ -124,7 +130,7 @@ public class QQMusicUtil {
             }
             var parsed = GSON.fromJson(result.body(), QQMusicData.class);
             if (parsed != null)
-                cacheMid(musicID, parsed.getMID());
+                cacheIds(musicID, parsed.getMID(), parsed.getMediaMID());
             LinkDebug.log("QQ getSongData", "id", musicID, "httpStatus", 200,
                     "name", parsed == null ? null : parsed.getName(),
                     "mid", parsed == null ? null : parsed.getMID(),
@@ -164,8 +170,16 @@ public class QQMusicUtil {
 
     @Nullable
     public static String getMusicUrl(String musicMID){
+        return getMusicUrl(musicMID, null);
+    }
+
+    /**
+     * @param mediaMID {@code track_info.file.media_mid} (not the song mid) for the file-name chain; null → song mid.
+     */
+    @Nullable
+    public static String getMusicUrl(String musicMID, @Nullable String mediaMID){
         try {
-            var data = buildSongURLData(musicMID);
+            var data = buildSongURLData(musicMID, mediaMID);
             var request = HttpRequest.newBuilder(MUSIC_U_URL)
                     .POST(HttpRequest.BodyPublishers.ofString(GSON.toJson(data)))
                     .header("User-Agent", "Mozilla/5.0")
@@ -251,23 +265,67 @@ public class QQMusicUtil {
         return buildRequestData("songinfo", songInfo);
     }
 
+    /** Playable file names, best quality first: the order **is** the fallback chain, so the first non-empty purl wins.
+     * {@code RS02} is deliberately missing — it is a 60 s preview, which stalls at 22% instead of "needs a Cookie". */
+    private static final String[][] QUALITY_CHAIN = {
+            {"F000", "flac"}, {"M800", "mp3"}, {"M500", "mp3"},
+            {"C600", "m4a"}, {"C400", "m4a"}, {"C200", "m4a"}, {"C100", "m4a"},
+    };
+
     public static JsonElement buildSongURLData(String musicMID){
+        return buildSongURLData(musicMID, null);
+    }
+
+    /** @param mediaMID see {@link #getMusicUrl(String, String)} */
+    public static JsonElement buildSongURLData(String musicMID, @Nullable String mediaMID){
+        return buildSongURLData(musicMID, mediaMID, IamMusicPlayer.getConfig().QQMusicConfig.QQMusicQuality);
+    }
+
+    /**
+     * @param mediaMID see {@link #getMusicUrl(String, String)}
+     * @param quality  {@code 320} skips lossless, {@code 128} = standard file only, else the chain starts at the top;
+     *                 taken as a parameter since the game config cannot be initialised outside the game. */
+    public static JsonElement buildSongURLData(String musicMID, @Nullable String mediaMID, @Nullable String quality){
+        var start = qualityStart(quality);
+        var base = mediaMID == null || mediaMID.isEmpty() ? musicMID : mediaMID;
+        var fileNames = new JsonArray();
+        var mids = new JsonArray();
+        var songTypes = new JsonArray();
+        for (int i = start; i < QUALITY_CHAIN.length; i++) {
+            fileNames.add(QUALITY_CHAIN[i][0] + base + "." + QUALITY_CHAIN[i][1]);
+            mids.add(musicMID);
+            songTypes.add(0);
+        }
+        // Last resort: if the media version named by media_mid is gone, a name built from the song mid still plays.
+        if (!base.equals(musicMID)) {
+            fileNames.add("C400" + musicMID + ".m4a");
+            mids.add(musicMID);
+            songTypes.add(0);
+        }
+
         var req = new JsonObject();
         req.addProperty("module", "vkey.GetVkeyServer");
         req.addProperty("method", "CgiGetVkey");
         var param = new JsonObject();
         param.addProperty("guid", String.valueOf(System.currentTimeMillis()));
-        var mid = new JsonArray();
-        mid.add(musicMID);
-        param.add("songmid", mid);
-        var songType = new JsonArray();
-        songType.add(0);
-        param.add("songtype", songType);
+        param.add("filename", fileNames);
+        param.add("songmid", mids);
+        param.add("songtype", songTypes);
         param.addProperty("uin", "0");
         param.addProperty("loginflag", 1);
         param.addProperty("platform", "20");
         req.add("param", param);
         return buildRequestData("req_0", req);
+    }
+
+    /** Index into {@link #QUALITY_CHAIN} the chain starts at, see {@link #buildSongURLData(String, String, String)}. */
+    static int qualityStart(@Nullable String quality){
+        if (quality == null) return 0;
+        return switch (quality.trim()) {
+            case "320" -> 1;
+            case "128" -> 4;
+            default -> 0;
+        };
     }
 
     public static JsonElement buildPlaylistData(long listID) {

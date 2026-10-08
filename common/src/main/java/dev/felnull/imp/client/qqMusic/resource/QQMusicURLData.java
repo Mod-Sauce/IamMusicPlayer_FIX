@@ -37,7 +37,12 @@ public class QQMusicURLData {
         if(req.data.sip.isEmpty())return null;
         if(req.data.urlInfos.isEmpty())return null;
         var sip = req.data.sip.getFirst();
-        var purl = req.data.urlInfos.getFirst().purl;
-        return sip + purl;
+        // One answer entry per requested file name, in the order they were asked for: the first **non-empty** purl
+        // is the best file this account may have. An empty purl concatenates into sip + "" — the shell address.
+        for (var info : req.data.urlInfos) {
+            if (info != null && info.purl != null && !info.purl.isEmpty())
+                return sip + info.purl;
+        }
+        return null;
     }
 }

@@ -36,7 +36,7 @@ public class QQMusicAudioSourceManager extends HttpAudioSourceManager {
             MusicLoadFailure.noteReason(id, "QQ 拿不到这首歌的数据（多半 Cookie 失效）");
             return null;
         }
-        var url = QQMusicUtil.getMusicUrl(data.getMID());
+        var url = QQMusicUtil.getMusicUrl(data.getMID(), data.getMediaMID());
         if(url == null){
             MusicLoadFailure.noteReason(id, "QQ 没给播放地址（多半 Cookie 失效或曲目受限）");
             return null;
