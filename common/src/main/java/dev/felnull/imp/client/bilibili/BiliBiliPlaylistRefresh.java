@@ -804,9 +804,18 @@ public final class BiliBiliPlaylistRefresh {
             var musics = new ArrayList<Music>(videos.size());
             for (var v : videos)
                 musics.add(toMusic(v, loadImage, owner));
-            if (!musics.isEmpty())
+            // Batched: one packet carries at most ~1100 songs (see IMPNbtUtil#PACKET_NBT_BUDGET) — a refresh of a fresh
+            // playlist can pull in a whole UP's uploads at once.
+            int batches = 0;
+            int from = 0;
+            while (from < musics.size()) {
+                int count = dev.felnull.imp.util.IMPNbtUtil.fittingMusicCount("Musics", musics, from);
+                var batch = List.copyOf(musics.subList(from, Math.min(from + count, musics.size())));
                 NetworkManager.sendToServer(IMPPackets.MULTIPLE_MUSIC_ADD,
-                        new IMPPackets.MultipleMusicAddMessage(playlistId, musics, existence).toRFBB());
+                        new IMPPackets.MultipleMusicAddMessage(playlistId, batch, existence).toRFBB());
+                from += count;
+                batches++;
+            }
             if (!source.isBlank() || !cover.isBlank() || !rename.isBlank())
                 NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_SOURCE,
                         new IMPPackets.PlayListSourceMessage(playlistId, source,
@@ -815,7 +824,7 @@ public final class BiliBiliPlaylistRefresh {
             // The add is not broadcast by the server: expire both caches so the new rows show up within a tick
             MusicSyncManager.getInstance().invalidateMusics(playlistId);
             MusicSyncManager.getInstance().invalidatePlayLists();
-            LinkDebug.log("playlist refresh sent", "playlist", playlistId, "songs", musics.size(),
+            LinkDebug.log("playlist refresh sent", "playlist", playlistId, "songs", musics.size(), "batches", batches,
                     "cover", cover.isBlank() ? "(none)" : "yes", "rename", rename.isBlank() ? "(no)" : rename);
         } catch (Throwable t) {
             error = BiliBiliUtil.fetchFailReason(t);

@@ -55,6 +55,10 @@ public class IMPPackets {
     /** 客户端上报 B站 投稿时间，服务端拿它排「投稿日期」那一档。 */
     public static final ResourceLocation BILIBILI_PUBDATES = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_pubdates");
     /**
+     * 客户端上报要跳掉的赞助/广告片段（源时间毫秒）：服务端只用它算**内容实际长度**，音响时间轴按内容走（否则曲尾留一段静音）。
+     */
+    public static final ResourceLocation BILIBILI_SPONSOR = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_sponsor");
+    /**
      * The listener asks the boombox playing for them to jump to part N of the video it is on; only the part number travels, the server resolves which boombox is meant.
      */
     public static final ResourceLocation BOOMBOX_PART_JUMP = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "boombox_part_jump");
@@ -76,6 +80,7 @@ public class IMPPackets {
         NetworkManager.registerReceiver(NetworkManager.c2s(), MULTIPLE_MUSIC_ADD, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onMultipleMusicAdd(new MultipleMusicAddMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), BILIBILI_PARTS, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onBiliBiliPartsMessage(new BiliBiliPartsMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), BILIBILI_PUBDATES, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onBiliBiliPubdatesMessage(new BiliBiliPubdatesMessage(friendlyByteBuf), packetContext));
+        NetworkManager.registerReceiver(NetworkManager.c2s(), BILIBILI_SPONSOR, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onBiliBiliSponsorMessage(new BiliBiliSponsorMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), BOOMBOX_PART_JUMP, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onBoomboxPartJumpMessage(new BoomboxPartJumpMessage(friendlyByteBuf), packetContext));
         NetworkManager.registerReceiver(NetworkManager.c2s(), HAND_LID_CYCLE, (friendlyByteBuf, packetContext) -> ServerMessageHandler.onHandLidCycleMessage(new LidCycleMessage(friendlyByteBuf), packetContext));
 
@@ -228,6 +233,43 @@ public class IMPPackets {
             for (int i = 0; i < this.names.size(); i++) {
                 buf.writeUtf(this.names.get(i) == null ? "" : this.names.get(i));
                 buf.writeLong(i < this.durations.size() && this.durations.get(i) != null ? this.durations.get(i) : 0L);
+            }
+            return buf;
+        }
+    }
+
+    /**
+     * B站 赞助/广告片段上报（客户端 → 服务端）：起止时间用平行列表（源时间毫秒）；标识符带分P（{@code BV…-pN}），空表 = 清掉这条记录。
+     */
+    public static class BiliBiliSponsorMessage implements PacketMessage {
+        public final String identifier;
+        public final List<Long> starts;
+        public final List<Long> ends;
+
+        public BiliBiliSponsorMessage(FriendlyByteBuf bf) {
+            this.identifier = bf.readUtf();
+            int n = bf.readVarInt();
+            this.starts = new ArrayList<>(n);
+            this.ends = new ArrayList<>(n);
+            for (int i = 0; i < n; i++) {
+                this.starts.add(bf.readLong());
+                this.ends.add(bf.readLong());
+            }
+        }
+
+        public BiliBiliSponsorMessage(String identifier, List<Long> starts, List<Long> ends) {
+            this.identifier = identifier;
+            this.starts = starts;
+            this.ends = ends;
+        }
+
+        @Override
+        public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
+            buf.writeUtf(this.identifier == null ? "" : this.identifier);
+            buf.writeVarInt(this.starts.size());
+            for (int i = 0; i < this.starts.size(); i++) {
+                buf.writeLong(this.starts.get(i) == null ? 0L : this.starts.get(i));
+                buf.writeLong(i < this.ends.size() && this.ends.get(i) != null ? this.ends.get(i) : 0L);
             }
             return buf;
         }
@@ -647,6 +689,9 @@ public class IMPPackets {
             this(uuid, name, image, publiced, initMember, invitePlayers, blockEntityExistence, importMusics, "");
         }
 
+        /**
+         * The import path with a **client-chosen** id (a multi-packet import appends the rest to it); the server refuses a uuid that is already taken.
+         */
         public MusicPlayListMessage(UUID uuid, String name, ImageInfo image, boolean publiced, boolean initMember, List<UUID> invitePlayers, BlockEntityExistence blockEntityExistence, List<Music> importMusics, String source) {
             this.uuid = uuid;
             this.name = name;
@@ -729,6 +774,9 @@ public class IMPPackets {
          * Server-sent names: a **flat name map** (UUID → display name, see {@code IMPNbtUtil#writePlayerNames}).
          */
         public final Map<UUID, String> playerNames;
+        /** Index of the first song in {@link #musics} and how many the playlist holds in total (paged musics only). */
+        public final int musicOffset;
+        public final int musicTotal;
 
         public MusicSyncResponseMessage(FriendlyByteBuf bf) {
             this.syncType = MusicSyncType.getById(bf.readInt());
@@ -744,15 +792,23 @@ public class IMPPackets {
                 var namesTag = bf.readNbt();
                 if (namesTag != null) IMPNbtUtil.readPlayerNames(namesTag, "PlayerNames", playerNames);
             }
+            this.musicOffset = bf.readableBytes() >= 4 ? bf.readInt() : 0;
+            this.musicTotal = bf.readableBytes() >= 4 ? bf.readInt() : 0;
             applyPlayerNames();
         }
 
         public MusicSyncResponseMessage(MusicSyncType syncType, UUID syncId, List<MusicPlayList> playLists, List<Music> musics, Map<UUID, String> playerNames) {
+            this(syncType, syncId, playLists, musics, playerNames, 0, 0);
+        }
+
+        public MusicSyncResponseMessage(MusicSyncType syncType, UUID syncId, List<MusicPlayList> playLists, List<Music> musics, Map<UUID, String> playerNames, int musicOffset, int musicTotal) {
             this.syncType = syncType;
             this.syncId = syncId;
             this.playLists = playLists;
             this.musics = musics;
             this.playerNames = playerNames;
+            this.musicOffset = musicOffset;
+            this.musicTotal = musicTotal;
         }
 
         /**
@@ -777,6 +833,8 @@ public class IMPPackets {
             buf.writeNbt(IMPNbtUtil.writeMusicPlayLists(new CompoundTag(), "PlayLists", playLists));
             buf.writeNbt(IMPNbtUtil.writeMusics(new CompoundTag(), "Musics", musics));
             buf.writeNbt(IMPNbtUtil.writePlayerNames(new CompoundTag(), "PlayerNames", playerNames));
+            buf.writeInt(musicOffset);
+            buf.writeInt(musicTotal);
             return buf;
         }
     }
@@ -784,20 +842,30 @@ public class IMPPackets {
     public static class MusicSyncRequestMessage implements PacketMessage {
         public final MusicSyncType syncType;
         public final UUID syncId;
+        /**
+         * First song to send ({@code MUSIC_BY_PLAYLIST} only): one packet cannot carry an unbounded list ({@code IMPNbtUtil#PACKET_NBT_BUDGET}), so the client pages through.
+         */
+        public final int offset;
 
         public MusicSyncRequestMessage(FriendlyByteBuf bf) {
-            this(MusicSyncType.getById(bf.readInt()), bf.readUUID());
+            this(MusicSyncType.getById(bf.readInt()), bf.readUUID(), bf.readableBytes() >= 4 ? bf.readInt() : 0);
         }
 
         public MusicSyncRequestMessage(MusicSyncType syncType, UUID syncId) {
+            this(syncType, syncId, 0);
+        }
+
+        public MusicSyncRequestMessage(MusicSyncType syncType, UUID syncId, int offset) {
             this.syncType = syncType;
             this.syncId = syncId;
+            this.offset = offset;
         }
 
         @Override
         public RegistryFriendlyByteBuf toRFBB(RegistryFriendlyByteBuf buf) {
             buf.writeInt(syncType.ordinal());
             buf.writeUUID(syncId);
+            buf.writeInt(offset);
             return buf;
         }
     }

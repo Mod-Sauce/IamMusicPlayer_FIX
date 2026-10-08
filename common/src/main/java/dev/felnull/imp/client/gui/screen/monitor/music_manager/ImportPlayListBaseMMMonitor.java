@@ -1,6 +1,7 @@
 package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.bilibili.BiliBiliArcTags;
@@ -21,6 +22,8 @@ import dev.felnull.imp.client.renderer.PlayImageRenderer;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
+import dev.felnull.imp.networking.IMPPackets;
+import dev.felnull.imp.util.IMPNbtUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -30,6 +33,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
+import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +76,9 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     /** An identifier typed character by character only starts a request once typing pauses (Bilibili answers 412 to a burst). */
     private static final long SPACE_ID_DEBOUNCE_MS = 500;
 
+    /** Short line of the two import pages' status slot when this page refused an UP 主页 link (see {@link #allowsSpaceImport()}). */
+    private static final Component SPACE_MIX_REFUSED_TEXT = Component.translatable("imp.text.spaceImportRefused");
+
     /** **Static** on purpose: a re-init (window resize) or re-entering the page would otherwise restart a 20 s /
      * ~40-request load — slow, and a burst against Bilibili's risk control. Dropped when the page stops being an
      * "UP 主页" page. */
@@ -86,6 +93,26 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     private long pendingSpaceIdAt;
     /** UP whose finished load is already written into the block entity (each setter is a client→server instruction). */
     private long spacePushedFor = -1;
+    /** Reason of the last local refusal (null = none); drawn where "what the import would create" is drawn. */
+    private Component importRefusal;
+    /** True while the box holds an UP 主页 id on a page that must not import one (see {@link #allowsSpaceImport()}). */
+    private boolean spaceMixRefused;
+
+    // ---- chunked import: one packet cannot carry an unbounded list ----
+    // A packet NBT tag is capped at 2 MiB accounted (~1100 songs, IMPNbtUtil#PACKET_NBT_BUDGET): the first batch
+    // **creates** the playlist, the rest append to the same id.
+
+    /** Batches still to send (empty = no import running). */
+    private final java.util.ArrayDeque<List<Music>> importBatches = new java.util.ArrayDeque<>();
+    /** Id of the playlist this import creates / appends to. */
+    private UUID importPlaylistId;
+    /** True when the first batch creates the playlist (otherwise every batch appends to an existing one). */
+    private boolean importCreates;
+    /** Import source of the new playlist ({@code space:<mid>} / {@code fav:<fid>} / empty). */
+    private String importSource = "";
+    private int importBatchTotal;
+    private int importBatchSent;
+    private int importSongTotal;
     /** Last rows handed to the category widget; record equality keeps the row identity stable across ticks. */
     private List<SpaceCategoryListWidget.Row> spaceRows = List.of();
     private List<BiliBiliSpaceUtil.SpaceVideo> spaceVideoRows;
@@ -154,7 +181,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
 
         // The layout follows what the box holds right now (an auto-filled space link is already in it), so the page
         // never shows the ordinary view for a frame before switching over.
-        applySpaceLayout(BiliBiliSpaceUtil.midOf(currentIdentifier()) >= 0);
+        applySpaceLayout(allowsSpaceImport() && BiliBiliSpaceUtil.midOf(currentIdentifier()) >= 0);
     }
 
     private boolean tryAutoFillID(){
@@ -202,7 +229,13 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
             drawSmartText(guiGraphics, LOADING_TEXT, getStartX() + 2, getStartY() + 11);
         }
 
-        drawSmartText(guiGraphics, Component.literal(getImportPlayListName()), getStartX() + 200, getStartY() + 167);
+        // A refusal takes the slot of "the playlist this import would create": it is the one thing to read, and it is
+        // where the UP view draws a load failure too.
+        if (importRefusal != null) {
+            drawSmartFixedWidthText(guiGraphics, importRefusal, getStartX() + 200, getStartY() + 167, 168, 0xFFAA0000);
+        } else {
+            drawSmartText(guiGraphics, Component.literal(getImportPlayListName()), getStartX() + 200, getStartY() + 167);
+        }
         drawSmartText(guiGraphics, Component.literal(getImportPlayListAuthor()), getStartX() + 200, getStartY() + 183);
     }
 
@@ -225,7 +258,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         drawSmartFixedWidthText(guiGraphics, Component.literal(upName), x + 29, y + 14, 95);
         drawSmartFixedWidthText(guiGraphics, spaceInfoText(), x + 29, y + 26, 95, 0xFF333333);
 
-        boolean failed = spaceModel.state() == BiliBiliSpaceModel.State.FAILED;
+        boolean failed = spaceModel.state() == BiliBiliSpaceModel.State.FAILED || importRefusal != null;
         drawSmartFixedWidthText(guiGraphics, spaceTitleText(), x + 200, y + 167, 168, failed ? 0xFFAA0000 : 0xFF000000);
         drawSmartFixedWidthText(guiGraphics, spaceSelectionText(), x + 200, y + 183, 80, 0xFF333333);
     }
@@ -283,6 +316,8 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
             return;
         }
         tickSpaceModel();
+        // Batches started by a subclass in this or a previous tick (one packet per tick).
+        tickImportBatches();
         if(playlistLoaderThread != null && !playlistLoaderThread.isAlive()){
             if(playlistLoaderThread.isFailure())
                 resetImport();
@@ -347,6 +382,8 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     }
 
     protected boolean canImport() {
+        if (spaceImportForbidden())
+            return false;
         if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlockEntity)
             return canImport(musicManagerBlockEntity);
         return false;
@@ -413,6 +450,16 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     }
 
     protected void resetImport() {
+        // Leaving the page (or a finished import) must not leave a half-sent job behind: the batches live in this
+        // monitor instance, which survives a page change.
+        if (!importBatches.isEmpty()) {
+            LinkDebug.log("import cancelled", "sent", importBatchSent + "/" + importBatchTotal,
+                    "playlist", importPlaylistId);
+            importBatches.clear();
+        }
+        importPlaylistId = null;
+        if (!spaceMixRefused)
+            importRefusal = null;
         // Clearing the box re-fires the responder, and startPlayListLoad calls resetImport itself, so `resetting`
         // has to block that recursion; otherwise a resolver that yields nothing leaves the page stuck loading.
         resetting = true;
@@ -470,6 +517,93 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         return spaceLayout;
     }
 
+    /** Whether this page may import an UP 主页 at all. The append page must not: an UP's uploads always get their
+     * own playlist, since mixing two UPs makes 「刷新」/「绑定UP」 undecidable. */
+    protected boolean allowsSpaceImport() {
+        return true;
+    }
+
+    /** True when the identifier box holds an UP 主页 id on a page that must not import one. */
+    protected boolean spaceImportForbidden() {
+        return !allowsSpaceImport() && BiliBiliSpaceUtil.midOf(currentIdentifier()) >= 0;
+    }
+
+    /** Splits {@code musics} into batches that each fit one packet and starts sending them (one batch per tick, from
+     * {@link #tickImportBatches()}). {@code create} = the first batch creates the playlist under {@code playListId};
+     * otherwise every batch is appended to that existing playlist. */
+    protected void startChunkedImport(List<Music> musics, UUID playListId, boolean create, String source) {
+        if (!importBatches.isEmpty() || musics == null || musics.isEmpty() || playListId == null)
+            return;
+        int from = 0;
+        while (from < musics.size()) {
+            int count = IMPNbtUtil.fittingMusicCount("ImportMusics", musics, from);
+            importBatches.add(List.copyOf(musics.subList(from, Math.min(from + count, musics.size()))));
+            from += count;
+        }
+        importPlaylistId = playListId;
+        importCreates = create;
+        importSource = source == null ? "" : source;
+        importBatchSent = 0;
+        importBatchTotal = importBatches.size();
+        importSongTotal = musics.size();
+        importRefusal = null;
+        LinkDebug.log("import batches", "songs", importSongTotal, "batches", importBatchTotal,
+                "largest", importBatches.peek().size(), "create", create, "playlist", playListId);
+    }
+
+    /** True while batches are being sent (the page shows the progress instead of the song count). */
+    protected boolean importSending() {
+        return !importBatches.isEmpty();
+    }
+
+    protected int importBatchSent() {
+        return importBatchSent;
+    }
+
+    protected int importBatchTotal() {
+        return importBatchTotal;
+    }
+
+    /** One batch per tick: a burst of packets for a 1000-song import is neither needed nor polite. */
+    private void tickImportBatches() {
+        if (importBatches.isEmpty())
+            return;
+        var musics = importBatches.poll();
+        var existence = BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity());
+        if (importBatchSent == 0 && importCreates) {
+            NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_ADD, new IMPPackets.MusicPlayListMessage(importPlaylistId,
+                    getImportPlayListName(), getImportImageInfo(), false, false, List.of(), existence, musics, importSource).toRFBB());
+        } else {
+            NetworkManager.sendToServer(IMPPackets.MULTIPLE_MUSIC_ADD,
+                    new IMPPackets.MultipleMusicAddMessage(importPlaylistId, musics, existence).toRFBB());
+        }
+        importBatchSent++;
+        LinkDebug.log("import batch sent", "n", importBatchSent + "/" + importBatchTotal, "songs", musics.size(),
+                "playlist", importPlaylistId);
+        if (!importBatches.isEmpty())
+            return;
+        var done = importPlaylistId;
+        LinkDebug.log("import done", "songs", importSongTotal, "batches", importBatchTotal, "playlist", done);
+        importPlaylistId = null;
+        importSource = "";
+        resetImport();
+        importFinished(done);
+    }
+
+    /** Called once every batch has been sent (subclasses: leave the page / drop their caches). */
+    protected void importFinished(UUID playListId) {
+    }
+
+    /** True while a local refusal is on screen (the page then shows why instead of the import count). */
+    protected boolean importRefused() {
+        return importRefusal != null;
+    }
+
+    /** The short refusal line of the two pages' status slot (only the append page refuses anything, see {@link #allowsSpaceImport()}). */
+    protected Component importRefusedStatus() {
+        return SPACE_MIX_REFUSED_TEXT;
+    }
+
     /** Switches the page between the ordinary playlist view and the "UP 主页" view. Both widget sets are built up
      * front and switched by visibility: the layout can change while the page is open, and re-initialising mid-page
      * would need the screen to re-add every widget. */
@@ -505,6 +639,25 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
 
     /** Per-tick work of the "UP 主页" view: layout, load, list contents and the block entity write-back. */
     private void tickSpaceModel() {
+        // 0) an UP 主页 id on a page that must not import one (the append page): refuse it and never touch the API —
+        //    entering the UP view there is exactly how an UP's uploads would end up mixed into an existing playlist
+        if (spaceImportForbidden()) {
+            if (!spaceMixRefused) {
+                spaceMixRefused = true;
+                importRefusal = Component.translatable("imp.text.spaceImportOwnPlaylist");
+                LinkDebug.log("space import refused", "why", "this page adds songs to an existing playlist",
+                        "mid", BiliBiliSpaceUtil.midOf(currentIdentifier()), "monitor", getType().getName());
+            }
+            pendingSpaceId = null;
+            if (spaceLayout)
+                applySpaceLayout(false);
+            return;
+        }
+        if (spaceMixRefused) {
+            spaceMixRefused = false;
+            importRefusal = null;
+        }
+
         // 1) an identifier typed one character at a time only starts a load once typing pauses
         if (pendingSpaceId != null && System.currentTimeMillis() - pendingSpaceIdAt >= SPACE_ID_DEBOUNCE_MS) {
             var id = pendingSpaceId;
@@ -549,6 +702,9 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     /** A category row was clicked in the "UP 主页" view. Ticking several rows unions their videos in the list **and**
      * in 「导入选中分类」; the 「全部」row clears the ticks instead ("no filter at all"). */
     private void pickSpaceCategory(SpaceCategoryListWidget.Row row) {
+        // Another selection: a refusal that was about the previous one no longer describes anything.
+        if (!spaceMixRefused)
+            importRefusal = null;
         if (row.kind() == SpaceCategoryListWidget.Kind.ALL) {
             spaceModel.clearCategoryTicks();
             return;
@@ -668,6 +824,8 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     /** Normally the name the import would create, on failure the reason; too long for the narrow left column, but it
      * is the one thing the user must read. */
     private Component spaceTitleText() {
+        if (importRefusal != null)
+            return importRefusal;
         return spaceModel.state() == BiliBiliSpaceModel.State.FAILED
                 ? Component.literal(spaceModel.error())
                 : Component.literal(spaceModel.playlistName());

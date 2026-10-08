@@ -13,6 +13,35 @@ import java.util.Map;
 import java.util.UUID;
 
 public class IMPNbtUtil {
+    /**
+     * Vanilla caps **one packet NBT tag** at 2 MiB of *accounted* heap ({@code FriendlyByteBuf#readNbt()} →
+     * {@code NbtAccounter.create(2097152L)}). The accounting charges per object — Compound 48, each field
+     * 36 + 28 + 2×chars, String 36 + 2×chars, IntArray 24 + 4n, List 37 + 4n — so one song costs ~1.8 KB although its
+     * payload is only ~400 bytes. Everything that ships a **list** in one packet must be split by this measure:
+     * 1194 songs (one UP's uploads) are 2.09 MiB and the receiving side throws while decoding the NBT.
+     */
+    public static final int PACKET_NBT_LIMIT = 2097152;
+    /** What one packet may hold, with a margin. */
+    public static final int PACKET_NBT_BUDGET = PACKET_NBT_LIMIT - 131072;
+
+    /** Accounted size of a music list exactly as a packet carries it (measured, so the titles' length counts). */
+    public static int musicsSizeInBytes(String name, List<Music> musics) {
+        return writeMusics(new CompoundTag(), name, musics).sizeInBytes();
+    }
+
+    /** How many songs from {@code from} fit {@link #PACKET_NBT_BUDGET}; never 0, so a chunked walk always progresses. */
+    public static int fittingMusicCount(String name, List<Music> musics, int from) {
+        int lo = 0, hi = musics.size() - from;
+        while (lo < hi) {
+            int mid = (lo + hi + 1) / 2;
+            if (musicsSizeInBytes(name, musics.subList(from, from + mid)) <= PACKET_NBT_BUDGET)
+                lo = mid;
+            else
+                hi = mid - 1;
+        }
+        return Math.max(lo, 1);
+    }
+
     public static CompoundTag writeAuthority(CompoundTag tag, String name, Map<UUID, AuthorityInfo.AuthorityType> authority) {
         return OENbtUtils.writeUUIDKeyMap(tag, name, authority, n -> {
             CompoundTag taaa = new CompoundTag();

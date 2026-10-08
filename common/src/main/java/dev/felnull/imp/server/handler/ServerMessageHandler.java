@@ -10,6 +10,7 @@ import dev.felnull.imp.music.resource.MusicPlayList;
 import dev.felnull.imp.networking.IMPPackets;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.MusicRingManager;
+import dev.felnull.imp.util.IMPNbtUtil;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.*;
@@ -63,6 +64,26 @@ public class ServerMessageHandler {
             if (!list.isEmpty())
                 MusicManager.getInstance().fixBiliBiliDuration(packetContext.getPlayer().getServer(),
                         dev.felnull.imp.util.BiliBiliIds.stripPage(message.bvid), list.get(0).durationMs());
+        });
+    }
+
+    /**
+     * 客户端报的赞助/广告片段：服务端把音响位置**推到片段之后**（时间轴按内容走，曲尾不留静音）；空表 = 忘掉这首；除形状外什么都不信（起止成对、时长为正）。
+     */
+    public static void onBiliBiliSponsorMessage(IMPPackets.BiliBiliSponsorMessage message, NetworkManager.PacketContext packetContext) {
+        packetContext.queue(() -> {
+            var starts = message.starts;
+            var ends = message.ends;
+            int n = Math.min(starts.size(), ends.size());
+            var list = new java.util.ArrayList<long[]>(n);
+            for (int i = 0; i < n; i++) {
+                var start = starts.get(i);
+                var end = ends.get(i);
+                if (start == null || end == null || end <= start)
+                    continue;
+                list.add(new long[]{Math.max(0L, start), end});
+            }
+            dev.felnull.imp.server.music.BiliBiliSponsorCache.getInstance().remember(message.identifier, list);
         });
     }
 
@@ -213,24 +234,31 @@ public class ServerMessageHandler {
     public static void onMusicPlayListAddMessage(IMPPackets.MusicPlayListMessage message, NetworkManager.PacketContext packetContext) {
         packetContext.queue(() -> {
             var player = (ServerPlayer) packetContext.getPlayer();
-            if (message.blockEntityExistence.check(player.level())) {
-                Map<UUID, AuthorityInfo.AuthorityType> authTypes = new HashMap<>();
-                message.invitePlayers.forEach(n -> authTypes.put(n, AuthorityInfo.AuthorityType.INVITATION));
-                var auth = new AuthorityInfo(message.publiced, packetContext.getPlayer().getGameProfile().getId(), packetContext.getPlayer().getGameProfile().getName(), authTypes, message.initMember ? AuthorityInfo.AuthorityType.MEMBER : AuthorityInfo.AuthorityType.READ_ONLY);
-                var pl = new MusicPlayList(UUID.randomUUID(), message.name, message.image, auth, new ArrayList<>(), System.currentTimeMillis(), message.source);
-                var mm = MusicManager.getInstance();
-                mm.addPlayList(packetContext.getPlayer().getServer(), pl);
-                mm.addPlayListToPlayer(packetContext.getPlayer().getServer(), pl.getUuid(), (ServerPlayer) packetContext.getPlayer());
-
-                for (Music importMusic : message.importMusics) {
-                    Music music = new Music(UUID.randomUUID(), importMusic.getName(), importMusic.getAuthor(), importMusic.getSource(), importMusic.getImage(), player.getGameProfile().getId(), System.currentTimeMillis());
-                    mm.addMusicToPlayList(player, pl.getUuid(), music);
-                }
-
-                var be = (MusicManagerBlockEntity) ((ServerPlayer) packetContext.getPlayer()).level().getBlockEntity(message.blockEntityExistence.blockPos());
-                if (be != null)
-                    be.setSelectedPlayList((ServerPlayer) packetContext.getPlayer(), pl.getUuid());
+            if (!message.blockEntityExistence.check(player.level())) return;
+            var mm = MusicManager.getInstance();
+            var save = mm.getSaveData(player.getServer());
+            // The id comes from the client: an import bigger than one packet creates the playlist with the first batch
+            // and appends the rest to this very id (see ImportPlayListBaseMMMonitor). A uuid that is already taken is
+            // rejected — a client must not be able to write into someone else's playlist by guessing its id.
+            if (save.getPlayLists().containsKey(message.uuid)) {
+                dev.felnull.imp.client.music.link.LinkDebug.log("playlist add refused", "why", "uuid already taken",
+                        "uuid", message.uuid, "player", player.getGameProfile().getName());
+                return;
             }
+            Map<UUID, AuthorityInfo.AuthorityType> authTypes = new HashMap<>();
+            message.invitePlayers.forEach(n -> authTypes.put(n, AuthorityInfo.AuthorityType.INVITATION));
+            var auth = new AuthorityInfo(message.publiced, packetContext.getPlayer().getGameProfile().getId(), packetContext.getPlayer().getGameProfile().getName(), authTypes, message.initMember ? AuthorityInfo.AuthorityType.MEMBER : AuthorityInfo.AuthorityType.READ_ONLY);
+            var pl = new MusicPlayList(message.uuid, message.name, message.image, auth, new ArrayList<>(), System.currentTimeMillis(), message.source);
+            mm.addPlayList(packetContext.getPlayer().getServer(), pl);
+            mm.addPlayListToPlayer(packetContext.getPlayer().getServer(), pl.getUuid(), (ServerPlayer) packetContext.getPlayer());
+            // One batch, one dirty (the per-song path broadcasts a full update after every single song).
+            mm.addMusicsToPlayList(packetContext.getPlayer().getServer(), pl.getUuid(), message.importMusics, player);
+
+            var be = (MusicManagerBlockEntity) ((ServerPlayer) packetContext.getPlayer()).level().getBlockEntity(message.blockEntityExistence.blockPos());
+            if (be != null)
+                be.setSelectedPlayList((ServerPlayer) packetContext.getPlayer(), pl.getUuid());
+            dev.felnull.imp.client.music.link.LinkDebug.log("playlist created", "uuid", pl.getUuid(),
+                    "songs", message.importMusics.size(), "source", message.source.isBlank() ? "(none)" : message.source);
         });
     }
 
@@ -248,16 +276,22 @@ public class ServerMessageHandler {
                 case PLAYLIST_INVITES ->
                         sendMusicSyncData(pl, message.syncType, message.syncId, mm.getPlayerPlayLists(pl, MusicManager.PlayListGetType.INVITES), new ArrayList<>());
                 case MUSIC_BY_PLAYLIST -> {
-                    var mpl = mm.getSaveData(packetContext.getPlayer().getServer()).getPlayLists().get(message.syncId);
+                    var mm2 = mm.getSaveData(packetContext.getPlayer().getServer());
+                    var mpl = mm2.getPlayLists().get(message.syncId);
                     if (mpl != null && mpl.getAuthority().getAuthorityType(pl.getGameProfile().getId()).isMoreReadOnly()) {
-                        List<Music> musics = new ArrayList<>();
+                        List<Music> all = new ArrayList<>();
                         mpl.getMusicList().forEach(n -> {
-                            var music = mm.getSaveData(packetContext.getPlayer().getServer()).getMusics().get(n);
+                            var music = mm2.getMusics().get(n);
                             if (music != null)
-                                musics.add(music);
+                                all.add(music);
                         });
-
-                        sendMusicSyncData(pl, message.syncType, message.syncId, new ArrayList<>(), musics);
+                        // One packet cannot carry an unbounded song list (2 MiB accounted NBT per tag ⇒ ~1100 songs):
+                        // send the largest page that fits and let the client ask for the next one (offset/total).
+                        int offset = Math.max(0, Math.min(message.offset, all.size()));
+                        int count = IMPNbtUtil.fittingMusicCount("Musics", all, offset);
+                        int end = Math.min(offset + count, all.size());
+                        sendMusicSyncData(pl, message.syncType, message.syncId, new ArrayList<>(),
+                                new ArrayList<>(all.subList(offset, end)), offset, all.size());
                     }
                 }
             }
@@ -306,6 +340,10 @@ public class ServerMessageHandler {
     }
 
     private static void sendMusicSyncData(ServerPlayer player, IMPPackets.MusicSyncType syncType, UUID uuid, List<MusicPlayList> playLists, List<Music> musics) {
-        NetworkManager.sendToPlayer(player, IMPPackets.MUSIC_SYNC_STC, new IMPPackets.MusicSyncResponseMessage(syncType, uuid, playLists, musics, collectPlayerNames(player, playLists, musics)).toRFBB());
+        sendMusicSyncData(player, syncType, uuid, playLists, musics, 0, 0);
+    }
+
+    private static void sendMusicSyncData(ServerPlayer player, IMPPackets.MusicSyncType syncType, UUID uuid, List<MusicPlayList> playLists, List<Music> musics, int musicOffset, int musicTotal) {
+        NetworkManager.sendToPlayer(player, IMPPackets.MUSIC_SYNC_STC, new IMPPackets.MusicSyncResponseMessage(syncType, uuid, playLists, musics, collectPlayerNames(player, playLists, musics), musicOffset, musicTotal).toRFBB());
     }
 }

@@ -1,14 +1,14 @@
 package dev.felnull.imp.client.gui.screen.monitor.music_manager;
 
-import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import dev.felnull.imp.client.music.MusicSyncManager;
 import dev.felnull.imp.client.music.playlist.IPlaylistResolver;
-import dev.felnull.imp.networking.IMPPackets;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.modsauce.otyacraftenginerenewed.networking.existence.BlockEntityExistence;
+
+import java.util.List;
+import java.util.UUID;
 
 public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
     protected static final Component IMPORTING_TEXT = Component.translatable("imp.text.importing");
@@ -28,6 +28,10 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
             ipTx = IMPORTING_TEXT;
         } else if (importMusicLoaderThread != null && importMusicLoaderThread.isFailure()) {
             ipTx = IMPORT_FAILURE_TEXT;
+        } else if (importRefused()) {
+            ipTx = importRefusedStatus();
+        } else if (importSending()) {
+            ipTx = Component.translatable("imp.text.importProgress", importBatchSent(), importBatchTotal());
         } else if (getImportPlayListMusicCount() > 0) {
             ipTx = Component.translatable("imp.text.importMusicCount", getImportPlayListMusicCount());
         }
@@ -47,6 +51,14 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
     protected MusicManagerBlockEntity.MonitorType fallbackParentType() {
         // Fallback for "origin unknown" only (see the base method of the same name).
         return MusicManagerBlockEntity.MonitorType.IMPORT_MUSICS_SELECT;
+    }
+
+    /**
+     * No UP 主页 here: this page adds to the already-selected playlist, and an UP's uploads must become their own playlist (mixing two UPs makes 「刷新」/「绑定UP」 undecidable).
+     */
+    @Override
+    protected boolean allowsSpaceImport() {
+        return false;
     }
 
     private boolean isImporting() {
@@ -74,16 +86,26 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
         if(importMusicLoaderThread == null)return;
         if(isImporting())return;
         if(importMusicLoaderThread.isFailure())return;
-
+        // Batched like the create page (one packet cannot carry an unbounded list), but appending to the playlist this
+        // page already has selected — nothing here creates a playlist.
         if (getScreen().getBlockEntity() instanceof MusicManagerBlockEntity musicManagerBlock) {
             var playList = musicManagerBlock.getSelectedPlayList(mc.player);
-            NetworkManager.sendToServer(IMPPackets.MULTIPLE_MUSIC_ADD, new IMPPackets.MultipleMusicAddMessage(playList, getMusics(), BlockEntityExistence.getByBlockEntity(getScreen().getBlockEntity())).toRFBB());
-            // The server broadcasts nothing after an add, so drop this list's sync stamp or the songs we just imported
-            // would not show up until the 60 s cache expired / the page was reopened (see MusicSyncManager#invalidateMusics).
-            MusicSyncManager.getInstance().invalidateMusics(playList);
+            var musics = List.copyOf(getMusics());
+            importMusicLoaderThread = null;
+            startChunkedImport(musics, playList, false, "");
+            return;
         }
-        resetImport();
         importMusicLoaderThread = null;
+        resetImport();
+        insMonitor(MusicManagerBlockEntity.MonitorType.PLAY_LIST);
+    }
+
+    /**
+     * Every batch is out: drop this list's sync stamp — the server broadcasts nothing after an add, so the imported songs would not show up until the 60 s cache expired.
+     */
+    @Override
+    protected void importFinished(UUID playListId) {
+        MusicSyncManager.getInstance().invalidateMusics(playListId);
         insMonitor(MusicManagerBlockEntity.MonitorType.PLAY_LIST);
     }
 }

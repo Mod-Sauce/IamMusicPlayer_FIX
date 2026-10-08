@@ -82,6 +82,32 @@ public class MusicManager {
         }
     }
 
+    /**
+     * Appends a whole batch with **one** {@code setDirty()} (that call broadcasts a full update, so per-song would send ~1000 broadcasts); the songs are re-owned by {@code player}.
+     */
+    public void addMusicsToPlayList(MinecraftServer server, UUID playListId, List<Music> musics, ServerPlayer player) {
+        if (musics == null || musics.isEmpty()) return;
+        var save = getSaveData(server);
+        var pl = save.getPlayLists().get(playListId);
+        if (pl == null) {
+            dev.felnull.imp.client.music.link.LinkDebug.log("music add skipped", "why", "no such playlist",
+                    "playlist", playListId, "songs", musics.size());
+            return;
+        }
+        if (!pl.getAuthority().getAuthorityType(player.getGameProfile().getId()).canAddMusic()) return;
+        var owner = player.getGameProfile().getId();
+        var now = System.currentTimeMillis();
+        var list = pl.getMusicList();
+        for (var music : musics) {
+            var added = new Music(UUID.randomUUID(), music.getName(), music.getAuthor(), music.getSource(),
+                    music.getImage(), owner, now);
+            save.getMusics().put(added.getUuid(), added);
+            list.add(added.getUuid());
+        }
+        save.setDirty();
+        IMPCriteriaTriggers.ADD_MUSIC.trigger(player);
+    }
+
     public List<MusicPlayList> getPlayerPlayLists(ServerPlayer player, PlayListGetType getType) {
         var uuid = player.getGameProfile().getId();
         List<MusicPlayList> playLists = new ArrayList<>();
@@ -312,29 +338,37 @@ public class MusicManager {
      */
     public void addMultipleMusic(MinecraftServer server, UUID playListId, List<Music> musics, List<UUID> afterMusics,
                                  ServerPlayer player) {
-        var pl = getSaveData(server).getPlayLists().get(playListId);
-        if (pl == null) return;
+        if (musics == null || musics.isEmpty()) return;
+        var save = getSaveData(server);
+        var pl = save.getPlayLists().get(playListId);
+        if (pl == null) {
+            dev.felnull.imp.client.music.link.LinkDebug.log("music add skipped", "why", "no such playlist",
+                    "playlist", playListId, "songs", musics.size());
+            return;
+        }
         if (!pl.getAuthority().getAuthorityType(player.getGameProfile().getId()).canAddMusic()) return;
         // How many songs were already inserted behind each anchor in this batch: without it the second part would be
         // placed at the same index as the first and the two would come out in reverse order.
         var inserted = new java.util.HashMap<UUID, Integer>();
+        var owner = player.getGameProfile().getId();
+        var now = System.currentTimeMillis();
+        var list = pl.getMusicList();
         for (int i = 0; i < musics.size(); i++) {
             Music music = musics.get(i);
-            var am = new Music(UUID.randomUUID(), music.getName(), music.getAuthor(), music.getSource(), music.getImage(), player.getGameProfile().getId(), System.currentTimeMillis());
+            var am = new Music(UUID.randomUUID(), music.getName(), music.getAuthor(), music.getSource(), music.getImage(), owner, now);
+            save.getMusics().put(am.getUuid(), am);
             UUID anchor = afterMusics != null && i < afterMusics.size() ? afterMusics.get(i) : null;
-            var list = pl.getMusicList();
             int base = anchor == null ? -1 : list.indexOf(anchor);
             if (base < 0) {
-                addMusicToPlayList(player, pl.getUuid(), am);
+                list.add(am.getUuid());
                 continue;
             }
-            addMusic(server, am);
             int offset = inserted.merge(anchor, 1, Integer::sum);
             list.add(Math.min(base + offset, list.size()), am.getUuid());
-            getSaveData(server).setDirty();
-            // Same trigger the append path gets through addMusicToPlayList(player, …)
-            IMPCriteriaTriggers.ADD_MUSIC.trigger(player);
         }
+        // One setDirty() for the whole batch (it broadcasts a full update to every player, see deleteMusics).
+        save.setDirty();
+        IMPCriteriaTriggers.ADD_MUSIC.trigger(player);
     }
 
 
