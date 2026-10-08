@@ -151,6 +151,10 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("hud")
   public boolean hudBottomLyricLine = true;
 
+  /** Bottom HUD karaoke: needs per-character timings (QQ QRC, KuGou krc); the rest keep the single-colour line. */
+  @ConfigEntry.Category("hud")
+  public boolean hudBottomKaraoke = false;
+
   /** Bottom HUD background: {@code PLAIN} = none (vanilla shadow), {@code STRIP} = strip, {@code BOX} = dark box. */
   public enum HudBottomStyle {
     PLAIN, STRIP, BOX
@@ -290,6 +294,9 @@ public class IMPConfig implements ConfigData {
 
     /** Do not stop the music when switching between the remote play page and the song picker with the antenna key. */
     public boolean keepPlayingOnRemoteSwitch = true;
+
+    /** World playback drops a track that only comes back as a trial clip (e.g. VIP); the playlist page still plays it. */
+    public boolean skipTrialFragment = true;
   }
 
   public static class UiConfig {
@@ -446,6 +453,12 @@ public class IMPConfig implements ConfigData {
     public boolean enableBilibili = true;
 
     /**
+     * 跳过 B站 的赞助/广告片段（SponsorBlock / 哔哩屏蔽团 {@code bsbsb.top}，只取「赞助/恰饭」与「无偿推广」两类）：
+     * 在读取端把这几段音频整块丢掉，不重开流也不静音；查不到片段就当没有。
+     */
+    public boolean skipSponsorSegments = false;
+
+    /**
      * Whether to load Bilibili video covers (the image of a Bilibili music entry).
      */
     public boolean loadVideoImage = true;
@@ -522,9 +535,17 @@ public class IMPConfig implements ConfigData {
   public static class QQMusicConfig{
     public boolean enableQQMusic = true;
 
-    /**
-     * QQ Music cookie. **Not required**, but filling it in covers more tracks and higher audio quality.
-     */
+    /** QQ Music cookie, not required, but it covers more tracks at higher quality; the login button writes it. */
     public String QQMusicCookie = "";
+
+    /**
+     * Playback quality: {@code auto} = start at lossless and step down until QQ hands out a file, {@code 320} = up to
+     * 320k MP3, {@code 128} = the standard file. A locked tier comes back empty, so stepping down is safe.
+     */
+    public String QQMusicQuality = "auto";
+
+    /** Result goes into {@link #QQMusicCookie}; optional — anonymous requests already play part of QQ's catalogue. */
+    @Button("loginQQMusic")
+    public Void loginQQMusic = null;
   }
 }
