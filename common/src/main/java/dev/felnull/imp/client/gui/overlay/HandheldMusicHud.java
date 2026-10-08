@@ -16,16 +16,8 @@ import net.minecraft.network.chat.Component;
 import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
 
 /**
- * Bottom-centre HUD for the **handheld** boombox ("手提音响"):
- * <pre>
- *        歌名 — 作者        ← dim    (switch: hudBottomSongLine)
- *     当前歌词 / 字幕行      ← bright (switch: hudBottomLyricLine)
- *     切歌弹窗（同一行位置，仅当歌名行关掉时）  (switches: hudSongChangePopup / hudSongChangeSeconds)
- * </pre>
- * Each line has its own switch; the song-change popup only applies while the permanent song line is off.
- * <p>
- * Position is {@code hudBottomMargin} px above the bottom edge, floored at 60 (the vanilla HUD band ends there);
- * hidden while the F3 debug screen is up.
+ * Bottom-centre HUD for the **handheld** boombox ("手提音响"): song line + lyric line (karaoke when the lyrics carry
+ * per-word timings), each with its own switch, plus a song-change popup that only shows while the song line is off.
  */
 public class HandheldMusicHud {
     private static final Minecraft mc = Minecraft.getInstance();
@@ -70,9 +62,17 @@ public class HandheldMusicHud {
         }
 
         if (cfg.hudBottomLyricLine && lyric != null && !lyric.isEmpty()) {
-            var part = lyric.getPart(data.getMusicPosition() / 1000f - Lyric.lyricOffsetSeconds());
-            if (part != null && part.getA() != null && !part.getA().isBlank())
-                drawLine(guiGraphics, Component.literal(part.getA()), screenWidth / 2, lyricLineY, 0xFFFFFFFF, maxWidth, style, 1f);
+            var position = data.getMusicPosition() / 1000f - Lyric.lyricOffsetSeconds();
+            var part = lyric.getPart(position);
+            if (part != null && part.getA() != null && !part.getA().isBlank()) {
+                // Karaoke only on tracks whose lyrics really carry per-character timings; the rest keep the plain line,
+                // so the switch can never leave the line empty.
+                var words = cfg.hudBottomKaraoke ? lyric.getWords(position) : null;
+                if (words != null && !words.isEmpty())
+                    drawKaraokeLine(guiGraphics, words, position, screenWidth / 2, lyricLineY, maxWidth, style, 1f);
+                else
+                    drawLine(guiGraphics, Component.literal(part.getA()), screenWidth / 2, lyricLineY, 0xFFFFFFFF, maxWidth, style, 1f);
+            }
         }
     }
 
@@ -159,6 +159,13 @@ public class HandheldMusicHud {
         int x = centerX - width / 2;
         int a = Math.max(0, Math.min(255, (int) (alpha * 255f)));
 
+        drawBackdrop(guiGraphics, x, width, y, style, a);
+        // PLAIN keeps the vanilla text shadow; the styles with a background draw flat (the background separates them)
+        guiGraphics.drawString(mc.font, shown, x, y, (a << 24) | (color & 0xFFFFFF), style == IMPConfig.HudBottomStyle.PLAIN);
+    }
+
+    /** Background of one bottom-HUD line, shared with the karaoke line; {@code PLAIN} draws nothing. */
+    private static void drawBackdrop(GuiGraphics guiGraphics, int x, int width, int y, IMPConfig.HudBottomStyle style, int a) {
         switch (style) {
             case STRIP -> guiGraphics.fill(x - 2, y - 1, x + width + 2, y + mc.font.lineHeight, (a * 0x60 / 255) << 24);
             case BOX -> {
@@ -169,7 +176,26 @@ public class HandheldMusicHud {
             case PLAIN -> {
             }
         }
-        // PLAIN keeps the vanilla text shadow; the styles with a background draw flat (the background separates them)
-        guiGraphics.drawString(mc.font, shown, x, y, (a << 24) | (color & 0xFFFFFF), style == IMPConfig.HudBottomStyle.PLAIN);
+    }
+
+    /** As the plain line, but each word in its own colour ({@link HudKaraokeLine}); backdrop sized from the segments. */
+    private static void drawKaraokeLine(GuiGraphics guiGraphics, java.util.List<Lyric.Word> words, float position,
+                                        int centerX, int y, int maxWidth, IMPConfig.HudBottomStyle style, float alpha) {
+        var segments = HudKaraokeLine.segments(words, position, maxWidth, mc.font::width);
+        if (segments.isEmpty())
+            return;
+        int width = 0;
+        for (var segment : segments)
+            width += mc.font.width(segment.text());
+        int x = centerX - width / 2;
+        int a = Math.max(0, Math.min(255, (int) (alpha * 255f)));
+
+        drawBackdrop(guiGraphics, x, width, y, style, a);
+        boolean shadow = style == IMPConfig.HudBottomStyle.PLAIN;
+        int px = x;
+        for (var segment : segments) {
+            guiGraphics.drawString(mc.font, segment.text(), px, y, (a << 24) | (segment.color() & 0xFFFFFF), shadow);
+            px += mc.font.width(segment.text());
+        }
     }
 }

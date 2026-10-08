@@ -30,14 +30,14 @@ import java.util.UUID;
  * Floating lyrics in the world: the current line (original light gray, translation pure white, height 12) at {@code scale(-0.025)} with a translucent backdrop, facing the camera.
  */
 public class BlockLyricRenderer {
-    /** Original text color (light gray). */
-    private static final int ORIGINAL_COLOR = 0xFFAAAAAA;
+    /** Original text color (light gray); also "not sung yet" in the karaoke path (the bottom HUD reuses it). */
+    public static final int ORIGINAL_COLOR = 0xFFAAAAAA;
     /** Translation text color (pure white). */
     private static final int TRANSLATED_COLOR = 0xFFFFFFFF;
-    /** Per-character karaoke: the character currently being sung is highlighted in golden yellow. */
-    private static final int ACTIVE_WORD_COLOR = 0xFFFFD54F;
-    /** Per-character karaoke: characters already sung are pure white. */
-    private static final int SUNG_WORD_COLOR = 0xFFFFFFFF;
+    /** Per-character karaoke: the character currently being sung is highlighted in golden yellow (shared with the bottom HUD). */
+    public static final int ACTIVE_WORD_COLOR = 0xFFFFD54F;
+    /** Per-character karaoke: characters already sung are pure white (shared with the bottom HUD). */
+    public static final int SUNG_WORD_COLOR = 0xFFFFFFFF;
     /**
      * **Invisible text color** used to draw the "whole line backdrop" once: black + alpha=4/255 (≈1.6%, invisible to the eye).
      */
