@@ -14,17 +14,14 @@ import java.util.UUID;
 
 public class IMPNbtUtil {
     /**
-     * Vanilla caps **one packet NBT tag** at 2 MiB of *accounted* heap ({@code FriendlyByteBuf#readNbt()} →
-     * {@code NbtAccounter.create(2097152L)}). The accounting charges per object — Compound 48, each field
-     * 36 + 28 + 2×chars, String 36 + 2×chars, IntArray 24 + 4n, List 37 + 4n — so one song costs ~1.8 KB although its
-     * payload is only ~400 bytes. Everything that ships a **list** in one packet must be split by this measure:
-     * 1194 songs (one UP's uploads) are 2.09 MiB and the receiving side throws while decoding the NBT.
+     * vanilla 对**一个包内 NBT 标签**限 2 MiB 记账字节（{@code NbtAccounter.create(2097152L)}）；
+     * 记账按对象开销算：一首歌载荷 ~400 字节却记 ~1.8 KB ⇒ 一个包约 1100 首封顶，凡「一个包发一个列表」的路径都要切批。
      */
     public static final int PACKET_NBT_LIMIT = 2097152;
     /** What one packet may hold, with a margin. */
     public static final int PACKET_NBT_BUDGET = PACKET_NBT_LIMIT - 131072;
 
-    /** Accounted size of a music list exactly as a packet carries it (measured, so the titles' length counts). */
+    /** Accounted size of a music list exactly as a packet carries it (the titles' length decides, so it is measured). */
     public static int musicsSizeInBytes(String name, List<Music> musics) {
         return writeMusics(new CompoundTag(), name, musics).sizeInBytes();
     }

@@ -535,9 +535,12 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         if (!importBatches.isEmpty() || musics == null || musics.isEmpty() || playListId == null)
             return;
         int from = 0;
+        int largest = 0;
         while (from < musics.size()) {
             int count = IMPNbtUtil.fittingMusicCount("ImportMusics", musics, from);
-            importBatches.add(List.copyOf(musics.subList(from, Math.min(from + count, musics.size()))));
+            var batch = List.copyOf(musics.subList(from, Math.min(from + count, musics.size())));
+            importBatches.add(batch);
+            largest = Math.max(largest, batch.size());
             from += count;
         }
         importPlaylistId = playListId;
@@ -548,7 +551,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         importSongTotal = musics.size();
         importRefusal = null;
         LinkDebug.log("import batches", "songs", importSongTotal, "batches", importBatchTotal,
-                "largest", importBatches.peek().size(), "create", create, "playlist", playListId);
+                "largest", largest, "create", create, "playlist", playListId);
     }
 
     /** True while batches are being sent (the page shows the progress instead of the song count). */

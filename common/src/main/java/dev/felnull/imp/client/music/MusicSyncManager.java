@@ -59,22 +59,26 @@ public class MusicSyncManager {
      * shorter than the total the next page is fetched at once (one packet NBT tag is capped at 2 MiB, ~1100 songs). */
     public void applyMusicPage(@Nullable UUID playList, List<Music> page, int offset, int total) {
         if (playList == null) return;
+        var existing = musics.get(playList);
+        if (offset > 0 && (existing == null || existing.size() != offset)) {
+            // The playlist changed between pages (a batch import, a part expansion, a deletion): the server's slice no
+            // longer lines up with what we hold, and keeping "old head + new tail" would be wrong for the whole 60 s
+            // cache window. Drop it and fetch from the start again.
+            dev.felnull.imp.client.music.link.LinkDebug.log("playlist page desync", "playlist", playList,
+                    "have", existing == null ? -1 : existing.size(), "offset", offset, "total", total);
+            musics.remove(playList);
+            musicTotals.remove(playList);
+            musicLoading.add(playList);
+            sendRequest(IMPPackets.MusicSyncType.MUSIC_BY_PLAYLIST, playList, 0);
+            return;
+        }
         List<Music> list;
-        if (offset <= 0) {
+        if (offset <= 0 || existing == null) {
             list = new ArrayList<>(page);
             musics.put(playList, list);
         } else {
-            var existing = musics.get(playList);
-            if (existing == null) {
-                list = new ArrayList<>(page);
-                musics.put(playList, list);
-            } else {
-                list = existing;
-                // A page may arrive twice (an overlapping re-request): drop what we already have behind this offset.
-                if (offset < list.size())
-                    list.subList(offset, list.size()).clear();
-                list.addAll(page);
-            }
+            list = existing;
+            list.addAll(page);
         }
         musicTotals.put(playList, total);
         // The counter is per **sync**: the page re-requests the whole list when the 60 s cache is stale (and after our
