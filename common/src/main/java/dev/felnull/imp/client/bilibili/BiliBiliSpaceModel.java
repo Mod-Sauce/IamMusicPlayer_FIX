@@ -11,9 +11,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Loads a UP's space ("UP 主页") into the view model: submissions plus the two groupings (the UP's 合集, Bilibili's parent
+ * Loads a UP's space into the view model: submissions plus the two groupings (the UP's seasons, Bilibili's parent
  * zone). Own thread, UI polls the volatile snapshot; paced by {@code delayMs} and capped by {@code maxPages} because risk
- * control answers 412 / {@code -352} to a burst. Plan: page 1 ({@code tlist}) → per zone ({@code tid}) → 合集 ({@code seasons_archives_list}).
+ * control answers 412 / {@code -352} to a burst. Plan: page 1 ({@code tlist}) → per zone ({@code tid}) → seasons
+ * ({@code seasons_archives_list}).
  */
 public final class BiliBiliSpaceModel {
     /** Overall load state (the view only draws rows once it is {@link #DONE}). */
@@ -26,7 +27,7 @@ public final class BiliBiliSpaceModel {
         IDLE, VIDEOS, ZONES, SEASONS, DONE, FAILED
     }
 
-    /** One row of the category list: either a 合集 (UP-defined) or a parent zone. */
+    /** One row of the category list: either a season (UP-defined) or a parent zone. */
     public record Category(String name, int count, boolean zone) {
     }
 
@@ -39,7 +40,7 @@ public final class BiliBiliSpaceModel {
             return new Tag(zone, seasons);
         }
 
-        /** Adds one 合集 membership; the set is copied so a published tag is never mutated in place. */
+        /** Adds one season membership; the set is copied so a published tag is never mutated in place. */
         public Tag withSeason(String season) {
             var next = new LinkedHashSet<>(seasons);
             next.add(season);
@@ -47,10 +48,10 @@ public final class BiliBiliSpaceModel {
         }
     }
 
-    /** Tick key of the "no 合集" row; SEASON/ZONE keys are built by {@link #tickKey}. */
+    /** Tick key of the "no season" row; the SEASON/ZONE keys are built by {@link #tickKey}. */
     public static final String TICK_UNGROUPED = "U";
 
-    /** Tick key of one category row ({@code S:<合集名>} / {@code Z:<父分区名>}). */
+    /** Tick key of one category row ({@code S:<season name>} / {@code Z:<parent zone name>}). */
     public static String tickKey(boolean zone, String name) {
         return (zone ? "Z:" : "S:") + name;
     }
@@ -80,14 +81,14 @@ public final class BiliBiliSpaceModel {
     private volatile Set<String> selected = new LinkedHashSet<>();
 
     /**
-     * True when the video list came from the fallback endpoint: the parent zone and the 充电专属/课堂/直播回放 flags are
-     * then unknown, so there is no 分区 dimension and those entries are not excluded.
+     * True when the video list came from the fallback endpoint: the parent zone and the charging-only / paid course /
+     * live replay flags are then unknown, so there is no zone dimension and those entries are not excluded.
      */
     private volatile boolean filterRelaxed;
 
     /**
      * Ticked category rows (see {@link #tickKey}); empty = everything. Their union is both what the list shows and
-     * what 「导入选中分类」 takes, so one import can cover several 合集.
+     * what "Import ticked categories" takes, so one import can cover several seasons.
      */
     private volatile Set<String> categoryTicks = new LinkedHashSet<>();
 
@@ -150,12 +151,12 @@ public final class BiliBiliSpaceModel {
         return tags.getOrDefault(bvid, Tag.EMPTY);
     }
 
-    /** Name of the playlist the import builds ("<UP 名>的投稿" — no space: the user asked for it to be removed). */
+    /** Name of the playlist the import builds ("&lt;UP name&gt;的投稿" — no space: the user asked for the space to be removed). */
     public String playlistName() {
         return upName.isBlank() ? ("UP " + mid + "的投稿") : (upName + "的投稿");
     }
 
-    /** The 合集 rows, biggest first; counts come from the tags, so a row lists exactly as many videos as it says. */
+    /** The season rows, biggest first; the counts come from the tags, so a row lists exactly as many videos as it says. */
     public List<Category> seasons() {
         var out = new ArrayList<Category>();
         var seen = new LinkedHashSet<String>();
@@ -192,7 +193,7 @@ public final class BiliBiliSpaceModel {
         return out;
     }
 
-    /** How many loaded videos belong to no 合集 at all. */
+    /** How many loaded videos belong to no season at all. */
     public int ungroupedCount() {
         return countTagged(t -> t.seasons().isEmpty());
     }
@@ -217,7 +218,7 @@ public final class BiliBiliSpaceModel {
         return categoryTicks.contains(key);
     }
 
-    /** Ticks/untick one category row (see {@link #tickKey}); "未分类" uses {@link #TICK_UNGROUPED}. */
+    /** Ticks/untick one category row (see {@link #tickKey}); "ungrouped" uses {@link #TICK_UNGROUPED}. */
     public void toggleCategoryTick(String key) {
         if (key == null || key.isBlank())
             return;
@@ -227,7 +228,7 @@ public final class BiliBiliSpaceModel {
         categoryTicks = next;
     }
 
-    /** The 「全部」row: no ticks at all means "the whole list". */
+    /** The "All" row: no ticks at all means "the whole list". */
     public void clearCategoryTicks() {
         categoryTicks = new LinkedHashSet<>();
     }
@@ -285,7 +286,7 @@ public final class BiliBiliSpaceModel {
 
     /**
      * The videos the view should show now: the whole list, or only the rows matching the category filter. The selection
-     * is deliberately not trimmed (importing only adds), so the view shows "已选 N（其中 M 被筛掉）" for hidden ticks.
+     * is deliberately not trimmed (importing only adds), so the view shows "N selected (M filtered out)" for hidden ticks.
      */
     public List<BiliBiliSpaceUtil.SpaceVideo> visibleVideos() {
         var all = videos;
@@ -307,7 +308,7 @@ public final class BiliBiliSpaceModel {
     }
 
     /**
-     * The ticked videos in submission order — "只导选中" imports exactly this, including ticks the current filter
+     * The ticked videos in submission order — "Import ticked only" imports exactly this, including ticks the current filter
      * hides (the view warns about that count, it never silently drops them).
      */
     public List<BiliBiliSpaceUtil.SpaceVideo> selectedVideos() {
@@ -334,7 +335,7 @@ public final class BiliBiliSpaceModel {
         return hidden;
     }
 
-    /** 充电专属 / 课堂付费 / 直播回放 do not resolve to playable audio, so they never enter the model. */
+    /** Charging-only / paid course / live replay entries do not resolve to playable audio, so they never enter the model. */
     private static boolean skip(BiliBiliSpaceUtil.SpaceVideo v) {
         return v.chargingOnly() || v.lesson() || v.livePlayback();
     }
@@ -425,7 +426,7 @@ public final class BiliBiliSpaceModel {
 
             // ---- 1) first page: total, UP name, cover, zone index ----
             // The only source of the zone index and per-video flags, but risk control refuses it (-352 / HTTP 412);
-            // on refusal we fall back to "all videos in one request" and report filterRelaxed() (no 分区).
+            // on refusal we fall back to "all videos in one request" and report filterRelaxed() (no zone).
             BiliBiliSpaceUtil.VideoPage first = null;
             var relaxed = false;
             try {
@@ -510,13 +511,13 @@ public final class BiliBiliSpaceModel {
                 joinAll(futures);
             }
 
-            // ---- 3) 合集 (UP-defined grouping; membership only, never adds videos) ----
+            // ---- 3) seasons (UP-defined grouping; membership only, never adds videos) ----
             stage = Stage.SEASONS;
             List<BiliBiliSpaceUtil.Season> seasons;
             try {
                 seasons = BiliBiliSpaceUtil.fetchSeasons(mid);
             } catch (Exception e) {
-                // The 合集 dimension is a bonus: its failure must not lose the video list we already have
+                // The season dimension is a bonus: its failure must not lose the video list we already have
                 LinkDebug.log("BiliBili space seasons FAIL", "mid", mid, "ex", e.getMessage());
                 seasons = List.of();
             }
@@ -569,7 +570,7 @@ public final class BiliBiliSpaceModel {
                 fail(e.getMessage() == null ? e.toString() : e.getMessage());
         } catch (Throwable t) {
             // Catch Throwable, not just Exception: a missing class / failed static initialiser inside the request path
-            // would otherwise kill this thread silently and leave the view spinning on "加载中" forever.
+            // would otherwise kill this thread silently and leave the view spinning on "loading" forever.
             if (!stale(token))
                 fail(t.toString());
         }
@@ -591,7 +592,7 @@ public final class BiliBiliSpaceModel {
     }
 
     /**
-     * Runs one worker task on the shared pool; a failing zone / 合集 is logged and dropped, never fatal — the video
+     * Runs one worker task on the shared pool; a failing zone / season is logged and dropped, never fatal — the video
      * list and the other categories are still worth showing.
      */
     private java.util.concurrent.Future<?> submit(java.util.concurrent.ExecutorService pool, Worker work, String what) {

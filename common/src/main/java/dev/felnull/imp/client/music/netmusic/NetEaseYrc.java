@@ -11,26 +11,28 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * 网易云逐字歌词（yrc）→ {@link Lyric.Word}，挂在**已有行表**的键上：两套时间轴差可达 1.4 秒，按 yrc 自己的行时间存词会
- * 让 {@link Lyric#getWords} 找不到键、退到前一行（HUD 画出上一行的字）。无 Minecraft 类型依赖，可脱离游戏自测。
+ * NetEase per-word lyrics (yrc) → {@link Lyric.Word}, attached to the keys of the **existing line table**: the two time
+ * axes differ by up to 1.4 s, and storing words under yrc's own line times would leave {@link Lyric#getWords} without a
+ * key and fall back to the previous line (the HUD would draw the wrong words). No Minecraft types, so it can be tested
+ * outside the game.
  */
 public final class NetEaseYrc {
     private NetEaseYrc() {
     }
 
-    /** 行头 {@code [起,长]}；属性行（{@code [ti:]} 等）与空行不匹配，自然跳过。 */
+    /** A line header {@code [start,length]}; property lines ({@code [ti:]} etc.) and blank lines do not match and are skipped naturally. */
     private static final Pattern LINE = Pattern.compile("^\\[(\\d+),(\\d+)\\](.*)$");
-    /** 字标记 {@code (起,长,0)}；第三个数字恒为 0、含义未知，忽略。 */
+    /** A word marker {@code (start,length,0)}; the third number is always 0 and its meaning is unknown, so it is ignored. */
     private static final Pattern WORD = Pattern.compile("\\((\\d+),(\\d+),(\\d+)\\)");
 
-    /** 配对窗口（毫秒）：两套行时间的差可以到 1.4 秒。 */
+    /** Pairing window in milliseconds: the two line-time axes can differ by up to 1.4 s. */
     public static final long MATCH_WINDOW_MS = 1500;
 
     /**
-     * @param yrc          原始 yrc 文本（{@code data.yrc.lyric}），空/null ⇒ null
-     * @param offsetMillis lrc 的 {@code [offset:N]}，行表的时间**已经**加过它，yrc 的没有
-     * @param lyrics       行表（键 = 秒，升序），逐字结果就按它的键与顺序产出
-     * @return 每行一个词的列表；没有可用的 yrc ⇒ null（调用方维持原来的整行行为）
+     * @param yrc          the raw yrc text ({@code data.yrc.lyric}); empty/null ⇒ null
+     * @param offsetMillis lrc's {@code [offset:N]}, which the line table has **already** applied and yrc has not
+     * @param lyrics       the line table (key = seconds, ascending); the per-word result is produced in its key order
+     * @return one word entry per line; no usable yrc ⇒ null (the caller keeps the whole-line behaviour)
      */
     @Nullable
     public static Float2ObjectSortedMap<List<Lyric.Word>> attach(@Nullable String yrc, int offsetMillis,
@@ -49,7 +51,7 @@ public final class NetEaseYrc {
         for (int i = 0; i < keys.size(); i++) {
             var key = keys.get(i);
             var text = texts.get(i);
-            // 空行是网易云的间奏占位：放它们去配对会把下一行该用的 yrc 行抢走
+            // A blank line is NetEase's placeholder for an interlude: letting it pair would steal the yrc line the next row needs
             if (text == null || text.isBlank()) {
                 out.put(key, List.of());
                 continue;
@@ -66,7 +68,7 @@ public final class NetEaseYrc {
                 out.put(key, shift(hit.words(), offsetMillis));
                 matched++;
             } else {
-                // 时长 0 ⇒ 恒为"已唱"色（白），与不逐字时的整行观感一致
+                // A 0 length stays "already sung" (white), matching how a whole line looks without per-word data
                 out.put(key, List.of(new Lyric.Word(text, key, 0f)));
             }
         }
@@ -75,7 +77,7 @@ public final class NetEaseYrc {
         return out;
     }
 
-    /** 一条 yrc 行：原始毫秒的行头 + 已换算成秒（但**未加 offset**）的词表。 */
+    /** One yrc line: the header in raw milliseconds plus the word list converted to seconds (**without** the offset). */
     private record Line(long startMs, long durationMs, List<Lyric.Word> words) {
     }
 
@@ -94,7 +96,7 @@ public final class NetEaseYrc {
         return out;
     }
 
-    /** 一个标记之后的文本归**这个**标记（字），一直到下一个标记之前；标记前的零头并进第一个字。 */
+    /** The text after a marker belongs to **that** marker (word) until the next one; any remainder before the first marker joins the first word. */
     private static List<Lyric.Word> parseWords(String content, long lineStartMs) {
         var marks = new ArrayList<long[]>();   // {标记起点, 标记终点, 起ms, 长ms}
         var matcher = WORD.matcher(content);
@@ -119,7 +121,7 @@ public final class NetEaseYrc {
         return out;
     }
 
-    /** yrc 的词时间是原始毫秒、行表的是加过 offset 的秒，只有起点要跟着移。 */
+    /** yrc's word times are raw milliseconds while the line table is offset seconds, so only the start has to move. */
     private static List<Lyric.Word> shift(List<Lyric.Word> words, int offsetMillis) {
         var out = new ArrayList<Lyric.Word>(words.size());
         for (var word : words)

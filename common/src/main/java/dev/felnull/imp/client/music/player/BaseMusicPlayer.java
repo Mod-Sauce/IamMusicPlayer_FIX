@@ -55,13 +55,13 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     /** Real length of the loaded stream in ms ({@code <= 0} = unknown); see {@link #playBoundMs()}. */
     private long realDuration = -1;
     private AudioInputStream stream;
-    /** 读取端跳段（源时间）；未设置 = 不跳。 */
+    /** The read-side skip table (source time); unset = no skipping. */
     private MusicSkipProvider skipProvider = MusicSkipProvider.NONE;
-    /** 调用方给的起始位置（**视频时间**）；内部队列用的是换算后的内容时间（见 {@link #startPosition}）。 */
+    /** The starting position the caller gave (**source time**); the internal queue uses the converted content time (see {@link #startPosition}). */
     private long sourceStartPosition = -1;
-    /** 读头当前所在的**源时间**位置：内容位置只统计真正产出的块，所以两个位置必须分开走。 */
+    /** Where the read head currently is in **source time**: the content position only counts blocks that were really produced, so the two must be tracked separately. */
     private long sourceReadPosition = -1;
-    /** 已经为哪个片段打过"跳过"的日志（否则每块一行）。 */
+    /** Which segment was already logged as skipped (otherwise every block would log one line). */
     private long loggedSkipStart = Long.MIN_VALUE;
 
     protected BaseMusicPlayer(UUID musicPlayerId, AudioInfo audioInfo, MusicSource musicSource, int aheadLoad) {
@@ -387,9 +387,10 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public LoadInput loadStart(long position) {
-        // 调用方给的是**视频时间**（音响/服务端的位置、试听页的比例、重建时的当前位置）。
-        // 内部换算成"内容时间"（跳掉的片段不占时间）留给队列用，真正的开流位置在 loadAsync 里定
-        // —— 那里在异步线程上，允许为"从曲中开始放"等一次片段查询。
+        // The caller gives **source time** (the boombox/server position, the preview page's ratio, the current position
+        // during a rebuild). It is converted into content time (skipped segments take no time) for the queue, and the
+        // real stream position is decided in loadAsync — which runs on an async thread and may therefore wait for one
+        // segment lookup when playback starts mid-track.
         this.sourceStartPosition = Math.max(0L, position);
         this.startPosition = this.sourceStartPosition;
 
@@ -400,7 +401,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     abstract protected void closeAudioStream() throws Exception;
 
-    /** 由 loader 设置：本曲要跳的片段（源时间）。 */
+    /** Set by the loader: the segments this track skips (source time). */
     public void setSkipProvider(MusicSkipProvider skipProvider) {
         this.skipProvider = skipProvider == null ? MusicSkipProvider.NONE : skipProvider;
     }
@@ -451,13 +452,13 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         return 0;
     }
 
-    /** 对外的位置 = **视频时间**（由内部**内容时间**换算）：歌词、HUD、进度、`RingerPosition`、发服务端的位置都用它，跳段后随音频跳段。 */
+    /** The reported position = **source time** (converted from the internal content time): the lyrics, the HUD, the progress bar, `RingerPosition` and the position sent to the server all use it, and it jumps with the audio. */
     @Override
     public long getPosition() {
         return skipProvider.sourcePositionOf(contentPosition());
     }
 
-    /** 内部时间轴：只数真正产出（没被丢掉）的音频 —— 队列排期、读循环、结束判定都用它。 */
+    /** The internal timeline: it counts only audio that was really produced (not dropped), and the queue schedule, the read loop and the end decision all use it. */
     private long contentPosition() {
         long d = this.appliedSkip != Long.MIN_VALUE ? this.appliedSkip : this.delay;
         if (this.startTime < 0)
@@ -482,18 +483,18 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     /**
      * The length playback must actually stop at, in ms ({@code -1} = live stream, no bound) — not simply
-     * {@link MusicSource#getDuration()}: a B站 multi-part entry stores the sum of all parts while only part 1 plays, so
+     * {@link MusicSource#getDuration()}: a Bilibili multi-part entry stores the sum of all parts while only part 1 plays, so
      * the smaller of it and the subclass's real length ({@link #setRealDuration}) wins: dead air only, never audio.
      */
     protected long playBoundMs() {
         if (musicSource.isLive())
             return -1;
         long source = realDuration <= 0 ? musicSource.getDuration() : Math.min(musicSource.getDuration(), realDuration);
-        // 内容时长：跳掉的片段不占时间 —— 否则进度条永远到不了 100%，读循环也会跟着多跑几分钟。
+        // Content length: skipped segments take no time, otherwise the progress bar would never reach 100 % and the read loop would run minutes longer.
         return Math.max(0L, source - skippedWithin(source));
     }
 
-    /** 落在 {@code [0, sourceMs)} 里的片段总长。 */
+    /** The total length of the segments that fall inside {@code [0, sourceMs)}. */
     private long skippedWithin(long sourceMs) {
         long sum = 0;
         for (var span : skipProvider.skips())
@@ -560,7 +561,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         byte[] buffer = new byte[ol];
         List<ReadResultEntry> entries = new ArrayList<>();
         long st = input.readStartPosition();
-        // 源时间与内容时间分开走：`st` 是产出块在**内容**里的位置，`srcSt` 是这段音频在**视频**里的位置。
+        // Source time and content time are tracked separately: `st` is the produced block's position in **content**, `srcSt` is that audio's position in **source**.
         long srcSt = this.sourceReadPosition;
         boolean end = false;
 
@@ -580,9 +581,10 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
             end = !readStream(input.stream, buffer);
 
-            // [跳段] 整块落在片段里的音频**不产出**：内容时间不动，于是听众听到的是首尾相接的连续块
-            // —— 不用 seek、不用重开流、也没有静音；跨边界的那一块保留（宁可残留不到两秒广告，也不丢正片）。
-            // 读头位置也交过去：数据晚到时，读头已经越过的那截按"播出去了"处理（见 BiliBiliSponsorSegments）。
+            // [Skip] Audio whose block lies entirely inside a segment is **not produced**: the content time stands
+            // still, so the listener hears continuous blocks — no seek, no stream restart, no silence. A block crossing
+            // a boundary is kept (under two seconds of ad left beats losing real content). The read head goes along:
+            // whatever it already passed when a late table arrives counts as played (see BiliBiliSponsorSegments).
             var skips = skipProvider.skips(srcSt);
             var skipStart = wholeSkippedSpanStart(srcSt, skips);
             if (skipStart >= 0) {
@@ -616,7 +618,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         return new ReadResult(entries, end);
     }
 
-    /** 这一块（源时间 1 秒）整块落在某个片段里 → 返回该片段起点，否则 -1。 */
+    /** Whether this block (1 second of source time) lies entirely inside a segment; returns the segment's end, otherwise -1. */
     private static long wholeSkippedSpanStart(long sourceMs, List<MusicSkipProvider.Span> spans) {
         var end = sourceMs + 1000;
         for (var span : spans)
@@ -625,7 +627,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         return -1;
     }
 
-    /** 日志用：这一块落在哪一段里（只在真的跳时调用一次）。 */
+    /** Only for the log: which span this block fell into (called once per real skip). */
     private static long skippedSpanEnd(long sourceMs, List<MusicSkipProvider.Span> spans) {
         var end = sourceMs + 1000;
         for (var span : spans)

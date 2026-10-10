@@ -2,21 +2,22 @@ package dev.felnull.imp.client.music.player;
 
 import java.util.List;
 
-/** 读取端要跳过的片段（**源时间**毫秒）；{@link BaseMusicPlayer} 每读一批重新取一次，晚到也从当前读头起跳。
- * 时间轴分工：内部队列用"内容时间"，对外（歌词/HUD/进度/音响存的位置/服务端位置）一律"视频时间"。 */
+/** The segments the read side skips (**source-time** milliseconds); {@link BaseMusicPlayer} asks again for every batch,
+ * and a late answer skips from the current read head. Timeline split: the internal queue runs on content time, while
+ * everything reported (lyrics, HUD, progress, the position the boombox stores, the server position) is source time. */
 public interface MusicSkipProvider {
-    /** 一段要跳过的源时间区间。 */
+    /** One source-time span to skip. */
     record Span(long startMs, long endMs) {
         public long lengthMs() {
             return Math.max(0L, endMs - startMs);
         }
     }
 
-    /** 不跳。 */
+    /** Skip nothing. */
     MusicSkipProvider NONE = new MusicSkipProvider() {
     };
 
-    /** 本曲要丢的片段，按起点升序；空 = 不跳。 */
+    /** The segments to drop for this track, ascending by start; empty = skip nothing. */
     default List<Span> skips() {
         return List.of();
     }
@@ -27,17 +28,17 @@ public interface MusicSkipProvider {
         return skips();
     }
 
-    /** 内容时间 → **视频时间**：跳段后两者差一个 Σ跳过。热路径会调它，实现必须走缓存、**不许阻塞**。 */
+    /** Content time → **source time**: after a skip the two differ by the sum skipped. This is a hot path, so an implementation must use its cache and **must not block**. */
     default long sourcePositionOf(long contentMs) {
         return contentMs;
     }
 
-    /** 视频时间 → 内容时间（开播时把调用方给的位置换算成内部队列的起点）。 */
+    /** Source time → content time (converts the caller's position into the queue's starting point when playback starts). */
     default long contentPositionOf(long sourceMs, boolean mayBlock) {
         return sourceMs;
     }
 
-    /** 从视频位置 {@code sourceMs} 开始放时，真正该从哪个**源位置**开流（落在片段里就落到片段尾）。 */
+    /** When playback starts at source position {@code sourceMs}, the **source position** to open the stream at (inside a segment it lands on the segment's end). */
     default long sourceReadStart(long sourceMs, boolean mayBlock) {
         return sourceMs;
     }

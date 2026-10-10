@@ -55,7 +55,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
 
     private ImageInfo importImageInfo = ImageInfo.EMPTY;
 
-    // ------------------------------------------------------------------ "UP 主页" (space) view
+    // ------------------------------------------------------------------ UP space view
     // Shown in place of the ordinary playlist view for a Bilibili space id ("space:<mid>"). No new MonitorType on
     // purpose: the block entity persists the current page by name, so an unknown type would break existing saves.
 
@@ -76,12 +76,12 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     /** An identifier typed character by character only starts a request once typing pauses (Bilibili answers 412 to a burst). */
     private static final long SPACE_ID_DEBOUNCE_MS = 500;
 
-    /** Short line of the two import pages' status slot when this page refused an UP 主页 link (see {@link #allowsSpaceImport()}). */
+    /** Short line of the two import pages' status slot when this page refused a UP-space link (see {@link #allowsSpaceImport()}). */
     private static final Component SPACE_MIX_REFUSED_TEXT = Component.translatable("imp.text.spaceImportRefused");
 
     /** **Static** on purpose: a re-init (window resize) or re-entering the page would otherwise restart a 20 s /
      * ~40-request load — slow, and a burst against Bilibili's risk control. Dropped when the page stops being an
-     * "UP 主页" page. */
+     * UP-space page. */
     private static final BiliBiliSpaceModel spaceModel = new BiliBiliSpaceModel();
     private SpaceCategoryListWidget spaceCategoryList;
     private SpaceVideoListWidget spaceVideoList;
@@ -95,7 +95,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
     private long spacePushedFor = -1;
     /** Reason of the last local refusal (null = none); drawn where "what the import would create" is drawn. */
     private Component importRefusal;
-    /** True while the box holds an UP 主页 id on a page that must not import one (see {@link #allowsSpaceImport()}). */
+    /** True while the box holds a UP-space id on a page that must not import one (see {@link #allowsSpaceImport()}). */
     private boolean spaceMixRefused;
 
     // ---- chunked import: one packet cannot carry an unbounded list ----
@@ -166,7 +166,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
                 Component.translatable(String.format("imp.fixedList.%sPlayListMusics", playlistLoader == null ? "" : playlistLoader.getID())),
                 4, playListEntries, this.playListMusicsFixedButtonsList));
 
-        // ---- "UP 主页" widgets: built unconditionally, switched by visibility (see applySpaceLayout) ----
+        // ---- UP-space widgets: built unconditionally, switched by visibility (see applySpaceLayout) ----
         this.spaceCategoryList = addRenderWidget(new SpaceCategoryListWidget(getStartX() + SPACE_CATEGORY_X, getStartY() + SPACE_CATEGORY_Y,
                 SPACE_CATEGORY_W, SPACE_CATEGORY_H, Component.translatable("imp.fixedList.spaceCategories"), SPACE_CATEGORY_ROWS,
                 spaceRows, this::pickSpaceCategory, null));
@@ -479,7 +479,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         if (playlistLoader == null) return;
         // Empty text: the resolver would treat "" as an ID and throw "For input string: \"\""
         if (id == null || id.trim().isEmpty()) return;
-        // "UP 主页": the responder fires on every keystroke, so wait for typing to pause before touching the API
+        // UP space: the responder fires on every keystroke, so wait for typing to pause before touching the API
         // (a burst makes Bilibili's risk control answer 412 / -352).
         if (BiliBiliSpaceUtil.midOf(id) >= 0) {
             pendingSpaceId = id;
@@ -501,7 +501,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         }
     }
 
-    // ------------------------------------------------------------------ "UP 主页" (space) view
+    // ------------------------------------------------------------------ UP space view
 
     /** The identifier being edited: the box wins over the block entity, because a paste lands in the box first and
      * only reaches the block entity after a client→server→client round trip. */
@@ -512,18 +512,18 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         return getImportPlayList();
     }
 
-    /** True while this page shows the "UP 主页" view (subclasses use it to pick their import path). */
+    /** True while this page shows the UP-space view (subclasses use it to pick their import path). */
     protected boolean isSpaceMode() {
         return spaceLayout;
     }
 
-    /** Whether this page may import an UP 主页 at all. The append page must not: an UP's uploads always get their
-     * own playlist, since mixing two UPs makes 「刷新」/「绑定UP」 undecidable. */
+    /** Whether this page may import a UP space at all. The append page must not: a UP's uploads always get their own
+     * playlist, since mixing two UPs makes Refresh / Bind UP undecidable. */
     protected boolean allowsSpaceImport() {
         return true;
     }
 
-    /** True when the identifier box holds an UP 主页 id on a page that must not import one. */
+    /** True when the identifier box holds a UP-space id on a page that must not import one. */
     protected boolean spaceImportForbidden() {
         return !allowsSpaceImport() && BiliBiliSpaceUtil.midOf(currentIdentifier()) >= 0;
     }
@@ -607,7 +607,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         return SPACE_MIX_REFUSED_TEXT;
     }
 
-    /** Switches the page between the ordinary playlist view and the "UP 主页" view. Both widget sets are built up
+    /** Switches the page between the ordinary playlist view and the UP-space view. Both widget sets are built up
      * front and switched by visibility: the layout can change while the page is open, and re-initialising mid-page
      * would need the screen to re-add every widget. */
     private void applySpaceLayout(boolean space) {
@@ -619,7 +619,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         setWidgetShown(spaceImportAllButton, space);
         setWidgetShown(spaceImportSelectedButton, space);
         if (!space) {
-            // No longer an "UP 主页" page: forget the load and drop what the widgets showed, so switching to a
+            // No longer a UP-space page: forget the load and drop what the widgets showed, so switching to a
             // favourites folder cannot briefly draw another UP's videos.
             spaceModel.reset();
             spacePushedFor = -1;
@@ -640,9 +640,9 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         widget.active = shown;
     }
 
-    /** Per-tick work of the "UP 主页" view: layout, load, list contents and the block entity write-back. */
+    /** Per-tick work of the UP-space view: layout, load, list contents and the block entity write-back. */
     private void tickSpaceModel() {
-        // 0) an UP 主页 id on a page that must not import one (the append page): refuse it and never touch the API —
+        // 0) a UP-space id on a page that must not import one (the append page): refuse it and never touch the API —
         //    entering the UP view there is exactly how an UP's uploads would end up mixed into an existing playlist
         if (spaceImportForbidden()) {
             if (!spaceMixRefused) {
@@ -696,14 +696,14 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         return IamMusicPlayer.getConfig().bilibiliConfig.spacePageDelayMs;
     }
 
-    /** How many zone / 合集 passes may be in flight at once ({@code 1} = strictly sequential). The pacer keeps the
+    /** How many zone / season passes may be in flight at once ({@code 1} = strictly sequential). The pacer keeps the
      * request **rate** unchanged, so this only removes the waiting. */
     private static int spaceParallelism() {
         return IamMusicPlayer.getConfig().bilibiliConfig.spaceParallelism;
     }
 
-    /** A category row was clicked in the "UP 主页" view. Ticking several rows unions their videos in the list **and**
-     * in 「导入选中分类」; the 「全部」row clears the ticks instead ("no filter at all"). */
+    /** A category row was clicked in the UP-space view. Ticking several rows unions their videos in the list **and** in
+     * "Import ticked categories"; the "All" row clears the ticks instead ("no filter at all"). */
     private void pickSpaceCategory(SpaceCategoryListWidget.Row row) {
         // Another selection: a refusal that was about the previous one no longer describes anything.
         if (!spaceMixRefused)
@@ -721,7 +721,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
             case UNGROUPED -> BiliBiliSpaceModel.TICK_UNGROUPED;
             case SEASON -> BiliBiliSpaceModel.tickKey(false, row.filterName());
             case ZONE -> BiliBiliSpaceModel.tickKey(true, row.filterName());
-            // The 分P rows exist on the playlist page only (this view never builds them) — no key, like 全部/表头
+            // The part rows exist on the playlist page only (this view never builds them): no key, like All / the header
             case ALL, HEADER, MULTI_PART, SINGLE_PART -> "";
         };
     }
@@ -783,9 +783,9 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
             return;
         spacePushedFor = spaceModel.mid();
         setImportPlayList(BiliBiliSpaceUtil.ID_PREFIX + spaceModel.mid());
-        // Remember the 合集/分区 of every loaded video: the imported `Music` only carries bvid/title/author/cover,
+        // Remember the season/zone of every loaded video: the imported `Music` only carries bvid/title/author/cover,
         // so without this the categories are gone the moment the import ends (the playlist page filters from here).
-        // 投稿时间也一起记：只有这份列表里有它（每个视频单独查要发一次 view）。
+        // The upload date is noted as well: only this listing carries it (looking it up per video costs one `view`).
         var arcTags = BiliBiliArcTags.getInstance();
         for (var v : spaceModel.videos()) {
             var tag = spaceModel.tagOf(v.bvid());
@@ -817,7 +817,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
                     : Component.translatable("imp.text.spaceLoading", spaceModel.loaded(),
                     Math.max(spaceModel.total(), spaceModel.loaded()));
             case DONE -> spaceModel.filterRelaxed()
-                    // The video list came from the fallback endpoint: no 分区, and 充电/课堂/回放 were not excluded
+                    // The video list came from the fallback endpoint: no zone, and charging-only / paid course / live replay were not excluded
                     ? Component.translatable("imp.text.spaceLoadedRelaxed", spaceModel.videos().size())
                     : Component.translatable("imp.text.spaceLoaded", spaceModel.videos().size());
             case IDLE -> Component.empty();
@@ -845,8 +845,9 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
                 : Component.translatable("imp.text.spaceSelected", selected);
     }
 
-    /** "导入全部" takes **what the list currently shows** (a selected category relabels the button 导入本类, so a
-     * subset is never a surprise); "只导选中" takes the ticked rows in submission order, **including** the ticks the
+    /** "Import all" takes **what the list currently shows** (a selected category relabels the button "Import this
+     * category", so a subset is never a surprise); "Import ticked only" takes the ticked rows in submission order,
+     * **including** the ticks the
      * filter hides. */
     private void startSpaceImport(boolean all) {
         if (spaceModel.state() != BiliBiliSpaceModel.State.DONE)
@@ -887,7 +888,7 @@ public abstract class ImportPlayListBaseMMMonitor extends MusicManagerMonitor {
         return out;
     }
 
-    /** In "UP 主页" mode the videos are already in memory, so the platform resolver would walk every submission page
+    /** In UP-space mode the videos are already in memory, so the platform resolver would walk every submission page
      * a **second** time and ignore the selection — hence an already-finished resolver. */
     protected IPlaylistResolver createImportResolver(String id) {
         if (!isSpaceMode())

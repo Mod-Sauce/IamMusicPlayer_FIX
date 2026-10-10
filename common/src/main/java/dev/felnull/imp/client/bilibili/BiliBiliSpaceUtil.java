@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * "UP 主页" data. {@code x/space/wbi/arc/search} needs a WBI signature **and** the anonymous cookie trio (unsigned ⇒ {@code -352}, signed without cookies ⇒ HTTP 412); only the parent zone names from {@code tlist} are trustworthy.
+ * UP-space data. {@code x/space/wbi/arc/search} needs a WBI signature **and** the anonymous cookie trio (unsigned ⇒
+ * {@code -352}, signed without cookies ⇒ HTTP 412); only the parent zone names from {@code tlist} are trustworthy.
  */
 public final class BiliBiliSpaceUtil {
     private BiliBiliSpaceUtil() {
@@ -57,7 +58,7 @@ public final class BiliBiliSpaceUtil {
     public static final String FAV_PREFIX = "fav:";
 
     /**
-     * The {@code Source} value of an import identifier ({@code space:<mid>} / {@code fav:<fid>} / {@code ""}), written at import and read back by the 「刷新」 key.
+     * The {@code Source} value of an import identifier ({@code space:<mid>} / {@code fav:<fid>} / {@code ""}), written at import and read back by the Refresh key.
      */
     public static String sourceOf(String identifier) {
         if (identifier == null)
@@ -68,7 +69,7 @@ public final class BiliBiliSpaceUtil {
             return ID_PREFIX + mid;
         if (s.startsWith(FAV_PREFIX))
             return favIdOf(s) >= 0 ? s : "";
-        // 链接也算数：用户直接粘收藏夹/主页链接时，只认数字会让来源变成空
+        // Links count too: when a user pastes a favourites/space link, accepting only digits would leave the source empty
         var fav = java.util.regex.Pattern.compile("[?&]fid=(\\d+)").matcher(s);
         if (fav.find())
             return FAV_PREFIX + fav.group(1);
@@ -94,7 +95,7 @@ public final class BiliBiliSpaceUtil {
         }
     }
 
-    /** Whether a stored {@code Source} is something the 「刷新」 key can walk again. */
+    /** Whether a stored {@code Source} is something the Refresh key can walk again. */
     public static boolean isRefreshable(String source) {
         return midOf(source) >= 0 || favIdOf(source) >= 0;
     }
@@ -108,11 +109,11 @@ public final class BiliBiliSpaceUtil {
     public record ZoneIndex(int tid, String name, int count) {
     }
 
-    /** One page of submissions; {@code zones} is only filled by {@link #fetchVideos} (the 合集 endpoint has no zone index). */
+    /** One page of submissions; {@code zones} is only filled by {@link #fetchVideos} (the season endpoint has no zone index). */
     public record VideoPage(List<SpaceVideo> videos, List<ZoneIndex> zones, int total, int page, int pageSize) {
     }
 
-    /** One of the user's 合集 (up-defined grouping, unrelated to Bilibili's zones). */
+    /** One of the user's seasons (UP-defined grouping, unrelated to Bilibili's zones). */
     public record Season(long seasonId, String name, int total, String cover) {
     }
 
@@ -122,7 +123,8 @@ public final class BiliBiliSpaceUtil {
     }
 
     /**
-     * Name **and avatar** of one UP via {@code x/web-interface/card} — the one profile call that works anonymously, while {@code arc/search} answers {@code -352 风控校验失败}.
+     * Name **and avatar** of one UP via {@code x/web-interface/card} — the one profile call that works anonymously,
+     * while {@code arc/search} answers {@code -352} (risk-control check failed).
      */
     public static UpInfo fetchUpInfo(long mid) throws Exception {
         var params = new LinkedHashMap<String, String>();
@@ -198,7 +200,7 @@ public final class BiliBiliSpaceUtil {
         return new VideoPage(videos, zones, total, page, pageSize);
     }
 
-    // ------------------------------------------------------------------ 合集 / 系列
+    // ------------------------------------------------------------------ Seasons / series
 
     /**
      * Fallback for a refused {@code x/space/wbi/arc/search} ({@code -352} / HTTP 412): **all** of a UP's videos via {@code x/series/recArchivesByKeywords} ({@code keywords} empty, {@code pn=0} = no paging) — but no parent zone.
@@ -214,14 +216,14 @@ public final class BiliBiliSpaceUtil {
         var archives = json.getAsJsonObject("data").getAsJsonArray("archives");
         var videos = new ArrayList<SpaceVideo>();
         if (archives != null) {
-            // Same archive shape the 合集 member endpoint uses, hence the same parser
+            // The same archive shape the season member endpoint uses, hence the same parser
             for (var e : archives)
                 videos.add(videoOf(e.getAsJsonObject(), true));
         }
         return videos;
     }
 
-    /** All of the user's 合集 (paged 20 at a time; every page needs one request). */
+    /** All of the user's seasons (paged 20 at a time; every page needs one request). */
     public static List<Season> fetchSeasons(long mid) throws Exception {
         var seasons = new ArrayList<Season>();
         var page = 1;
@@ -236,7 +238,7 @@ public final class BiliBiliSpaceUtil {
             var lists = json.getAsJsonObject("data").getAsJsonObject("items_lists");
             if (lists.has("page")) {
                 var p = lists.getAsJsonObject("page");
-                // `total` counts this user's 合集
+                // `total` counts this user's seasons
                 total = intOf(p, "total");
             }
             var arr = lists.getAsJsonArray("seasons_list");
@@ -252,13 +254,15 @@ public final class BiliBiliSpaceUtil {
         return seasons;
     }
 
-    /** One page of the videos inside a 合集, **oldest first** — the order the import tags members in (it takes all). */
+    /** One page of the videos inside a season, **oldest first** — the order the import tags members in (it takes all). */
     public static VideoPage fetchSeasonVideos(long mid, long seasonId, int page, int pageSize) throws Exception {
         return fetchSeasonVideos(mid, seasonId, page, pageSize, false);
     }
 
     /**
-     * One page of the videos inside a 合集; {@code newestFirst} matters for 「刷新」 — {@code sort_reverse=false} answers **oldest first**, so a walk stopping at the first page with nothing new stops at once.
+     * One page of the videos inside a season; {@code newestFirst} matters for Refresh —
+     * {@code sort_reverse=false} answers **oldest first**, so a walk that stops at the first page with nothing new
+     * stops at once.
      */
     public static VideoPage fetchSeasonVideos(long mid, long seasonId, int page, int pageSize, boolean newestFirst) throws Exception {
         var params = new LinkedHashMap<String, String>();
@@ -284,7 +288,7 @@ public final class BiliBiliSpaceUtil {
     // ------------------------------------------------------------------ parsing
 
     /**
-     * @param archiveShape {@code true} for a 合集 member ({@code duration} in seconds, {@code ctime}, no
+     * @param archiveShape {@code true} for a season member ({@code duration} in seconds, {@code ctime}, no
      *                     {@code author}/{@code typeid}/{@code is_*}), {@code false} for an {@code arc/search}
      *                     submission ({@code length} as {@code MM:SS}, {@code created}, plus flags)
      */

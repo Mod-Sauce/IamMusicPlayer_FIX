@@ -137,7 +137,7 @@ public class IMPConfig implements ConfigData {
   @ConfigEntry.Category("hud")
   public boolean enableHudLyric = false;
 
-  /** Handheld boombox ("手提音响"): bottom-centre song + lyric bar instead of the corner detail box. */
+  /** Handheld boombox: bottom-centre song + lyric bar instead of the corner detail box. */
   @ConfigEntry.Category("hud")
   public boolean hudHandheldBottom = true;
 
@@ -160,7 +160,7 @@ public class IMPConfig implements ConfigData {
     PLAIN, STRIP, BOX
   }
 
-  /** How a B站 subtitle track becomes lyrics; top-level because AutoConfig's GUI registry only labels top-level enums. */
+  /** How a Bilibili subtitle track becomes lyrics; top-level because AutoConfig's GUI registry only labels top-level enums. */
   public enum SubtitleTrans {
     /** Default: a Chinese main line gets **no** translation line; a non-Chinese main line still gets its Chinese translation. */
     SMART,
@@ -172,7 +172,7 @@ public class IMPConfig implements ConfigData {
     FIRST
   }
 
-  /** Which B站 subtitle tracks may become lyrics; {@code ALL} is the default — an AI-only video has nothing else. */
+  /** Which Bilibili subtitle tracks may become lyrics; {@code ALL} is the default — an AI-only video has nothing else. */
   public enum SubtitleTrack {
     /** Human and machine tracks; the default, and the only setting that finds lyrics on an AI-only video. */
     ALL,
@@ -191,7 +191,7 @@ public class IMPConfig implements ConfigData {
     KO
   }
 
-  /** What the 「刷新」 key is allowed to pull in; the constant names are the values the walk already understands. */
+  /** What the Refresh key is allowed to pull in; the constant names are the values the walk already understands. */
   public enum RefreshScope {
     AUTO,
     SEASON,
@@ -278,9 +278,9 @@ public class IMPConfig implements ConfigData {
         NAME,
         /** By artist/author. */
         PLAYER,
-        /** 加入时间＝曲子进歌单的时刻。**配置界面不列这一档**：只有「用监视器的排序」把它同步过来时才会出现。 */
+        /** "Added at" = the moment the song entered the playlist. **Not offered in the config screen**: it only appears when the "use the monitor's sort" key syncs it over. */
         CREATE_DATE,
-        /** B站 投稿时间（客户端上报给服务端；没报过的曲子按 0 排）。 */
+        /** Bilibili upload date (reported by the client; a song that was never reported sorts as 0). */
         PUBLISH_DATE
   }
 
@@ -319,8 +319,9 @@ public class IMPConfig implements ConfigData {
     public String musicOrderType = "descending";
 
     /**
-     * [remembered] The 「分类」 picker of the playlists page: {@code all} / {@code ungrouped} / {@code multi} /
-     * {@code single} / {@code season:<合集名>} / {@code zone:<分区名>}; unreadable values fall back to {@code all}.
+     * [remembered] The category picker of the playlists page: {@code all} / {@code ungrouped} / {@code multi} /
+     * {@code single} / {@code season:<season name>} / {@code zone:<parent zone name>}; unreadable values fall back to
+     * {@code all}.
      */
     @ConfigEntry.Gui.Excluded
     public String playListCategoryFilter = "all";
@@ -476,8 +477,9 @@ public class IMPConfig implements ConfigData {
     public boolean enableBilibili = true;
 
     /**
-     * 跳过 B站 的赞助/广告片段（SponsorBlock / 哔哩屏蔽团 {@code bsbsb.top}，只取「赞助/恰饭」与「无偿推广」两类）：
-     * 在读取端把这几段音频整块丢掉，不重开流也不静音；查不到片段就当没有。
+     * Skip Bilibili's sponsor/ad segments (SponsorBlock's Bilibili mirror {@code bsbsb.top}; only the "sponsor" and
+     * "selfpromo" categories are taken): the read side drops those audio blocks whole — no stream restart and no
+     * silence. No segment found counts as "there is none".
      */
     public boolean skipSponsorSegments = false;
 
@@ -495,12 +497,12 @@ public class IMPConfig implements ConfigData {
     public String bilibiliCookie = "";
 
     /**
-     * What 「刷新」 may pull in: {@code AUTO} = its 合集 when the playlist is mostly one, else its 分区; {@code SEASON} /
+     * What Refresh may pull in: {@code AUTO} = its season when the playlist is mostly one, otherwise its zone; {@code SEASON} /
      * {@code ZONE} = only that; {@code ALL} = all submissions. No determinable scope = fail, never fall back to {@code ALL}.
      */
     public RefreshScope refreshScope = RefreshScope.AUTO;
 
-    /** Not implemented — the B站 source plays videos via playurl — so the field stays out of the config screen. */
+    /** Not implemented — the Bilibili source plays videos via playurl — so the field stays out of the config screen. */
     @ConfigEntry.Gui.Excluded
     public boolean refreshIncludeAudio = false;
 
@@ -509,31 +511,31 @@ public class IMPConfig implements ConfigData {
 
     /**
      * CDN hosts to try first, comma separated, **first match wins** (a token matches by substring); default
-     * {@code upos-,bilivideo,mcdn-}. B站's slow P2P edge ({@code mcdn.*:8082}) is always ranked last; empty = default.
+     * {@code upos-,bilivideo,mcdn-}. Bilibili's slow P2P edge ({@code mcdn.*:8082}) is always ranked last; empty = default.
      */
     public String cdnOrder = "upos-,bilivideo,mcdn-";
 
-    /** 「UP 主页」import: max submission pages (30 videos each), {@code 0} = unlimited; asking too fast gets HTTP 412. */
+    /** UP-space import: max submission pages (30 videos each), {@code 0} = unlimited; asking too fast gets HTTP 412. */
     public int spaceMaxPages = 0;
 
     /**
-     * 「UP 主页」import: delay in ms between two submission pages (default 400) — the only lever against Bilibili's
+     * UP-space import: delay in ms between two submission pages (default 400) — the only lever against Bilibili's
      * risk control; lowering it (or 0) makes an HTTP 412 far more likely.
      */
     public int spacePageDelayMs = 400;
 
     /**
-     * How many B站 requests may be in flight at once (1..8, default 3); shared by the 「UP 主页」 import and the 分P
+     * How many Bilibili requests may be in flight at once (1..8, default 3); shared by the UP-space import and the part
      * expansion. It does not raise the request rate — the pacer still starts one per gap; {@code 1} = strictly sequential.
      */
     public int spaceParallelism = 3;
 
-    /** Master switch for B站 subtitle lyrics: {@code false} = the request is never sent, so nothing below matters. */
+    /** Master switch for Bilibili subtitle lyrics: {@code false} = the request is never sent, so nothing below matters. */
     public boolean subtitleAsLyrics = true;
 
     /**
-     * Ask only for videos that came from a **UP page import** (they carry the local 分区/合集 tag the check reads);
-     * off by default = every B站 track is asked. A miss ends as "no lyrics", never as an error.
+     * Ask only for videos that came from a **UP-space import** (they carry the local zone/season tag the check reads);
+     * off by default = every Bilibili track is asked. A miss ends as "no lyrics", never as an error.
      */
     public boolean subtitleUpOnly = false;
 
