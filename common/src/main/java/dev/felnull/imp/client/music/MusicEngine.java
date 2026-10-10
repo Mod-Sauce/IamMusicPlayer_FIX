@@ -6,6 +6,7 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.api.client.MusicEngineAccess;
 import dev.felnull.imp.api.client.MusicPlayerAccess;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
+import dev.felnull.imp.client.music.lyric.IMPLyricGetter;
 import dev.felnull.imp.client.music.speaker.MusicSpeaker;
 import dev.felnull.imp.client.music.task.MusicEngineDestroyRunner;
 import dev.felnull.imp.client.util.MusicUtils;
@@ -125,6 +126,11 @@ public class MusicEngine implements MusicEngineAccess {
     public void tick() {
         long startTime = System.currentTimeMillis();
 
+        if (audioRebuildRequested) {
+            audioRebuildRequested = false;
+            rebuildAudio();
+        }
+
         MusicUtils.runInvokeTasks(musicTickExecutor, "Music Engine");
 
         List<UUID> destroys = new ArrayList<>();
@@ -169,10 +175,36 @@ public class MusicEngine implements MusicEngineAccess {
         musicDestroyRunner.destroy();
         musicDestroyRunner = new MusicEngineDestroyRunner();
 
-        if (musicLoaderExecutor != null) musicLoaderExecutor.shutdown();
+        // 旧池不 shutdown：调用方可能已持有旧引用提交后续阶段，关掉会 RejectedExecutionException
         musicLoaderExecutor = createMusicLoadExecutor();
 
         LavaPlayerManager.getInstance().reload();
+    }
+
+    /** 音效引擎重载后 OpenAL 上下文被换掉：置位，下一 tick 重建音频。 */
+    private boolean audioRebuildRequested;
+
+    public void requestAudioRebuild() {
+        audioRebuildRequested = true;
+    }
+
+    /**
+     * 把在放的曲子按当前进度重载：MC 重载音效引擎会重建 OpenAL 上下文、老 source/buffer 全失效，不重建就只剩「进度在走但没声音」。
+     */
+    public void rebuildAudio() {
+        for (UUID id : new ArrayList<>(musicEntries.keySet())) {
+            var entry = musicEntries.get(id);
+            if (entry == null || !entry.isPlaying()) continue;
+            var source = entry.getSource();
+            if (source == null) continue;
+            var player = entry.getMusicPlayer();
+            var trackers = player == null ? java.util.Map.<UUID, MusicTracker>of() : player.getSpeakerTrackers();
+            long position = Math.max(0L, entry.getCurrentPosition());
+            getLogger().info("Music engine audio rebuild | id=" + id + " | position=" + position + " | speakers=" + trackers.size());
+            stop(id);
+            if (!loadAndPlay(id, source, position, false, entry.isRingLoad())) continue;
+            trackers.forEach((speakerId, tracker) -> addSpeaker(id, speakerId, tracker));
+        }
     }
 
     /**
@@ -236,15 +268,24 @@ public class MusicEngine implements MusicEngineAccess {
      * @return 読み込み開始したかどうか、読み込み拒否(読み込み数が限界、すでに読み込み中、読み込み済み)などの時はfalse
      */
     public boolean load(@NotNull UUID musicPlayerId, @NotNull MusicSource source, long position, @NotNull LoadCompleteListener listener) {
+        return load(musicPlayerId, source, position, listener, false);
+    }
+
+    /**
+     * @param ringLoad true for world playback (boombox / cassette): the loader gets it via {@link MusicEntry#isRingLoad()}.
+     */
+    public boolean load(@NotNull UUID musicPlayerId, @NotNull MusicSource source, long position, @NotNull LoadCompleteListener listener, boolean ringLoad) {
         if (getCurrentMusicLoad() >= getMaxMusicLoad()) return false;
 
         if (isExist(musicPlayerId))
             return false;
 
 
-        var mpe = new MusicEntry(musicPlayerId, source, position);
+        var mpe = new MusicEntry(musicPlayerId, source, position, ringLoad);
         musicEntries.put(musicPlayerId, mpe);
 
+        // The renderers start the lyric fetch only once the audio is loaded, which left a song's first line empty.
+        IMPLyricGetter.prefetch(source);
         mpe.loadStart(listener);
         return true;
     }
@@ -259,9 +300,13 @@ public class MusicEngine implements MusicEngineAccess {
      * @return 再生できたかどうか
      */
     public boolean loadAndPlay(@NotNull UUID musicPlayerId, @NotNull MusicSource source, long position, boolean delayed) {
+        return loadAndPlay(musicPlayerId, source, position, delayed, false);
+    }
+
+    public boolean loadAndPlay(@NotNull UUID musicPlayerId, @NotNull MusicSource source, long position, boolean delayed, boolean ringLoad) {
         return load(musicPlayerId, source, position, (success, time, error, retry) -> {
             if (success) play(musicPlayerId, delayed ? time : 0);
-        });
+        }, ringLoad);
     }
 
     /**

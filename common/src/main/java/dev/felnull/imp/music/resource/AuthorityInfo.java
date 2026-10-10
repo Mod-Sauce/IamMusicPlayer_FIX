@@ -48,6 +48,21 @@ public class AuthorityInfo implements TagSerializable {
         this.initialAuthority = AuthorityType.getByName(tag.getString("InitialAuthority"));
     }
 
+    /** Member display name map (UUID → name). Not saved, not part of equals/hashCode, like {@code Music#ownerName}; the
+     * server fills it just before the playlist sync, and the client uses it only as the preferred display name. */
+    private Map<UUID, String> memberNames = new HashMap<>();
+
+    /** The server-sent name of this member; null when absent (the caller falls back to the original chain). */
+    public String getMemberName(UUID playerId) {
+        if (playerId == null) return null;
+        return memberNames.get(playerId);
+    }
+
+    /** Filled by the server: whole-map replacement (rebuilt on every sync ⇒ renames update automatically, no stale names left). */
+    public void setMemberNames(Map<UUID, String> names) {
+        this.memberNames = names == null ? new HashMap<>() : names;
+    }
+
     public UUID getOwner() {
         return owner;
     }
@@ -71,8 +86,11 @@ public class AuthorityInfo implements TagSerializable {
         return au == null ? getDefaultAuthority() : au;
     }
 
+    /** The level "people not on the list" get — always {@link AuthorityType#NONE}; not {@code isPublic() ? NONE : BAN},
+     * which conflates "not a member" with "banned". Visibility is decided by {@code MusicManager.PlayListGetType};
+     * joinability by {@link #canJoin(UUID)}; {@code BAN} means explicitly banned only. */
     public AuthorityType getDefaultAuthority() {
-        return isPublic() ? AuthorityType.NONE : AuthorityType.BAN;
+        return AuthorityType.NONE;
     }
 
     @NotNull

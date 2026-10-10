@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
+import dev.felnull.imp.client.gui.PlayerNameUtil;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import dev.felnull.imp.client.gui.components.AuthorityPlayersFixedListWidget;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.components.SmartRadioButton;
@@ -55,7 +57,7 @@ public class AuthorityMMMonitor extends MusicManagerMonitor {
             if (getParentType() != null) insMonitor(getParentType());
         }));
 
-        this.authorityPlayersFixedButtonsList = addRenderWidget(new AuthorityPlayersFixedListWidget(getStartX() + 6, getStartY() + 23, 175, 135, Component.translatable("imp.fixedList.authorityPlayers"), 9, members, (widget, item) -> setSelectedPlayer(item), this.authorityPlayersFixedButtonsList, n -> n.equals(getSelectedPlayer())));
+        this.authorityPlayersFixedButtonsList = addRenderWidget(new AuthorityPlayersFixedListWidget(getStartX() + 6, getStartY() + 23, 175, 135, Component.translatable("imp.fixedList.authorityPlayers"), 9, members, (widget, item) -> setSelectedPlayer(item), this.authorityPlayersFixedButtonsList, n -> n.equals(getSelectedPlayer()), this::getSelectedMusicPlayList));
 
         Supplier<Set<RadioButton>> rdos = () -> ImmutableSet.of(this.readOnlyRadio, this.memberRadio, this.adminRadio, this.banRadio);
 
@@ -69,7 +71,8 @@ public class AuthorityMMMonitor extends MusicManagerMonitor {
         this.banRadio.setSelected(getAuthorityType(getSelectedPlayer()) == AuthorityInfo.AuthorityType.BAN);
 
         this.adminRadio = this.addRenderWidget(new SmartRadioButton(getStartX() + 188, getStartY() + 122, ADMIN_RDO_TEXT, n -> sendChangeAuthorityPacket(getSelectedPlayer(), AuthorityInfo.AuthorityType.ADMIN), rdos));
-        this.adminRadio.setSelected(getAuthorityType(getSelectedPlayer()) == AuthorityInfo.AuthorityType.READ_ONLY);
+        // This is the ADMIN button (the matching "read only" tick lives in tick()).
+        this.adminRadio.setSelected(getAuthorityType(getSelectedPlayer()) == AuthorityInfo.AuthorityType.ADMIN);
 
         this.readOnlyRadio.visible = canEdit(getSelectedPlayer());
         this.memberRadio.visible = canEdit(getSelectedPlayer());
@@ -92,8 +95,8 @@ public class AuthorityMMMonitor extends MusicManagerMonitor {
         OERenderUtils.drawTexture(AUTHORITY_TEXTURE, guiGraphics.pose(), getStartX(), getStartY(), 0f, 0f, width / (getSelectedPlayer() != null ? 1f : 2f), height, width, height);
         var sp = getSelectedPlayer();
         if (sp != null) {
-            OERenderUtils.drawPlayerFace(guiGraphics.pose(), sp, getStartX() + 189, getStartY() + 23, 21);
-            var str = OEClientUtils.getPlayerNameByUUID(sp).orElseGet(sp::toString);
+            PlayerFaceRenderer.drawFace(guiGraphics.pose(), sp, getStartX() + 189, getStartY() + 23, 21);
+            var str = PlayerNameUtil.playerName(getSelectedMusicPlayList(), sp);
             drawSmartFixedWidthText(guiGraphics, Component.literal(str), getStartX() + 212, getStartY() + 25, 150);
             drawSmartFixedWidthText(guiGraphics, getAuthorityType(sp).getText(), getStartX() + 212, getStartY() + 35, 150);
             if (!canEdit(sp)) drawSmartText(guiGraphics, CANT_CHANGE_AUTHORITY, getStartX() + 188, getStartY() + 47);
@@ -112,7 +115,7 @@ public class AuthorityMMMonitor extends MusicManagerMonitor {
         var sp = getSelectedPlayer(blockEntity);
         if (sp != null) {
             renderPlayerFaceSprite(poseStack, multiBufferSource, sp, 189, 23, OERenderUtils.MIN_BREADTH * 4, 21, i, j, onPxW, onPxH, monitorHeight);
-            var str = OEClientUtils.getPlayerNameByUUID(sp).orElseGet(sp::toString);
+            var str = PlayerNameUtil.playerName(getSelectedMusicPlayList(blockEntity), sp);
             renderSmartTextSprite(poseStack, multiBufferSource, Component.literal(OEClientUtils.getWidthOmitText(str, 130, "...")), 215, 26, OERenderUtils.MIN_BREADTH * 4, onPxW, onPxH, monitorHeight, i);
             renderSmartTextSprite(poseStack, multiBufferSource, getAuthorityType(blockEntity, sp).getText(), 215, 36, OERenderUtils.MIN_BREADTH * 4, onPxW, onPxH, monitorHeight, i);
             if (canEdit(blockEntity, sp)) {
@@ -131,12 +134,12 @@ public class AuthorityMMMonitor extends MusicManagerMonitor {
 
         var pl = getSelectedMusicPlayList(blockEntity);
         if (pl != null)
-            pls.addAll(pl.getAuthority().getPlayersAuthority().entrySet().stream().filter(n -> n.getValue() != AuthorityInfo.AuthorityType.NONE && n.getValue() != AuthorityInfo.AuthorityType.INVITATION).map(Map.Entry::getKey).toList());
+            pls.addAll(pl.getAuthority().getPlayersAuthority().entrySet().stream().filter(n -> n.getValue() != AuthorityInfo.AuthorityType.NONE && n.getValue() != AuthorityInfo.AuthorityType.INVITATION).sorted(java.util.Comparator.comparingInt(n -> -n.getValue().getLevel())).map(Map.Entry::getKey).toList());
 
         renderFixedListSprite(poseStack, multiBufferSource, 6, 23, OERenderUtils.MIN_BREADTH * 4, 175, 135, i, j, onPxW, onPxH, monitorHeight, pls, 9, (poseStack1, multiBufferSource1, x, y, z, w, h, i1, j1, entry) -> {
             renderSmartButtonBoxSprite(poseStack1, multiBufferSource1, x, y, z + OERenderUtils.MIN_BREADTH, w, h, i1, j1, onPxW, onPxH, monitorHeight, entry.equals(getSelectedPlayer(blockEntity)));
             renderPlayerFaceSprite(poseStack1, multiBufferSource1, entry, x + 1, y + 1, z + OERenderUtils.MIN_BREADTH * 3, h - 2, i1, j1, onPxW, onPxH, monitorHeight);
-            renderSmartTextSprite(poseStack1, multiBufferSource1, Component.literal(OEClientUtils.getWidthOmitText(OEClientUtils.getPlayerNameByUUID(entry).orElseGet(entry::toString), w - (h + 7), "...")), x + h + 3f, y + (h - 6.5f) / 2f, z + OERenderUtils.MIN_BREADTH * 3, onPxW, onPxH, monitorHeight, i1);
+            renderSmartTextSprite(poseStack1, multiBufferSource1, Component.literal(OEClientUtils.getWidthOmitText(PlayerNameUtil.playerName(pl, entry), w - (h + 7), "...")), x + h + 3f, y + (h - 6.5f) / 2f, z + OERenderUtils.MIN_BREADTH * 3, onPxW, onPxH, monitorHeight, i1);
             //   renderSmartTextSprite(poseStack1, multiBufferSource1, getAuthorityType(blockEntity, entry).getText(), x + h + 3f, y + 11f, z + OERenderUtils.MIN_BREADTH * 3, onPxW, onPxH, monitorHeight, i1);
         });
     }
@@ -221,7 +224,7 @@ public class AuthorityMMMonitor extends MusicManagerMonitor {
         members.clear();
         var pl = getSelectedMusicPlayList();
         if (pl != null)
-            members.addAll(pl.getAuthority().getPlayersAuthority().entrySet().stream().filter(n -> n.getValue() != AuthorityInfo.AuthorityType.NONE && n.getValue() != AuthorityInfo.AuthorityType.INVITATION).map(Map.Entry::getKey).toList());
+            members.addAll(pl.getAuthority().getPlayersAuthority().entrySet().stream().filter(n -> n.getValue() != AuthorityInfo.AuthorityType.NONE && n.getValue() != AuthorityInfo.AuthorityType.INVITATION).sorted(java.util.Comparator.comparingInt(n -> -n.getValue().getLevel())).map(Map.Entry::getKey).toList());
     }
 
     protected MusicPlayList getSelectedMusicPlayList() {

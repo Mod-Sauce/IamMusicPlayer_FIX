@@ -7,6 +7,7 @@ import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.IMPBlocks;
 import dev.felnull.imp.client.gui.overlay.MusicInfoOverlay;
 import dev.felnull.imp.client.gui.overlay.MusicLinesOverlay;
+import dev.felnull.imp.client.gui.overlay.PlayListInviteOverlay;
 import dev.felnull.imp.client.renderer.item.hand.BoomboxHandRenderer;
 import dev.felnull.imp.item.BoomboxItem;
 import net.minecraft.client.DeltaTracker;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 public class RenderHandler {
     private static final MusicLinesOverlay MUSIC_LINES_OVERLAY = new MusicLinesOverlay();
     private static final MusicInfoOverlay MUSIC_INFO_OVERLAY = new MusicInfoOverlay();
+    private static final PlayListInviteOverlay PLAYLIST_INVITE_OVERLAY = new PlayListInviteOverlay();
 
     public static void init() {
         MoreRenderEvent.RENDER_ITEM_IN_HAND.register(RenderHandler::onRenderItemInHand);
@@ -36,6 +38,9 @@ public class RenderHandler {
             MUSIC_LINES_OVERLAY.render(guiGraphics, tickDelta.getGameTimeDeltaTicks());
         if(IamMusicPlayer.getConfig().enableMusicInfoHUD)
             MUSIC_INFO_OVERLAY.render(guiGraphics, tickDelta.getGameTimeDeltaTicks());
+        // The "someone invited you to a playlist" notice (a private playlist never enters the joinable list, so invitees must be told actively)
+        if (IamMusicPlayer.getConfig().enablePlayListInviteNotice)
+            PLAYLIST_INVITE_OVERLAY.render(guiGraphics, tickDelta.getGameTimeDeltaTicks());
     }
 
     private static EventResult onRenderItemInHand(PoseStack poseStack, MultiBufferSource multiBufferSource, InteractionHand hand, int packedLight, float partialTicks, float interpolatedPitch, float swingProgress, float equipProgress, ItemStack stack) {

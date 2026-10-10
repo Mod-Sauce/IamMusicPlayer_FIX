@@ -8,7 +8,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.felnull.imp.IamMusicPlayer;
+import dev.felnull.imp.client.music.MusicLoadFailure;
 import dev.felnull.imp.client.music.audioTrack.NeteaseAudioTrack;
+import dev.felnull.imp.client.music.link.LinkDebug;
 import dev.felnull.imp.client.music.netmusic.NetMusicUtil;
 
 import java.io.DataInput;
@@ -30,6 +32,8 @@ public class NeteaseSourceManager extends HttpAudioSourceManager {
     public AudioItem loadItem(AudioPlayerManager manager, AudioReference reference) {
         long songId;
         if(!reference.identifier.contains("netease:"))return null;
+        // ⚠️ `id` = the **bare identifier** with the source prefix removed: the "failure reason" must be recorded with this form,
+        // because whoever looks it up in the MusicEntry log and on the remote playback page uses `MusicSource#getIdentifier()`.
         var id = reference.identifier.substring(8);
         try {
             songId = Long.parseLong(id);
@@ -39,8 +43,26 @@ public class NeteaseSourceManager extends HttpAudioSourceManager {
         var data = NetMusicUtil.getNetMusicJson(songId);
         var infoData = NetMusicUtil.getNetMusicSongData(data);
         URL url = NetMusicUtil.getNetMusicUrl(songId);
-        if(infoData == null || url == null)
+        if(infoData == null || url == null){
+            // This reason is the one for restricted Netease tracks / not logged in.
+            MusicLoadFailure.noteReason(id, "网易云拿不到曲目信息或播放地址（受限曲目需登录；会员曲需要会员账号）");
             return null;
+        }
+        // [Audio-address probe] A restricted track "resolves" to an address that is not audio: the anonymous API 302s to `music.163.com/404`,
+        // which answers HTTP 200 with an HTML page, so LavaPlayer builds an MP3 that only fails while decoding (UI shows "playing", silence).
+        if (url.toString().contains("music.163.com/404")) {
+            MusicLoadFailure.noteReason(id, "网易云这个地址不是音频（受限曲目需登录；会员曲需要会员账号）");
+            LinkDebug.log("netease loadItem FAIL", "id", songId, "reason", "302 to music.163.com/404 (restricted)",
+                    "hasCookie", NetMusicUtil.hasCookie(), "url", LinkDebug.safeUrl(url.toString()));
+            return null;
+        }
+        var probe = NetMusicUtil.probeAudioUrl(url.toString());
+        if (probe == NetMusicUtil.AudioProbe.NOT_AUDIO) {
+            MusicLoadFailure.noteReason(id, "网易云这个地址不是音频（受限曲目需登录；会员曲需要会员账号）");
+            LinkDebug.log("netease loadItem FAIL", "id", songId, "reason", "audio probe not audio",
+                    "hasCookie", NetMusicUtil.hasCookie(), "url", LinkDebug.safeUrl(url.toString()));
+            return null;
+        }
         var name = IamMusicPlayer.getConfig().netMusicConfig.withTransName && !infoData.getTransName().isEmpty() ?
                 String.format("%s(%s)", infoData.getName(), infoData.getTransName()) :
                 infoData.getName();

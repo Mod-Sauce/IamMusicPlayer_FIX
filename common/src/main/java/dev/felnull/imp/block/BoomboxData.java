@@ -8,6 +8,7 @@ import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.music.MusicManager;
 import dev.felnull.imp.server.music.ringer.IMusicRinger;
 import dev.felnull.imp.server.saveddata.EarphoneSaveData;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.util.IMPItemUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -49,6 +50,8 @@ public class BoomboxData {
     private boolean playing;
     private int volume = 150;
     private boolean loop;
+    /** [NEW] Auto play: true = the next track follows when the current one ends; false = pause when it ends. Independent of the loop state. */
+    private boolean autoPlay = true;
     private boolean mute;
     private long musicPosition;
     private boolean loadingMusic;
@@ -59,6 +62,10 @@ public class BoomboxData {
     private String radioAuthor = "";
     private Music selectedMusic;
     private ContinuousType continuousType = ContinuousType.NONE;
+
+    /** [Sequential playback convention] The UI's sorting is mirrored here (sent as `set_remote_song_sort` when the client renders that page) ⇒ sequential playback = the UI order. */
+    private String remoteSongSort = "ADD_ORDER";
+    private boolean remoteSongSortDescending = false;
     private boolean radioStartFlg;
     private boolean noChangeCassetteTape;
 
@@ -100,16 +107,30 @@ public class BoomboxData {
 
             if(!isPowered() && earphoneUUID != null) setEarphoneUUID(null);
 
-            if (monitorType != lastMonitorType) {
-                lastMonitorType = monitorType;
-                setMusicPosition(0);
-                setPlaying(false);
-            }
+            // [Track change / page change] Song changed: rewind + force a ringer restart, playing untouched; page flip: governed by `keepPlayingOnRemoteSwitch`; anything else: reset.
+            // The restart is mandatory — `MusicRing.tick()` only rebuilds its listeners when `isRingerPlaying()` changed, so a same-track source swap is never sent.
+            // `setPlaying(false)` must not be called here: nothing would ever set it back for automatic continuation.
+            var curSel = getSelectedMusic();
+            var curSelUuid = curSel == null ? null : curSel.getUuid();
+            boolean songChanged = !Objects.equals(curSelUuid, lastSelectedMusicUuid);
+            lastSelectedMusicUuid = curSelUuid;
+            boolean keepPlaying = remoteKeep() && !songChanged;
 
-            if (!canPlay()) {
+            if (songChanged) {
                 setMusicPosition(0);
-                setPlaying(false);
+                if (getRinger() != null)
+                    getRinger().ringerRestart();
+            } else if (!keepPlaying) {
+                if (monitorType != lastMonitorType) {
+                    setMusicPosition(0);
+                    setPlaying(false);
+                }
+                if (!canPlay()) {
+                    setMusicPosition(0);
+                    setPlaying(false);
+                }
             }
+            lastMonitorType = monitorType;
 
             if (!isRadioRemote()) {
                 playerSelectPlaylists.clear();
@@ -169,11 +190,21 @@ public class BoomboxData {
     }
 
     public CompoundTag onInstruction(ServerPlayer player, String name, CompoundTag data) {
+        // [Trace] 排查「没点任何按键却停了」：把收到的每条指令记下来（含按钮类型）
+        if (dev.felnull.imp.client.music.link.LinkDebug.shouldLogThrottled("ins:" + name))
+            dev.felnull.imp.client.music.link.LinkDebug.log("ins recv", "name", name,
+                    "type", data.contains("Type") ? data.getString("Type") : "-",
+                    "keys", String.join(",", data.getAllKeys()),
+                    "player", player.getGameProfile().getName());
         if ("buttons_press".equals(name)) {
             ButtonType type = ButtonType.getByName(data.getString("Type"));
             switch (type) {
                 case POWER -> setPower(!isPowered());
-                case LOOP -> setLoop(!isLoop());
+                case LOOP -> {
+                    dev.felnull.imp.client.music.link.LinkDebug.log("ins button LOOP",
+                            "stateBefore", getLoopState(), "powered", isPowered());
+                    setLoopState((getLoopState() + 1) % 3);
+                }
                 case VOL_DOWN -> {
                     if (isPowered()) setVolume(Mth.clamp(volume - 10, 0, 300));
                 }
@@ -187,7 +218,17 @@ public class BoomboxData {
                     setMute(false);
                 }
                 case RADIO -> {
-                    if (isRadio()) {
+                    // [Antenna button] Satellite/parabolic antenna cycles inside remote mode; broadcast antenna opens the radio URL page.
+                    // The remote case must not reach the `isRadio()` branch below — `isRadio()` includes `isRadioRemote()`, so one press would read as "leaving radio" and drop to PLAYBACK.
+                    var satellite = IMPItemUtil.isRemotePlayBackAntenna(getAntenna());
+                    if (satellite) {
+                        if (getMonitorType() == MonitorType.PLAYBACK)
+                            setPower(true);
+                        // Round trip: select page → playback page; anything else (PLAYBACK / not in remote) → select page
+                        setMonitorType(getMonitorType() == MonitorType.REMOTE_PLAYBACK
+                                ? MonitorType.REMOTE_PLAYBACK_SELECT
+                                : MonitorType.REMOTE_PLAYBACK);
+                    } else if (isRadio()) {
                         setMonitorType(MonitorType.PLAYBACK);
                     } else {
                         setPower(true);
@@ -231,7 +272,12 @@ public class BoomboxData {
             if (isPowered()) setPlaying(false);
             return null;
         } else if ("set_loop".equals(name)) {
+            dev.felnull.imp.client.music.link.LinkDebug.log("ins set_loop", "loop", data.getBoolean("loop"),
+                    "powered", isPowered(), "applied", isPowered());
             if (isPowered()) setLoop(data.getBoolean("loop"));
+            return null;
+        } else if ("set_auto_play".equals(name)) {
+            if (isPowered()) setAutoPlay(data.getBoolean("autoPlay"));
             return null;
         } else if ("restat_and_set_position".equals(name)) {
             if (isPowered()) setMusicPositionAndRestart(data.getLong("position"));
@@ -288,12 +334,30 @@ public class BoomboxData {
                 }
             }
             return null;
+        } else if ("bilibili_part_jump".equals(name)) {
+            // [Part jump] Sent from the boombox's own screen (see BoomboxScreen), whose instruction channel already routes to that exact boombox,
+            // so the same lines cover both the block entity and the handheld item.
+            jumpBiliBiliPart(player, data.getInt("page"));
+            return null;
         } else if ("set_continuous_type".equals(name)) {
-            if (isPowered() && isRadioRemote()) {
+            // `set_loop` and `set_continuous_type` (see `BoomboxScreen.insLoopState`) must require the same power condition:
+            // if this one also required `isRadioRemote()`, the data could stay (loop=false, NONE) with the UI showing "sequential", and nothing would follow when the track ends.
+            if (isPowered()) {
                 setContinuousType(ContinuousType.getByName(data.getString("type")));
             }
+            dev.felnull.imp.client.music.link.LinkDebug.log("ins set_continuous_type",
+                    "recv", data.getString("type"), "powered", isPowered(),
+                    "applied", isPowered(), "loopNow", isLoop(),
+                    "stateNow", getLoopState());
             return null;
-        } else if("earphone".equals(name)){
+        } else if ("set_remote_song_sort".equals(name)) {
+            // The client mirrors the config's sorting when rendering the select page (sent only when different);
+            // `update()` persists it (the item form relies on that to write back to NBT), playback state is untouched.
+            this.remoteSongSort = data.getString("sort");
+            this.remoteSongSortDescending = data.getBoolean("descending");
+            update();
+            return null;
+        } else if ("earphone".equals(name)){
             var savedData = EarphoneSaveData.getInstance(player.serverLevel());
             return OENbtUtils.writeList(new CompoundTag(), "earphone", savedData.getEarphones().stream().filter(
                     l -> {
@@ -334,6 +398,7 @@ public class BoomboxData {
         tag.putBoolean("Playing", playing);
         tag.putInt("Volume", this.volume);
         tag.putBoolean("Loop", this.loop);
+        tag.putBoolean("AutoPlay", this.autoPlay);
         tag.putBoolean("Mute", this.mute);
         tag.putLong("RingerPosition", this.musicPosition);
         tag.putString("RadioUrl", this.radioUrl);
@@ -344,7 +409,13 @@ public class BoomboxData {
         OENbtUtils.writeUUIDMap(tag, "PlayerSelectPlaylists", playerSelectPlaylists);
         if (this.selectedMusic != null) tag.put("SelectedMusic", this.selectedMusic.createSavedTag());
         tag.putString("ContinuousType", this.continuousType.getName());
+        // [Sequential playback convention] Must be saved: the item form of the boombox is rebuilt from NBT every tick (see the note on lastSelectedMusicUuid).
+        tag.putString("RemoteSongSort", this.remoteSongSort);
+        tag.putBoolean("RemoteSongSortDescending", this.remoteSongSortDescending);
         tag.putString("LastMonitorType", this.lastMonitorType.getName());
+        // `BoomboxItem.getData()` always builds a fresh BoomboxData, so in-memory fields do not survive one read: this uuid must be saved or every tick sees null
+        // ⇒ `songChanged` always true ⇒ `setMusicPosition(0)` + `ringerRestart()` every tick ⇒ server STOP/LOAD every tick, which looks like a load-stop loop on the client.
+        if (lastSelectedMusicUuid != null) tag.putUUID("LastSelectedMusicUuid", lastSelectedMusicUuid);
         if(earphoneUUID != null)
             tag.putUUID("earphone", earphoneUUID);
 
@@ -388,7 +459,15 @@ public class BoomboxData {
         this.radioAuthor = tag.getString("RadioAuthor");
         OENbtUtils.readUUIDMap(tag, "PlayerSelectPlaylists", playerSelectPlaylists);
         this.continuousType = ContinuousType.getByName(tag.getString("ContinuousType"));
+        // [Sequential playback convention] Falls back to "no sorting" when the field is missing (= the default behavior, old saves unaffected).
+        this.remoteSongSort = tag.contains("RemoteSongSort") ? tag.getString("RemoteSongSort") : "ADD_ORDER";
+        this.remoteSongSortDescending = tag.getBoolean("RemoteSongSortDescending");
+        // Keep the stored value faithful: `(loop=false, NONE)` is a legal input and must not be rewritten into ORDER here, or "what was stored" would differ from "what is read back".
+        // The combination is resolved at the consumption point by {@link #getEffectiveContinuousType()}.
+        // A missing AutoPlay key falls back to false, so old saves do not suddenly continue to the next track.
+        this.autoPlay = tag.contains("AutoPlay") && tag.getBoolean("AutoPlay");
         this.lastMonitorType = MonitorType.getByName(tag.getString("LastMonitorType"));
+        lastSelectedMusicUuid = tag.hasUUID("LastSelectedMusicUuid") ? tag.getUUID("LastSelectedMusicUuid") : null;
         if(tag.contains("earphone"))
             earphoneUUID = tag.getUUID("earphone");
 
@@ -543,6 +622,22 @@ public class BoomboxData {
         return monitorType == MonitorType.REMOTE_PLAYBACK || monitorType == MonitorType.REMOTE_PLAYBACK_SELECT;
     }
 
+    /** These two pages share one audio source within the "remote" set (the track selected remotely) — see the page-change-keeps-playing part in update(). */
+    private static boolean isRemotePage(MonitorType type) {
+        return type == MonitorType.REMOTE_PLAYBACK || type == MonitorType.REMOTE_PLAYBACK_SELECT;
+    }
+
+    /** [boomboxConfig.keepPlayingOnRemoteSwitch] Switching between the two remote pages
+     * (playback page ⇄ select page) must not cut off the track being played. */
+    private boolean remoteKeep() {
+        return IamMusicPlayer.getConfig().boomboxConfig.keepPlayingOnRemoteSwitch
+                && (isRemotePage(monitorType) || isRemotePage(lastMonitorType));
+    }
+
+    /**
+     * The "remote-selected track" uuid seen by the last {@code update()}.
+     */
+    private UUID lastSelectedMusicUuid;
 
     public void setPower(boolean power) {
         access.setPower(power);
@@ -566,10 +661,31 @@ public class BoomboxData {
 
 
     public void setPlaying(boolean playing) {
+        // [Trace, log only] `playing` is the only basis for "whether the server sends LOAD/STOP" (`MusicRing.tick` samples `isRingerPlaying()` once per tick).
+        if (this.playing != playing
+                && dev.felnull.imp.client.music.link.LinkDebug.shouldLogThrottled("playing:" + System.identityHashCode(this)))
+            dev.felnull.imp.client.music.link.LinkDebug.log("Boombox setPlaying",
+                    "playing", this.playing + "->" + playing,
+                    "caller", callerFrame(),
+                    "thread", Thread.currentThread().getName(),
+                    "monitor", monitorType, "canPlay", canPlay(),
+                    "sel", getSelectedMusic() == null ? "null" : getSelectedMusic().getSource().getLoaderType() + ":" + getSelectedMusic().getSource().getIdentifier(),
+                    "radioRemote", isRadioRemote(), "powered", isPowered(),
+                    "autoPlay", isAutoPlay(), "continuous", getContinuousType());
+
         if (canPlay() || !playing) {
             this.playing = playing;
             update();
         }
+    }
+
+    /** The frame that called `setPlaying` (which method, which line). */
+    private static String callerFrame() {
+        return StackWalker.getInstance().walk(frames -> frames
+                .filter(f -> !f.getClassName().equals(BoomboxData.class.getName()))
+                .findFirst()
+                .map(f -> f.getClassName().substring(f.getClassName().lastIndexOf('.') + 1) + "#" + f.getMethodName() + ":" + f.getLineNumber())
+                .orElse("?"));
     }
 
     public void setEarphoneUUID(UUID uuid){
@@ -621,7 +737,24 @@ public class BoomboxData {
         update();
     }
 
+    /** Sorting convention used for sequential playback (mirrored from the UI), values {@code ADD_ORDER/NAME/PLAYER/CREATE_DATE}. */
+    public String getRemoteSongSort() {
+        return remoteSongSort;
+    }
+
+    public boolean isRemoteSongSortDescending() {
+        return remoteSongSortDescending;
+    }
+
+    /** Raw field value (faithfully reflects the state: save/packet round trips reproduce it). **Use {@link #getEffectiveContinuousType()} for behavior decisions**. */
     public ContinuousType getContinuousType() {
+        return continuousType;
+    }
+
+    /** Behavior decisions ({@code shouldAutoContinue()} / {@code ringerEnd()}) must use this, not the raw field. */
+    public ContinuousType getEffectiveContinuousType() {
+        if (!loop && continuousType == ContinuousType.NONE)
+            return ContinuousType.ORDER;
         return continuousType;
     }
 
@@ -632,6 +765,37 @@ public class BoomboxData {
 
     public Music getSelectedMusic() {
         return selectedMusic;
+    }
+
+    /** 「跳分P」({@code IMPPackets.BoomboxPartJumpMessage}): jump to part {@code page} of the B站 video playing now via
+     * {@code BiliBiliPartCache#partMusic}; needs {@code isPowered()} and {@code isRadioRemote()}; keeps the source uuid
+     * (a video stays one row) and its playlist order after the last part; no restart if it is already on. */
+    public boolean jumpBiliBiliPart(@NotNull ServerPlayer player, int page) {
+        if (!isPowered() || !isRadioRemote())
+            return false;
+        var current = getSelectedMusic();
+        if (current == null || current.getSource() == null)
+            return false;
+        var pl = MusicManager.getInstance().getPlaylistByMusic(player.server, current.getUuid());
+        if (pl == null || !pl.getAuthority().getAuthorityType(player.getGameProfile().getId()).isMoreReadOnly())
+            return false;
+        var target = dev.felnull.imp.server.music.BiliBiliPartCache.getInstance()
+                .partMusic(current, page, System.currentTimeMillis());
+        if (target == null || target.getSource() == null)
+            return false;
+        if (target.getSource().getIdentifier().equals(current.getSource().getIdentifier()))
+            return false;
+        if (dev.felnull.imp.client.music.link.LinkDebug.shouldLogThrottled("partJump:" + player.getUUID()))
+            dev.felnull.imp.client.music.link.LinkDebug.log("boombox part-jump",
+                    "by", player.getGameProfile().getName(),
+                    "from", current.getSource().getIdentifier(),
+                    "to", target.getSource().getIdentifier(),
+                    "name", target.getName(), "dur", target.getSource().getDuration());
+        setSelectedMusic(target);
+        // Restarting the ringer is mandatory here and is the one thing automatic continuation does not need: the track-change check in {@link #tick()} compares uuids,
+        // and a synthesized part deliberately keeps the uuid of the entry it came from, so a part-to-part jump looks like "the same track" ⇒ no restart ⇒ the client keeps playing the old part.
+        setMusicPositionAndRestart(0);
+        return true;
     }
 
     @Nullable
@@ -713,8 +877,40 @@ public class BoomboxData {
         return mute;
     }
 
+    /** Auto play toggle: true = continue after the track ends, false = pause when it ends. */
+    public boolean isAutoPlay() {
+        return autoPlay;
+    }
+
+    public void setAutoPlay(boolean autoPlay) {
+        this.autoPlay = autoPlay;
+        update();
+    }
+
     public void setLoop(boolean loop) {
         this.loop = loop;
+        update();
+    }
+
+    /**
+     * Three loop states (0 repeat one / 1 sequential / 2 shuffle).
+     */
+    public int getLoopState() {
+        // state0 = repeat one (replay this track); state1 = sequential; state2 = shuffle
+        if (loop)
+            return 0;   // loop only means "repeat one"
+        return continuousType == ContinuousType.RANDOM ? 2 : 1;
+    }
+
+    /** Sets the three states and refreshes. */
+    public void setLoopState(int state) {
+        int s = Mth.clamp(state, 0, 2);
+        this.loop = s == 0;                 // only the "repeat one" state sets loop
+        this.continuousType = switch (s) {
+            case 0 -> ContinuousType.NONE;   // repeat one: loop handles the replay, no next track is picked
+            case 2 -> ContinuousType.RANDOM; // shuffle
+            default -> ContinuousType.ORDER; // sequential
+        };
         update();
     }
 
@@ -838,12 +1034,12 @@ public class BoomboxData {
     }
 
     public Buttons getButtons() {
-        return new Buttons(isRadio(), isPlaying(), !isPlaying() && getMusicPosition() > 0, isLoop(), isMute(), !isMute() && volume >= 300);
+        return new Buttons(isRadio(), isPlaying(), !isPlaying() && getMusicPosition() > 0, isLoop(), isMute(), !isMute() && volume >= 300, getLoopState());
     }
 
     public static record Buttons(boolean radio, boolean start, boolean pause, boolean loop, boolean volMute,
-                                 boolean volMax) {
-        public static final Buttons EMPTY = new Buttons(false, false, false, false, false, false);
+                                 boolean volMax, int loopState) {
+        public static final Buttons EMPTY = new Buttons(false, false, false, false, false, false, 0);
     }
 
     public static enum ButtonType {

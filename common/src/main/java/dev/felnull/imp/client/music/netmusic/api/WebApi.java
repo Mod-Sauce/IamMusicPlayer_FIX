@@ -54,7 +54,8 @@ public final class WebApi {
     }
 
     public String lyric(long songId) throws IOException {
-        String url = "http://music.163.com/api/song/lyric/?id=" + songId + "&lv=-1&kv=-1&tv=-1";
+        // yv=-1 才会带回 yrc（逐字）；不带这个参数响应里根本没有 yrc 字段
+        String url = "http://music.163.com/api/song/lyric/?id=" + songId + "&lv=-1&kv=-1&tv=-1&yv=-1";
         return NetWorker.get(url, requestPropertyData);
     }
 

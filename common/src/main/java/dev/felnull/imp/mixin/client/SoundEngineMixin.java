@@ -14,14 +14,16 @@ public class SoundEngineMixin {
         MusicEngine.getInstance().tick();
     }
 
-    @Inject(method = "reload", at = @At("HEAD"))
-    private void reload(CallbackInfo ci) {
-        MusicEngine.getInstance().destroy();
-    }
-
+    /** 音效引擎重载（F3+T / 换资源包 / 改声音设置）不再打断本模组的播放：那次 destroy→stopAll 由 reloadFlag 吃掉。 */
     @Inject(method = "reload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sounds/SoundEngine;destroy()V"))
     private void reloadFlag(CallbackInfo ci) {
         MusicEngine.getInstance().reloadFlag = true;
+    }
+
+    /** 重载结束（新上下文已建好）时置位：下一 tick 把在放的曲子按当前进度重起，否则只剩"无声续播"。 */
+    @Inject(method = "reload", at = @At("RETURN"))
+    private void reloadRebuildAudio(CallbackInfo ci) {
+        MusicEngine.getInstance().requestAudioRebuild();
     }
 
     @Inject(method = "stopAll", at = @At("HEAD"))

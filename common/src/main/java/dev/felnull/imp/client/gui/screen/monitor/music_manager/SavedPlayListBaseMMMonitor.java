@@ -10,6 +10,8 @@ import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.components.SmartRadioButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
 import org.modsauce.otyacraftenginerenewed.client.gui.components.RadioButton;
+import dev.felnull.imp.client.gui.PlayerNameUtil;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import org.modsauce.otyacraftenginerenewed.util.FlagThread;
@@ -146,10 +148,10 @@ public abstract class SavedPlayListBaseMMMonitor extends PlayListBaseMMMonitor {
 
             poseStack.pushPose();
             poseStack.translate((189 + 1) * onPxW, monitorHeight - (23 + (k * 13) + 1 + 11) * onPxH, OERenderUtils.MIN_BREADTH * 6);
-            OERenderUtils.renderPlayerFaceSprite(poseStack, multiBufferSource, opl.get(k), onPxH * 11, i, j);
+            PlayerFaceRenderer.drawFaceSprite(poseStack, multiBufferSource, opl.get(k), onPxH * 11, i, j);
             poseStack.popPose();
 
-            String name = OEClientUtils.getPlayerNameByUUID(opl.get(k)).orElse(opl.get(k).toString());
+            String name = PlayerNameUtil.playerName(opl.get(k));
             var tx = Component.literal(name);
             float sc = Math.min(1, (87f - 10f - 11f - 4f - 3f) / (float) IIMPSmartRender.mc.font.width(tx));
             renderSmartTextSprite(poseStack, multiBufferSource, tx, 189 + 11 + 4, 23 + (k * 13) + (13f - 6f) / 2f, OERenderUtils.MIN_BREADTH * 6, onPxW, onPxH, monitorHeight, sc, i);
@@ -164,10 +166,10 @@ public abstract class SavedPlayListBaseMMMonitor extends PlayListBaseMMMonitor {
 
             poseStack.pushPose();
             poseStack.translate((278 + 1) * onPxW, monitorHeight - (23 + (k * 13) + 1 + 11) * onPxH, OERenderUtils.MIN_BREADTH * 6);
-            OERenderUtils.renderPlayerFaceSprite(poseStack, multiBufferSource, ipl.get(k), onPxH * 11, i, j);
+            PlayerFaceRenderer.drawFaceSprite(poseStack, multiBufferSource, ipl.get(k), onPxH * 11, i, j);
             poseStack.popPose();
 
-            String name = OEClientUtils.getPlayerNameByUUID(ipl.get(k)).orElse(ipl.get(k).toString());
+            String name = PlayerNameUtil.playerName(ipl.get(k));
             var tx = Component.literal(name);
             float sc = Math.min(1, (87f - 10f - 11f - 4f - 3f) / (float) IIMPSmartRender.mc.font.width(tx));
             renderSmartTextSprite(poseStack, multiBufferSource, tx, 278 + 11 + 4, 23 + (k * 13) + (13f - 6f) / 2f, OERenderUtils.MIN_BREADTH * 6, onPxW, onPxH, monitorHeight, sc, i);

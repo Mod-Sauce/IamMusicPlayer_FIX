@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.architectury.networking.NetworkManager;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
+import dev.felnull.imp.client.gui.EditBoxUtil;
+import dev.felnull.imp.client.gui.PlayerNameUtil;
 import dev.felnull.imp.client.gui.components.MemberPlayersFixedListWidget;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.components.SmartRadioButton;
@@ -108,7 +110,7 @@ public class DetailPlayListMMMonitor extends PlayListBaseMMMonitor {
         renderFixedListSprite(poseStack, multiBufferSource, 189, 23, OERenderUtils.MIN_BREADTH * 3, 175, 100, i, j, onPxW, onPxH, monitorHeight, pls, 5, (poseStack1, multiBufferSource1, x, y, z, w, h, i1, j1, entry) -> {
             renderSmartButtonBoxSprite(poseStack1, multiBufferSource1, x, y, z + OERenderUtils.MIN_BREADTH, w, h, i1, j1, onPxW, onPxH, monitorHeight, false);
             renderPlayerFaceSprite(poseStack1, multiBufferSource1, entry, x + 1, y + 1, z + OERenderUtils.MIN_BREADTH * 3, h - 2, i1, j1, onPxW, onPxH, monitorHeight);
-            renderSmartTextSprite(poseStack1, multiBufferSource, Component.literal(OEClientUtils.getWidthOmitText(OEClientUtils.getPlayerNameByUUID(entry).orElseGet(entry::toString), w - (h + 7), "...")), x + h + 3f, y + 3f, z + OERenderUtils.MIN_BREADTH * 3, onPxW, onPxH, monitorHeight, i);
+            renderSmartTextSprite(poseStack1, multiBufferSource, Component.literal(OEClientUtils.getWidthOmitText(PlayerNameUtil.playerName(pl, entry), w - (h + 7), "...")), x + h + 3f, y + 3f, z + OERenderUtils.MIN_BREADTH * 3, onPxW, onPxH, monitorHeight, i);
             if (pl != null)
                 renderSmartTextSprite(poseStack1, multiBufferSource, pl.getAuthority().getAuthorityType(entry).getText(), x + h + 3f, y + 11f, z + OERenderUtils.MIN_BREADTH * 3, onPxW, onPxH, monitorHeight, i);
         });
@@ -143,7 +145,8 @@ public class DetailPlayListMMMonitor extends PlayListBaseMMMonitor {
 
         if (!this.cashName.equals(getName())) {
             this.cashName = getName();
-            this.nameEditBox.setValue(this.cashName);
+            // Same as DetailMusicMMMonitor: a bare setValue makes the name show only its tail/middle (see EditBoxUtil)
+            EditBoxUtil.setValueShowHead(this.nameEditBox, this.cashName);
         }
     }
 

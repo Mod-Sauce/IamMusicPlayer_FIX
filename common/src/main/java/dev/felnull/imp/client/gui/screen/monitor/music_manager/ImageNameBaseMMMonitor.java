@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 import org.modsauce.otyacraftenginerenewed.util.FlagThread;
 import org.modsauce.otyacraftenginerenewed.util.OEImageUtils;
@@ -245,7 +246,7 @@ public abstract class ImageNameBaseMMMonitor extends MusicManagerMonitor {
 
             poseStack.pushPose();
             poseStack.translate(onPxW * (75f + (33f - 11f) / 2f), monitorHeight - (onPxH * (22f + ((15f - 11f) / 2f) * sch)) - 11 * onPxW, OERenderUtils.MIN_BREADTH * 6);
-            OERenderUtils.renderPlayerFaceSprite(poseStack, multiBufferSource, IIMPSmartRender.mc.player.getGameProfile().getId(), 11 * onPxW, i, j);
+            PlayerFaceRenderer.drawFaceSprite(poseStack, multiBufferSource, IIMPSmartRender.mc.player.getGameProfile().getId(), 11 * onPxW, i, j);
             poseStack.popPose();
 
             //   renderSmartButtonSprite(poseStack, multiBufferSource, 75, 41, OERenderUtils.MIN_BREADTH * 4, 33, 15, i, j, onPxW, onPxH, monitorHeight, MusicManagerMonitor.WIDGETS_TEXTURE, 73 + 22, 19, 11, 11, 256, 256);

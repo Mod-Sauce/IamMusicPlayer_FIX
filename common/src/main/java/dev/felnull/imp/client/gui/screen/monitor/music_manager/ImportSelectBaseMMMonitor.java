@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.blockentity.MusicManagerBlockEntity;
 import dev.felnull.imp.client.gui.components.SmartButton;
 import dev.felnull.imp.client.gui.screen.MusicManagerScreen;
+import dev.felnull.imp.client.music.link.LinkDebug;
 import dev.felnull.imp.client.music.playlist.IMPPlaylistLoaders;
 import dev.felnull.imp.client.music.playlist.IPlaylistLoader;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,7 +28,9 @@ public abstract class ImportSelectBaseMMMonitor extends MusicManagerMonitor {
     public void init(int leftPos, int topPos) {
         super.init(leftPos, topPos);
 
-        List<IPlaylistLoader> loaders = IMPPlaylistLoaders.getAllLoaders().stream().toList();
+        // List only "platform main loaders": the other loaders of the same platform (NetEase radio / single episode) do not get their own buttons.
+        // They still take part in the clipboard recognition below, so pasting the matching link lands precisely on the matching import page.
+        List<IPlaylistLoader> loaders = visibleLoaders();
         int size = loaders.size();
 
         int totalHeight = size * BUTTON_HEIGHT + (size - 1) * BUTTON_SPACING;
@@ -59,9 +62,26 @@ public abstract class ImportSelectBaseMMMonitor extends MusicManagerMonitor {
             autoTested = true;
             List<IPlaylistLoader> loaders = IMPPlaylistLoaders.getAllLoaders().stream().toList();
             String clipboard = mc.keyboardHandler.getClipboard();
+
+            // [Performance] Resolve once for the whole clipboard with identifier conversion off (no network): per-loader resolving would repeat the work and freeze the client thread.
+            String hintLoaderId = IPlaylistLoader.playlistLoaderIdFromClipboard(clipboard);
+            LinkDebug.log("import-select clip-hint", "loaderId", hintLoaderId, "clipboardLen", clipboard.length());
+
             for (IPlaylistLoader loader: loaders){
                 var r = loader.autoPasteFromClipboard(clipboard);
+                // When the loader's own recognition does not hit, platform-independent share link recognition runs (NetEase playlist/album/radio, QQ Music playlist, Bilibili favorites)
+                // —— only on the loader identified by the whole-clipboard resolve above.
+                if (r.isEmpty() && hintLoaderId != null && hintLoaderId.equals(loader.getID()))
+                    r = IPlaylistLoader.autoPasteFromMusicLink(loader, clipboard, false);
                 if(r.isPresent()){
+                    // The same clipboard content auto-jumps only once, otherwise going back to the import page bounces straight back here ("back does not work"). Clicking a platform button yourself is unaffected.
+                    if (loader.getID().equals(lastAutoJumpLoader) && clipboard.equals(lastAutoJumpClipboard)) {
+                        LinkDebug.log("import-select auto-jump SKIP-SAME", "loader", loader.getID(), "clipboardLen", clipboard.length());
+                        return;
+                    }
+                    lastAutoJumpLoader = loader.getID();
+                    lastAutoJumpClipboard = clipboard;
+                    LinkDebug.log("import-select auto-jump", "loader", loader.getID(), "clipboardLen", clipboard.length());
                     getScreen().insImportPlayListType(loader.getID());
                     insMonitor(resolveMonitor());
                     return;
@@ -69,6 +89,10 @@ public abstract class ImportSelectBaseMMMonitor extends MusicManagerMonitor {
             }
         }
     }
+
+    /** Last "clipboard auto jump" (importer id + clipboard text), **static** on purpose: it must survive going back. */
+    private static String lastAutoJumpLoader;
+    private static String lastAutoJumpClipboard;
 
     @Override
     public void renderAppearance(
@@ -83,7 +107,7 @@ public abstract class ImportSelectBaseMMMonitor extends MusicManagerMonitor {
     ) {
         super.renderAppearance(blockEntity, poseStack, multiBufferSource, i, j, f, monitorWidth, monitorHeight);
 
-        List<IPlaylistLoader> loaders = IMPPlaylistLoaders.getAllLoaders().stream().toList();
+        List<IPlaylistLoader> loaders = visibleLoaders();
         int size = loaders.size();
 
         float onPxW = monitorWidth / (float) width;
@@ -113,6 +137,13 @@ public abstract class ImportSelectBaseMMMonitor extends MusicManagerMonitor {
                     true
             );
         }
+    }
+
+    /** The importers to list on the selection page (hiding same-platform radio / single episode etc., see {@link IPlaylistLoader#showInSelectScreen()}). */
+    private static List<IPlaylistLoader> visibleLoaders() {
+        return IMPPlaylistLoaders.getAllLoaders().stream()
+                .filter(IPlaylistLoader::showInSelectScreen)
+                .toList();
     }
 
     protected Component buildText(IPlaylistLoader loader) {

@@ -51,7 +51,46 @@ public class BoomboxEntityRinger implements IBoomboxRinger {
 
     @Override
     public boolean exists() {
-        return canRing(entity) && !getBoombox().isEmpty();
+        boolean canRing = canRing(entity);
+        boolean hasItem = !getBoombox().isEmpty();
+        boolean exists = canRing && hasItem;
+
+        // ⚠️ [Trace, log only] `exists()==false` makes `MusicRing.tick()` kick this ringer out at the end of the tick (→ STOP to the client), while the item side adds it back every tick (→ LOAD):
+        // on the client that is the "loaded successfully, stopped immediately, loaded again" loop.
+        if (!exists
+                && dev.felnull.imp.client.music.link.LinkDebug.shouldLogThrottled("exists:" + uuid))
+            dev.felnull.imp.client.music.link.LinkDebug.log("BoomboxEntityRinger NOT exists",
+                    "uuid", uuid, "canRing", canRing, "itemFound", hasItem,
+                    "entity", entity.getType() + "#" + entity.getId(),
+                    "alive", entity.isAlive(),
+                    "foundUUIDs", itemRingerUuids());
+
+        return exists;
+    }
+
+    /** Ringer UUID of every boombox item found on the body/on the ground. */
+    private String itemRingerUuids() {
+        var sb = new StringBuilder();
+
+        if (entity instanceof LivingEntity livingEntity) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                var u = BoomboxItem.getRingerUUID(livingEntity.getItemBySlot(slot));
+                if (u != null) sb.append(slot).append('=').append(u).append(' ');
+            }
+        }
+        if (entity instanceof Player player) {
+            var inv = player.getInventory();
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                var u = BoomboxItem.getRingerUUID(inv.getItem(i));
+                if (u != null) sb.append("slot").append(i).append('=').append(u).append(' ');
+            }
+        }
+        if (entity instanceof ItemEntity itemEntity) {
+            var u = BoomboxItem.getRingerUUID(itemEntity.getItem());
+            if (u != null) sb.append("itemEntity=").append(u).append(' ');
+        }
+
+        return sb.isEmpty() ? "(身上没有带 ringer UUID 的音响)" : sb.toString();
     }
 
     @Override

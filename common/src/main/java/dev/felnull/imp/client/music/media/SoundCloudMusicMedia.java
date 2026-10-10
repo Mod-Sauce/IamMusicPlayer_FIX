@@ -3,6 +3,7 @@ package dev.felnull.imp.client.music.media;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.music.resource.ImageInfo;
 import net.minecraft.network.chat.Component;
 
@@ -11,6 +12,14 @@ public class SoundCloudMusicMedia extends LavaPlayerBaseMusicMedia {
 
     protected SoundCloudMusicMedia(String name) {
         super(name);
+    }
+
+    @Override
+    public MusicMediaResult load(String sourceName) throws Exception {
+        // Cannot be loaded once disabled (also absent from the list, see IMPMusicMedias#showInLoaderList)
+        if (!IamMusicPlayer.getConfig().soundCloudConfig.enableSoundCloud)
+            return null;
+        return super.load(sourceName);
     }
 
     @Override

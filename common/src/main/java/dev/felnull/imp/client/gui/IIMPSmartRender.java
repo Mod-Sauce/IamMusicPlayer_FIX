@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.felnull.imp.client.gui.components.PlayBackControlWidget;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
 import dev.felnull.imp.client.renderer.PlayImageRenderer;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import dev.felnull.imp.music.resource.ImageInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -222,7 +223,7 @@ public interface IIMPSmartRender {
     default void renderPlayerFaceSprite(PoseStack poseStack, MultiBufferSource multiBufferSource, UUID uuid, float x, float y, float z, float size, int i, int j, float onePixW, float onePixH, float monitorHeight) {
         poseStack.pushPose();
         poseStack.translate(onePixW * x, monitorHeight - onePixH * (y + size), z);
-        OERenderUtils.renderPlayerFaceSprite(poseStack, multiBufferSource, uuid, onePixH * size, i, j);
+        PlayerFaceRenderer.drawFaceSprite(poseStack, multiBufferSource, uuid, onePixH * size, i, j);
         poseStack.popPose();
     }
 
@@ -256,8 +257,20 @@ public interface IIMPSmartRender {
         renderTextureSprite(MusicManagerMonitor.WIDGETS_TEXTURE, poseStack, multiBufferSource, x, y, z, 10, 10, stateType.ordinal() * 10 + z, 145, 10, 10, 256, 256, i, j, onePixW, onePixH, monitorHeight);
     }
 
+    /**
+     * [Two-state · cassette deck] Loop widget: 8×7 frames, stride 8; off draws frame 0 (right arrow), on draws frame 1 (circular arrow).
+     */
     default void renderLoopControl(PoseStack poseStack, MultiBufferSource multiBufferSource, float x, float y, float z, int i, int j, float onePixW, float onePixH, float monitorHeight, boolean loop) {
         renderTextureSprite(MusicManagerMonitor.WIDGETS_TEXTURE, poseStack, multiBufferSource, x, y, z, 8, 7, loop ? 8 : 0, 164, 8, 7, 256, 256, i, j, onePixW, onePixH, monitorHeight);
+    }
+
+    /**
+     * [Three-state · speaker] Loop widget for the block/item appearance — a separate set of code from the on-screen {@code LoopControlWidget}, both sides must change together; 8×7 frames, stride 8, on the {@code y=164} row, frame from a table (texture order 0=right/1=circular/2=shuffle).
+     */
+    default void renderLoopControl(PoseStack poseStack, MultiBufferSource multiBufferSource, float x, float y, float z, int i, int j, float onePixW, float onePixH, float monitorHeight, int loopState) {
+        int st = Math.max(0, Math.min(2, loopState));
+        int frameX = st == 0 ? 8 : st == 1 ? 0 : 16;
+        renderTextureSprite(MusicManagerMonitor.WIDGETS_TEXTURE, poseStack, multiBufferSource, x, y, z, 8, 7, frameX, 164, 8, 7, 256, 256, i, j, onePixW, onePixH, monitorHeight);
     }
 
     default void renderPlayProgress(PoseStack poseStack, MultiBufferSource multiBufferSource, float x, float y, float z, int i, int j, float onePixW, float onePixH, float monitorHeight, float w, float progress) {

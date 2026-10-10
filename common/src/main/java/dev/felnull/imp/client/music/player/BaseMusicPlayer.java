@@ -6,6 +6,7 @@ import dev.felnull.fnjl.concurrent.InvokeExecutor;
 import dev.felnull.imp.api.client.MusicSpeakerAccess;
 import dev.felnull.imp.client.music.AudioInfo;
 import dev.felnull.imp.client.music.MusicEngine;
+import dev.felnull.imp.client.music.link.LinkDebug;
 import dev.felnull.imp.client.music.speaker.MusicBuffer;
 import dev.felnull.imp.client.music.speaker.MusicSpeaker;
 import dev.felnull.imp.client.util.MusicUtils;
@@ -27,6 +28,8 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     private final Map<UUID, MusicSpeaker> speakers = new HashMap<>();
     private final Map<UUID, MusicSpeaker> preSpeakers = new HashMap<>();
     private final List<ReadEntry> readEntries = new ArrayList<>();
+    /** Speakers that were already there when the load started (their queue head is `startPosition`). */
+    private final Set<UUID> loadTimeSpeakers = new HashSet<>();
     private final Map<Long, ReadWait> waits = new HashMap<>();
     private final AudioInfo audioInfo;
     private final MusicSource musicSource;
@@ -42,12 +45,24 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     private boolean finished;
     private boolean loadEnd;
     private long delay;
+    /** The skip the speakers really applied; it differs from `delay` when that is negative or clamped, and the lyric clock has to follow the audio, not the request. */
+    private long appliedSkip = Long.MIN_VALUE;
     private long startPosition = -1;
     private long startTime = -1;
     private long pauseTime = -1;
     private long totalPauseTime;
     private long totalReadTime;
+    /** Real length of the loaded stream in ms ({@code <= 0} = unknown); see {@link #playBoundMs()}. */
+    private long realDuration = -1;
     private AudioInputStream stream;
+    /** 读取端跳段（源时间）；未设置 = 不跳。 */
+    private MusicSkipProvider skipProvider = MusicSkipProvider.NONE;
+    /** 调用方给的起始位置（**视频时间**）；内部队列用的是换算后的内容时间（见 {@link #startPosition}）。 */
+    private long sourceStartPosition = -1;
+    /** 读头当前所在的**源时间**位置：内容位置只统计真正产出的块，所以两个位置必须分开走。 */
+    private long sourceReadPosition = -1;
+    /** 已经为哪个片段打过"跳过"的日志（否则每块一行）。 */
+    private long loggedSkipStart = Long.MIN_VALUE;
 
     protected BaseMusicPlayer(UUID musicPlayerId, AudioInfo audioInfo, MusicSource musicSource, int aheadLoad) {
         this.audioInfo = audioInfo;
@@ -65,16 +80,30 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     }
 
     @Override
+    public java.util.Map<UUID, dev.felnull.imp.music.tracker.MusicTracker> getSpeakerTrackers() {
+        var out = new java.util.LinkedHashMap<UUID, dev.felnull.imp.music.tracker.MusicTracker>();
+        speakers.forEach((id, sp) -> out.put(id, sp.getTracker()));
+        preSpeakers.forEach((id, sp) -> out.put(id, sp.getTracker()));
+        return out;
+    }
+
+    @Override
     public void play(long delay) {
         this.delay = delay;
         this.startTime = System.currentTimeMillis();
         this.playing = true;
 
+        // [Sync probe] One line per playback start: `delay` is what the server told us to skip (client load time).
+        dev.felnull.imp.client.music.link.LinkDebug.log(
+                "IMP music sync | play",
+                "delay", delay, "startPosition", startPosition,
+                "live", musicSource.isLive(), "source", musicSource.getIdentifier());
+
         if (pause)
             this.pauseTime = System.currentTimeMillis();
 
-        for (MusicSpeaker value : speakers.values()) {
-            speakerUpdate(value);
+        for (Map.Entry<UUID, MusicSpeaker> entry : speakers.entrySet()) {
+            speakerUpdate(entry.getKey(), entry.getValue());
         }
 
         for (UUID uuid : preSpeakers.keySet()) {
@@ -127,7 +156,8 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public void pause() {
-        if (playing)
+        // An already-open window keeps its first stamp: re-stamping would under-count `totalPauseTime`, which moves the lyric clock forward past whole lines.
+        if (playing && this.pauseTime < 0)
             this.pauseTime = System.currentTimeMillis();
 
         this.pause = true;
@@ -145,7 +175,8 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public void resume() {
-        if (playing) {
+        // Only a really open window may be closed: `pauseTime` is -1 otherwise, and `now - (-1)` would poison the clock.
+        if (playing && this.pauseTime >= 0) {
             this.totalPauseTime += System.currentTimeMillis() - this.pauseTime;
             this.pauseTime = -1;
         }
@@ -179,12 +210,12 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
                 return;
             }
             speaker.tick();
-            speakerUpdate(speaker);
+            speakerUpdate(id, speaker);
             speaker.releaseBuffers();
         });
 
         for (ReadEntry readEntry : readEntries) {
-            if (readEntry.position() >= getPosition()) continue;
+            if (readEntry.position() >= contentPosition()) continue;
 
             List<MusicSpeakerFixedInfo> dels = new ArrayList<>();
             for (Map.Entry<MusicSpeakerFixedInfo, MusicBuffer> entry : readEntry.buffers.entrySet()) {
@@ -217,7 +248,9 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     private void readTick() {
         int lc = readEntries.size();
 
-        if (lc == 0 && isPlaying()) {
+        // An empty queue only means "the song is over" once the stream really ended: the sponsor-segment skip can drop
+        // a whole read window (16 source seconds), and treating that as the end stopped the track instantly.
+        if (lc == 0 && isPlaying() && loadEnd) {
             finished = true;
             return;
         }
@@ -227,7 +260,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         if (musicSource.isLive()) {
             nc = aheadLoad;
         } else {
-            nc = (int) ((float) (musicSource.getDuration() - getPosition()) / 1000f + 0.5f);
+            nc = (int) ((float) (playBoundMs() - contentPosition()) / 1000f + 0.5f);
         }
 
         if (!finished && !loadEnd && !reading && (lc <= aheadLoad || (nc - aheadLoad) <= aheadLoad)) {
@@ -256,7 +289,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
         var sp = preSpeakers.get(uuid);
         if (sp == null) return;
-        var r = readEntries.stream().filter(readEntry -> readEntry.position() >= getPosition()).sorted((o1, o2) -> (int) (o1.position() - o2.position())).toList();
+        var r = readEntries.stream().filter(readEntry -> readEntry.position() >= contentPosition()).sorted((o1, o2) -> (int) (o1.position() - o2.position())).toList();
 
         if (r.stream().allMatch(n -> n.buffers.containsKey(sp.getFixedInfo()))) {
             long min = Long.MAX_VALUE;
@@ -265,7 +298,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
                 sp.insertBuffer(readEntry.buffers.get(sp.getFixedInfo()));
             }
 
-            sp.setScheduledStartTime(min - getPosition());
+            sp.setScheduledStartTime(min - contentPosition());
             preSpeakers.remove(uuid);
             speakers.put(uuid, sp);
         } else {
@@ -292,9 +325,25 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         }
     }
 
-    private void speakerUpdate(MusicSpeaker speaker) {
-        if (!this.pause && playing && !speaker.isPlaying() && speaker.canPlay())
-            speaker.play(0);
+    private void speakerUpdate(UUID id, MusicSpeaker speaker) {
+        if (!this.pause && playing && !speaker.isPlaying() && speaker.canPlay()) {
+            // [Sync fix] The lyric clock already includes the load time the server told us to skip (`delay`) while this queue head still sits at `startPosition`,
+            // so the audio must skip the same amount or the lyrics run `delay` ms ahead. Only speakers present at load time start at `startPosition`; late-added ones must not skip.
+            boolean loadTime = loadTimeSpeakers.contains(id);
+            long skip = loadTime
+                    ? Math.max(0, Math.min(contentPosition() - startPosition, Math.max(0, totalReadTime - 1000)))
+                    : 0;
+            // The first speaker to start pins the clock: a negative or clamped delay never reaches the audio, and a later speaker's larger skip must not move it.
+            if (loadTime && this.appliedSkip == Long.MIN_VALUE)
+                this.appliedSkip = skip;
+            dev.felnull.imp.client.music.link.LinkDebug.log(
+                    "IMP music sync | audioStart",
+                    "delay", delay, "skip", skip, "content", contentPosition(),
+                    "lyricClock", getPosition(), "heardBase", startPosition + skip,
+                    "queuedMs", totalReadTime, "spans", skipProvider.skips().size(),
+                    "source", musicSource.getIdentifier());
+            speaker.play(skip);
+        }
     }
 
     @Override
@@ -338,7 +387,11 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public LoadInput loadStart(long position) {
-        this.startPosition = position;
+        // 调用方给的是**视频时间**（音响/服务端的位置、试听页的比例、重建时的当前位置）。
+        // 内部换算成"内容时间"（跳掉的片段不占时间）留给队列用，真正的开流位置在 loadAsync 里定
+        // —— 那里在异步线程上，允许为"从曲中开始放"等一次片段查询。
+        this.sourceStartPosition = Math.max(0L, position);
+        this.startPosition = this.sourceStartPosition;
 
         return new LoadInput(position, ImmutableMap.copyOf(preSpeakers), aheadLoad, musicSource.isLive());
     }
@@ -347,10 +400,17 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     abstract protected void closeAudioStream() throws Exception;
 
+    /** 由 loader 设置：本曲要跳的片段（源时间）。 */
+    public void setSkipProvider(MusicSkipProvider skipProvider) {
+        this.skipProvider = skipProvider == null ? MusicSkipProvider.NONE : skipProvider;
+    }
+
     @Override
     public LoadResult loadAsync(LoadInput input) throws Exception {
-        var stream = openAudioStream(input.position);
-        var readInput = new ReadInput(stream, input.position, input.aheadLoad, input.speakers.values().stream().map(MusicSpeaker::getFixedInfo).distinct().toList(), getAudioInfo());
+        this.startPosition = skipProvider.contentPositionOf(this.sourceStartPosition, true);
+        this.sourceReadPosition = skipProvider.sourceReadStart(this.sourceStartPosition, true);
+        var stream = openAudioStream(this.sourceReadPosition);
+        var readInput = new ReadInput(stream, this.startPosition, input.aheadLoad, input.speakers.values().stream().map(MusicSpeaker::getFixedInfo).distinct().toList(), getAudioInfo());
         var readRet = readAsync(readInput);
 
         if (input.live())
@@ -365,6 +425,9 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         this.stream = loadedData.stream;
 
         var spks = loadedData.speakers;
+        // Speakers present at load time are the only ones whose audio queue starts at `startPosition`
+        // (see speakerUpdate: only those may skip ahead).
+        loadTimeSpeakers.addAll(spks);
         for (UUID spk : spks) {
             var sp = preSpeakers.remove(spk);
             if (sp != null) speakers.put(spk, sp);
@@ -379,8 +442,8 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         for (ReadEntry readEntry : readEntries) {
             long ed = readEntry.instantaneous().sampleTime();
             long st = ed - 1000;
-            if (getPosition() >= st && getPosition() < ed) {
-                long rp = getPosition() - st;
+            if (contentPosition() >= st && contentPosition() < ed) {
+                long rp = contentPosition() - st;
                 int fp = (int) (rp / 1000f * 60f);
                 return readEntry.instantaneous().getWaves(channel)[fp];
             }
@@ -388,15 +451,22 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         return 0;
     }
 
+    /** 对外的位置 = **视频时间**（由内部**内容时间**换算）：歌词、HUD、进度、`RingerPosition`、发服务端的位置都用它，跳段后随音频跳段。 */
     @Override
     public long getPosition() {
+        return skipProvider.sourcePositionOf(contentPosition());
+    }
+
+    /** 内部时间轴：只数真正产出（没被丢掉）的音频 —— 队列排期、读循环、结束判定都用它。 */
+    private long contentPosition() {
+        long d = this.appliedSkip != Long.MIN_VALUE ? this.appliedSkip : this.delay;
         if (this.startTime < 0)
-            return this.startPosition + delay;
+            return this.startPosition + d;
 
         long pt = this.totalPauseTime;
         if (this.pauseTime >= 0)
             pt += System.currentTimeMillis() - this.pauseTime;
-        return System.currentTimeMillis() - this.startTime - pt + this.startPosition + this.delay;
+        return System.currentTimeMillis() - this.startTime - pt + this.startPosition + d;
     }
 
 
@@ -407,7 +477,33 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
 
     @Override
     public boolean waitDestroy() {
-        return finished || (!musicSource.isLive() && getPosition() >= musicSource.getDuration());
+        return finished || (playBoundMs() >= 0 && contentPosition() >= playBoundMs());
+    }
+
+    /**
+     * The length playback must actually stop at, in ms ({@code -1} = live stream, no bound) — not simply
+     * {@link MusicSource#getDuration()}: a B站 multi-part entry stores the sum of all parts while only part 1 plays, so
+     * the smaller of it and the subclass's real length ({@link #setRealDuration}) wins: dead air only, never audio.
+     */
+    protected long playBoundMs() {
+        if (musicSource.isLive())
+            return -1;
+        long source = realDuration <= 0 ? musicSource.getDuration() : Math.min(musicSource.getDuration(), realDuration);
+        // 内容时长：跳掉的片段不占时间 —— 否则进度条永远到不了 100%，读循环也会跟着多跑几分钟。
+        return Math.max(0L, source - skippedWithin(source));
+    }
+
+    /** 落在 {@code [0, sourceMs)} 里的片段总长。 */
+    private long skippedWithin(long sourceMs) {
+        long sum = 0;
+        for (var span : skipProvider.skips())
+            sum += Math.max(0L, Math.min(sourceMs, span.endMs()) - Math.min(sourceMs, span.startMs()));
+        return sum;
+    }
+
+    /** The real length of the loaded stream (from the audio track); see {@link #playBoundMs()}. */
+    protected void setRealDuration(long durationMs) {
+        this.realDuration = durationMs;
     }
 
     @Override
@@ -464,16 +560,41 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
         byte[] buffer = new byte[ol];
         List<ReadResultEntry> entries = new ArrayList<>();
         long st = input.readStartPosition();
+        // 源时间与内容时间分开走：`st` 是产出块在**内容**里的位置，`srcSt` 是这段音频在**视频**里的位置。
+        long srcSt = this.sourceReadPosition;
         boolean end = false;
 
         for (int i = 0; i < input.aheadLoad(); i++) {
             if (isDestroy()) break;
 
-            if (!musicSource.isLive() && (st + 1000) > musicSource.getDuration()) {
+            // [Silent tail] The stored duration is the whole multi-part video while only part 1 is playable, and LavaPlayer keeps feeding silence after a track ends,
+            // so reading to the stored duration produced dead air — stop at the real audio length instead (see {@link #playBoundMs()}).
+            if (playBoundMs() >= 0 && st >= playBoundMs()) {
+                end = true;
+                break;
+            }
+
+            if (!musicSource.isLive() && (st + 1000) > playBoundMs()) {
                 Arrays.fill(buffer, (byte) 0);
             }
 
             end = !readStream(input.stream, buffer);
+
+            // [跳段] 整块落在片段里的音频**不产出**：内容时间不动，于是听众听到的是首尾相接的连续块
+            // —— 不用 seek、不用重开流、也没有静音；跨边界的那一块保留（宁可残留不到两秒广告，也不丢正片）。
+            // 读头位置也交过去：数据晚到时，读头已经越过的那截按"播出去了"处理（见 BiliBiliSponsorSegments）。
+            var skips = skipProvider.skips(srcSt);
+            var skipStart = wholeSkippedSpanStart(srcSt, skips);
+            if (skipStart >= 0) {
+                if (loggedSkipStart != skipStart) {
+                    loggedSkipStart = skipStart;
+                    LinkDebug.log("BiliBili sponsor skip", "id", LinkDebug.safeIdentifier(musicSource.getIdentifier()),
+                            "src", srcSt, "content", st, "span", skipStart + "-" + skippedSpanEnd(srcSt, skips));
+                }
+                srcSt += 1000;
+                if (end) break;
+                continue;
+            }
 
             byte[] data = buffer.clone();
             MusicInstantaneous mi = MusicInstantaneous.create(st, data, input.audioInfo().channel(), input.audioInfo.bit());
@@ -485,11 +606,32 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
             entries.add(new ReadResultEntry(st, data, mi, buffes));
 
             st += 1000;
+            srcSt += 1000;
 
             if (end) break;
         }
 
+        this.sourceReadPosition = srcSt;
+
         return new ReadResult(entries, end);
+    }
+
+    /** 这一块（源时间 1 秒）整块落在某个片段里 → 返回该片段起点，否则 -1。 */
+    private static long wholeSkippedSpanStart(long sourceMs, List<MusicSkipProvider.Span> spans) {
+        var end = sourceMs + 1000;
+        for (var span : spans)
+            if (span.lengthMs() > 0 && sourceMs >= span.startMs() && end <= span.endMs())
+                return span.startMs();
+        return -1;
+    }
+
+    /** 日志用：这一块落在哪一段里（只在真的跳时调用一次）。 */
+    private static long skippedSpanEnd(long sourceMs, List<MusicSkipProvider.Span> spans) {
+        var end = sourceMs + 1000;
+        for (var span : spans)
+            if (span.lengthMs() > 0 && sourceMs >= span.startMs() && end <= span.endMs())
+                return span.endMs();
+        return sourceMs;
     }
 
     private void readApply(ReadResult readResult) {
@@ -511,10 +653,11 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     }
 
     private void insertBuffer(MusicSpeakerFixedInfo info, MusicBuffer buffer) {
-        for (MusicSpeaker value : speakers.values()) {
+        for (Map.Entry<UUID, MusicSpeaker> entry : speakers.entrySet()) {
+            var value = entry.getValue();
             if (!value.isDead() && value.getFixedInfo().equals(info)) value.insertBuffer(buffer);
 
-            speakerUpdate(value);
+            speakerUpdate(entry.getKey(), value);
         }
     }
 
@@ -529,7 +672,7 @@ public abstract class BaseMusicPlayer implements MusicPlayer<BaseMusicPlayer.Loa
     }
 
     private void middleLoadApply(MiddleLoadResult result) {
-        if (result.readWaiter.readEntry.position() < getPosition()) return;
+        if (result.readWaiter.readEntry.position() < contentPosition()) return;
 
         result.readWaiter.readEntry().buffers.put(result.readWaiter.fixedInfo, result.bufferFactory().create());
 

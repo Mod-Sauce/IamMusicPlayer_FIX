@@ -51,6 +51,19 @@ public class Music implements TagSerializable, IIMPComparable {
         this.createDate = tag.getLong("CreateDate");
     }
 
+    /** Music adder's display name, sent by the server: not saved and not part of equals/hashCode, it is derived data
+     * attached with the sync (the server resolves it: profile name, or the profile cache offline); the client uses
+     * it only as the preferred display name, falling back to the original lookup chain when empty. */
+    private String ownerName;
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
     public String getName() {
         return name;
     }

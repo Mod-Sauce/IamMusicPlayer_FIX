@@ -19,6 +19,7 @@ public class IMPMusicLoaders {
         register(WebDAVMusicLoader::new);
         register(CacheMusicLoader::new);
         register(QQMusicLoader::new);
+        register(KuGouMusicLoader::new);
     }
 
     public static void register(Supplier<MusicLoader> loaderSupplier) {

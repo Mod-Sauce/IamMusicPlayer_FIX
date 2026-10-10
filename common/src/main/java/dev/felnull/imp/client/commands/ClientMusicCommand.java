@@ -122,7 +122,7 @@ public class ClientMusicCommand {
                     continue;
                 }
                 AudioCacheManager.cacheAsync(cacheID,
-                        url.toString());
+                        url.toString(), BiliBiliUtil.cdnHeaders(url.toString()));
 
                 Lyric lyric;
                 try {

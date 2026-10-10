@@ -1,14 +1,19 @@
 package dev.felnull.imp.client.gui.components;
 
+import dev.felnull.imp.client.bilibili.BiliBiliArcTags;
+import dev.felnull.imp.client.bilibili.BiliBiliUtil;
 import dev.felnull.imp.client.gui.IIMPSmartRender;
 import dev.felnull.imp.client.gui.screen.monitor.music_manager.MusicManagerMonitor;
+import dev.felnull.imp.client.music.media.IMPMusicMedias;
 import dev.felnull.imp.music.resource.IIMPComparable;
+import dev.felnull.imp.music.resource.Music;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -45,7 +50,12 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
             return o1.getCompareName().compareTo(o2.getCompareName());
         }), PLAYER("player", (o1, o2) -> {
             return o1.getComparePlayerName().compareTo(o2.getComparePlayerName());
-        }), CREATE_DATE("create_date", (o1, o2) -> (int) (o1.getCompareDate() - o2.getCompareDate()));
+        }), CREATE_DATE("create_date", (o1, o2) ->
+                // Long.compare, not `(int) (a - b)`: the difference of two millisecond timestamps overflows int and scrambles the order
+                // (the server sorts the same way with comparingLong, see IBoomboxRinger).
+                Long.compare(o1.getCompareDate(), o2.getCompareDate())),
+        /** B站 投稿时间（不是"加入歌单的时间"）；由播放列表页按歌单来源启用。 */
+        PUBLISH_DATE("publish_date", (o1, o2) -> Long.compare(pubdateOf(o1), pubdateOf(o2)));
         private final String name;
         private final Comparator<IIMPComparable> comparator;
         private final Comparator<IIMPComparable> rcomparator;
@@ -58,6 +68,16 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
             this.componentName = Component.translatable("imp.sortType." + name);
         }
 
+        /** {@code 0} = 缓存里没记过，这些曲子一起排后段。 */
+        private static long pubdateOf(IIMPComparable o) {
+            if (!(o instanceof Music music))
+                return 0L;
+            var source = music.getSource();
+            if (source == null || !IMPMusicMedias.BILIBILI.getName().equals(source.getLoaderType()))
+                return 0L;
+            return BiliBiliArcTags.getInstance().pubdateOf(BiliBiliUtil.stripPage(source.getIdentifier()));
+        }
+
         public String getName() {
             return name;
         }
@@ -68,6 +88,15 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
 
         public Component getComponentName() {
             return componentName;
+        }
+
+        /** Restore the state from the name stored in config; on mismatch (config edited by hand) fall back to NAME. */
+        public static SortType byName(String name) {
+            for (SortType v : values()) {
+                if (v.name.equals(name))
+                    return v;
+            }
+            return NAME;
         }
     }
 
@@ -94,10 +123,24 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
         public Component getComponentName() {
             return componentName;
         }
+
+        /** Restore the state from the name stored in config; on mismatch (config edited by hand) fall back to DESCENDING. */
+        public static OrderType byName(String name) {
+            for (OrderType v : values()) {
+                if (v.name.equals(name))
+                    return v;
+            }
+            return DESCENDING;
+        }
     }
 
     public static class SortTypeButton extends SortButton {
-        private SortType type = SortType.NAME;
+        /** 默认三档；「投稿日期」只对 B站 UP 投稿歌单有意义，由播放列表页按需打开。 */
+        private static final List<SortType> BASE_TYPES = List.of(SortType.NAME, SortType.PLAYER, SortType.CREATE_DATE);
+        /** 用户选中的档位（含当前歌单用不了的档）：换歌单再换回来必须还在。 */
+        private SortType preference = SortType.NAME;
+        private List<SortType> types = BASE_TYPES;
+        private boolean publishDateEnabled;
 
         public SortTypeButton(int x, int y, OnPress onPress, boolean longed, Screen screen) {
             super(x, y, longed ? 97 : 9, longed ? 61 : 52, Component.translatable("imp.button.sort"), onPress, longed, screen);
@@ -107,16 +150,40 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
 
         @Override
         public void cycle() {
-            type = SortType.values()[(type.ordinal() + 1) % SortType.values().length];
+            var i = types.indexOf(getSortType());
+            preference = types.get((i + 1) % types.size());
+        }
+
+        /** 「投稿日期」这一档的开关（播放列表页专用）：只改可循环的档位表，不动用户选的那一档。 */
+        public void setPublishDateEnabled(boolean enabled) {
+            if (enabled == publishDateEnabled)
+                return;
+            publishDateEnabled = enabled;
+            var list = new ArrayList<SortType>(BASE_TYPES);
+            if (enabled)
+                list.add(SortType.PUBLISH_DATE);
+            types = List.copyOf(list);
+            if (!longed)
+                setTooltip(Tooltip.create(getToolTipComponent()));
         }
 
         @Override
         public Component getToolTipComponent() {
-            return type.getComponentName();
+            return getSortType().getComponentName();
         }
 
+        /** 生效档位：偏好档可用就用它，否则第一档（偏好仍留着）。 */
         public SortType getSortType() {
-            return type;
+            return types.contains(preference) ? preference : types.get(0);
+        }
+
+        /** Restore the state from the value stored in config (not editable in the config screen, applied only when the page opens). */
+        public void setSortType(SortType sortType) {
+            if (sortType == null)
+                return;
+            this.preference = sortType;
+            if (!longed)
+                setTooltip(Tooltip.create(getToolTipComponent()));
         }
 
         public <T extends IIMPComparable> List<T> sort(List<T> target, OrderTypeButton orderTypeButton) {
@@ -154,6 +221,15 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
 
         public OrderType getOrderType() {
             return type;
+        }
+
+        /** Restore the state from the value stored in config. */
+        public void setOrderType(OrderType orderType) {
+            if (orderType == null)
+                return;
+            this.type = orderType;
+            if (!longed)
+                setTooltip(Tooltip.create(getToolTipComponent()));
         }
 
         @Override

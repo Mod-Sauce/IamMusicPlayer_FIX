@@ -3,6 +3,7 @@ package dev.felnull.imp.client.music.media;
 import com.google.common.collect.ImmutableList;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
 import dev.felnull.imp.music.resource.ImageInfo;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
@@ -41,7 +42,17 @@ public class YoutubeMusicMedia extends LavaPlayerBaseMusicMedia {
     }
 
     @Override
+    public MusicMediaResult load(String sourceName) throws Exception {
+        // Cannot be loaded once disabled (also absent from the list, see IMPMusicMedias#showInLoaderList)
+        if (!IamMusicPlayer.getConfig().youtubeConfig.enableYoutube)
+            return null;
+        return super.load(sourceName);
+    }
+
+    @Override
     public List<MusicMediaResult> search(String searchText) {
+        if (!IamMusicPlayer.getConfig().youtubeConfig.enableYoutube)
+            return new ArrayList<>();
         if (searchText.isEmpty())
             return new ArrayList<>();
 

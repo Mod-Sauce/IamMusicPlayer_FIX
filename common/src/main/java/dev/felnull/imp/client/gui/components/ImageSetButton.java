@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import dev.felnull.imp.client.renderer.PlayerFaceRenderer;
 import org.modsauce.otyacraftenginerenewed.client.util.OERenderUtils;
 
 public class ImageSetButton extends IMPButton implements IIMPSmartRender {
@@ -36,7 +37,7 @@ public class ImageSetButton extends IMPButton implements IIMPSmartRender {
     public void renderWidget(PoseStack poseStack, int i, int j, float f) {
         drawSmartButtonBox(poseStack, getX(), getY(), width, height, isHoveredOrFocused());
         if (type == ImageSetType.PLAYER_FACE) {
-            OERenderUtils.drawPlayerFace(poseStack, mc.player.getGameProfile().getId(), (float) getX() + ((float) width - 11f) / 2f, (float) getY() + ((float) height - 11f) / 2f, 11);
+            PlayerFaceRenderer.drawFace(poseStack, mc.player.getGameProfile().getId(), (float) getX() + ((float) width - 11f) / 2f, (float) getY() + ((float) height - 11f) / 2f, 11);
         } else {
             OERenderUtils.drawTexture(MusicManagerMonitor.WIDGETS_TEXTURE, poseStack, (float) getX() + ((float) width - 11f) / 2f, (float) getY() + ((float) height - 11f) / 2f, 73 + (type == ImageSetType.DELETE ? 11 : 0), 19, 11, 11);
         }
@@ -48,7 +49,7 @@ public class ImageSetButton extends IMPButton implements IIMPSmartRender {
     public void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
         drawSmartButtonBox(guiGraphics, getX(), getY(), width, height, isHoveredOrFocused());
         if (type == ImageSetType.PLAYER_FACE) {
-            OERenderUtils.drawPlayerFace(guiGraphics.pose(), mc.player.getGameProfile().getId(), (float) getX() + ((float) width - 11f) / 2f, (float) getY() + ((float) height - 11f) / 2f, 11);
+            PlayerFaceRenderer.drawFace(guiGraphics.pose(), mc.player.getGameProfile().getId(), (float) getX() + ((float) width - 11f) / 2f, (float) getY() + ((float) height - 11f) / 2f, 11);
         } else {
             OERenderUtils.drawTexture(MusicManagerMonitor.WIDGETS_TEXTURE, guiGraphics.pose(), (float) getX() + ((float) width - 11f) / 2f, (float) getY() + ((float) height - 11f) / 2f, 73 + (type == ImageSetType.DELETE ? 11 : 0), 19, 11, 11);
         }

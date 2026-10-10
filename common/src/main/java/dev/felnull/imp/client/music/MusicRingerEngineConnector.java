@@ -8,7 +8,8 @@ import java.util.UUID;
 
 public class MusicRingerEngineConnector {
     public static void load(UUID musicPlayerId, MusicTracker musicTracker, MusicSource source, long position, LoadCompleteListener listener) {
-        getEngine().load(musicPlayerId, source, position, listener);
+        // World playback: the loader may refuse a trial clip here (boombox config), which makes the ring skip the track.
+        getEngine().load(musicPlayerId, source, position, listener, true);
         getEngine().addSpeaker(musicPlayerId, musicPlayerId, musicTracker);
     }
 

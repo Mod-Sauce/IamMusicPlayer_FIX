@@ -1,6 +1,7 @@
 package dev.felnull.imp.client.handler;
 
 import dev.architectury.networking.NetworkManager;
+import dev.felnull.imp.client.cache.PlayerNameCache;
 import dev.felnull.imp.client.music.IMPMusicTrackerFactory;
 import dev.felnull.imp.client.music.MusicRingerEngineConnector;
 import dev.felnull.imp.client.music.MusicSyncManager;
@@ -56,6 +57,14 @@ public class ClientMessageHandler {
                                                           message, NetworkManager.PacketContext packetContext) {
         packetContext.queue(() -> {
             var msm = MusicSyncManager.getInstance();
+            // **Also record** the names sent by the server along with the packet (UUID → name, from the server's own profile cache) **into the local cache**.
+            if (message.playerNames != null && !message.playerNames.isEmpty()) {
+                message.playerNames.forEach(PlayerNameCache::remember);
+                // …and queue those very faces for a warm-up: this name table is exactly the set of people the manager
+                // pages will draw, so fetching them now (gently, over the next seconds) means opening a page does not
+                // show a row of avatars loading one by one. Bounded, paced and one-shot — see PlayerFaceRenderer#tick.
+                dev.felnull.imp.client.renderer.PlayerFaceRenderer.warmUp(message.playerNames.keySet());
+            }
             switch (message.syncType) {
                 case UPDATE -> msm.reset();
                 case PLAYLIST_MY_LIST -> {
@@ -74,10 +83,8 @@ public class ClientMessageHandler {
                     }
                     msm.canJoinPlayListInfo = new MusicSyncManager.PlayListInfo((int) msm.canJoinPlayList.stream().map(n -> n.getAuthority().getOwner()).distinct().count(), msm.canJoinPlayList.size(), msmc);
                 }
-                case MUSIC_BY_PLAYLIST -> {
-                    msm.musics.remove(message.syncId);
-                    msm.musics.put(message.syncId, Collections.unmodifiableList(message.musics));
-                }
+                case PLAYLIST_INVITES -> msm.invitePlayList = Collections.unmodifiableList(message.playLists);
+                case MUSIC_BY_PLAYLIST -> msm.applyMusicPage(message.syncId, message.musics, message.musicOffset, message.musicTotal);
             }
         });
     }

@@ -3,12 +3,14 @@ package dev.felnull.imp.client.gui.screen;
 import dev.felnull.imp.IamMusicPlayer;
 import dev.felnull.imp.block.BoomboxData;
 import dev.felnull.imp.blockentity.BoomboxBlockEntity;
+import dev.felnull.imp.client.IMPKeyMappings;
 import dev.felnull.imp.client.gui.components.BoomboxButton;
 import dev.felnull.imp.client.gui.screen.monitor.boombox.BoomboxMonitor;
 import dev.felnull.imp.client.gui.screen.monitor.boombox.EarphoneMonitor;
 import dev.felnull.imp.inventory.BoomboxMenu;
 import dev.felnull.imp.item.BoomboxItem;
 import dev.felnull.imp.music.resource.ImageInfo;
+import dev.felnull.imp.music.resource.Music;
 import dev.felnull.imp.music.resource.MusicSource;
 import dev.felnull.imp.server.saveddata.EarphoneSaveData;
 import dev.felnull.imp.util.IMPItemUtil;
@@ -24,6 +26,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import org.modsauce.otyacraftenginerenewed.util.OENbtUtils;
 
 import java.nio.file.Path;
@@ -101,6 +104,74 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
     @Override
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
         super.render(guiGraphics, i, j, f);
+        // Part-jump line: one line drawn inside this screen's own layout, in the free band the "物品栏" label sits on.
+        // The on-screen HUD position must not be used — it lands on the hotbar row at the bottom of the container screen.
+        if (partJumpInput != null)
+            PartJumpScreen.drawScreenPrompt(guiGraphics, partJumpMusic(), partJumpInput,
+                    leftPos + imageWidth / 2, topPos + inventoryLabelY, imageWidth - 8);
+    }
+
+    /**
+     * Part-jump digits typed so far, or {@code null} while the input line is closed. Living on the screen is the point:
+     * a screen belongs to exactly one boombox, so no "which ringer is this player hearing" lookup is needed.
+     */
+    @Nullable
+    private String partJumpInput;
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (partJumpInput != null) {
+            // While the line is up it owns the keyboard (same rule as the in-world line): digits are not hotkeys,
+            // Esc cancels the **line** instead of closing the screen, and the text keys do not reach the GUI.
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                partJumpInput = null;
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                submitPartJump();
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+                if (!partJumpInput.isEmpty())
+                    partJumpInput = partJumpInput.substring(0, partJumpInput.length() - 1);
+                return true;
+            }
+            int digit = PartJumpScreen.digitOf(keyCode);
+            if (digit >= 0)
+                partJumpInput = PartJumpScreen.append(partJumpInput, digit);
+            return true;
+        }
+        // Open only on the **song info page** (remote playback): that is where a B站 video is being played from a
+        // playlist, and therefore the only page where "which part" means anything. Everywhere else the key stays free.
+        if (getRawMonitorType() == BoomboxData.MonitorType.REMOTE_PLAYBACK
+                && IMPKeyMappings.PART_JUMP.matches(keyCode, scanCode)) {
+            partJumpInput = "";
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private void submitPartJump() {
+        int page = PartJumpScreen.parsePage(partJumpInput);
+        partJumpInput = null;
+        if (page >= 1)
+            insBiliBiliPartJump(page);
+    }
+
+    /** The music this screen's boombox is on (cassette included), i.e. what the input line talks about. */
+    @Nullable
+    private Music partJumpMusic() {
+        var data = getBoomBoxData();
+        return data.getSelectedMusic() == null ? data.getCassetteTapeMusic() : data.getSelectedMusic();
+    }
+
+    /**
+     * Asks this screen's boombox to jump to part {@code page} of the B站 video it is playing: the base screen routes the instruction to the boombox this screen was opened on, and {@code BoomboxData#onInstruction} reuses the same {@code jumpBiliBiliPart} as the in-world hotkey.
+     */
+    public void insBiliBiliPartJump(int page) {
+        var tag = new CompoundTag();
+        tag.putInt("page", page);
+        instruction("bilibili_part_jump", tag);
     }
 
     @Override
@@ -130,6 +201,45 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
         if (uuid != null)
             tag.putUUID("pl", uuid);
         instruction("set_selected_play_list", tag);
+    }
+
+    /**
+     * [double click the track name] The "focus track" passed across pages, together with its target playlist: the
+     * consumer may only scroll once that playlist is selected, else the old list consumes the focus.
+     */
+    private static final long FOCUS_TIMEOUT_MS = 5000L;
+    @Nullable
+    private UUID focusMusicId;
+    @Nullable
+    private UUID focusPlayListId;
+    private long focusAt;
+
+    public void setFocusMusic(@Nullable UUID musicId, @Nullable UUID playListId) {
+        this.focusMusicId = musicId;
+        this.focusPlayListId = playListId;
+        this.focusAt = System.currentTimeMillis();
+    }
+
+    /** The target page takes the focus away (the page itself decides when it counts as "consumed"). */
+    @Nullable
+    public UUID getFocusMusic() {
+        return focusMusicId;
+    }
+
+    /** The playlist the focus belongs to (the consumer must first confirm "the current selection is this one"). */
+    @Nullable
+    public UUID getFocusPlayList() {
+        return focusPlayListId;
+    }
+
+    /** Whether the focus has waited too long (discarded when the page switch / sync never arrives). */
+    public boolean isFocusExpired(long now) {
+        return focusMusicId != null && now - focusAt > FOCUS_TIMEOUT_MS;
+    }
+
+    public void clearFocusMusic() {
+        this.focusMusicId = null;
+        this.focusPlayListId = null;
     }
 
     public void insRadioUrl(String url) {
@@ -213,10 +323,42 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
         instruction("set_continuous_type", tag);
     }
 
+    public boolean isAutoPlay() {
+        return getBoomBoxData().isAutoPlay();
+    }
+
+    public void insAutoPlay(boolean autoPlay) {
+        var tag = new CompoundTag();
+        tag.putBoolean("autoPlay", autoPlay);
+        instruction("set_auto_play", tag);
+    }
+
     public void insLoop(boolean loop) {
         var tag = new CompoundTag();
         tag.putBoolean("loop", loop);
         instruction("set_loop", tag);
+    }
+
+    /** Three loop states — **the state order matches the server's `setLoopState` exactly**: 0 repeat one / 1 sequential / 2 shuffle. */
+    public int getLoopState() {
+        return getBoomBoxData().getLoopState();
+    }
+
+    /**
+     * Sets the three loop states by reusing two packets ({@code set_loop} + {@code set_continuous_type}, no new
+     * protocol); the mapping must match the server's {@code BoomboxData.setLoopState(int)} or it stays on state0.
+     */
+    public void insLoopState(int state) {
+        dev.felnull.imp.client.music.link.LinkDebug.log("insLoopState(send)", "state", state,
+                "localState", getBoomBoxData().getLoopState(),
+                "localLoop", getBoomBoxData().isLoop(),
+                "localContinuous", getBoomBoxData().getContinuousType());
+        insLoop(state == 0);   // only state0 (repeat one) sets loop — consistent with the server's setLoopState
+        insContinuousType(switch (state) {
+            case 2 -> BoomboxData.ContinuousType.RANDOM;   // shuffle
+            case 0 -> BoomboxData.ContinuousType.NONE;     // repeat one: no next track is picked
+            default -> BoomboxData.ContinuousType.ORDER;   // sequential: next track automatically
+        });
     }
 
     public void insPause() {

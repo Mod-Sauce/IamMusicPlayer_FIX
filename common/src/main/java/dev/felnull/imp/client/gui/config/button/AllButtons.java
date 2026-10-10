@@ -2,7 +2,10 @@ package dev.felnull.imp.client.gui.config.button;
 
 import com.sedmelluq.discord.lavaplayer.natives.ConnectorNativeLibLoader;
 import dev.felnull.imp.client.gui.config.screen.HUDSettingScreen;
+import dev.felnull.imp.client.gui.config.screen.BiliBiliLoginScreen;
+import dev.felnull.imp.client.gui.config.screen.KugouLoginScreen;
 import dev.felnull.imp.client.gui.config.screen.NeteaseLoginScreen;
+import dev.felnull.imp.client.gui.config.screen.QQMusicLoginScreen;
 import dev.felnull.imp.client.lava.LavaPlayerLoader;
 import dev.felnull.imp.client.lava.LavaPlayerManager;
 import net.minecraft.Util;
@@ -59,6 +62,15 @@ public class AllButtons {
                 ));
         registry("loginNetease", Component.translatable("text.autoconfig.iammusicplayer.option.loginNetease"), button -> {
             Minecraft.getInstance().setScreen(new NeteaseLoginScreen(Minecraft.getInstance().screen));
+        });
+        registry("loginKugou", Component.translatable("text.autoconfig.iammusicplayer.option.loginKugou"), button -> {
+            Minecraft.getInstance().setScreen(new KugouLoginScreen(Minecraft.getInstance().screen));
+        });
+        registry("loginBilibili", Component.translatable("text.autoconfig.iammusicplayer.option.loginBilibili"), button -> {
+            Minecraft.getInstance().setScreen(new BiliBiliLoginScreen(Minecraft.getInstance().screen));
+        });
+        registry("loginQQMusic", Component.translatable("text.autoconfig.iammusicplayer.option.loginQQMusic"), button -> {
+            Minecraft.getInstance().setScreen(new QQMusicLoginScreen(Minecraft.getInstance().screen));
         });
     }
 }
