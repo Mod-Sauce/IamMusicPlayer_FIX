@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 服务端知道的 B站 赞助/广告片段（客户端报的）：只用来把音响的位置**推到片段之后**；专用服务器不自己连 {@code bsbsb.top}；内存态即可。
+ * The Bilibili sponsor/ad segments the server knows about (reported by a client). They only push the boombox position
+ * **past a segment**; a dedicated server never contacts {@code bsbsb.top} itself, and in-memory state is enough.
  */
 public final class BiliBiliSponsorCache {
     /** Cap on remembered tracks (a few hundred bytes each); a full wipe is safer than unbounded growth. */
@@ -16,7 +17,7 @@ public final class BiliBiliSponsorCache {
 
     private static final BiliBiliSponsorCache INSTANCE = new BiliBiliSponsorCache();
 
-    /** 标识符（归一成 {@code bvid-pN}）→ 该曲要跳的片段（源时间毫秒，{@code [起,止]}）。 */
+    /** Identifier (normalised to {@code bvid-pN}) → the segments to skip (source-time milliseconds, {@code [start,end]}). */
     private final Map<String, List<long[]>> segments = new ConcurrentHashMap<>();
 
     private BiliBiliSponsorCache() {
@@ -41,9 +42,10 @@ public final class BiliBiliSponsorCache {
     }
 
     /**
-     * 把"正在播的位置"推到所有片段之后（客户端在读取端已把那几秒丢掉）；时间轴保持**视频时间**，音响存的 {@code RingerPosition} 就是它。
+     * Pushes the "now playing" position past every segment (the client already dropped those seconds on the read side);
+     * the timeline stays on **source time**, which is what the boombox stores as its {@code RingerPosition}.
      *
-     * @return 原位置（不在任何片段里 / 没人报过），或它所在片段的终点
+     * @return the original position (outside every segment, or nothing was reported), or the end of the segment it is in
      */
     public long positionAfterSkips(@Nullable String identifier, long positionMs) {
         var key = key(identifier);
@@ -53,7 +55,7 @@ public final class BiliBiliSponsorCache {
         if (list == null || list.isEmpty())
             return positionMs;
         long pos = positionMs;
-        // 片段按起点升序；一段一段往前推（循环上限 = 表长，防止表里有重叠时卡住）
+        // The segments are ascending by start; push past them one by one (the loop is capped by the table size so an overlap cannot spin forever)
         for (int guard = 0; guard <= list.size(); guard++) {
             long next = pos;
             for (var seg : list)
@@ -67,7 +69,8 @@ public final class BiliBiliSponsorCache {
     }
 
     /**
-     * 归一成 {@code bvid-pN}：客户端标识符里分P 是可选的（{@code BV…} = 第 1 P），ringer 放第 N P 用 {@code BV…-pN}，两边必须落到同一个键上。
+     * Normalises to {@code bvid-pN}: the part is optional in a client identifier ({@code BV…} = part 1) while a ringer
+     * playing part N uses {@code BV…-pN}, and both must land on the same key.
      */
     @Nullable
     private static String key(@Nullable String identifier) {

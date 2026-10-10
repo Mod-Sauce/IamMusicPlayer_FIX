@@ -18,14 +18,15 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 分P (multi-part) support for B站 videos: read the part list and turn parts 2..n into playable musics. The list only
+ * Multi-part support for Bilibili videos: read the part list and turn parts 2..n into playable musics. The list only
  * exists in {@code x/web-interface/view} (one request per video), so it is looked up on demand and cached in
  * {@link BiliBiliArcTags} — never during an import; {@code BV…-p2} identifiers already play without this.
  */
 public final class BiliBiliParts {
     /**
-     * Gap between two lookups of the 「展开分P」 walk; the walk's workers overlap their round trips behind a pacer.
-     * 真正决定速度的是**并发数 × 单请求延迟**，不是这个间隔 —— 它与 worker 下限（{@code MusicManageMMMonitor} 里的 8）是一对。
+     * Gap between two lookups of the "Expand parts" walk; the walk's workers overlap their round trips behind a pacer.
+     * The real speed comes from **parallelism × per-request latency**, not from this gap, which pairs with the worker
+     * floor (8 in {@code MusicManageMMMonitor}).
      */
     public static final long REQUEST_GAP_MS = 40L;
 
@@ -316,7 +317,7 @@ public final class BiliBiliParts {
     }
 
     /**
-     * The playlist name of one part: {@code 主标题 · 分P名}, or {@code 主标题 (P2/2)} when the part has no name of its
+     * The playlist name of one part: {@code title · part name}, or {@code title (P2/2)} when the part has no name of its
      * own or repeats the video title (Bilibili does both).
      */
     public static String partName(String videoTitle, @Nullable BiliBiliArcTags.Part part, int page, int total) {

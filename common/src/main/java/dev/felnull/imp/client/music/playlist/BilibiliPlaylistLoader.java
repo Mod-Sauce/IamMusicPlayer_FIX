@@ -20,7 +20,7 @@ import static dev.felnull.imp.client.bilibili.BiliBiliUtil.*;
 public class BilibiliPlaylistLoader implements IPlaylistLoader{
     private static final Pattern FID_PATTERN =
             Pattern.compile("[?&]fid=(\\d+)");
-    /** The user's space ("UP 主页"); see {@link BiliBiliSpaceUtil#ID_PREFIX} for why the identifier is prefixed. */
+    /** The user's space; see {@link BiliBiliSpaceUtil#ID_PREFIX} for why the identifier is prefixed. */
     private static final Pattern SPACE_PATTERN =
             Pattern.compile("space\\.bilibili\\.com/(\\d+)(?![0-9])");
     @Override
@@ -41,7 +41,7 @@ public class BilibiliPlaylistLoader implements IPlaylistLoader{
         @Override
         public void run() {
             try {
-                // ---- User space ("UP 主页"): every video submission of that user ----
+                // ---- User space: every video submission of that user ----
                 // ⚠️ Checked first: a space id is prefixed (`space:<mid>`) exactly so that it can never be mistaken
                 // for the plain numeric favourites-folder id handled below.
                 var spaceMid = BiliBiliSpaceUtil.midOf(getInputId());
@@ -68,8 +68,9 @@ public class BilibiliPlaylistLoader implements IPlaylistLoader{
                     }
                 }
                 var info = fetchFavInfo(fid);
-                // 收藏夹列表自带标题/作者/封面/时长/投稿时间 ⇒ 不逐首 `view`：108 首从 108 个请求降到 6 个（
-                // 顺带把投稿时间写进本地标签，行右侧就不会是「未记录」）。
+                // The favourites list already carries title/author/cover/duration/upload date ⇒ no per-song `view`:
+                // 108 songs drop from 108 requests to 6 (and the upload date goes into the local tags, so the row does
+                // not read "not recorded").
                 var media = fetchFavMedia(fid);
                 var musics = new ArrayList<Music>();
                 for (var m : media) {
@@ -104,9 +105,9 @@ public class BilibiliPlaylistLoader implements IPlaylistLoader{
             }
         }
 
-        /** "UP 主页" import: all submission pages of that user into one playlist; the space API carries
+        /** UP-space import: all submission pages of that user into one playlist; the space API carries
          * title/author/cover/length, so no per-video {@code fetchVideo}; pages are paced ({@code spacePageDelayMs})
-         * and capped ({@code spaceMaxPages}), else risk control answers 412; 充电专属/课堂/直播回放 skipped as unplayable. */
+         * and capped ({@code spaceMaxPages}), else risk control answers 412; charging-only / paid course / live replay are skipped as unplayable. */
         private void resolveSpace(long mid) throws Exception {
             var cfg = IamMusicPlayer.getConfig().bilibiliConfig;
             var delay = Math.max(0, cfg.spacePageDelayMs);
@@ -179,7 +180,7 @@ public class BilibiliPlaylistLoader implements IPlaylistLoader{
         var matcher = FID_PATTERN.matcher(input);
         if(matcher.find())
             return Optional.ofNullable(matcher.group(1));
-        // User space ("UP 主页"): tried **after** the folder form, so `…/favlist?fid=<n>` still imports that folder
+        // User space: tried **after** the folder form, so `…/favlist?fid=<n>` still imports that folder
         var space = SPACE_PATTERN.matcher(input);
         if(space.find())
             return Optional.of(BiliBiliSpaceUtil.ID_PREFIX + space.group(1));

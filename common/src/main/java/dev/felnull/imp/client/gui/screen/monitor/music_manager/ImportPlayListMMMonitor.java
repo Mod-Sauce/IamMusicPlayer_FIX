@@ -58,7 +58,7 @@ public class ImportPlayListMMMonitor extends ImportPlayListBaseMMMonitor{
 
     private void startImportMusicLoader(String id) {
         stopImportMusicLoader();
-        // ⚠️ Not getPlaylistLoader().getResolver(id) directly: in "UP 主页" mode the videos are already loaded and
+        // Not getPlaylistLoader().getResolver(id) directly: in UP-space mode the videos are already loaded and
         // the resolver must not walk the space a second time (see ImportPlayListBaseMMMonitor#createImportResolver).
         importMusicLoaderThread = createImportResolver(id);
         importMusicLoaderThread.start();
@@ -98,15 +98,15 @@ public class ImportPlayListMMMonitor extends ImportPlayListBaseMMMonitor{
     }
 
     /**
-     * The 歌单来源 the import creates the playlist with ({@code space:<mid>} / {@code fav:<fid>} / empty); 「刷新」 works
-     * from it. **Only** the B站 loader may set it — another platform's numeric id reads as a B站 favourites folder.
+     * The import source the playlist is created with ({@code space:<mid>} / {@code fav:<fid>} / empty); Refresh works
+     * from it. **Only** the Bilibili loader may set it — another platform's numeric id reads as a Bilibili favourites folder.
      */
     private String importSource() {
         var loader = getPlaylistLoader();
         if (loader == null || !"bilibili".equals(loader.getID()))
             return "";
-        // 用**解析结果**的 id（`space:<mid>` / 裸 fid），别用输入框原文：粘链接时 `sourceOf(原文)` 是空串，
-        // 那个歌单就没有来源、永远不出现「刷新」键。
+        // Use the **resolved** id (`space:<mid>` / the bare fid), never the raw input box: pasting a link would make
+        // `sourceOf(raw)` an empty string, leaving the playlist sourceless so the Refresh key never appears.
         var res = importMusicLoaderThread == null ? null : importMusicLoaderThread.getResult();
         var id = res == null ? null : res.id();
         return BiliBiliSpaceUtil.sourceOf(id == null || id.isBlank() ? getImportPlayList() : id);

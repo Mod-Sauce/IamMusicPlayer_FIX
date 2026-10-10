@@ -18,7 +18,7 @@ public class MusicPlayList implements TagSerializable, IIMPComparable {
     private long createDate;
     /**
      * Where this playlist was imported from — empty for a non-import ({@code space:<mid>} = an UP's submissions,
-     * {@code fav:<fid>} = a favourites folder); this is what the 「刷新」 key works from, and it is NBT only, so an old
+     * {@code fav:<fid>} = a favourites folder); this is what the Refresh key works from, and it is NBT only, so an old
      * save reads it as empty and a jar without the field ignores it.
      */
     private String source = "";
@@ -70,7 +70,7 @@ public class MusicPlayList implements TagSerializable, IIMPComparable {
         return source == null ? "" : source;
     }
 
-    /** Used by the import (on creation) and by the 「刷新」 claim path (see {@code MusicManager#setPlayListSource}). */
+    /** Used by the import (on creation) and by the refresh claim path (see {@code MusicManager#setPlayListSource}). */
     public void setSource(String source) {
         this.source = source == null ? "" : source;
     }
@@ -80,7 +80,7 @@ public class MusicPlayList implements TagSerializable, IIMPComparable {
         this.image = image;
     }
 
-    /** Name setter for the same narrow write path (a legacy "&lt;UP 名&gt; 的投稿" gets its space dropped). */
+    /** Name setter for the same narrow write path (a legacy name with the extra space has it dropped). */
     public void setName(String name) {
         this.name = name;
     }

@@ -59,7 +59,7 @@ public class MusicsManageFixedListWidget extends IMPBaseFixedListWidget<Music> {
         drawSmartFixedWidthText(guiGraphics, Component.literal(item.getName()), bX + sx, bY + 4, getIndividualWidth() - sx - 2, nameColor);
         drawSmartFixedWidthText(guiGraphics, Component.literal(item.getAuthor()), bX + sx, bY + 15, 90, nameColor);
 
-        // 分P badge (`2P`), right-aligned on the author line: the author is cut at 90 px, so a long name cannot run
+        // Part badge (`2P`), right-aligned on the author line: the author is cut at 90 px, so a long name cannot run
         // into it. See partBadge for what a badge does and does not promise.
         var badge = partBadge(item);
         if (!badge.isEmpty())
@@ -67,8 +67,8 @@ public class MusicsManageFixedListWidget extends IMPBaseFixedListWidget<Music> {
     }
 
     /**
-     * Badge of one row: {@code 2P} / {@code 3P} when that B站 video's parts are already known locally, else an empty
-     * string. A B站 row **without** a badge has never been looked up and costs one request (the submission list carries
+     * Badge of one row: {@code 2P} / {@code 3P} when that Bilibili video's parts are already known locally, otherwise
+     * an empty string. A Bilibili row **without** a badge has never been looked up and costs one request (the submission list carries
      * no part count).
      */
     public static String partBadge(Music item) {

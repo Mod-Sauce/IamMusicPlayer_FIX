@@ -7,10 +7,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * B站 投稿时间，客户端报上来的（服务端自己没法查，见 {@code BiliBiliPartCache}）。只在内存：没报过的曲子按 {@code 0} 参与排序，下次进页面再报一次。
+ * Bilibili upload dates reported by a client (the server cannot look them up itself, see {@code BiliBiliPartCache}).
+ * In-memory only: a song that was never reported sorts as {@code 0} and is reported again the next time the page opens.
  */
 public final class BiliBiliPubdateCache {
-    /** 上限（两万条 ≈ 几百 KB），满了整体清空，粗暴但不会无限涨。 */
+    /** Cap (20 000 entries ≈ a few hundred KB); a full wipe past it is crude but cannot grow without bound. */
     private static final int MAX_ENTRIES = 20000;
     private static final BiliBiliPubdateCache INSTANCE = new BiliBiliPubdateCache();
 
@@ -23,7 +24,7 @@ public final class BiliBiliPubdateCache {
         return INSTANCE;
     }
 
-    /** 毫秒时间戳；{@code <= 0} 视为"没报"直接丢掉。 */
+    /** Millisecond timestamp; {@code <= 0} counts as "not reported" and is dropped. */
     public void remember(String bvid, long pubdateMs) {
         var bare = BiliBiliIds.stripPage(bvid);
         if (bare == null || bare.isBlank() || pubdateMs <= 0L)
@@ -33,7 +34,7 @@ public final class BiliBiliPubdateCache {
         pubdates.put(bare, pubdateMs);
     }
 
-    /** {@code 0} = 没报过（按 bvid 查，分P 后缀会被剥掉）。 */
+    /** {@code 0} = never reported (looked up by bvid, with the part suffix stripped). */
     public long pubdateOf(@Nullable String identifier) {
         var bare = BiliBiliIds.stripPage(identifier);
         if (bare == null || bare.isBlank())

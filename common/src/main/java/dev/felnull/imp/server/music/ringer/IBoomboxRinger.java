@@ -79,7 +79,7 @@ public interface IBoomboxRinger extends IMusicRinger {
         return c == null ? null : (descending ? c.reversed() : c);
     }
 
-    /** 曲子的 B站 投稿时间，靠客户端上报（没报过 = 0：升序排最前、降序排最后）。 */
+    /** The track's Bilibili upload date, reported by a client (never reported = 0: first ascending, last descending). */
     static long publishDate(Music music) {
         var source = music.getSource();
         return source == null ? 0L
@@ -133,7 +133,7 @@ public interface IBoomboxRinger extends IMusicRinger {
                 var pl = mm.getPlaylistByMusic(getRingerLevel().getServer(), m.getUuid());
                 if (pl == null) return;
 
-                // [Multi-P counts as one] A B站 video is one playlist entry and its parts are not rows, so when the current part has a successor, play that instead of moving on.
+                // [Multi-part counts as one] A Bilibili video is one playlist entry and its parts are not rows, so when the current part has a successor, play that instead of moving on.
                 // Two guards: only in the sequential state, and only when that part is not already a playlist row — playlists built by the previous version (parts appended as rows) must not play every part twice.
                 if (con == BoomboxData.ContinuousType.ORDER) {
                     var part = dev.felnull.imp.server.music.BiliBiliPartCache.getInstance()
@@ -227,7 +227,7 @@ public interface IBoomboxRinger extends IMusicRinger {
         return ItemStack.isSameItemSameComponents(item, head);
     }
     /**
-     * Whether a playlist already contains a song with this B站 identifier, used by the multi-P rule in
+     * Whether a playlist already contains a song with this Bilibili identifier, used by the multi-part rule in
      * {@link #ringerEnd()}; the identifier is the only stable key — a synthesized part carries its entry's uuid.
      */
     private static boolean hasMusicWithIdentifier(MinecraftServer server, MusicManager mm, MusicPlayList pl, String identifier) {

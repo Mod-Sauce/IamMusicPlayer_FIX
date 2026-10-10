@@ -156,14 +156,14 @@ public class ClientHandler {
     }
   }
 
-  /** 上一次保存时"会让已加载音频失效"的开关值（缓存相关）：只有它们变了才值得打断播放去重载引擎。 */
+  /** The values, as of the last save, of the switches that invalidate already-loaded audio: only a change in them is worth interrupting playback to reload the engine. */
   private static String audioReloadKey;
 
   private static InteractionResult onConfigSave(
     ConfigHolder<IMPConfig> configHolder,
     IMPConfig impConfig
   ) {
-    // 不能无条件 destroy：保存配置（点排序、改音量…）也会走到这里，会把正在播的歌打断。
+    // Not an unconditional destroy: saving the config (tapping a sort key, changing the volume, …) also lands here and would cut off the playing song.
     var key = impConfig.globalCache + "|" + impConfig.enableCache;
     if (audioReloadKey != null && !audioReloadKey.equals(key))
       MusicEngine.getInstance().destroy();
@@ -210,7 +210,7 @@ public class ClientHandler {
     // Warm the faces of the people the UI is about to show (one lookup every few ticks, stops when done) — so opening
     // a page does not mean watching every avatar load. See PlayerFaceRenderer#warmUp for why the sync is the moment.
     PlayerFaceRenderer.tick();
-    // 「跳分P」 hotkey (default `~`): opens the bottom input line. ⚠️ `consumeClick` is drained on every tick, screens
+    // The part-jump hotkey (default `~`): opens the bottom input line. `consumeClick` is drained on every tick, screens
     // included — otherwise presses queue up and fire in a burst when the player returns to the world; and the line is
     // only opened from the world, since once up it owns the keyboard itself (see PartJumpScreen).
     while (IMPKeyMappings.PART_JUMP.consumeClick()) {

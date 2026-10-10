@@ -62,13 +62,14 @@ public class IMPPackets {
     public static final ResourceLocation MUSIC_RING_UPDATE_RESULT = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_ring_update_result");
     public static final ResourceLocation MULTIPLE_MUSIC_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "multiple_music_add");
     /**
-     * The client hands the server the part list it learned for one B站 video, so the boombox can continue with the next part without that part being a playlist entry.
+     * The client hands the server the part list it learned for one Bilibili video, so the boombox can continue with the next part without that part being a playlist entry.
      */
     public static final ResourceLocation BILIBILI_PARTS = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_parts");
-    /** 客户端上报 B站 投稿时间，服务端拿它排「投稿日期」那一档。 */
+    /** The client reports Bilibili upload dates; the server uses them for the "upload date" sort. */
     public static final ResourceLocation BILIBILI_PUBDATES = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_pubdates");
     /**
-     * 客户端上报要跳掉的赞助/广告片段（源时间毫秒）：服务端只用它算**内容实际长度**，音响时间轴按内容走（否则曲尾留一段静音）。
+     * The client reports the sponsor/ad segments to skip (source-time milliseconds): the server only uses them for the
+     * **real content length**, keeping the boombox timeline on content time (otherwise the track would end in silence).
      */
     public static final ResourceLocation BILIBILI_SPONSOR = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_sponsor");
     /**
@@ -183,7 +184,7 @@ public class IMPPackets {
         public final UUID playlist;
         public final List<Music> musics;
         /**
-         * Optional, one entry per music (empty = append everything): what each song is inserted directly behind — the 分P parts belong right behind their video.
+         * Optional, one entry per music (empty = append everything): what each song is inserted directly behind — the parts belong right behind their video.
          */
         public final List<UUID> afterMusics;
         public final BlockEntityExistence blockEntityExistence;
@@ -231,7 +232,7 @@ public class IMPPackets {
     }
 
     /**
-     * One B站 video's part list (client → server, once per video; only the client can ask B站): parallel name/length lists, an empty name = labelled by its number.
+     * One Bilibili video's part list (client → server, once per video; only the client can ask Bilibili): parallel name/length lists, an empty name = labelled by its number.
      */
     public static class BiliBiliPartsMessage implements PacketMessage {
         public final String bvid;
@@ -270,7 +271,8 @@ public class IMPPackets {
     }
 
     /**
-     * B站 赞助/广告片段上报（客户端 → 服务端）：起止时间用平行列表（源时间毫秒）；标识符带分P（{@code BV…-pN}），空表 = 清掉这条记录。
+     * Sponsor/ad segment report (client → server): the start/end times are parallel lists in source-time milliseconds;
+     * the identifier carries the part ({@code BV…-pN}) and an empty table clears the entry.
      */
     public static class BiliBiliSponsorMessage implements PacketMessage {
         public final String identifier;
@@ -309,7 +311,8 @@ public class IMPPackets {
     }
 
     /**
-     * B站 投稿时间批量上报（客户端 → 服务端）：服务端排序要用，只有客户端拿得到；bvids 与 pubdates 平行列表，重复报同一 bvid 直接覆盖。
+     * Batched Bilibili upload-date report (client → server): the server needs them for sorting and only the client can
+     * fetch them; bvids and pubdates are parallel lists, and repeating a bvid simply overwrites it.
      */
     public static class BiliBiliPubdatesMessage implements PacketMessage {
         public final List<String> bvids;
@@ -344,7 +347,8 @@ public class IMPPackets {
     }
 
     /**
-     * Jump to one part of the B站 video a boombox is playing: only the part number travels, the server derives which boombox the player hears (the client cannot know).
+     * Jump to one part of the Bilibili video a boombox is playing: only the part number travels, and the server works
+     * out which boombox the player hears (the client cannot know).
      */
     public static class BoomboxPartJumpMessage implements PacketMessage {
         /** 1-based part number the listener typed. */
@@ -759,7 +763,8 @@ public class IMPPackets {
     }
 
     /**
-     * 「刷新」 bookkeeping: remember/correct the import source, optionally a fresh cover and a rename (legacy names are **stored data**, so fixing the generator cannot touch them).
+     * Refresh bookkeeping: remember or correct the import source, optionally with a fresh cover and a rename (legacy
+     * names are **stored data**, so fixing the generator cannot touch them).
      */
     public static class PlayListSourceMessage implements PacketMessage {
         public final UUID uuid;

@@ -104,7 +104,7 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
     @Override
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
         super.render(guiGraphics, i, j, f);
-        // Part-jump line: one line drawn inside this screen's own layout, in the free band the "物品栏" label sits on.
+        // Part-jump line: one line drawn inside this screen's own layout, in the free band the hotbar label sits on.
         // The on-screen HUD position must not be used — it lands on the hotbar row at the bottom of the container screen.
         if (partJumpInput != null)
             PartJumpScreen.drawScreenPrompt(guiGraphics, partJumpMusic(), partJumpInput,
@@ -141,7 +141,7 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
                 partJumpInput = PartJumpScreen.append(partJumpInput, digit);
             return true;
         }
-        // Open only on the **song info page** (remote playback): that is where a B站 video is being played from a
+        // Open only on the **song info page** (remote playback): that is where a Bilibili video is being played from a
         // playlist, and therefore the only page where "which part" means anything. Everywhere else the key stays free.
         if (getRawMonitorType() == BoomboxData.MonitorType.REMOTE_PLAYBACK
                 && IMPKeyMappings.PART_JUMP.matches(keyCode, scanCode)) {
@@ -166,7 +166,9 @@ public class BoomboxScreen extends OEItemBEContainerBasedScreen<BoomboxMenu> {
     }
 
     /**
-     * Asks this screen's boombox to jump to part {@code page} of the B站 video it is playing: the base screen routes the instruction to the boombox this screen was opened on, and {@code BoomboxData#onInstruction} reuses the same {@code jumpBiliBiliPart} as the in-world hotkey.
+     * Asks this screen's boombox to jump to part {@code page} of the Bilibili video it is playing: the base screen
+     * routes the instruction to the boombox this screen was opened on, and {@code BoomboxData#onInstruction} reuses the
+     * same {@code jumpBiliBiliPart} as the in-world hotkey.
      */
     public void insBiliBiliPartJump(int page) {
         var tag = new CompoundTag();

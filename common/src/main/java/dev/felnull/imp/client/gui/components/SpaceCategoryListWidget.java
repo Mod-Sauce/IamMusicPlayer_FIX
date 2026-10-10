@@ -10,15 +10,17 @@ import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget
 import java.util.List;
 
 /**
- * Category list (「全部」/「未分类」, the UP's 合集, then the parent zones) — a list rather than a cycling button because a UP can have 40+ 合集; each row carries its own {@code ticked} and reports via {@code onPick}, and the row records keep identity stable for the base widget's hover logic.
+ * Category list ("All" / "Ungrouped", the UP's seasons, then the parent zones) — a list rather than a cycling button
+ * because a UP can have 40+ seasons; each row carries its own {@code ticked} and reports via {@code onPick}, and the
+ * row records keep identity stable for the base widget's hover logic.
  */
 public class SpaceCategoryListWidget extends IMPBaseFixedListWidget<SpaceCategoryListWidget.Row> {
     /** What a row means; {@link #HEADER} rows are pure separators and are not clickable. */
     public enum Kind {
         ALL, UNGROUPED, HEADER, SEASON, ZONE,
-        /** 「多P」: 分P 数 > 1 as far as the **local part cache** knows (never asks Bilibili — see the playlist page). */
+        /** "Multi-part": more than one part as far as the **local part cache** knows (never asks Bilibili — see the playlist page). */
         MULTI_PART,
-        /** 「非多P」: everything else, including videos whose part list was never looked up. */
+        /** "Single-part": everything else, including videos whose part list was never looked up. */
         SINGLE_PART
     }
 
@@ -72,7 +74,7 @@ public class SpaceCategoryListWidget extends IMPBaseFixedListWidget<SpaceCategor
                                    int mx, int my, float parTick, boolean selectedFromList) {
         int rowWidth = getIndividualWidth();
 
-        // Section separators ("合集" / "分区"): dim text, no box, no checkbox
+        // Section separators ("seasons" / "zones"): dim text, no box, no checkbox
         if (item.kind() == Kind.HEADER) {
             drawSmartText(guiGraphics, item.label(), bX + 3, bY + 3, 0xFF7A7A7A);
             return;

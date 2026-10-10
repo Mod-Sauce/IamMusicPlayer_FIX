@@ -229,9 +229,11 @@ public class MusicRing {
                   0,
                   dur
                 );
-                // [跳段] 客户端在读取端把赞助/广告片段那几秒丢掉了 ⇒ "正在播的位置"要落到片段之后。
-                // 时间轴仍是**视频时间**（音响存下的 RingerPosition、HUD/歌词、加入者的起点都用它），
-                // 所以这里只是位置往前走一段；曲末靠它自然提前到（不必再算内容时长）。片段表由客户端上报。
+                // [Skip] The client already dropped the sponsor/ad seconds on the read side, so the "now playing"
+                // position has to land past the segment. The timeline stays on **source time** (the stored
+                // RingerPosition, the HUD/lyrics and a late joiner's start all use it), so this only moves the
+                // position forward — the end of the track arrives that much earlier without computing a content
+                // length. The segment table comes from the client.
                 if (sc != null && !isStream) {
                   newPos = Math.min(dur, dev.felnull.imp.server.music.BiliBiliSponsorCache.getInstance()
                     .positionAfterSkips(sc.getIdentifier(), newPos));

@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import org.modsauce.otyacraftenginerenewed.client.util.OEClientUtils;
 
 /**
- * Bottom-centre HUD for the **handheld** boombox ("手提音响"): song line + lyric line (karaoke when the lyrics carry
+ * Bottom-centre HUD for the **handheld** boombox: song line + lyric line (karaoke when the lyrics carry
  * per-word timings), each with its own switch, plus a song-change popup that only shows while the song line is off.
  */
 public class HandheldMusicHud {
@@ -79,7 +79,7 @@ public class HandheldMusicHud {
     private static String songText(Music music) {
         var author = music.getAuthor();
         var text = author == null || author.isBlank() ? music.getName() : music.getName() + " — " + author;
-        // [分P] Part marker of a multi-part B站 video (`P2/2`); parts are only known once the video was played or
+        // [Parts] Part marker of a multi-part Bilibili video (`P2/2`); parts are only known once the video was played or
         // looked up. It must stay at the front — a trailing marker is cut off by `hudBottomMaxWidth`.
         var source = music.getSource();
         if (source != null && IMPMusicMedias.BILIBILI.getName().equals(source.getLoaderType())) {
@@ -151,7 +151,7 @@ public class HandheldMusicHud {
         return bottomLineY() - mc.font.lineHeight;
     }
 
-    /** One centred line, cut to {@code maxWidth} with an ellipsis; {@code public static} so the 「跳分P」 line shares it. */
+    /** One centred line, cut to {@code maxWidth} with an ellipsis; {@code public static} so the part-jump line shares it. */
     public static void drawLine(GuiGraphics guiGraphics, Component text, int centerX, int y, int color, int maxWidth,
                                 IMPConfig.HudBottomStyle style, float alpha) {
         var shown = OEClientUtils.getWidthOmitText(text.getString(), maxWidth, "...");

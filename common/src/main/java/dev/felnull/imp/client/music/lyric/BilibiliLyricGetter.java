@@ -41,7 +41,7 @@ public class BilibiliLyricGetter implements LyricGetter{
         return thread.lyric;
     }
 
-    /** 「UP 主页导入」在本地的痕迹就是分区/合集标签：收藏夹导入与「刷新」只写投稿时间，手加 BV、只播过一次的都没有。 */
+    /** The local trace of a UP-space import is the zone/season tag: a favourites import and a refresh write only the upload date, and a hand-added BV that was played once has neither. */
     private static boolean isUpImported(String bvid) {
         var tags = BiliBiliArcTags.getInstance();
         return !tags.zoneOf(bvid).isBlank() || !tags.seasonsOf(bvid).isEmpty();
@@ -49,13 +49,14 @@ public class BilibiliLyricGetter implements LyricGetter{
 
     private static boolean legacySwitchChecked;
 
-    /** 客户端初始化时叫一次：赶在 Cloth 第一次保存（会按新字段名重写整个配置文件）之前把旧键搬过来。 */
+    /** Called once at client init: moves the old keys over before Cloth's first save (which rewrites the whole config file under the new field names). */
     public static void migrateLegacySwitch() {
         subtitlesAsLyrics();
     }
 
     /**
-     * 总开关改名（`subtitleEnabled` → `subtitleAsLyrics`）的旧键兜底：老配置留着旧键就搬过来改写成新键，只在首次读时做一次。
+     * Fallback for the renamed master switch ({@code subtitleEnabled} → {@code subtitleAsLyrics}): an old config that
+     * still carries the old key has it moved and rewritten to the new name, once, on the first read.
      */
     private static boolean subtitlesAsLyrics() {
         var cfg = IamMusicPlayer.getConfig().bilibiliConfig;
@@ -96,7 +97,7 @@ public class BilibiliLyricGetter implements LyricGetter{
                 // identifier carries the part suffix (`BV…-p2`).
                 var bvid = BiliBiliUtil.stripPage(source.getIdentifier());
                 if (!subtitlesAsLyrics()) {
-                    // 每个提前 return 都要打点：否则「没字幕」与「请求失败」在日志里长得一样。
+                    // Every early return needs a trace, otherwise "no subtitles" and "the request failed" look the same in the log.
                     LinkDebug.log("BiliBili lyric skip", "id", source.getIdentifier(), "reason", "subtitleAsLyrics=false");
                     lyric = Lyric.EMPTY;
                     return;

@@ -54,7 +54,7 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
                 // Long.compare, not `(int) (a - b)`: the difference of two millisecond timestamps overflows int and scrambles the order
                 // (the server sorts the same way with comparingLong, see IBoomboxRinger).
                 Long.compare(o1.getCompareDate(), o2.getCompareDate())),
-        /** B站 投稿时间（不是"加入歌单的时间"）；由播放列表页按歌单来源启用。 */
+        /** Bilibili upload date (not "when it was added to the playlist"); the playlist page enables it per source. */
         PUBLISH_DATE("publish_date", (o1, o2) -> Long.compare(pubdateOf(o1), pubdateOf(o2)));
         private final String name;
         private final Comparator<IIMPComparable> comparator;
@@ -68,7 +68,7 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
             this.componentName = Component.translatable("imp.sortType." + name);
         }
 
-        /** {@code 0} = 缓存里没记过，这些曲子一起排后段。 */
+        /** {@code 0} = never recorded in the cache; those songs sort together at the end. */
         private static long pubdateOf(IIMPComparable o) {
             if (!(o instanceof Music music))
                 return 0L;
@@ -135,9 +135,9 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
     }
 
     public static class SortTypeButton extends SortButton {
-        /** 默认三档；「投稿日期」只对 B站 UP 投稿歌单有意义，由播放列表页按需打开。 */
+        /** Three modes by default; the upload-date mode only means something for UP-imported playlists and is enabled on demand by the playlist page. */
         private static final List<SortType> BASE_TYPES = List.of(SortType.NAME, SortType.PLAYER, SortType.CREATE_DATE);
-        /** 用户选中的档位（含当前歌单用不了的档）：换歌单再换回来必须还在。 */
+        /** The mode the user picked (including one the current playlist cannot use): switching playlists and back must keep it. */
         private SortType preference = SortType.NAME;
         private List<SortType> types = BASE_TYPES;
         private boolean publishDateEnabled;
@@ -154,7 +154,7 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
             preference = types.get((i + 1) % types.size());
         }
 
-        /** 「投稿日期」这一档的开关（播放列表页专用）：只改可循环的档位表，不动用户选的那一档。 */
+        /** The switch for the upload-date mode (playlist page only): it changes the cycle-able list and leaves the user's choice alone. */
         public void setPublishDateEnabled(boolean enabled) {
             if (enabled == publishDateEnabled)
                 return;
@@ -172,7 +172,7 @@ public abstract class SortButton extends IMPButton implements IIMPSmartRender {
             return getSortType().getComponentName();
         }
 
-        /** 生效档位：偏好档可用就用它，否则第一档（偏好仍留着）。 */
+        /** The effective mode: the preferred one when it is available, otherwise the first one (the preference is kept). */
         public SortType getSortType() {
             return types.contains(preference) ? preference : types.get(0);
         }

@@ -40,11 +40,11 @@ public class IamMusicPlayerClient {
         me.shedaniel.autoconfig.AutoConfig.getGuiRegistry(dev.felnull.imp.IMPConfig.class)
                 .registerTypeProvider(new dev.felnull.imp.client.gui.config.HudBottomStyleGuiProvider(),
                         dev.felnull.imp.IMPConfig.HudBottomStyle.class);
-        // Same for the B站 subtitle-translation choice (SMART / EN / JA / FIRST)
+        // Same for the Bilibili subtitle-translation choice (SMART / EN / JA / FIRST)
         me.shedaniel.autoconfig.AutoConfig.getGuiRegistry(dev.felnull.imp.IMPConfig.class)
                 .registerTypeProvider(new dev.felnull.imp.client.gui.config.SubtitleTransGuiProvider(),
                         dev.felnull.imp.IMPConfig.SubtitleTrans.class);
-        // Same for the B站 subtitle-track choice (ALL / HUMAN_ONLY / AI_ONLY)
+        // Same for the Bilibili subtitle-track choice (ALL / HUMAN_ONLY / AI_ONLY)
         me.shedaniel.autoconfig.AutoConfig.getGuiRegistry(dev.felnull.imp.IMPConfig.class)
                 .registerTypeProvider(new dev.felnull.imp.client.gui.config.SubtitleTrackGuiProvider(),
                         dev.felnull.imp.IMPConfig.SubtitleTrack.class);
@@ -52,7 +52,7 @@ public class IamMusicPlayerClient {
         me.shedaniel.autoconfig.AutoConfig.getGuiRegistry(dev.felnull.imp.IMPConfig.class)
                 .registerTypeProvider(new dev.felnull.imp.client.gui.config.SubtitleLangGuiProvider(),
                         dev.felnull.imp.IMPConfig.SubtitleLang.class);
-        // Same for the 「刷新」 import scope (AUTO / SEASON / ZONE / ALL)
+        // Same for the refresh import scope (AUTO / SEASON / ZONE / ALL)
         me.shedaniel.autoconfig.AutoConfig.getGuiRegistry(dev.felnull.imp.IMPConfig.class)
                 .registerTypeProvider(new dev.felnull.imp.client.gui.config.RefreshScopeGuiProvider(),
                         dev.felnull.imp.IMPConfig.RefreshScope.class);
@@ -64,7 +64,7 @@ public class IamMusicPlayerClient {
 
     public static void init() {
         configInit();
-        // 旧键迁移要在任何一次配置保存之前跑：Cloth 保存时会用新字段名重写整个文件
+        // The old-key migration must run before any config save: Cloth rewrites the whole file under the new field names
         dev.felnull.imp.client.music.lyric.BilibiliLyricGetter.migrateLegacySwitch();
         normalizeBilibiliCookie();        LavaPlayerLoader.init();
         IMPPackets.clientInit();
@@ -83,13 +83,13 @@ public class IamMusicPlayerClient {
         IMPPlaylistLoaders.init();
         IMPMusicTrackerFactory.init();
         LavaPlayerManager.getInstance().reload();
-        // Key bindings (currently 「跳分P」): must be registered during mod init, before vanilla builds its options
+        // Key bindings (currently the part jump): must be registered during mod init, before vanilla builds its options
         IMPKeyMappings.init();
 
         ClientHandler.init();
     }
 
-    /** Housekeeping for the B站 Cookie field: a phone client (Piliplus) exports its login as JSON and users paste that
+    /** Housekeeping for the Bilibili cookie field: a phone client (Piliplus) exports its login as JSON and users paste that
      * blob; {@code BiliBiliCookie} parses either form, but storing the compact {@code name=value; …} form means the
      * config does not also carry the export's {@code accessKey} / {@code refresh} credentials. */
     private static void normalizeBilibiliCookie() {

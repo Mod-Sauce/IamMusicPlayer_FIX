@@ -59,7 +59,7 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
     }
 
     public void insMonitor(MusicManagerBlockEntity.MonitorType type) {
-        // A 简介-link visit only survives on the pages that can show that video
+        // A description-link visit only survives on the pages that can show that video
         if (type != MusicManagerBlockEntity.MonitorType.DETAIL_MUSIC
                 && type != MusicManagerBlockEntity.MonitorType.BILIBILI_PARTS)
             guestMusic = null;
@@ -258,7 +258,7 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
     }
 
     public void insSelectedMusic(@Nullable UUID selectedMusic) {
-        // Picking another song ends a 简介-link visit
+        // Picking another song ends a description-link visit
         guestMusic = null;
         var tag = new CompoundTag();
         if (selectedMusic != null)
@@ -266,7 +266,7 @@ public class MusicManagerScreen extends IMPBaseContainerScreen<MusicManagerMenu>
         instruction("set_selected_music", tag);
     }
 
-    /** A video opened from a description link: the 详情/视频信息 pages show it until the user picks another song. */
+    /** A video opened from a description link: the detail / video-info pages show it until the user picks another song. */
     @Nullable
     private Music guestMusic;
 

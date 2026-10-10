@@ -50,7 +50,7 @@ public class ServerMessageHandler {
     }
 
     /**
-     * The client's learned part list for one B站 video; nothing is trusted beyond shape — an unusable video number or fewer than two entries is dropped.
+     * The client's learned part list for one Bilibili video; nothing is trusted beyond shape — an unusable video number or fewer than two entries is dropped.
      */
     public static void onBiliBiliPartsMessage(IMPPackets.BiliBiliPartsMessage message, NetworkManager.PacketContext packetContext) {
         packetContext.queue(() -> {
@@ -76,7 +76,9 @@ public class ServerMessageHandler {
     }
 
     /**
-     * 客户端报的赞助/广告片段：服务端把音响位置**推到片段之后**（时间轴按内容走，曲尾不留静音）；空表 = 忘掉这首；除形状外什么都不信（起止成对、时长为正）。
+     * The sponsor/ad segments a client reports: the server pushes the boombox position **past a segment** (the timeline
+     * runs on content, so the track does not end in silence); an empty table forgets the entry. Nothing but the shape is
+     * trusted (start/end must pair up with a positive length).
      */
     public static void onBiliBiliSponsorMessage(IMPPackets.BiliBiliSponsorMessage message, NetworkManager.PacketContext packetContext) {
         packetContext.queue(() -> {
@@ -95,7 +97,7 @@ public class ServerMessageHandler {
         });
     }
 
-    /** 客户端报上来的 B站 投稿时间（服务端自己查不到）：只用于音响「投稿日期」那一档的排序。 */
+    /** Bilibili upload dates reported by a client (the server cannot look them up): only used for the boombox's upload-date sort. */
     public static void onBiliBiliPubdatesMessage(IMPPackets.BiliBiliPubdatesMessage message, NetworkManager.PacketContext packetContext) {
         packetContext.queue(() -> {
             var cache = dev.felnull.imp.server.music.BiliBiliPubdateCache.getInstance();

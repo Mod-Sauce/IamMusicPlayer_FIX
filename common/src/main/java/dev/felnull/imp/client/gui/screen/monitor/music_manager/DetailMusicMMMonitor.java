@@ -26,7 +26,7 @@ import java.util.UUID;
 public class DetailMusicMMMonitor extends MusicBaseMMMonitor {
     private static final Component EDIT_TEXT = Component.translatable("imp.button.edit");
     private static final Component DELETE_TEXT = Component.translatable("imp.button.delete").withStyle(ChatFormatting.DARK_RED);
-    /** 「分P」: only meaningful for a B站 video (visibility is decided per tick), and the label carries the cached part count. */
+    /** Parts: only meaningful for a Bilibili video (visibility is decided per tick), and the label carries the cached part count. */
     private static final Component PARTS_TEXT = Component.translatable("imp.button.bilibiliParts");
     private static final int PARTS_BUTTON_X = 189;
     private static final int PARTS_BUTTON_Y = 90;
@@ -53,7 +53,7 @@ public class DetailMusicMMMonitor extends MusicBaseMMMonitor {
         this.deleteButton = this.addRenderWidget(new SmartButton(getStartX() + width - 5 - 87, getStartY() + 180, 87, 15, DELETE_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.DELETE_MUSIC)));
         this.deleteButton.visible = canDelete();
 
-        // 「分P」 (B站 videos only): opens the part list, where one part can be previewed on its own —— the parts are
+        // Parts (Bilibili videos only): opens the part list, where one part can be previewed on its own — the parts are
         // **not** playlist entries (see BiliBiliParts), so this is the only way to listen to P3 without playing
         // through from P1. Sits in the right column under the playback controls, which is empty on this page.
         this.partsButton = this.addRenderWidget(new SmartButton(getStartX() + PARTS_BUTTON_X, getStartY() + PARTS_BUTTON_Y,
@@ -75,20 +75,20 @@ public class DetailMusicMMMonitor extends MusicBaseMMMonitor {
         if (canDelete(blockEntity))
             renderSmartButtonSprite(poseStack, multiBufferSource, width - 5 - 87, 180, OERenderUtils.MIN_BREADTH * 2, 87, 15, i, j, onPxW, onPxH, monitorHeight, DELETE_TEXT, true);
 
-        // 「分P」: the world panel must draw it itself (widgets only exist on the GUI path)
+        // Parts: the world panel must draw it itself (widgets only exist on the GUI path)
         var panelMusic = getSelectedMusic(blockEntity);
         if (isBiliBili(panelMusic))
             renderSmartButtonSprite(poseStack, multiBufferSource, PARTS_BUTTON_X, PARTS_BUTTON_Y, OERenderUtils.MIN_BREADTH * 2,
                     PARTS_BUTTON_W, PARTS_BUTTON_H, i, j, onPxW, onPxH, monitorHeight, partsText(panelMusic), true);
     }
 
-    /** Whether a music is a B站 video — the only kind that has parts. */
+    /** Whether a music is a Bilibili video — the only kind that has parts. */
     private static boolean isBiliBili(@Nullable Music music) {
         return music != null && music.getSource() != null
                 && IMPMusicMedias.BILIBILI.getName().equals(music.getSource().getLoaderType());
     }
 
-    /** The label of the 「分P」 key: the part count is appended once it is in the local cache. */
+    /** The label of the Parts key: the part count is appended once it is in the local cache. */
     private static Component partsText(@Nullable Music music) {
         var badge = music == null ? "" : MusicsManageFixedListWidget.partBadge(music);
         return badge.isEmpty() ? PARTS_TEXT : Component.translatable("imp.button.bilibiliPartsBadge", badge);
@@ -103,7 +103,7 @@ public class DetailMusicMMMonitor extends MusicBaseMMMonitor {
     @Override
     public void tick() {
         super.tick();
-        // A guest video (opened from a description link) is not a playlist entry: everything that writes (编辑/删除 keys,
+        // A guest video (opened from a description link) is not a playlist entry: everything that writes (edit/delete keys,
         // cover buttons, image URL box, the name box) targets the **selected song**, so it stays out of reach.
         var guest = guest();
         this.editButton.visible = guest == null && canEdit();
@@ -113,7 +113,7 @@ public class DetailMusicMMMonitor extends MusicBaseMMMonitor {
                 ((AbstractWidget) widget).visible = guest == null;
         }
 
-        // The 「分P」 key follows the selection, and its label shows the part count once that is known
+        // The Parts key follows the selection, and its label shows the part count once that is known
         var music = guest != null ? guest : getSelectedMusic();
         this.partsButton.visible = isBiliBili(music);
         var text = partsText(music);

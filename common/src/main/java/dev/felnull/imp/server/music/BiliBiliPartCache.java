@@ -11,7 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * What the server knows about B站 videos' parts, so a boombox can walk the parts of a multi-part video that is one playlist entry; in-memory on purpose — a stale entry is worse than not knowing.
+ * What the server knows about Bilibili videos' parts, so a boombox can walk the parts of a multi-part video that is one
+ * playlist entry; in-memory on purpose — a stale entry is worse than not knowing.
  */
 public final class BiliBiliPartCache {
     /** Cap on remembered videos (a UP with 1000 videos ≈ a few hundred KB); insertion order is not kept, only the cap matters. */
@@ -99,7 +100,8 @@ public final class BiliBiliPartCache {
     }
 
     /**
-     * The video's own title behind {@code current}: a synthesized part already carries {@code 标题 · 分P名}, so taking the name as-is would give {@code 标题 · P2名 · P3名} and keep growing; part 1 is the entry itself.
+     * The video's own title behind {@code current}: a synthesized part already carries {@code title · part name}, so
+     * taking the name as-is would give {@code title · P2 · P3} and keep growing; part 1 is the entry itself.
      */
     private static String videoTitle(Music current, List<Part> list) {
         var name = current.getName() == null ? "" : current.getName();
@@ -126,7 +128,7 @@ public final class BiliBiliPartCache {
         return next == null || next.getSource() == null ? null : next.getSource().getIdentifier();
     }
 
-    /** Same rule the client uses for the playlist rows: {@code 主标题 · 分P名}, or {@code 主标题 (P2/7)} when it would repeat itself. */
+    /** The same rule the client uses for the playlist rows: {@code title · part name}, or {@code title (P2/7)} when it would repeat itself. */
     public static String partName(String videoTitle, Part part, int page, int total) {
         var title = videoTitle == null ? "" : videoTitle.strip();
         var name = part == null || part.name() == null ? "" : part.name().strip();

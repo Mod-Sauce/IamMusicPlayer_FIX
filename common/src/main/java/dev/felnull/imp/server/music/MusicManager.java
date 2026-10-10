@@ -39,13 +39,13 @@ public class MusicManager {
     }
 
     /**
-     * Minimum gap between two length corrections of the same B站 video. The client reports a video's parts whenever it
+     * Minimum gap between two length corrections of the same Bilibili video. The client reports a video's parts whenever it
      * learns them, and each accepted correction walks every playlist on the server (see {@link #fixBiliBiliDuration}),
      * so a client that keeps re-reporting the same video must not be able to drive that walk.
      */
     private static final long BILIBILI_FIX_MIN_GAP_MS = 10_000L;
     private static final int BILIBILI_FIX_MAX_KEYS = 20000;
-    /** Last correction time per B站 video id; bounded, server thread only. */
+    /** Last correction time per Bilibili video id; bounded, server thread only. */
     private final Map<String, Long> biliBiliFixedAt = new HashMap<>();
 
     public static MusicManager getInstance() {
@@ -332,7 +332,8 @@ public class MusicManager {
     }
 
     /**
-     * Corrects a B站 entry's stored length: the submission list reports all parts together while the entry holds part 1, and that length drives the position and "track over".
+     * Corrects a Bilibili entry's stored length: the submission list reports all parts together while the entry holds
+     * part 1, and that length drives the position and the "track over" decision.
      *
      * @return how many entries were corrected
      */
@@ -372,7 +373,7 @@ public class MusicManager {
     }
 
     /**
-     * @param afterMusics optional, one entry per song (or empty/null = append): the song each one is inserted **directly behind** — the 分P expansion needs its
+     * @param afterMusics optional, one entry per song (or empty/null = append): the song each one is inserted **directly behind** — the part expansion needs its
      *                    parts right behind their video. Entries whose anchor is not in this playlist (or {@code null}) are appended as before.
      */
     public void addMultipleMusic(MinecraftServer server, UUID playListId, List<Music> musics, List<UUID> afterMusics,
@@ -439,7 +440,8 @@ public class MusicManager {
     }
 
     /**
-     * Same as above plus an optional rename ({@code newName} empty = keep it); a legacy {@code "<UP 名> 的投稿"} name is stored data, so the generator cannot fix it.
+     * Same as above plus an optional rename ({@code newName} empty = keep it); a legacy playlist name is stored data, so
+     * the name generator cannot fix it.
      */
     public void setPlayListSource(MinecraftServer server, UUID playListId, String source, ImageInfo image, String newName, ServerPlayer player) {
         var pl = getSaveData(server).getPlayLists().get(playListId);

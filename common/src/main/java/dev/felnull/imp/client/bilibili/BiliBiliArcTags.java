@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** "What is this video" cache: {@code bvid → {合集(s), 父分区, 分P 表}}, filled at import/play time as imported music
+/** "What is this video" cache: {@code bvid → {seasons, parent zone, part table}}, filled at import/play time as imported music
  * lacks it. One JSON file, safe to delete; no entry = "never looked", one element = "looked up: single part". */
 public final class BiliBiliArcTags {
     private static final String FILE_NAME = "bilibili_arc_tags.json";
@@ -26,7 +26,7 @@ public final class BiliBiliArcTags {
     private static final int MAX_ENTRIES = 20000;
 
     /**
-     * One part (分P) of a video: what the address API reports per page.
+     * One part of a video: what the address API reports per page.
      *
      * @param name       the part's own title ({@code pages[].part}); empty when Bilibili has none
      * @param durationMs that part's length in milliseconds
@@ -90,7 +90,7 @@ public final class BiliBiliArcTags {
 
     private BiliBiliArcTags() {
         // The file is a few hundred KB: parsing it on whichever thread asks first would stall that thread — and the
-        // first asker is the render thread (the 分P badge / the playlist's category filter run every tick). Load it in
+        // first asker is the render thread (the part badge / the playlist's category filter run every tick). Load it in
         // the background right away instead; a reader that still arrives too early simply waits on the monitor.
         var thread = new Thread(this::load, "IMP-BiliBili-ArcTags-load");
         thread.setDaemon(true);
@@ -136,7 +136,7 @@ public final class BiliBiliArcTags {
 
     // ------------------------------------------------------------------ writing
 
-    /** Remembers one video's 合集/分区 (import path, client thread); an existing part list is kept. Only this path and
+    /** Remembers one video's season/zone (import path, client thread); an existing part list is kept. Only this path and
      * {@link #flush()} touch the map, and both are synchronized. */
     public synchronized void remember(String bvid, String zone, Collection<String> seasons, long pubdateMs) {
         if (bvid == null || bvid.isBlank())
@@ -165,7 +165,7 @@ public final class BiliBiliArcTags {
                 old == null ? 0L : old.checkedAt(), old != null && old.gone()));
     }
 
-    /** Records only the upload time — {@link #remember} would blank the 分区/合集 this video already has. */
+    /** Records only the upload time — {@link #remember} would blank the zone/season this video already has. */
     public synchronized void rememberPubdate(String bvid, long pubdateMs) {
         if (bvid == null || bvid.isBlank() || pubdateMs <= 0L)
             return;
@@ -190,7 +190,7 @@ public final class BiliBiliArcTags {
                 System.currentTimeMillis(), old != null && old.gone()));
     }
 
-    /** Records Bilibili's "gone" verdict ({@code -404}); persisted so 「扫失效」 can tick the row without asking again,
+    /** Records Bilibili's "gone" verdict ({@code -404}); persisted so "Scan dead" can tick the row without asking again,
      * and {@code gone = false} clears the mark (restored uploads happen). */
     public synchronized void markGone(String bvid, boolean gone) {
         if (bvid == null || bvid.isBlank())
@@ -247,8 +247,8 @@ public final class BiliBiliArcTags {
         return tag == null || tag.info() == null ? Info.EMPTY : tag.info();
     }
 
-    /** Remembers a video's parts (media layer and the "展开分P" action); a one-element list is stored too and means
-     * "looked up: single part" — that is what stops 展开分P from re-requesting single-part videos. */
+    /** Remembers a video's parts (media layer and the "Expand parts" action); a one-element list is stored too and means
+     * "looked up: single part" — that is what stops Expand parts from re-requesting single-part videos. */
     public synchronized void rememberParts(String bvid, List<Part> parts) {
         if (bvid == null || bvid.isBlank() || parts == null || parts.isEmpty())
             return;
@@ -407,13 +407,13 @@ public final class BiliBiliArcTags {
         }
     }
 
-    /** One entry → its JSON form: {@code {"z":分区,"pd":投稿毫秒,"s":[合集…],"p":[{"n":分P名,"d":毫秒,"f":首帧}]}};
+    /** One entry → its JSON form: {@code {"z":zone,"pd":upload millis,"s":[seasons…],"p":[{"n":part name,"d":millis,"f":first frame}]}};
      * package-private so the self-test can round-trip it against {@link #fromJson} without touching the file. */
     static JsonObject toJson(Tag tag) {
         var one = new JsonObject();
         if (tag.zone() != null && !tag.zone().isBlank())
             one.addProperty("z", tag.zone());
-        // "gone" and "checked at" ride along in the same entry: they are what makes 「扫失效」 instant on a repeat press
+        // "gone" and "checked at" ride along in the same entry: they are what makes "Scan dead" instant on a repeat press
         if (tag.checkedAt() > 0L)
             one.addProperty("at", tag.checkedAt());
         if (tag.gone())
