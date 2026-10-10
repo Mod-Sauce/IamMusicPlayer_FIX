@@ -953,7 +953,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         return s.startsWith("合集·") ? s.substring("合集·".length()).strip() : s;
     }
 
-    /** {@code 12345} → {@code 12.3K}: keeps the fact lines short. Chinese clients keep the platform's 万/亿 convention. */
+    /** {@code 12345} → {@code 12.3K}: keeps the fact lines short. A Chinese client keeps the platform's own ten-thousand / hundred-million units. */
     static String count(long n) {
         if (!isChineseClient()) {
             if (n >= 1_000_000L)
@@ -969,7 +969,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         return String.valueOf(n);
     }
 
-    /** Whether the client runs a Chinese language pack, where the platform's 万/亿 units are kept. */
+    /** Whether the client runs a Chinese language pack, where the platform's own large-number units are kept. */
     private static boolean isChineseClient() {
         var code = net.minecraft.client.Minecraft.getInstance().getLanguageManager().getSelected();
         return code != null && code.toLowerCase(java.util.Locale.ROOT).startsWith("zh");
