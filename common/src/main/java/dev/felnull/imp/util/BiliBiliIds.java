@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Pattern;
 
 /**
- * B站 identifier conventions **both sides** need: a video is its bare BV number, a part is that plus {@code -p<N>}
+ * The Bilibili identifier conventions **both sides** need: a video is its bare BV number, a part is that plus {@code -p<N>}
  * ({@code BV1SP411V7mW-p2}). In {@code util} because server code (part continuation, the ringer) must follow them too.
  */
 public final class BiliBiliIds {

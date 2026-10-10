@@ -614,10 +614,10 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         }
     }
 
-    /** The identity used for the duplicate check (see {@link #rebuildDuplicates}); B站-specific normalisation only. */
+    /** The identity used for the duplicate check (see {@link #rebuildDuplicates}); Bilibili-specific normalisation only. */
     private static String normalizeIdentifier(dev.felnull.imp.music.resource.MusicSource src) {
         var id = src.getIdentifier() == null ? "" : src.getIdentifier().strip();
-        // Part 1 is spelled as the bare video number elsewhere in the mod, so `BV…-p1` == `BV…`. Only B站 uses the
+        // Part 1 is spelled as the bare video number elsewhere in the mod, so `BV…-p1` == `BV…`. Only Bilibili uses the
         // `-pN` suffix — applying it to every source could silently merge two unrelated ids that happen to end in -p1.
         if ("bilibili".equals(src.getLoaderType()) && id.endsWith("-p1"))
             id = id.substring(0, id.length() - 3);

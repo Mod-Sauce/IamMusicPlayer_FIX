@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public final class MusicLinks {
     private static final List<Platform> PLATFORMS = new ArrayList<>();
 
-    /** Bilibili user space ("UP 主页"): {@code space.bilibili.com/<mid>}, only the video submissions are imported;
+    /** Bilibili user space: {@code space.bilibili.com/<mid>}, only the video submissions are imported;
      * last among the Bilibili rules, so {@code /favlist?fid=<n>} (a favourites folder) hits the fid rule first.
      * Declared above the initialiser on purpose: a simple-name use inside it is an illegal forward reference. */
     private static final Pattern SPACE_URL = Pattern.compile("https?://[^\\s]*?space\\.bilibili\\.com/(\\d+)(?![0-9])");
@@ -106,7 +106,7 @@ public final class MusicLinks {
                 MusicLink.Kind.VIDEO,
                 Pattern.compile("https?://[^\\s]*?bilibili\\.com[^\\s]*?[?&]fid=(\\d+)"),
                 MusicLink.Kind.PLAYLIST, true));
-        // The user's space ("UP 主页"), imported as the user's video submissions. Placed after every fid rule:
+        // The user's space, imported as the user's video submissions. Placed after every fid rule:
         // {@code space.bilibili.com/<mid>/favlist?fid=<n>} needs the folder id, not the mid, and the identifier is
         // prefixed ({@code space:<mid>}) because both forms are plain numbers otherwise.
         PLATFORMS.add(new Platform("bilibili",

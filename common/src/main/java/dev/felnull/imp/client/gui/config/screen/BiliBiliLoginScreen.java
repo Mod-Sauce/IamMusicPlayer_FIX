@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Bilibili QR login screen; needed because the space ("UP 主页") and favourites APIs only work anonymously with the
+ * Bilibili QR login screen; needed because the space and favourites APIs only work anonymously with the
  * {@code buvid3/buvid4/b_nut} trio, and risk control still answers 412 to a burst. Flow: {@code qrcode/generate} →
  * {@code qrcode/poll} every 2 s → {@code code=0} hands the login cookies over as {@code Set-Cookie} into {@code bilibiliConfig.bilibiliCookie} (never logged).
  */

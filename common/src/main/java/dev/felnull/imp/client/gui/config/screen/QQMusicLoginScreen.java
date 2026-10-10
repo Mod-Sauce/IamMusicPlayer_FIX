@@ -19,8 +19,9 @@ import org.apache.logging.log4j.Logger;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * QQ 音乐扫码登录页（外观与轮询照 {@link KugouLoginScreen}）：QQ 给的是 **PNG**，直接进贴图；成功后 Cookie
- * 写进 {@code QQMusicConfig.QQMusicCookie}（与手贴 Cookie 同一个字段）。
+ * QQ Music QR-login screen (the look and the polling follow {@link KugouLoginScreen}): QQ hands out a **PNG** that goes
+ * straight into a texture, and on success the cookie is written into {@code QQMusicConfig.QQMusicCookie} — the same
+ * field a hand-pasted cookie uses.
  */
 public class QQMusicLoginScreen extends Screen {
     private static final Logger LOGGER = LogManager.getLogger();

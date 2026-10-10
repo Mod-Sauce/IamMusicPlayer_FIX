@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.function.ToIntFunction;
 
 /**
- * 底部 HUD 卡拉OK 行的排版：当前行切成若干着色段，三色取自 {@link BlockLyricRenderer}（两处不会各调一套）；整词放不下
- * 就丢掉并标记 {@value #ELLIPSIS}，绝不切半个词。无 Minecraft 类型依赖，可脱离游戏自测。
+ * Layout of the bottom HUD karaoke line: the current line is cut into coloured spans whose three colours come from
+ * {@link BlockLyricRenderer} (so both places cannot drift apart). A word that does not fit is dropped and marked with
+ * {@value #ELLIPSIS}, never cut in half. No Minecraft types, so it can be tested outside the game.
  */
 public final class HudKaraokeLine {
     private HudKaraokeLine() {

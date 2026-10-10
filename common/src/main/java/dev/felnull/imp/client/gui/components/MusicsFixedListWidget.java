@@ -19,7 +19,7 @@ import java.util.List;
 public class MusicsFixedListWidget extends IMPBaseFixedListWidget<Music> {
     public static final Component UNKNOWN_PLAYER_TEXT = Component.translatable("imp.text.unknownPlayer");
 
-    /** Whether the row time follows the 「投稿日期」 sort. */
+    /** Whether the row time follows the upload-date sort. */
     private boolean byPublishDate;
 
     public MusicsFixedListWidget(int x, int y, int width, int height, @NotNull Component message, int entryShowCount, @NotNull List<Music> entryList, @Nullable PressEntry<Music> onPressEntry, boolean selectable, @Nullable FixedListWidget<Music> old) {
@@ -30,7 +30,7 @@ public class MusicsFixedListWidget extends IMPBaseFixedListWidget<Music> {
         this.byPublishDate = byPublishDate;
     }
 
-    /** Row time: the B站 upload time while sorted by 「投稿日期」 (「未记录」 when unknown), else the date added. */
+    /** Row time: the Bilibili upload time while sorted by upload date ("not recorded" when unknown), otherwise the date added. */
     public static Component rowDate(Music item, boolean byPublishDate) {
         var source = item.getSource();
         if (byPublishDate && source != null && IMPMusicMedias.BILIBILI.getName().equals(source.getLoaderType())) {

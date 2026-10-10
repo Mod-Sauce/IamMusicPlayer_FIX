@@ -15,7 +15,7 @@ import org.modsauce.otyacraftenginerenewed.client.gui.components.FixedListWidget
 import java.util.List;
 
 /**
- * The right-hand video list of the "UP 主页" view: clicking a row toggles it. Ticked state comes from
+ * The right-hand video list of the UP-space view: clicking a row toggles it. Ticked state comes from
  * {@link BiliBiliSpaceModel#isSelected(String)}, not the base widget's single selection (a click overwrites that).
  */
 public class SpaceVideoListWidget extends IMPBaseFixedListWidget<BiliBiliSpaceUtil.SpaceVideo> {

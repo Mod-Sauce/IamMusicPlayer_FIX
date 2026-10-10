@@ -900,7 +900,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     // ------------------------------------------------------------------ fact lines (shared by both render paths)
 
     /**
-     * {@code play 12.3万 · danmaku 456 · likes 1.2万 · coins 345 · favourites 678}, or {@code null} when nothing is
+     * {@code play 12.3K · danmaku 456 · likes 1.2K · coins 345 · favourites 678}, or {@code null} when nothing is
      * known yet; all five
      * numbers come from the same {@code view} response as the part list, so the line costs no extra request.
      */
@@ -953,13 +953,26 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         return s.startsWith("合集·") ? s.substring("合集·".length()).strip() : s;
     }
 
-    /** {@code 12345} → {@code 1.2万} (ten-thousands): keeps the fact lines short. */
+    /** {@code 12345} → {@code 12.3K}: keeps the fact lines short. Chinese clients keep the platform's 万/亿 convention. */
     static String count(long n) {
+        if (!isChineseClient()) {
+            if (n >= 1_000_000L)
+                return String.format("%.1fM", n / 1_000_000.0);
+            if (n >= 1_000L)
+                return String.format("%.1fK", n / 1_000.0);
+            return String.valueOf(n);
+        }
         if (n >= 100_000_000L)
             return String.format("%.1f亿", n / 100_000_000.0);
         if (n >= 10_000L)
             return String.format("%.1f万", n / 10_000.0);
         return String.valueOf(n);
+    }
+
+    /** Whether the client runs a Chinese language pack, where the platform's 万/亿 units are kept. */
+    private static boolean isChineseClient() {
+        var code = net.minecraft.client.Minecraft.getInstance().getLanguageManager().getSelected();
+        return code != null && code.toLowerCase(java.util.Locale.ROOT).startsWith("zh");
     }
 
     /** Publish time (ms) → {@code yyyy-MM-dd} in the local zone. */

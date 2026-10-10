@@ -42,12 +42,12 @@ public class RemotePlayBackSelectBMonitor extends BoomboxMonitor {
     private List<Music> musicsCash;
     private RemoteMusicsFixedListWidget remoteMusicsFixedButtonsList;
     private RemotePlayListFixedListWidget remotePlayListFixedButtonsList;
-    /** 「用监视器的排序」：紧挨音响耳机键（屏幕局部 190,77）左侧，即屏幕局部 (171,77) = 面板局部 (164,41)。 */
+    /** "Use the monitor's sort": right next to the boombox earphone key (screen-local 190,77), i.e. screen-local (171,77) = panel-local (164,41). */
     private static final int SYNC_SORT_X = 164;
     private static final int SYNC_SORT_Y = 41;
     private static final Component SYNC_SORT_TEXT = Component.translatable("imp.button.useMonitorSort");
     private BoomboxIconButton syncSortButton;
-    /** 本次会话已经报过投稿时间的歌单（同一个歌单不重复报）。 */
+    /** Playlists whose upload dates were already reported this session (the same playlist is not reported twice). */
     private final Set<UUID> pubdatePushed = new HashSet<>();
 
     public RemotePlayBackSelectBMonitor(BoomboxData.MonitorType monitorType, BoomboxScreen screen) {
@@ -68,20 +68,20 @@ public class RemotePlayBackSelectBMonitor extends BoomboxMonitor {
                 SYNC_SORT_TEXT, n -> useMonitorSort(), BoomboxScreen.BG_TEXTURE, 99, 188, 7, 7));
     }
 
-    /** 页面切换时这个监视器实例是复用的：置空，免得 tick() 写到已废弃的控件。 */
+    /** This monitor instance is reused when the page changes: cleared so tick() cannot write into a discarded widget. */
     @Override
     public void depose() {
         super.depose();
         syncSortButton = null;
     }
 
-    /** 把播放列表页的歌曲排序交给**这台**音响当顺序播放口径（单向、显式）；「投稿日期」交不过去，它靠客户端本地缓存。 */
+    /** Hands the playlist page's song sort to **this** boombox as its playback order (one-way and explicit); the upload-date mode cannot be handed over and relies on the client's local cache. */
     private void useMonitorSort() {
         var sort = monitorSortOf();
         var data = getScreen().getBoomBoxData();
         var ui = IamMusicPlayer.getConfig().uiConfig;
         var cfg = IamMusicPlayer.getConfig().boomboxConfig;
-        // 「投稿日期」服务端没有这个字段，先把时间报给它，再推排序
+        // The server has no upload-date field, so report the dates first and push the sort afterwards
         if (sort == IMPConfig.BoomboxSongSort.PUBLISH_DATE) {
             var playlist = getSelectPlaylist();
             if (playlist != null) {
@@ -101,30 +101,30 @@ public class RemotePlayBackSelectBMonitor extends BoomboxMonitor {
                 "pushed", sort.name() + "/" + cfg.remoteSongSortDescending, "playlist", getSelectPlaylist());
     }
 
-    /** 播放列表页的升降序，按音响存的形式。 */
+    /** The playlist page's ascending/descending choice, in the form the boombox stores. */
     private boolean monitorSortDescending() {
         return SortButton.OrderType.byName(IamMusicPlayer.getConfig().uiConfig.musicOrderType).isReverse();
     }
 
-    /** 这台音响当前的顺序是否已与监视器一致（键的亮/暗底就是它）。 */
+    /** Whether this boombox's current order matches the monitor's (that is what the key's lit/dim background shows). */
     private boolean syncSortMatches() {
         var data = getScreen().getBoomBoxData();
         return monitorSortOf().name().equals(data.getRemoteSongSort())
                 && monitorSortDescending() == data.isRemoteSongSortDescending();
     }
 
-    /** 播放列表页当前的排序，翻成音响那边的名字。 */
+    /** The playlist page's current sort, translated into the boombox's names. */
     private IMPConfig.BoomboxSongSort monitorSortOf() {
         return switch (SortButton.SortType.byName(IamMusicPlayer.getConfig().uiConfig.musicSortType)) {
             case NAME -> IMPConfig.BoomboxSongSort.NAME;
             case PLAYER -> IMPConfig.BoomboxSongSort.PLAYER;
-            // 「加入时间」照原样同步（服务端比较器认这个名字；配置界面不列这一档当选项）
+            // "Added at" syncs as-is (the server comparator knows this name; the config screen does not offer it as an option)
             case CREATE_DATE -> IMPConfig.BoomboxSongSort.CREATE_DATE;
             case PUBLISH_DATE -> IMPConfig.BoomboxSongSort.PUBLISH_DATE;
         };
     }
 
-    /** 把这台歌单里 B站 曲子的投稿时间报给服务端（它只认 {@code Music} 上有的东西），「投稿日期」排序靠这张表。 */
+    /** Reports the upload dates of this playlist's Bilibili songs to the server (which only knows what is on {@code Music}); the upload-date sort runs on that table. */
     private void pushPubdates(UUID playlist) {
         var songs = getSyncManager().getMusics(playlist);
         if (songs == null || songs.isEmpty())
@@ -209,7 +209,7 @@ public class RemotePlayBackSelectBMonitor extends BoomboxMonitor {
 
         syncRemoteSongSortToServer();
 
-        // 服务端重启后投稿时间表就没了：这台音响只要还按「投稿日期」排，进页面时补报一次
+        // A server restart empties the upload-date table: as long as this boombox still sorts by upload date, report it once when the page opens
         var pubdatePlaylist = getSelectPlaylist();
         if (pubdatePlaylist != null
                 && IMPConfig.BoomboxSongSort.PUBLISH_DATE.name().equals(getScreen().getBoomBoxData().getRemoteSongSort())
@@ -226,7 +226,9 @@ public class RemotePlayBackSelectBMonitor extends BoomboxMonitor {
         if (remoteMusicsFixedButtonsList != null)
             remoteMusicsFixedButtonsList.setCurrentMusic(currentMusicId(getScreen().getBoomBoxData()));
 
-        // 双击歌名后的定位：切页与选歌单都是服务端指令、回包晚一帧，早滚没用还会把焦点吃掉，所以要等目标歌单真的同步到了再滚一次
+        // Locating a track after a double-click on its name: switching pages and picking a playlist are server commands
+        // answered one frame later, so scrolling early is useless and would eat the focus — wait until the target
+        // playlist really arrived, then scroll once.
         var focus = getScreen().getFocusMusic();
         if (focus != null) {
             if (getScreen().isFocusExpired(System.currentTimeMillis())) {

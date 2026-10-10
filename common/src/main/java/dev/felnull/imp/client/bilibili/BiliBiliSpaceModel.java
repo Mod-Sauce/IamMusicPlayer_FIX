@@ -151,7 +151,7 @@ public final class BiliBiliSpaceModel {
         return tags.getOrDefault(bvid, Tag.EMPTY);
     }
 
-    /** Name of the playlist the import builds ("&lt;UP name&gt;的投稿" — no space: the user asked for the space to be removed). */
+    /** Name of the playlist the import builds: the UP name plus the submissions marker, with no space (the user asked for it to be removed). */
     public String playlistName() {
         return upName.isBlank() ? ("UP " + mid + "的投稿") : (upName + "的投稿");
     }

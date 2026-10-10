@@ -377,7 +377,7 @@ public class KuGouUtil {
      * One short sentence for why the track cannot play: the signed API's refusal signature is the **same** for "not
      * signed in" and "must buy", so the login state has to be part of it.
      *
-     * @param platformError the public metadata API's {@code error} field (e.g. {@code 需要付费})
+     * @param platformError the public metadata API's {@code error} field (e.g. "payment required")
      * @param resolveDetail what the signed URL call answered (see {@code KuGouApi#songUrl(String, String, StringBuilder)})
      * @param loggedIn      whether a login token is configured
      */
@@ -426,7 +426,7 @@ public class KuGouUtil {
     /** How long the cached VIP note stays valid. */
     private static final long VIP_SUMMARY_TTL_MS = 30 * 60_000L;
 
-    /** Short note such as {@code 账号 VIP 有效至 …（svip）}, or null when unreadable; cached for {@link #VIP_SUMMARY_TTL_MS}. */
+    /** Short note such as "account VIP valid until … (svip)", or null when unreadable; cached for {@link #VIP_SUMMARY_TTL_MS}. */
     @Nullable
     public static String vipSummary() {
         var now = System.currentTimeMillis();

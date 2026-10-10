@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
-/** A click area that draws nothing, for text the page itself paints (e.g. a link inside a 简介): the page keeps the text
+/** A click area that draws nothing, for text the page itself paints (e.g. a link inside a description): the page keeps the text
  * — putting it in a widget means a wrong widget position, size or draw order silently deletes that stretch of
  * characters from the line. */
 public class ClickArea extends AbstractWidget implements IIMPSmartRender {

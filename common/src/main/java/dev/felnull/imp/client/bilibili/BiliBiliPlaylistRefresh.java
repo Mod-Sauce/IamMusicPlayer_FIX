@@ -32,7 +32,7 @@ public final class BiliBiliPlaylistRefresh {
      * saved on servers.
      */
     private static final String UP_NAME_MARKER = "的投稿";
-    /** The same marker with the leading space the older builds wrote ({@code "<UP> 的投稿"}). */
+    /** The same marker with the leading space the older builds wrote (the stored legacy name form). */
     private static final String UP_NAME_MARKER_LEGACY = " 的投稿";
 
     private BiliBiliPlaylistRefresh() {
@@ -596,7 +596,7 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Scope {@code season}: only that season's members; the {@code 合集·} label the cached name may carry is stripped
+     * Scope {@code season}: only that season's members; the season label the cached name may carry is stripped
      * on both sides before comparing.
      */
     private static List<NewVideo> walkSeason(long mid, Set<String> known, String season, int maxPages, int delay) throws Exception {
@@ -638,7 +638,7 @@ public final class BiliBiliPlaylistRefresh {
         return out;
     }
 
-    /** Season names are compared without the {@code 合集·} label the tag cache may carry. */
+    /** Season names are compared without the season label the tag cache may carry. */
     static String seasonKey(String name) {
         var n = name == null ? "" : name.strip();
         return n.startsWith("合集·") ? n.substring(3).strip() : n;
@@ -719,7 +719,7 @@ public final class BiliBiliPlaylistRefresh {
 
     /**
      * How many of the playlist's tagged Bilibili songs sit in each **season** (key = the name without its
-     * {@code 合集·} label); used by {@code refreshScope=season} and {@code auto}.
+     * season label); used by {@code refreshScope=season} and {@code auto}.
      */
     public static Map<String, Integer> seasonsOf(List<Music> existing) {
         return countsOf(existing, false);
@@ -938,7 +938,7 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * The legacy import name with the space dropped ({@code "<UP> 的投稿"} → {@code "<UP>的投稿"}); {@code ""} = nothing
+     * The legacy import name with the space dropped (the old form with a space becomes the current one); {@code ""} = nothing
      * to fix, the name is left alone.
      */
     public static String legacyNameFixed(String name) {

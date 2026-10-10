@@ -32,7 +32,7 @@ public class MusicEntry {
     public float getCurrentPositionProgress() {
         if (source.isLive())
             return 0;
-        // 位置与时长都是**视频时间**（跳段之后位置会跟着跳），所以这里直接除即可。
+        // Both the position and the duration are **source time** (the position jumps along with a skip), so a plain division is correct here.
         return (float) getCurrentPosition() / (float) source.getDuration();
     }
 

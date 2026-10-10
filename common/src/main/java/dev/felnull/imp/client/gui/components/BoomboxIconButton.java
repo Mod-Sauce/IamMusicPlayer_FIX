@@ -40,7 +40,7 @@ public class BoomboxIconButton extends IMPButton {
         float iy = getY() + (height - iconH) / 2f;
         OERenderUtils.drawTexture(BoomboxScreen.BG_TEXTURE, guiGraphics.pose(), getX(), getY(), r * 19, 175, 19, 13);
         OERenderUtils.drawTexture(iconTexture, guiGraphics.pose(), ix, iy, iconStX, iconStY, iconW, iconH);
-        // 不可用时只压暗图标：整块压灰会让黑底看起来半透明
+        // When it is unavailable only the icon is dimmed: greying the whole button makes a black background look translucent
         if (!this.active)
             guiGraphics.fill((int) ix, (int) iy, (int) ix + iconW, (int) iy + iconH, 0x99000000);
     }

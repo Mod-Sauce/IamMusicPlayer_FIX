@@ -113,7 +113,8 @@ public class PartJumpScreen extends Screen {
     }
 
     /**
-     * {@code 跳到分P P2/7 ▸ 3_}: the part marker is left out when the parts are unknown, and the whole line is replaced by an explanation when there is no boombox.
+     * {@code jump to part P2/7 ▸ 3_}: the part marker is left out when the parts are unknown, and the whole line is
+     * replaced by an explanation when there is no boombox.
      */
     public static String promptText(@Nullable Music music, String input) {
         var source = music == null ? null : music.getSource();

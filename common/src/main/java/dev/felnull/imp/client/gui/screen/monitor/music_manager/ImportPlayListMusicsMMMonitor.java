@@ -54,7 +54,8 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
     }
 
     /**
-     * No UP 主页 here: this page adds to the already-selected playlist, and an UP's uploads must become their own playlist (mixing two UPs makes 「刷新」/「绑定UP」 undecidable).
+     * No UP space here: this page adds to the already-selected playlist, and a UP's uploads must become their own
+     * playlist (mixing two UPs makes Refresh / Bind UP undecidable).
      */
     @Override
     protected boolean allowsSpaceImport() {
@@ -67,7 +68,7 @@ public class ImportPlayListMusicsMMMonitor extends ImportPlayListBaseMMMonitor{
 
     private void startImportMusicLoader(String id) {
         stopImportMusicLoader();
-        // ⚠️ Not getPlaylistLoader().getResolver(id) directly: in "UP 主页" mode the videos are already loaded and
+        // Not getPlaylistLoader().getResolver(id) directly: in UP-space mode the videos are already loaded and
         // the resolver must not walk the space a second time (see ImportPlayListBaseMMMonitor#createImportResolver).
         importMusicLoaderThread = createImportResolver(id);
         importMusicLoaderThread.start();

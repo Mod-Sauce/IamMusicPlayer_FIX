@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The B站 subtitle-track choice ({@link IMPConfig.SubtitleTrack}) in the config screen: without a registered provider Cloth draws the raw constant name ({@code ALL} / {@code HUMAN_ONLY} / {@code AI_ONLY}), so the labels live under {@code imp.subtitleTrack.*}.
+ * The Bilibili subtitle-track choice ({@link IMPConfig.SubtitleTrack}) in the config screen: without a registered provider Cloth draws the raw constant name ({@code ALL} / {@code HUMAN_ONLY} / {@code AI_ONLY}), so the labels live under {@code imp.subtitleTrack.*}.
  */
 public final class SubtitleTrackGuiProvider implements GuiProvider {
     private static final String KEY_PREFIX = "imp.subtitleTrack.";

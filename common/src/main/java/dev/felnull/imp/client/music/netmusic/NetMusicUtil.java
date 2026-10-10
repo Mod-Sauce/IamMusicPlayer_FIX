@@ -594,7 +594,7 @@ public class NetMusicUtil {
         // so it inherits the original's — the two maps must keep identical keys (getPart looks up by the original's time).
         int offsetMillis = Lyric.getLrcOffsetMillis(lrc, 0);
         int transOffsetMillis = Lyric.getLrcOffsetMillis(transformlLrc, offsetMillis);
-        // [credit-line filter] Drop production-crew / copyright lines ("作词 : 黄家驹"); a line without an mm:ss
+        // [credit-line filter] Drop production-crew / copyright lines (an artist/credit label followed by a name); a line without an mm:ss
         // stamp ([ti:]/[ar:]/[offset:]) never reaches here.
         boolean filterCredits = Lyric.isCreditLineFilterEnabled();
         Float2ObjectSortedMap<String> lyricMap;
@@ -615,12 +615,13 @@ public class NetMusicUtil {
                 lyricMap.put(Lyric.applyLrcOffset(p.getA(), offsetMillis), p.getB());
             }
         }
-        // 逐字（yrc）：行表与译文都不动，只多挂一份"每行的词"；没有 yrc 时返回 null = 原来的整行行为
+        // Per-word (yrc): the line table and the translations stay untouched and only a "words per line" map is attached;
+        // without yrc it returns null = the original whole-line behaviour.
         var wordLyrics = NetEaseYrc.attach(yrcOf(data), offsetMillis, lyricMap);
         return new Lyric(lyricMap, transformLyricMap, wordLyrics);
     }
 
-    /** {@code yrc} 字段（形如 {@code {"lyric": "..."}}）；缺字段 / 结构不符 / 空串时返回 null。 */
+    /** The {@code yrc} field (shaped like {@code {"lyric": "..."}}); a missing field, an unexpected shape or an empty string returns null. */
     @SuppressWarnings("all")
     private static String yrcOf(Map<String, Object> data) {
         if (!(data.get("yrc") instanceof Map))

@@ -21,7 +21,7 @@ public class CacheMusicLoader implements MusicLoader{
     private MusicSource musicSource;
     private AudioTrack audioTrack;
     private boolean ringLoad;
-    /** 本曲读取端要跳的片段（B站 赞助/广告）；{@link MusicSkipProvider#NONE} = 不跳。 */
+    /** The segments the read side skips for this track (Bilibili sponsor/ad); {@link MusicSkipProvider#NONE} = skip nothing. */
     private MusicSkipProvider skipProvider = MusicSkipProvider.NONE;
 
     @Override
@@ -64,7 +64,7 @@ public class CacheMusicLoader implements MusicLoader{
                 throw new RuntimeException("Trial fragment skipped in world playback (cached copy)");
         }
 
-        // 缓存文件里连广告一起存着，所以缓存命中的这条路也要跳（同一个播放器读取端）。
+        // The cached file contains the ads too, so the cache-hit path has to skip as well (the same read side).
         this.skipProvider = BiliBiliSponsorSegments.providerFor(source);
     }
 

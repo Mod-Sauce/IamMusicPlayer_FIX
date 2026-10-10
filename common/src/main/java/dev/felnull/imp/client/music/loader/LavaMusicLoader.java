@@ -24,7 +24,7 @@ public class LavaMusicLoader implements MusicLoader {
     private MusicSource musicSource;
     private AudioTrack audioTrack;
     private boolean ringLoad;
-    /** 本曲读取端要跳的片段（B站 赞助/广告）；{@link MusicSkipProvider#NONE} = 不跳。 */
+    /** The segments the read side skips for this track (Bilibili sponsor/ad); {@link MusicSkipProvider#NONE} = skip nothing. */
     private MusicSkipProvider skipProvider = MusicSkipProvider.NONE;
 
     @Override
@@ -85,8 +85,9 @@ public class LavaMusicLoader implements MusicLoader {
         if (!source.isLive() && fragmentMs <= 0 && !trialAddress)
             AudioCacheManager.cacheAsync(wr, track.get().getInfo().uri, cacheHeaders(source, track.get().getInfo().uri));
 
-        // B站 赞助/广告片段：查询在后台线程上跑（首次约两秒），查回来晚一点也从当前读头开始跳；
-        // 音响那条链也走这里（服务端的时间轴同样按内容算，见 MusicRing#contentDuration）。
+        // Bilibili sponsor/ad segments: the lookup runs on a background thread (about two seconds the first time), and a
+        // late answer still skips from the current read head. The boombox path comes through here too (the server's
+        // timeline also runs on content, see MusicRing).
         this.skipProvider = BiliBiliSponsorSegments.providerFor(source);
     }
 

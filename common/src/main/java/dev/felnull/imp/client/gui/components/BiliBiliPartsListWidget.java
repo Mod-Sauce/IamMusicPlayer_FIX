@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * One B站 video's parts as a pickable list: clicking a row selects that part, whose details are shown next to it and
+ * One Bilibili video's parts as a pickable list: clicking a row selects that part, whose details are shown next to it and
  * which the play key starts. Layout follows {@link SpaceCategoryListWidget}; thumbnails only when the page passes one.
  */
 public class BiliBiliPartsListWidget extends IMPBaseFixedListWidget<BiliBiliPartsListWidget.Row> {

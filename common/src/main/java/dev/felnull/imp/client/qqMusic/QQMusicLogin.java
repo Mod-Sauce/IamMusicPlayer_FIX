@@ -18,8 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * QQ 音乐扫码登录：结果是 {@code uin=…; qm_keyst=…} Cookie，{@link QQMusicUtil} 本来就在每个请求上带着它。流程里的固定
- * appid 与参数名是服务端在核的**指纹**，不许"顺手整理"；Cookie 是凭据，日志里只许出现键值对数量。
+ * QQ Music QR login: the result is a {@code uin=…; qm_keyst=…} cookie that {@link QQMusicUtil} already sends with every
+ * request. The fixed appid and parameter names in the flow are a **fingerprint** the server checks, so they must not be
+ * "tidied up". A cookie is a credential: the log may only show how many key/value pairs it holds.
  */
 public final class QQMusicLogin {
     private QQMusicLogin() {

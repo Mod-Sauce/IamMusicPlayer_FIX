@@ -11,7 +11,7 @@ import org.lwjgl.glfw.GLFW;
  */
 public final class IMPKeyMappings {
     /**
-     * Part jump: brings up the bottom input line, where the part number is typed and Enter jumps (Esc cancels), for a B站 video playing as one playlist entry. Default {@code ~}, which vanilla leaves unused.
+     * Part jump: brings up the bottom input line, where the part number is typed and Enter jumps (Esc cancels), for a Bilibili video playing as one playlist entry. Default {@code ~}, which vanilla leaves unused.
      */
     public static final KeyMapping PART_JUMP = new KeyMapping("key.iammusicplayer.part_jump",
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_GRAVE_ACCENT, "key.categories.iammusicplayer");

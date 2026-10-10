@@ -23,7 +23,7 @@ public final class BoomboxSongSortGuiProvider implements GuiProvider {
         var current = (IMPConfig.BoomboxSongSort) read(field, config);
         var def = (IMPConfig.BoomboxSongSort) read(field, defaults);
 
-        // CREATE_DATE 只由「用监视器的排序」写进来，界面不把它当选项；当前值真是它时临时带上，否则选择器拿不到对应项
+        // CREATE_DATE is only written by "use the monitor's sort" and is not offered here; it is added temporarily when it really is the current value, or the selector could not find its entry
         var values = current == IMPConfig.BoomboxSongSort.CREATE_DATE
                 ? new IMPConfig.BoomboxSongSort[]{IMPConfig.BoomboxSongSort.CREATE_DATE, IMPConfig.BoomboxSongSort.ADD_ORDER,
                 IMPConfig.BoomboxSongSort.NAME, IMPConfig.BoomboxSongSort.PLAYER, IMPConfig.BoomboxSongSort.PUBLISH_DATE}

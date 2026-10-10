@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
 
-/** Rendering of the B站 subtitle-translation entry ({@link IMPConfig.SubtitleTrans}) in the config screen — same pattern
+/** Rendering of the Bilibili subtitle-translation entry ({@link IMPConfig.SubtitleTrans}) in the config screen — same pattern
  * as {@link BoomboxSongSortGuiProvider} / {@link HudBottomStyleGuiProvider}: Cloth shows the raw enum constant name
  * otherwise, so the translatable names live under {@code imp.subtitleTrans.*}. */
 public final class SubtitleTransGuiProvider implements GuiProvider {

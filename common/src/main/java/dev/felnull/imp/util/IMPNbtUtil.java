@@ -14,8 +14,10 @@ import java.util.UUID;
 
 public class IMPNbtUtil {
     /**
-     * vanilla 对**一个包内 NBT 标签**限 2 MiB 记账字节（{@code NbtAccounter.create(2097152L)}）；
-     * 记账按对象开销算：一首歌载荷 ~400 字节却记 ~1.8 KB ⇒ 一个包约 1100 首封顶，凡「一个包发一个列表」的路径都要切批。
+     * Vanilla caps **one NBT tag inside a packet** at 2 MiB of accounted bytes
+     * ({@code NbtAccounter.create(2097152L)}). The accounting is per object overhead, not payload: one song costs
+     * ~400 bytes but accounts for ~1.8 KB, so a packet holds roughly 1100 songs — every path that sends a whole list in
+     * one packet has to batch.
      */
     public static final int PACKET_NBT_LIMIT = 2097152;
     /** What one packet may hold, with a margin. */

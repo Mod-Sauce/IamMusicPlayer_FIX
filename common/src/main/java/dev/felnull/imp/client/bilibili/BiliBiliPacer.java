@@ -2,7 +2,7 @@ package dev.felnull.imp.client.bilibili;
 
 /**
  * Request pacer: hands out request start slots {@code gapMs} apart, so N workers keep a known requests-per-second
- * without bursting (B站's risk control counts bursts). Shared by the 「UP 主页」 load and the 分P expansion.
+ * without bursting (Bilibili's risk control counts bursts). Shared by the UP-space load and the part expansion.
  */
 public final class BiliBiliPacer {
     private long next;

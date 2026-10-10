@@ -35,7 +35,7 @@ public class MusicInfoOverlay {
 
     /**
      * The boombox this overlay is drawn for: the first playing one in the inventory, else the off hand, else a Create
-     * contraption; {@code null} when there is none. Public because the 「跳分P」 input line must talk about the same
+     * contraption; {@code null} when there is none. Public because the part-jump input line must talk about the same
      * boombox as the HUD, and the server scans identically ({@code ServerMessageHandler#findPlayingHandheldBoombox}).
      */
     public static BoomboxData getPlayerData(){

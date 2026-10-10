@@ -190,7 +190,7 @@ public class BoomboxData {
     }
 
     public CompoundTag onInstruction(ServerPlayer player, String name, CompoundTag data) {
-        // [Trace] 排查「没点任何按键却停了」：把收到的每条指令记下来（含按钮类型）
+        // [Trace] For "it stopped without anyone pressing a key": log every instruction received (button type included)
         if (dev.felnull.imp.client.music.link.LinkDebug.shouldLogThrottled("ins:" + name))
             dev.felnull.imp.client.music.link.LinkDebug.log("ins recv", "name", name,
                     "type", data.contains("Type") ? data.getString("Type") : "-",
@@ -767,7 +767,7 @@ public class BoomboxData {
         return selectedMusic;
     }
 
-    /** 「跳分P」({@code IMPPackets.BoomboxPartJumpMessage}): jump to part {@code page} of the B站 video playing now via
+    /** The part jump ({@code IMPPackets.BoomboxPartJumpMessage}): jump to part {@code page} of the Bilibili video playing now via
      * {@code BiliBiliPartCache#partMusic}; needs {@code isPowered()} and {@code isRadioRemote()}; keeps the source uuid
      * (a video stays one row) and its playlist order after the last part; no restart if it is already on. */
     public boolean jumpBiliBiliPart(@NotNull ServerPlayer player, int page) {

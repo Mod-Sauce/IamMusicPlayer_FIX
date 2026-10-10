@@ -422,7 +422,7 @@ public final class KuGouApi {
     private static final String VIP_INFO_URL = "https://kugouvip.kugou.com/v1/get_union_vip";
     /** This month's daily-VIP claim records. */
     private static final String VIP_RECORD_URL = "https://gateway.kugou.com/youth/v1/activity/get_month_vip_record";
-    /** Claims **today's** free 24h VIP ("听歌领 VIP"). Once per day: a second call answers {@code error_code=131001}. */
+    /** Claims **today's** free 24h VIP (the desktop clients' daily gift). Once per day: a second call answers {@code error_code=131001}. */
     private static final String VIP_RECEIVE_URL = "https://gateway.kugou.com/youth/v1/recharge/receive_vip_listen_song";
     /** Upgrades that free VIP (tvip -> svip). Once per day: a second call answers {@code error_code=297002}. */
     private static final String VIP_UPGRADE_URL = "https://gateway.kugou.com/youth/v1/listen_song/upgrade_vip_reward";
