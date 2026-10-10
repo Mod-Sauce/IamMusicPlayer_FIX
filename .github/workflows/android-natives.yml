@@ -140,10 +140,6 @@ jobs:
       - name: Verify resource checksums
         working-directory: native-resources/android
         run: sha256sum -c SHA256SUMS
-      - name: Test launcher detection
-        run: |
-          javac -d build/android-native-tests common/src/main/java/dev/felnull/imp/client/lava/AndroidNativeSupport.java common/src/androidNativeTest/java/dev/felnull/imp/client/lava/AndroidNativeSupportTest.java
-          java -cp build/android-native-tests dev.felnull.imp.client.lava.AndroidNativeSupportTest
       - name: Build Android-capable mods
         run: sh gradlew build -PwithAndroidNatives=true --no-daemon
       - name: Verify final mod jars

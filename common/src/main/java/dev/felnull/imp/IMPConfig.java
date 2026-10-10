@@ -37,6 +37,9 @@ public class IMPConfig implements ConfigData {
   public UserProxy proxy = UserProxy.of(ProxyUtil.getSystemProxy());
 
   @ConfigEntry.Category("client")
+  public boolean netMusicLyric = false;
+
+  @ConfigEntry.Category("client")
   public boolean useYoutubeDownloader = true;
 
   @ConfigEntry.Category("client")

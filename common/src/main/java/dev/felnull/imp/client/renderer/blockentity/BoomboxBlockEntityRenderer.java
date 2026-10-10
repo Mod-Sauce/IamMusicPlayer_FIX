@@ -184,6 +184,7 @@ public class BoomboxBlockEntityRenderer extends AbstractBlockEntityRenderer<Boom
     }
 
     private void renderLyric(BoomboxBlockEntity blockEntity, float f, PoseStack poseStack, MultiBufferSource multiBufferSource, int i){
+        if(!IamMusicPlayer.getConfig().netMusicLyric)return;
         blockEntity.updateLyric();
         var l = blockEntity.getLyric();
         if(l == null){return;}

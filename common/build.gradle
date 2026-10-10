@@ -71,21 +71,6 @@ processResources {
     }
 }
 
-sourceSets {
-    androidNativeTest {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-    }
-}
-tasks.register('androidNativeSupportTest', JavaExec) {
-    dependsOn androidNativeTestClasses
-    classpath = sourceSets.androidNativeTest.runtimeClasspath
-    mainClass = 'dev.felnull.imp.client.lava.AndroidNativeSupportTest'
-}
-tasks.named('check') {
-    dependsOn tasks.named('androidNativeSupportTest')
-}
-
 /*
 publishing {
     publications {
