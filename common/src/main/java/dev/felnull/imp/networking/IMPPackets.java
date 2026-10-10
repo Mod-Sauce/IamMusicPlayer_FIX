@@ -27,6 +27,19 @@ import java.util.Map;
 import java.util.UUID;
 
 public class IMPPackets {
+    /**
+     * Reads a client-supplied element count and rejects values that cannot be honest. The decoder runs on the network
+     * thread before any handler sees the packet, and the count is used to size a list, so a forged value would
+     * otherwise be enough to disconnect the player or exhaust the heap (see {@link MusicDeleteBatchMessage#MAX_BATCH}).
+     * {@code n} is also never larger than the remaining bytes: every entry costs at least one byte on the wire.
+     */
+    private static int readCount(FriendlyByteBuf bf, String what, int max) {
+        int n = bf.readVarInt();
+        if (n < 0 || n > max || n > bf.readableBytes())
+            throw new DecoderException(what + " size: " + n);
+        return n;
+    }
+
     public static final ResourceLocation MUSIC_SYNC_STC = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_sync_stc");
     public static final ResourceLocation MUSIC_SYNC_CTS = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_sync_cts");
     public static final ResourceLocation MUSIC_PLAYLIST_ADD = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "music_playlist_add");
@@ -208,10 +221,12 @@ public class IMPPackets {
         public final String bvid;
         public final List<String> names;
         public final List<Long> durations;
+        /** Cap on the parts one video may report; the count sizes two lists on the server side. */
+        public static final int MAX_PARTS = 1024;
 
         public BiliBiliPartsMessage(FriendlyByteBuf bf) {
             this.bvid = bf.readUtf();
-            int n = bf.readVarInt();
+            int n = readCount(bf, "bilibili parts", MAX_PARTS);
             this.names = new ArrayList<>(n);
             this.durations = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
@@ -245,10 +260,12 @@ public class IMPPackets {
         public final String identifier;
         public final List<Long> starts;
         public final List<Long> ends;
+        /** Cap on the segments one track may report; the count sizes two lists on the server side. */
+        public static final int MAX_SEGMENTS = 4096;
 
         public BiliBiliSponsorMessage(FriendlyByteBuf bf) {
             this.identifier = bf.readUtf();
-            int n = bf.readVarInt();
+            int n = readCount(bf, "bilibili sponsor segments", MAX_SEGMENTS);
             this.starts = new ArrayList<>(n);
             this.ends = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
@@ -281,9 +298,11 @@ public class IMPPackets {
     public static class BiliBiliPubdatesMessage implements PacketMessage {
         public final List<String> bvids;
         public final List<Long> pubdates;
+        /** Cap on the entries one report may carry; the count sizes two lists on the server side. */
+        public static final int MAX_ENTRIES = 4096;
 
         public BiliBiliPubdatesMessage(FriendlyByteBuf bf) {
-            int n = bf.readVarInt();
+            int n = readCount(bf, "bilibili pubdates", MAX_ENTRIES);
             this.bvids = new ArrayList<>(n);
             this.pubdates = new ArrayList<>(n);
             for (int i = 0; i < n; i++) {
@@ -673,7 +692,9 @@ public class IMPPackets {
             this.blockEntityExistence = BlockEntityExistence.read(bf);
             this.importMusics = new ArrayList<>();
             IMPNbtUtil.readMusics(bf.readNbt(), "ImportMusics", importMusics);
-            this.source = bf.readUtf();
+            // The import source travels last and only exists in newer builds: an older client ends here, so absent
+            // bytes mean "no source" rather than a decode failure that would kick the player.
+            this.source = bf.readableBytes() > 0 ? bf.readUtf() : "";
         }
 
         public MusicPlayListMessage(String name, ImageInfo image, boolean publiced, boolean initMember, List<UUID> invitePlayers, BlockEntityExistence blockEntityExistence, List<Music> importMusics) {

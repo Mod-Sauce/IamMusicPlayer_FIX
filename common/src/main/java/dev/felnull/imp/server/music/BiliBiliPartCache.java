@@ -32,14 +32,21 @@ public final class BiliBiliPartCache {
         return INSTANCE;
     }
 
-    /** Remembers one video's parts (called on the server thread from the packet handler). */
-    public void remember(String bvid, List<Part> list) {
+    /**
+     * Remembers one video's parts (called on the server thread from the packet handler).
+     *
+     * @return {@code true} when the stored list really changed — callers use that to skip work a repeated report
+     *         cannot affect, since the packet may be sent as often as the client likes
+     */
+    public boolean remember(String bvid, List<Part> list) {
         var bare = BiliBiliIds.stripPage(bvid);
         if (bare == null || bare.isBlank() || list == null || list.isEmpty())
-            return;
+            return false;
         if (parts.size() >= MAX_ENTRIES && !parts.containsKey(bare))
             parts.clear();   // crude but safe: a full wipe is better than unbounded growth on a long-lived server
-        parts.put(bare, List.copyOf(list));
+        var copy = List.copyOf(list);
+        var previous = parts.put(bare, copy);
+        return !copy.equals(previous);
     }
 
     /** How many parts we know this video to have ({@code 0} = never reported). */

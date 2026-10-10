@@ -33,6 +33,12 @@ public class MusicSyncManager {
     private final java.util.Set<UUID> musicLoading = new java.util.HashSet<>();
     /** Pages received per playlist — only for the "songs synced" log line. */
     private final Map<UUID, Integer> musicPages = new HashMap<>();
+    /**
+     * Read-only views handed out by {@link #getMusics(UUID)}, one per stored list. Callers detect a change by comparing
+     * the **reference** they hold with the one they get back, so the view must stay the same object until the backing
+     * list is actually replaced; a fresh {@code unmodifiableList} per call would make every caller see "changed".
+     */
+    private final Map<UUID, List<Music>> musicViews = new HashMap<>();
 
     public static MusicSyncManager getInstance() {
         return INSTANCE;
@@ -51,8 +57,22 @@ public class MusicSyncManager {
             sendRequest(IMPPackets.MusicSyncType.MUSIC_BY_PLAYLIST, playList, 0);
             musicUpdateTimes.put(playList, System.currentTimeMillis());
         }
+        return viewOf(playList);
+    }
+
+    /** The stable read-only view of one playlist's songs, or {@code null} when nothing is cached yet. */
+    @Nullable
+    private List<Music> viewOf(@Nullable UUID playList) {
+        if (playList == null)
+            return null;
         var cached = musics.get(playList);
-        return cached == null ? null : java.util.Collections.unmodifiableList(cached);
+        if (cached == null) {
+            musicViews.remove(playList);
+            return null;
+        }
+        // The view is cached on purpose: callers compare it by reference to detect changes (see the field comment).
+        // Every place that replaces or drops the backing list also drops the view, so this stays in sync.
+        return musicViews.computeIfAbsent(playList, k -> java.util.Collections.unmodifiableList(cached));
     }
 
     /** One page of a playlist's songs: the first page replaces the cache, later ones append, and while the list is
@@ -67,6 +87,7 @@ public class MusicSyncManager {
             dev.felnull.imp.client.music.link.LinkDebug.log("playlist page desync", "playlist", playList,
                     "have", existing == null ? -1 : existing.size(), "offset", offset, "total", total);
             musics.remove(playList);
+            musicViews.remove(playList);
             musicTotals.remove(playList);
             musicLoading.add(playList);
             sendRequest(IMPPackets.MusicSyncType.MUSIC_BY_PLAYLIST, playList, 0);
@@ -76,9 +97,16 @@ public class MusicSyncManager {
         if (offset <= 0 || existing == null) {
             list = new ArrayList<>(page);
             musics.put(playList, list);
+            // New backing list ⇒ the old view must not be handed out again.
+            musicViews.remove(playList);
         } else {
             list = existing;
-            list.addAll(page);
+            if (!page.isEmpty()) {
+                list.addAll(page);
+                // The appended page is a real content change: hand out a fresh view so the screens refresh once per
+                // page. Without this they would keep the first page's view and never show the songs of page 2+.
+                musicViews.remove(playList);
+            }
         }
         musicTotals.put(playList, total);
         // The counter is per **sync**: the page re-requests the whole list when the 60 s cache is stale (and after our
@@ -172,6 +200,7 @@ public class MusicSyncManager {
         canJoinPlayList = null;
         invitePlayList = null;
         musics.clear();
+        musicViews.clear();
     }
 
     private void sendRequest(IMPPackets.MusicSyncType type, UUID uuid) {

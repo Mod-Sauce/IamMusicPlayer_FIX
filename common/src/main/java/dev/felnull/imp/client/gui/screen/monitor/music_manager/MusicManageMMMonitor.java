@@ -58,11 +58,11 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     /** Rewritten in pick mode when nothing can be deleted, so a row of gray checkboxes does not look broken. */
     private static final Component PICK_NO_PERM_TEXT = Component.translatable("imp.text.managePickNoPerm");
 
-    /** 「展开分P」: appends parts 2..n of the ticked B站 videos (see {@link #startPartsExpansion()}). */
+    /** "Expand parts": appends parts 2..n of the ticked Bilibili videos (see {@link #startPartsExpansion()}). */
     private static final Component EXPAND_PARTS_TEXT = Component.translatable("imp.button.manageExpandParts");
-    /** 「选最近加入」: ticks the songs of the newest add-batch (see {@link #selectRecentBatch}). */
+    /** "Select recent": ticks the songs of the newest add-batch (see {@link #selectRecentBatch}). */
     private static final Component RECENT_TEXT = Component.translatable("imp.button.manageSelectRecent");
-    /** 「扫失效」: ticks the B站 songs Bilibili reports as gone ({@code -404}); select-only, like the other clean-up keys. */
+    /** "Scan dead": ticks the Bilibili songs the API reports as gone ({@code -404}); select-only, like the other clean-up keys. */
     private static final Component DEAD_SCAN_TEXT = Component.translatable("imp.button.manageScanDead");
     /** The same key while the scan runs (pressing it again stops the walk). */
     private static final Component DEAD_SCAN_RUNNING_TEXT = Component.translatable("imp.button.manageScanDeadRunning");
@@ -92,7 +92,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         return out;
     }
 
-    /** 「选最近加入」: clear the filters (the selection may only hold visible rows) and tick the newest add-batch — nothing is deleted. */
+    /** "Select recent": clears the filters (the selection may only hold visible rows) and ticks the newest add-batch; nothing is deleted. */
     private void requestSelectRecentBatch() {
         setPlayerPickMode(false);
         searchText = "";
@@ -110,9 +110,9 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         cleanDupesResultUntil = System.currentTimeMillis() + CLEAN_DUPES_RESULT_MS;
     }
 
-    /** 「清理重复」: no duplicates → plain label (inactive); with duplicates → 「清理(N)」, which still fits the 60 px key. */
+    /** "Clean duplicates": no duplicates → plain, inactive label; with duplicates → "Clean(N)", which still fits the 60 px key. */
     private static final Component DUPLICATE_TEXT = Component.translatable("imp.button.manageCleanDuplicates");
-    /** Shown for a moment after the key ticked the duplicates: the user still has to press 「删除选中」. */
+    /** Shown for a moment after the key ticked the duplicates; the user still has to press "Delete selected". */
     private static final Component DUPLICATE_TICKED_TEXT = Component.translatable("imp.text.manageCleanDuplicatesTicked");
 
     /** Top search box: filters by **music name / author** (same spec as the playlist page: `SEARCH_BOX_WIDTH=140`, y=3, height 12). */
@@ -141,12 +141,13 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     /** The 4th and 5th buttons of the right column = the two **filter** cycle buttons (source / uploader). */
     private static final int GUTTER_Y4 = GUTTER_Y3 + GUTTER_H + GUTTER_GAP;
     private static final int GUTTER_Y5 = GUTTER_Y4 + GUTTER_H + GUTTER_GAP;
-    /** The 6th slot: 「清理重复」 (still beside the list — the list ends at y=156, this one at 124). */
+    /** The 6th slot: "Clean duplicates" (still beside the list, which ends at y=156; this key sits at 124). */
     private static final int GUTTER_Y6 = GUTTER_Y5 + GUTTER_H + GUTTER_GAP;
-    /** The 7th slot: 「选最近加入」 (y=128..142, last one that still fits beside the list). */
+    /** The 7th slot: "Select recent" (y=128..142, the last one that still fits beside the list). */
     private static final int GUTTER_Y7 = GUTTER_Y6 + GUTTER_H + GUTTER_GAP;
     /**
-     * 「扫失效」: the 8th slot, at y=146. ⚠️ Two pixels shorter on purpose ({@link #GUTTER_H8}): a full-height key would touch the tip line at y=159.
+     * "Scan dead": the 8th slot, at y=146. Two pixels shorter on purpose ({@link #GUTTER_H8}): a full-height key
+     * would touch the tip line at y=159.
      */
     private static final int GUTTER_Y8 = GUTTER_Y7 + GUTTER_H + GUTTER_GAP;
     private static final int GUTTER_H8 = GUTTER_H - 2;
@@ -164,7 +165,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     private static final int BTN_H = 15;
     /** The x of "back" on the left of the bottom bar (5, which is what every page uses). */
     private static final int ROW_LEFT_X = 5;
-    /** The x of 「展开分P」, the bottom bar's only free slot: back ends at 92 and the right pair starts at width-95-87=188. */
+    /** The x of "Expand parts", the bottom bar's only free slot: back ends at 92 and the right pair starts at width-95-87=188. */
     private static final int ROW_PARTS_X = 96;
     /** The x of the two buttons on the right of the bottom bar: width-95-87 / width-5-87 (same as DetailMusicMMMonitor). */
     private static final int ROW_RIGHT_A_MARGIN = 95;
@@ -219,13 +220,13 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     private SmartButton clearButton;
     private SmartButton deleteSelectedButton;
     private SmartButton playerPickButton;
-    /** 「展开分P」: see {@link #startPartsExpansion()}. */
+    /** "Expand parts": see {@link #startPartsExpansion()}. */
     private SmartButton expandPartsButton;
-    /** 「清理重复」 (right column, 6th slot): ticks every repeated entry of this playlist. */
+    /** "Clean duplicates" (right column, 6th slot): ticks every repeated entry of this playlist. */
     private SmartButton cleanDupesButton;
-    /** 「选最近加入」 (7th slot): ticks the songs of the newest add-batch. */
+    /** "Select recent" (7th slot): ticks the songs of the newest add-batch. */
     private SmartButton recentBatchButton;
-    /** 「扫失效」 (8th slot): ticks the songs whose submission Bilibili reports as gone. */
+    /** "Scan dead" (8th slot): ticks the songs whose submission Bilibili reports as gone. */
     private SmartButton deadScanButton;
     /** The running dead-link scan, or null (see {@link #startDeadScan()}). */
     @Nullable
@@ -234,10 +235,10 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     @Nullable
     private Component deadScanResult;
     private long deadScanResultUntil;
-    /** The running 分P job, or null. */
+    /** The running parts job, or null. */
     @Nullable
     private PartsExpansion partsExpansion;
-    /** What the last 分P run did (it takes TIP1's line over while it is set); null = nothing to report. */
+    /** What the last parts run did (it takes TIP1's line over while it is set); null = nothing to report. */
     @Nullable
     private Component partsExpandResult;
 
@@ -291,17 +292,19 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
                 GUTTER_W, GUTTER_H, sourceFilterText(), n -> cycleSourceFilter()));
         this.ownerFilterButton = addRenderWidget(new SmartButton(getStartX() + GUTTER_X, getStartY() + GUTTER_Y5,
                 GUTTER_W, GUTTER_H, ownerFilterText(), n -> cycleOwnerFilter()));
-        // 「清理重复」: the 6th slot of the right column (y=110..124, still beside the list, which ends at y=156).
-        // Select-only (see requestCleanDuplicates) — the actual deletion stays on 「删除选中」.
+        // "Clean duplicates": the 6th slot of the right column (y=110..124, still beside the list, which ends at
+        // y=156). Select-only (see requestCleanDuplicates); the actual deletion stays on "Delete selected".
         this.cleanDupesButton = addRenderWidget(new SmartButton(getStartX() + GUTTER_X, getStartY() + GUTTER_Y6,
                 GUTTER_W, GUTTER_H, DUPLICATE_TEXT, n -> requestCleanDuplicates()));
         this.cleanDupesButton.active = false;
-        // 「选最近加入」: the 7th slot, ticks the songs of the **last add-batch**. ⚠️ Select-only, like 「清理重复」 — nothing is deleted here.
+        // "Select recent": the 7th slot, ticks the songs of the **last add-batch**. Select-only, like "Clean
+        // duplicates"; nothing is deleted here.
         this.recentBatchButton = addRenderWidget(new SmartButton(getStartX() + GUTTER_X, getStartY() + GUTTER_Y7,
                 GUTTER_W, GUTTER_H, RECENT_TEXT, n -> requestSelectRecentBatch()));
         this.recentBatchButton.active = false;
-        // 「扫失效」: the 8th slot (y=146, 2 px shorter). It ticks the B站 songs whose submission is **gone**; pressing it
-        // again stops the walk. ⚠️ Select-only, like the other clean-up keys — the deletion stays on 「删除选中」.
+        // "Scan dead": the 8th slot (y=146, 2 px shorter). It ticks the Bilibili songs whose submission is **gone**;
+        // pressing it again stops the walk. Select-only, like the other clean-up keys; the deletion stays on
+        // "Delete selected".
         this.deadScanButton = addRenderWidget(new SmartButton(getStartX() + GUTTER_X, getStartY() + GUTTER_Y8,
                 GUTTER_W, GUTTER_H8, DEAD_SCAN_TEXT, n -> toggleDeadScan()));
         this.deadScanButton.active = false;
@@ -332,7 +335,8 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
                 getStartX() + width - ROW_RIGHT_B_MARGIN - BTN_W, getStartY() + ROW_Y, BTN_W, BTN_H,
                 PLAYER_PICK_TEXT, n -> setPlayerPickMode(!playerPickMode)));
 
-        // 「展开分P」: the submission list carries **no part count**, so learning it costs one `view` request per video —
+        // "Expand parts": the submission list carries **no part count**, so learning it costs one `view` request per
+        // video —
         // hence an explicit action on the ticked rows instead of something the import does for every song.
         this.expandPartsButton = addRenderWidget(new SmartButton(
                 getStartX() + ROW_PARTS_X, getStartY() + ROW_Y, BTN_W, BTN_H,
@@ -355,7 +359,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
             undoDeadline = 0L;
             hideUndoTextNow();
         }
-        // The 分P result line belongs to the selection it was produced for: drop it as soon as that changes
+        // The parts result line belongs to the selection it was produced for: drop it as soon as that changes
         int selectionSig = selectionSignature();
         if (selectionSig != lastSelectionSignature) {
             lastSelectionSignature = selectionSig;
@@ -368,7 +372,8 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * Leaving the page stops the 分P job: each part list went to the cache and the server as soon as it was learned, so stopping only means "no further lookups".
+     * Leaving the page stops the parts job: each part list went to the cache and the server as soon as it was learned,
+     * so stopping only means "no further lookups".
      */
     @Override
     public void depose() {
@@ -474,7 +479,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
                     renderSmartTextSpriteColorSprite(poseStack1, multiBufferSource1,
                             Component.literal(entry.getAuthor()), x + sx, y + 15, z + OERenderUtils.MIN_BREADTH * 2,
                             onPxW, onPxH, monitorHeight, textColor, i1);
-                    // 分P badge of the row (same as the GUI path — see MusicsManageFixedListWidget#partBadge)
+                    // parts badge of the row (same as the GUI path, see MusicsManageFixedListWidget#partBadge)
                     var badge = MusicsManageFixedListWidget.partBadge(entry);
                     if (!badge.isEmpty())
                         renderSmartTextSpriteColorSprite(poseStack1, multiBufferSource1, Component.literal(badge),
@@ -498,7 +503,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
                 GUTTER_W, GUTTER_H, i, j, onPxW, onPxH, monitorHeight, panelSourceFilterText, true, total <= 0);
         renderSmartButtonSprite(poseStack, multiBufferSource, GUTTER_X, GUTTER_Y5, OERenderUtils.MIN_BREADTH * 2,
                 GUTTER_W, GUTTER_H, i, j, onPxW, onPxH, monitorHeight, panelOwnerFilterText, true, total <= 0);
-        // 「清理重复」: the panel instance has no widget, so the label has to be derived here (count from the same set)
+        // "Clean duplicates": the panel instance has no widget, so the label has to be derived here (from the same set)
         renderSmartButtonSprite(poseStack, multiBufferSource, GUTTER_X, GUTTER_Y6, OERenderUtils.MIN_BREADTH * 2,
                 GUTTER_W, GUTTER_H, i, j, onPxW, onPxH, monitorHeight,
                 cleanDupesButton != null ? cleanDupesButton.getMessage() : DUPLICATE_TEXT, true, duplicateIds.isEmpty());
@@ -515,7 +520,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         renderSmartButtonSprite(poseStack, multiBufferSource, width - ROW_RIGHT_B_MARGIN - BTN_W, ROW_Y,
                 OERenderUtils.MIN_BREADTH * 2, BTN_W, BTN_H, i, j, onPxW, onPxH, monitorHeight,
                 PLAYER_PICK_TEXT, true, total <= 0);
-        // 「展开分P」 is drawn enabled: its own state comes from the selection (this panel instance cannot be clicked),
+        // "Expand parts" is drawn enabled: its own state comes from the selection (this panel instance cannot be clicked),
         // so there is no data-derived condition to show here.
         renderSmartButtonSprite(poseStack, multiBufferSource, ROW_PARTS_X, ROW_Y, OERenderUtils.MIN_BREADTH * 2,
                 BTN_W, BTN_H, i, j, onPxW, onPxH, monitorHeight, EXPAND_PARTS_TEXT, true);
@@ -585,7 +590,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         rebuildDuplicates();
     }
 
-    // ---------------- Duplicates (「清理重复」) ----------------
+    // ---------------- Duplicates ("Clean duplicates") ----------------
 
     /**
      * Ids of every repeated entry, oldest kept: same source ({@code loaderType} + identifier; a trailing {@code -p1}
@@ -620,7 +625,8 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * 「清理重复」 = **tick them, do not delete**: every repeated entry except the oldest is checked, and the deletion stays on 「删除选中」.
+     * "Clean duplicates" = **tick them, do not delete**: every repeated entry except the oldest is checked, and the
+     * deletion stays on "Delete selected".
      */
     private void requestCleanDuplicates() {
         if (duplicateIds.isEmpty())
@@ -778,7 +784,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
             pickTipText = PICK_NO_PERM_TEXT;
         else
             pickTipText = PICK_TIP;
-        // 「展开分P」: clickable while something expandable is ticked — or while its own job runs, because then the
+        // "Expand parts": clickable while something expandable is ticked, or while its own job runs, because then the
         // button is the stop button (the label says so, see below).
         if (expandPartsButton != null) {
             var exp = partsExpansion;
@@ -793,17 +799,17 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         // really changed — otherwise a new Component every tick.
         if (sourceFilterButton != null) sourceFilterButton.active = !allMusics.isEmpty();
         if (ownerFilterButton != null) ownerFilterButton.active = !allMusics.isEmpty();
-        // 「清理重复」: active only when the playlist really has repeated entries. ⚠️ The label stays 「清理重复」, never a
-        // shortened 「清理(N)」 — the count belongs on the tip line, not on the key.
+        // "Clean duplicates": active only when the playlist really has repeated entries. The label stays "Clean
+        // duplicates", never a shortened "Clean(N)"; the count belongs on the tip line, not on the key.
         if (cleanDupesButton != null) {
             cleanDupesButton.active = hasPlayList && !duplicateIds.isEmpty();
             if (!DUPLICATE_TEXT.equals(cleanDupesButton.getMessage()))
                 cleanDupesButton.setMessage(DUPLICATE_TEXT);
         }
-        // 「选最近加入」 is usable as soon as the playlist has music (it ticks the newest add-batch, see selectRecentBatch)
+        // "Select recent" is usable as soon as the playlist has music (it ticks the newest add-batch, see selectRecentBatch)
         if (recentBatchButton != null)
             recentBatchButton.active = hasPlayList && !allMusics.isEmpty();
-        // 「扫失效」: usable while the playlist has music; while the walk runs the label says so and pressing it stops it
+        // "Scan dead": usable while the playlist has music; while the walk runs the label says so and pressing it stops it
         if (deadScanButton != null) {
             deadScanButton.active = hasPlayList && !allMusics.isEmpty();
             var wantScanText = deadScan != null ? DEAD_SCAN_RUNNING_TEXT : DEAD_SCAN_TEXT;
@@ -979,7 +985,8 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * The batch delete; {@code from} is where the undo copies come from — 「清理重复」 passes {@link #allMusics} because it deletes rows the filter hides.
+     * The batch delete; {@code from} is where the undo copies come from — "Clean duplicates" passes
+     * {@link #allMusics} because it deletes rows the filter hides.
      */
     private void sendDelete(List<UUID> ids, List<Music> from) {
         var pl = getSelectedPlayList();
@@ -1054,7 +1061,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         return MusicManagerBlockEntity.MonitorType.PLAY_LIST;
     }
 
-    // ---------------- 分P (B站 multi-part videos) ----------------
+    // ---------------- Parts (Bilibili multi-part videos) ----------------
 
     /**
      * The line above TIP2: the static hint, taken over while a job or report has something to say; returns {@link #TIP1}
@@ -1072,7 +1079,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         deadScanResult = null;
         if (partsExpandResult != null)
             return partsExpandResult;
-        // 「清理重复」 reported what it ticked (it deletes nothing — the user still presses 「删除选中」)
+        // "Clean duplicates" reported what it ticked (it deletes nothing; the user still presses "Delete selected")
         if (cleanDupesResult != null && System.currentTimeMillis() < cleanDupesResultUntil)
             return cleanDupesResult;
         cleanDupesResult = null;
@@ -1082,7 +1089,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         return TIP1;
     }
 
-    /** What 「清理重复」 last ticked (takes TIP1's line over for a few seconds, like the 分P result does). */
+    /** What "Clean duplicates" last ticked (takes TIP1's line over for a few seconds, like the parts result does). */
     @Nullable
     private Component cleanDupesResult;
     private long cleanDupesResultUntil;
@@ -1090,9 +1097,9 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     private static final long CLEAN_DUPES_RESULT_MS = 6000L;
 
     /**
-     * What the ticked rows mean for the 分P action.
+     * What the ticked rows mean for the parts action.
      *
-     * @param bili    ticked B站 **videos** (an expanded part is not counted)
+     * @param bili    ticked Bilibili **videos** (an expanded part is not counted)
      * @param known   those whose part list is cached: pressing the button costs no request
      * @param unknown the rest: one {@code view} request each just to learn the part count
      */
@@ -1115,7 +1122,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         return new PartsSelection(bili, known, unknown);
     }
 
-    /** A ticked row that can be expanded: a B站 **video**, i.e. not an already expanded part ({@code BV…-p2}). */
+    /** A ticked row that can be expanded: a Bilibili **video**, i.e. not an already expanded part ({@code BV…-p2}). */
     private static boolean isExpandableVideo(@Nullable Music m) {
         var source = m == null ? null : m.getSource();
         if (source == null || !IMPMusicMedias.BILIBILI.getName().equals(source.getLoaderType()))
@@ -1123,7 +1130,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         return BiliBiliUtil.pageOf(source.getIdentifier()) <= 1;
     }
 
-    /** 「展开分P」: start the job for the ticked videos, or stop it while it runs — what was already collected is kept. */
+    /** "Expand parts": starts the job for the ticked videos, or stops it while it runs; what was collected is kept. */
     private void togglePartsExpansion() {
         if (partsExpansion != null) {
             partsExpansion.cancelled = true;
@@ -1133,7 +1140,8 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * 「查询选中分P」: looks up the part lists of the ticked B站 videos; adds nothing to the playlist — a multi-part video
+     * "Query parts": looks up the part lists of the ticked Bilibili videos; adds nothing to the playlist — a
+     * multi-part video
      * stays one entry and the boombox walks its parts (the client reports the part list to the server).
      */
     private void startPartsExpansion() {
@@ -1165,7 +1173,8 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         if (exp.isAlive())
             return;
         partsExpansion = null;
-        // 分P表在走查期间累积，一次性落盘（逐视频写会把 65 KB 的缓存文件反复重写）。
+        // The part tables accumulate while the walk runs and are written once; writing per video would rewrite the
+        // 65 KB cache file over and over.
         BiliBiliArcTags.getInstance().flush();
         LinkDebug.log("BiliBili parts lookup done", "videos", exp.total(), "multi", exp.multi(),
                 "parts", exp.parts(), "single", exp.single(), "failed", exp.failed(), "cancelled", exp.cancelled);
@@ -1173,9 +1182,9 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
                 exp.single(), exp.failed());
     }
 
-    // ---------------- 扫失效 (songs whose submission is gone) ----------------
+    // ---------------- Scan dead (songs whose submission is gone) ----------------
 
-    /** 「扫失效」: start the walk, or — while it runs — stop it (everything found so far is kept and ticked). */
+    /** "Scan dead": starts the walk, or stops it while it runs (everything found so far is kept and ticked). */
     private void toggleDeadScan() {
         if (deadScan != null) {
             deadScan.cancelled = true;
@@ -1185,7 +1194,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * Ticks the B站 songs Bilibili reports as gone ({@code -404}); known-gone rows cost no request and videos checked
+     * Ticks the Bilibili songs the API reports as gone ({@code -404}); known-gone rows cost no request and videos checked
      * within {@link #DEAD_SCAN_TTL_MS} are skipped, so only the first press is a full walk. Never deletes.
      */
     private void startDeadScan() {
@@ -1253,7 +1262,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         selected.addAll(ids);
     }
 
-    /** The 「扫失效」 report line: how many rows it ticked, how many were newly found, what it could not check. */
+    /** The "Scan dead" report line: how many rows it ticked, how many were newly found, what it could not check. */
     private void reportDeadScan(int foundNow, int rows, int failed, int skipped) {
         deadScanResult = rows <= 0
                 ? Component.translatable("imp.text.manageDeadScanNone", failed, skipped)
@@ -1261,13 +1270,13 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
         deadScanResultUntil = System.currentTimeMillis() + CLEAN_DUPES_RESULT_MS + 2000L;
     }
 
-    /** 「扫失效」 request gap; tighter than the 分P walk's, see {@link #DEAD_SCAN_MIN_PARALLELISM}. */
+    /** "Scan dead" request gap; tighter than the parts walk's, see {@link #DEAD_SCAN_MIN_PARALLELISM}. */
     private static final long DEAD_SCAN_GAP_MS = 20L;
-    /** Workers for the sweep; the floor of 8 matters — with the 分P walk's 3 workers the sweep managed under 7 videos per second. */
+    /** Workers for the sweep; the floor of 8 matters — with the parts walk's 3 workers the sweep stayed under 7 videos per second. */
     private static final int DEAD_SCAN_MIN_PARALLELISM = 8;
     /**
-     * 「查询选中分P」的 worker 下限，理由同 {@link #DEAD_SCAN_MIN_PARALLELISM}：实际速率 ≈ 并发数 ÷ 单请求延迟，
-     * 8 个 worker 才吃得到收紧后的间隔。
+     * Worker floor for the parts query, same reasoning as {@link #DEAD_SCAN_MIN_PARALLELISM}: the real rate is
+     * roughly parallelism ÷ per-request latency, so 8 workers are needed to use the tightened gap.
      */
     private static final int PARTS_WALK_MIN_PARALLELISM = 8;
     /** Videos answered within this window are skipped, so a repeat press costs (almost) nothing. */
@@ -1293,7 +1302,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * The 「扫失效」 job: one paced {@code view} per distinct video, collecting ids only. Only {@code -404} counts as gone.
+     * The "Scan dead" job: one paced {@code view} per distinct video, collecting ids only. Only {@code -404} counts as gone.
      */
     private static final class DeadScan extends Thread {
         /** distinct bvid → the playlist rows that point at it. */
@@ -1391,7 +1400,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
     private int lastSelectionSignature;
 
     /**
-     * The 分P job: learns the part lists of the ticked B站 videos (cache + server report), adding nothing to the
+     * The parts job: learns the part lists of the ticked Bilibili videos (cache + server report), adding nothing to the
      * playlist; a part count only comes from a per-video {@code view}, so the workers share one {@link BiliBiliPacer}.
      */
     private static final class PartsExpansion extends Thread {
@@ -1470,7 +1479,7 @@ public class MusicManageMMMonitor extends MusicManagerMonitor {
                 if (list.isEmpty()) {
                     // Never looked at: one request through the pacer (it reserves the slot **before** sending, so N
                     // workers share one bounded rate instead of N times that rate). `fetch` also hands the result to
-                    // the server, which is what makes 「按一条算」 work.
+                    // the server, which is what makes "counts as one entry" work.
                     BiliBiliPacer.await(pacer.reserve(BiliBiliParts.REQUEST_GAP_MS));
                     if (cancelled)
                         return;

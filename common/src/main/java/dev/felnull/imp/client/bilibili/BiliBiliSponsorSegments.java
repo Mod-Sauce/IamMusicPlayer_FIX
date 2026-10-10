@@ -466,18 +466,49 @@ public final class BiliBiliSponsorSegments {
             for (var seg : v.segments())
                 if (known.equals(seg.cid()))
                     out.add(seg);
-            return List.copyOf(out);
+            return mergeOverlapping(out);
         }
 
         var byCid = new LinkedHashMap<String, List<Segment>>();
         for (var seg : v.segments())
             byCid.computeIfAbsent(seg.cid(), k -> new ArrayList<>()).add(seg);
         if (byCid.size() == 1)
-            return List.copyOf(byCid.values().iterator().next());
+            return mergeOverlapping(byCid.values().iterator().next());
         if (byCid.size() > 1 && durationMs > 0) {
             LinkDebug.log("BiliBili sponsor nocid", "cidCount", byCid.size(), "wantMs", durationMs);
         }
         return List.of();
+    }
+
+    /**
+     * Sorts one part's segments and unions the overlapping (or touching) ones. The service reports each category as its
+     * own entry, so a sponsor and a self-promo segment may cover the same seconds; the time-axis maths adds every
+     * length it is handed, so leaving an overlap in would count those seconds twice and shift the whole timeline.
+     */
+    private static List<Segment> mergeOverlapping(List<Segment> segments) {
+        if (segments.size() < 2)
+            return List.copyOf(segments);
+        var sorted = new ArrayList<Segment>(segments);
+        sorted.sort((a, b) -> Long.compare(a.startMs(), b.startMs()));
+        var out = new ArrayList<Segment>(sorted.size());
+        Segment current = null;
+        for (var seg : sorted) {
+            if (seg.lengthMs() <= 0)
+                continue;
+            if (current == null) {
+                current = seg;
+                continue;
+            }
+            if (seg.startMs() <= current.endMs()) {
+                current = new Segment(current.startMs(), Math.max(current.endMs(), seg.endMs()), current.cid());
+            } else {
+                out.add(current);
+                current = seg;
+            }
+        }
+        if (current != null)
+            out.add(current);
+        return List.copyOf(out);
     }
 
     /** 片段表 → 播放器用的跨度表。 */

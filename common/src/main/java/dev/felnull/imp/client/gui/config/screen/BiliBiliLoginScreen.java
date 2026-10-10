@@ -34,11 +34,15 @@ public class BiliBiliLoginScreen extends Screen {
 
     private final Screen parent;
     private volatile boolean running = true;
+    /** {@code init} runs again whenever the window is resized; the login must not be started a second time. */
+    private boolean started;
     private volatile Component status;
 
     private String qrcodeKey = "";
     private ResourceLocation qrTexture;
     private DynamicTexture dynamicTexture;
+    /** The bitmap behind {@link #dynamicTexture}, kept only so a later attempt can close it. */
+    private NativeImage qrImage;
 
     public BiliBiliLoginScreen(Screen parent) {
         super(Component.translatable("imp.text.login.bilibili.title"));
@@ -53,7 +57,10 @@ public class BiliBiliLoginScreen extends Screen {
             Minecraft.getInstance().setScreen(parent);
         }).bounds(width / 2 - 50, height / 2 + 100, 100, 20).build());
 
-        CompletableFuture.runAsync(this::startLogin);
+        if (!started) {
+            started = true;
+            CompletableFuture.runAsync(this::startLogin);
+        }
     }
 
     private void startLogin() {
@@ -137,12 +144,31 @@ public class BiliBiliLoginScreen extends Screen {
 
     private void registerTexture(NativeImage image) {
         try {
+            releaseTexture();
             dynamicTexture = new DynamicTexture(image);
             qrTexture = ResourceLocation.fromNamespaceAndPath(IamMusicPlayer.MODID, "bilibili_qr");
+            qrImage = image;
             Minecraft.getInstance().getTextureManager().register(qrTexture, dynamicTexture);
         } catch (Exception e) {
             status = Component.translatable("imp.text.login.bilibili.failed");
         }
+    }
+
+    /**
+     * Drops the bitmap of a previous attempt: {@code register} replaces the texture in the manager without closing the
+     * one it replaces, so every reopen or retry would otherwise keep one {@link NativeImage} alive. The pixels are
+     * already uploaded into the GL texture when this runs, so closing the image cannot affect what is drawn.
+     */
+    private void releaseTexture() {
+        if (qrImage != null) {
+            try {
+                qrImage.close();
+            } catch (Exception ignored) {
+                // a bitmap that refuses to close is not worth failing the login over
+            }
+            qrImage = null;
+        }
+        dynamicTexture = null;
     }
 
     @Override

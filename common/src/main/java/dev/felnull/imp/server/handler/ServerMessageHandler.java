@@ -57,11 +57,16 @@ public class ServerMessageHandler {
             for (int i = 0; i < names.size(); i++)
                 list.add(new dev.felnull.imp.server.music.BiliBiliPartCache.Part(names.get(i),
                         i < durations.size() && durations.get(i) != null ? durations.get(i) : 0L));
-            dev.felnull.imp.server.music.BiliBiliPartCache.getInstance().remember(message.bvid, list);
+            var changed = dev.felnull.imp.server.music.BiliBiliPartCache.getInstance().remember(message.bvid, list);
             // The first part's length **is** the length of the playlist entry (which was imported with the length of
             // all parts together) — correcting it is what makes the boombox's position and its "track is over"
             // decision agree with the audio again. See MusicManager#fixBiliBiliDuration.
-            if (!list.isEmpty())
+            //
+            // Only a changed list can change anything: a client is free to re-send the same report, and the
+            // correction walks every playlist on the server (MusicManager#fixBiliBiliDuration), so a repeated report
+            // must not cost a walk. MusicManager additionally guards the same video against being corrected twice in
+            // a row within a short window.
+            if (changed && !list.isEmpty())
                 MusicManager.getInstance().fixBiliBiliDuration(packetContext.getPlayer().getServer(),
                         dev.felnull.imp.util.BiliBiliIds.stripPage(message.bvid), list.get(0).durationMs());
         });

@@ -29,8 +29,22 @@ public class MusicManager {
     private record DeletedPlayListKey(UUID playerId, UUID playlistId) {
     }
 
-    private record DeletedMusics(List<Music> musics, long time) {
+    /** One deleted song plus the place it held in its playlist, so an undo can put it back where it was. */
+    public record DeletedMusic(Music music, int index) {
     }
+
+    private record DeletedMusics(List<DeletedMusic> musics, long time) {
+    }
+
+    /**
+     * Minimum gap between two length corrections of the same B站 video. The client reports a video's parts whenever it
+     * learns them, and each accepted correction walks every playlist on the server (see {@link #fixBiliBiliDuration}),
+     * so a client that keeps re-reporting the same video must not be able to drive that walk.
+     */
+    private static final long BILIBILI_FIX_MIN_GAP_MS = 10_000L;
+    private static final int BILIBILI_FIX_MAX_KEYS = 20000;
+    /** Last correction time per B站 video id; bounded, server thread only. */
+    private final Map<String, Long> biliBiliFixedAt = new HashMap<>();
 
     public static MusicManager getInstance() {
         return INSTANCE;
@@ -193,25 +207,29 @@ public class MusicManager {
      *
      * @return the server copies of the songs that were really deleted, for the undo table
      */
-    public List<Music> deleteMusics(MinecraftServer server, UUID playListId, List<UUID> musicIds, ServerPlayer player) {
+    public List<DeletedMusic> deleteMusics(MinecraftServer server, UUID playListId, List<UUID> musicIds, ServerPlayer player) {
         var pl = getSaveData(server).getPlayLists().get(playListId);
         if (pl == null) return List.of();
         var pid = player.getGameProfile().getId();
         boolean canDelete = pl.getAuthority().getAuthorityType(pid).canMusicDelete();
         boolean playlistOnly = IamMusicPlayer.getConfig().deleteMusicPlayListOnly;
-        var deleted = new ArrayList<Music>();
+        var list = pl.getMusicList();
+        var deleted = new ArrayList<DeletedMusic>();
         for (UUID musicId : musicIds) {
             if (musicId == null) continue;
             var m = getSaveData(server).getMusics().get(musicId);
             if (m == null) continue;
             if (!canDelete && !m.getOwner().equals(pid)) continue;
-            pl.getMusicList().remove(musicId);
+            // Remember the place before removing it: an undo puts the song back there instead of at the end.
+            int index = list.indexOf(musicId);
+            if (index < 0) continue;
+            list.remove(index);
             if (!playlistOnly)
                 getSaveData(server).getMusics().remove(musicId);
-            deleted.add(m);
+            deleted.add(new DeletedMusic(m, index));
         }
         if (playlistOnly)
-            deleted.forEach(n -> collectOrphanMusic(server, n.getUuid()));
+            deleted.forEach(n -> collectOrphanMusic(server, n.music().getUuid()));
         if (!deleted.isEmpty())
             getSaveData(server).setDirty();
         return deleted;
@@ -220,7 +238,7 @@ public class MusicManager {
     /**
      * Records the songs of one batch deletion so the player can undo it for {@link #UNDO_WINDOW_MS}; the list holds the **server-side copies**.
      */
-    public void rememberDeleted(UUID playerId, UUID playlistId, List<Music> musics) {
+    public void rememberDeleted(UUID playerId, UUID playlistId, List<DeletedMusic> musics) {
         dropExpiredUndo();
         if (playerId == null || playlistId == null || musics == null || musics.isEmpty()) return;
         deletedUndoCache.put(new DeletedPlayListKey(playerId, playlistId),
@@ -243,15 +261,27 @@ public class MusicManager {
         }
         var pl = getSaveData(server).getPlayLists().get(playlistId);
         if (pl == null) return 0;
-        int restored = 0;
+        // Look the uuid up in a map: a batch may hold thousands of songs and the old stream().filter() scanned the
+        // whole recorded batch once per requested id.
+        var byId = new HashMap<UUID, DeletedMusic>(entry.musics().size() * 2);
+        for (var deleted : entry.musics())
+            byId.putIfAbsent(deleted.music().getUuid(), deleted);
+        var pending = new ArrayList<DeletedMusic>();
         for (Music request : requests) {
-            var copy = entry.musics().stream().filter(n -> n.getUuid().equals(request.getUuid())).findFirst().orElse(null);
+            if (request == null || request.getUuid() == null) continue;
+            var copy = byId.get(request.getUuid());
             // Not in the server table ⇒ not deleted by this player (or already restored) ⇒ skip: never trust packet content.
             if (copy == null) continue;
-            if (pl.getMusicList().contains(copy.getUuid())) continue;
+            if (pl.getMusicList().contains(copy.music().getUuid())) continue;
+            pending.add(copy);
+        }
+        // Ascending by the place each song held, so inserting in turn rebuilds the original order.
+        pending.sort(java.util.Comparator.comparingInt(DeletedMusic::index));
+        int restored = 0;
+        for (var copy : pending) {
             // putIfAbsent: an existing song with this uuid (someone else's) must never be overwritten.
-            getSaveData(server).getMusics().putIfAbsent(copy.getUuid(), copy);
-            pl.getMusicList().add(copy.getUuid());
+            getSaveData(server).getMusics().putIfAbsent(copy.music().getUuid(), copy.music());
+            pl.getMusicList().add(Math.min(copy.index(), pl.getMusicList().size()), copy.music().getUuid());
             restored++;
         }
         // Consume only what was really restored: a request that matches nothing must not destroy a still-pending
@@ -307,6 +337,13 @@ public class MusicManager {
     public int fixBiliBiliDuration(MinecraftServer server, String identifier, long correctDurationMs) {
         if (server == null || identifier == null || correctDurationMs <= 0)
             return 0;
+        long now = System.currentTimeMillis();
+        var last = biliBiliFixedAt.get(identifier);
+        if (last != null && now - last < BILIBILI_FIX_MIN_GAP_MS)
+            return 0;   // this video was just corrected (or just tried): walking every playlist again cannot help
+        if (biliBiliFixedAt.size() >= BILIBILI_FIX_MAX_KEYS)
+            biliBiliFixedAt.clear();
+        biliBiliFixedAt.put(identifier, now);
         var save = getSaveData(server);
         var musics = save.getMusics();
         int fixed = 0;
