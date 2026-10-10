@@ -46,17 +46,18 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     private static final Component DETAIL_TEXT = Component.translatable("imp.button.detailPlaylist");
     /** Goes to the "music management" page (selection bulk delete / delete by player). */
     private static final Component MANAGE_TEXT = Component.translatable("imp.button.musicManage");
-    /** 「刷新」: walk the import source again and append only what is missing. */
+    /** "Refresh": walks the import source again and appends only what is missing. */
     private static final Component REFRESH_TEXT = Component.translatable("imp.button.playListRefresh");
-    /** Shown while the playlist has no source yet: one click learns the UP from its first B站 song. */
+    /** Shown while the playlist has no source yet: one click learns the UP from its first Bilibili song. */
     private static final Component BIND_UP_TEXT = Component.translatable("imp.button.playListBindUp");
     private static final Component REFRESH_RUNNING_TEXT = Component.translatable("imp.text.playListRefreshRunning");
     private static final Component REFRESH_FAILED_TEXT = Component.translatable("imp.text.playListRefreshFailed");
-    /** How long the refresh key keeps showing its result ("+3 首" / "没有新的" / "刷新失败"). */
+    /** How long the refresh key keeps showing its result ("+3" / "up to date" / "refresh failed"). */
     private static final long REFRESH_RESULT_MS = 6000L;
     /**
-     * 「刷新」 on the 「管理」 row (y 31..40), starting flush against the playlist list's 1 px bar at x = 101; must not overlap
-     * 「管理」 (x 336) nor the song list (y ≥ 40). */
+     * "Refresh" on the "Manage" row (y 31..40), flush against the playlist list's 1 px bar at x = 101; it must overlap
+     * neither "Manage" (x 336) nor the song list (y ≥ 40).
+     */
     private static final int REFRESH_X = 102;
     private static final int REFRESH_Y = 31;
     private static final int REFRESH_W = 48;
@@ -69,7 +70,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     /** Pending invites, kept only to detect a change and re-sort the display list once (see tick()). */
     private List<MusicPlayList> invitePlayListsCash;
     private List<Music> musicsCash;
-    /** 上次给列表做过"回顶部"的歌单：控件的滚动是比例，切歌单不清零就会停在下半段。 */
+    /** The playlist the list was last scrolled to the top for: the widget scroll is a ratio, so switching playlists without clearing it lands in the lower half. */
     private UUID lastScrollPlaylist;
     private MusicSyncManager.PlayListInfo lastPlayListInfo;
     private Component INFO_TEXT;
@@ -82,14 +83,14 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     private SmartButton detailButton;
     /** The "manage" key (goes to the music management page). */
     private SmartButton manageButton;
-    /** 「刷新」: only offered for a playlist that knows its import source. */
+    /** "Refresh": only offered for a playlist that knows its import source. */
     private SmartButton refreshButton;
     private MusicsFixedListWidget musicsFixedButtonsList;
     private MyPlayListFixedListWidget myPlayListFixedButtonsList;
 
-    // ------------------------------------------------------------------ 「分类」 (B站 合集 / 分区)
-    // A **view** filter for the song list: `Music` carries no category, so it looks the 合集/父分区 up by bvid in
-    // {@link BiliBiliArcTags}; a picker list rather than a cycling button, since a UP can have 40+ 合集.
+    // ------------------------------------------------------------------ Categories (Bilibili season / parent zone)
+    // A **view** filter for the song list: `Music` carries no category, so the season/parent zone is looked up by bvid
+    // in {@link BiliBiliArcTags}; a picker list rather than a cycling button, since a UP can have 40+ seasons.
 
     private static final int CATEGORY_BUTTON_X = 296;
     private static final int CATEGORY_BUTTON_W = 74;
@@ -151,7 +152,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         this.detailButton = this.addRenderWidget(new SmartButton(getStartX() + 336, getStartY() + 20, 33, 9, DETAIL_TEXT, n -> insMonitor(MusicManagerBlockEntity.MonitorType.DETAIL_PLAY_LIST)));
         this.detailButton.visible = getSelectedMusicPlayList() != null;
 
-        // 「分类」: the category picker (hidden until the button opens it; it takes over the song list's place)
+        // Categories: the picker (hidden until the button opens it; it takes over the song list's place)
         this.categoryPickList = addRenderWidget(new SpaceCategoryListWidget(getStartX() + 102, getStartY() + 40, 267, 148,
                 Component.translatable("imp.fixedList.spaceCategories"), 10, categoryRows,
                 this::pickCategory, null));
@@ -195,7 +196,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
 
         // Fill the lists right away: tick() only refreshes on a changed reference and the first tick ran before init.
         widgetsReady = true;
-        // …and with it the 「分类」 choice made last time (it used to reset to 「全部」 on every entry)
+        // …and with it the category choice made last time (it used to reset to "all" on every entry)
         restoreCategoryFilter();
         updateList();
         updateMusics();
@@ -214,7 +215,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         pendingRefresh = null;
     }
 
-    /** 刷新键此刻是「只补投稿时间」形态（见 updateRefreshButton）。 */
+    /** Whether the refresh key currently takes the "fill in upload dates only" form (see updateRefreshButton). */
     private boolean refreshKeyPubdates;
 
     /** Filter box width (centered in init). */
@@ -316,7 +317,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         };
     }
 
-    /** The config form → a row; anything unknown reads as 「全部」, so a hand-edited config cannot break the page. */
+    /** The config value → a row; anything unknown reads as "all", so a hand-edited config cannot break the page. */
     static SpaceCategoryListWidget.Row decodeCategory(@Nullable String encoded) {
         var v = encoded == null ? "" : encoded.trim();
         if (v.isEmpty() || "all".equals(v))
@@ -404,7 +405,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         var orderIconIdx = musicOrderButton != null ? musicOrderButton.getOrderType().ordinal() : 0;
         renderSmartButtonSprite(poseStack, multiBufferSource, MUSIC_SORT_X, 189, OERenderUtils.MIN_BREADTH * 2, MUSIC_SORT_W, 9, i, j, onPxW, onPxH, monitorHeight, sortText, WIDGETS_TEXTURE, 73 + sortIconIdx * 7, 0, 7, 7, 256, 256);
         renderSmartButtonSprite(poseStack, multiBufferSource, MUSIC_ORDER_X, 189, OERenderUtils.MIN_BREADTH * 2, MUSIC_ORDER_W, 9, i, j, onPxW, onPxH, monitorHeight, orderText, WIDGETS_TEXTURE, 73 + orderIconIdx * 7, 7, 7, 7, 256, 256);
-        // 「分类」: drawn on the world screen too (the monitor instance holds the current category, so both paths agree)
+        // Categories: drawn on the world screen too (the monitor instance holds the current category, so both paths agree)
         renderSmartButtonSprite(poseStack, multiBufferSource, CATEGORY_BUTTON_X, 189, OERenderUtils.MIN_BREADTH * 2, CATEGORY_BUTTON_W, 9, i, j, onPxW, onPxH, monitorHeight, categoryButton == null ? CATEGORY_TEXT : categoryButton.getMessage(), true);
 
         // The filter box at the top, hand-drawn: the in-world display path must draw it explicitly or it is invisible on the panel.
@@ -503,7 +504,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
 
         var pl = getSelectedMusicPlayList(blockEntity);
         if (pl != null) {
-            // 「刷新」 on the panel too (same place: the header band, right of the title). Drawn from the block entity
+            // "Refresh" on the panel too (same place: the header band, right of the title). Drawn from the block entity
             // only: this instance has screen == null, so the widget's own visibility fields are not usable here.
             if (BiliBiliSpaceUtil.isRefreshable(pl.getSource()) || BiliBiliPlaylistRefresh.isRunning())
                 renderSmartButtonSprite(poseStack, multiBufferSource, REFRESH_X, REFRESH_Y, OERenderUtils.MIN_BREADTH * 2,
@@ -572,7 +573,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         updateRefreshButton();
     }
 
-    // ------------------------------------------------------------------ 「刷新」 (import source walk)
+    // ------------------------------------------------------------------ Refresh (import source walk)
 
     /**
      * Keeps the refresh key in step with the selected playlist: visible only for a playlist that knows where it was
@@ -614,13 +615,13 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
             }
         }
         var running = BiliBiliPlaylistRefresh.isRunning();
-        // A playlist bound by an earlier version still carries the legacy "<UP 名> 的投稿" name: fix it once per session
-        // as soon as its page is shown, so the name does not depend on the user pressing 「刷新」.
+        // A playlist bound by an earlier version still carries the legacy name with the extra space: fix it once per
+        // session as soon as its page is shown, so the name does not depend on the user pressing "Refresh".
         if (pl != null && BiliBiliSpaceUtil.isRefreshable(pl.getSource()) && nameFixTried.add(pl.getUuid())) {
             BiliBiliPlaylistRefresh.setExistence(existence());
             BiliBiliPlaylistRefresh.fixLegacyName(pl.getUuid(), pl.getName());
         }
-        // The key shows when the playlist has a source (**「刷新」**), or when it could be given one (**「绑定UP」**).
+        // The key shows when the playlist has a source (**Refresh**), or when it could be given one (**Bind UP**).
         var bindable = pl != null && !BiliBiliSpaceUtil.isRefreshable(pl.getSource()) && bindableBySongs(pl);
         // A playlist bound to the **wrong UP** (the refresh refuses with `needsRebind`) gets the bind key back:
         // re-binding infers the mid from the songs again.
@@ -628,10 +629,12 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         // The server rejects both silently: adding songs needs `canAddMusic`, binding rewrites the playlist source (`canEdit`).
         var auth = pl == null ? null : pl.getAuthority().getAuthorityType(IIMPSmartRender.mc.player.getGameProfile().getId());
         var canAdd = auth != null && auth.canAddMusic();
-        // 「刷新」要能用：有来源、能加歌、绑的 UP 也没错。用不上时退成「只补投稿时间」——
-        // 它只写本地标签、不碰歌单，所以「只是成员」或歌单没有来源时也点得动。
+        // "Refresh" needs a source, add permission and a correct UP binding. Where that does not hold it falls back to
+        // "fill in upload dates only", which writes local tags and never touches the playlist, so even a plain member
+        // or a playlist without a source can press it.
         var canRefresh = pl != null && BiliBiliSpaceUtil.isRefreshable(pl.getSource()) && canAdd && !rebind;
-        // 只补时间只服务**收藏夹来源**的歌单（那类歌单的内容本该只由收藏夹决定）；别的歌单不给这个键
+        // "Fill in dates only" only serves playlists imported from a **favourites folder** (their content should be
+        // decided by that folder alone); other playlists do not get this key.
         var pubdatesKey = pl != null && BiliBiliSpaceUtil.favIdOf(pl.getSource()) >= 0 && !canRefresh && !bindable && !rebind;
         refreshKeyPubdates = pubdatesKey;
         refreshButton.visible = pl != null && (BiliBiliSpaceUtil.isRefreshable(pl.getSource())
@@ -644,8 +647,9 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * Whether this playlist looks like an **UP import** and may be offered 「绑定UP」: ≥ 2 of its B站 entries carry a local
-     * 分区/合集 tag, which only the import path writes. */
+     * Whether this playlist looks like an **UP import** and may be offered "Bind UP": at least 2 of its Bilibili
+     * entries carry a local zone/season tag, which only the import path writes.
+     */
     private boolean bindableBySongs(MusicPlayList pl) {
         var list = getSyncManager().getMusics(pl.getUuid());
         if (list == null)
@@ -665,7 +669,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * The key's own text is the progress/result line: 「刷新」 → 「刷新中…」 → 「+3 首」 / 「没有新的」 / 「刷新失败」; the
+     * The key's own text is the progress/result line: "Refresh" → "Refreshing…" → "+3" / "up to date" / "failed"; the
      * client-wide state is shown only for its own playlist. */
     private Component refreshLabel(@Nullable UUID selected, boolean pubdatesKey) {
         var state = BiliBiliPlaylistRefresh.state();
@@ -697,7 +701,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         if (pl == null || BiliBiliPlaylistRefresh.isRunning())
             return;
         var source = pl.getSource();
-        // 键是「只补投稿时间」形态时只走补时间（不需要权限，也不碰歌单）
+        // In the "fill in dates only" form only that runs (no permission needed, and the playlist is not touched)
         if (refreshKeyPubdates) {
             var own = getSyncManager().getMusics(pl.getUuid());
             if (own == null || own.isEmpty())
@@ -705,7 +709,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
             BiliBiliPlaylistRefresh.startPubdates(pl.getUuid(), source, own);
             return;
         }
-        // 「重绑UP」: no usable source, or the refresh refused because the bound UP is not the songs' author.
+        // "Rebind UP": no usable source, or the refresh refused because the bound UP is not the songs' author.
         // The UP is inferred from the playlist's own songs — sampled, so a mixed playlist is refused rather than bound.
         if (!BiliBiliSpaceUtil.isRefreshable(source) || BiliBiliPlaylistRefresh.needsRebind()) {
             if (!claimTried.contains(pl.getUuid())) {
@@ -746,8 +750,9 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     private final Set<UUID> nameFixTried = new HashSet<>();
 
     /**
-     * One-time source claim, started only when the name "&lt;UP 名&gt;的投稿" and every B站 song's author match; else
-     * the playlist gets 「绑定UP」. */
+     * One-time source claim, started only when the name ends with the import marker and every Bilibili song's author
+     * matches; otherwise the playlist gets "Bind UP".
+     */
     private boolean claimIfNeeded(MusicPlayList pl) {
         if (pl == null || !pl.getSource().isBlank() || claimTried.contains(pl.getUuid()))
             return false;
@@ -823,7 +828,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
                 if (!name.contains(keyword) && !author.contains(keyword))
                     continue;
             }
-            // 「分类」: a category filter is a **view** filter — it never decides what a delete or a play touches,
+            // Categories: a category filter is a **view** filter; it never decides what a delete or a play touches,
             // only what the list displays (songs whose category we never learned are not claimed by any category)
             if (!matchesCategory(m))
                 continue;
@@ -842,20 +847,20 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         }
     }
 
-    /** 收藏夹来源的歌单（`fav:<fid>`）：它的"加入歌单时间"就是导入时刻，所以行上直接显示投稿时间。 */
+    /** A playlist imported from a favourites folder (`fav:<fid>`): its "added at" is the import moment, so the rows show the upload date instead. */
     private static boolean isFavSource(@Nullable MusicPlayList pl) {
         return pl != null && BiliBiliSpaceUtil.favIdOf(pl.getSource()) >= 0;
     }
 
-    /** 「投稿日期」只对 B站 UP 投稿歌单有意义（投稿时间只在 UP 主页导入时写过）。 */
+    /** The upload-date sort only means something for UP-imported playlists (upload dates are only written by the UP-space import). */
     private void updateMusicSortTypes() {
         if (musicSortButton == null)
             return;
         var pl = getSelectedMusicPlayList();
         musicSortButton.setPublishDateEnabled(pl != null && BiliBiliSpaceUtil.midOf(pl.getSource()) >= 0);
-        // 档位表变了要重刷文字，否则标签停在旧档
+        // The available modes changed, so the label has to be redrawn; otherwise it stays on the old one.
         refreshMusicSortLabels();
-        // 行上的时间跟着排序走；收藏夹歌单无论如何都显示投稿时间
+        // The timestamp on a row follows the sort; a favourites playlist always shows the upload date.
         if (musicsFixedButtonsList != null)
             musicsFixedButtonsList.setByPublishDate(isFavSource(pl)
                     || musicSortButton.getSortType() == SortButton.SortType.PUBLISH_DATE);
@@ -943,7 +948,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
 
     @Override
     public void onUpdateSelectedPlayList(UUID playListId) {
-        // ⚠️ Only **another** playlist means "other categories, start from 「全部」 again": the screen re-notifies with
+        // Only **another** playlist means "other categories, start from all again": the screen re-notifies with
         // the same id on a sync round, and a blind reset would also wipe the filter init just restored from the config.
         var samePlayList = playListId != null && playListId.equals(categoryPlayListId);
         categoryPlayListId = playListId;
@@ -962,7 +967,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     @Nullable
     private UUID categoryPlayListId;
 
-    // ------------------------------------------------------------------ 「分类」 helpers
+    // ------------------------------------------------------------------ Category helpers
 
     private void toggleCategoryPick() {
         categoryPickMode = !categoryPickMode;
@@ -1018,8 +1023,9 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         var rows = new ArrayList<SpaceCategoryListWidget.Row>();
         rows.add(SpaceCategoryListWidget.Row.all(all.size(), isNoCategoryFilter()));
 
-        // 「多P / 非多P」: counted from the **local part cache** alone — a video whose parts were never looked up counts
-        // as 非多P (the submission list carries no part count, so each one would cost a `view`), and it moves over by
+        // "Multi-part / single-part": counted from the **local part cache** alone; a video whose parts were never
+        // looked up counts as single-part (the submission list carries no part count, so each one would cost a
+        // `view`), and it moves over by
         // itself once the video is played or its parts are queried.
         var multiPart = 0;
         for (var m : all) {
@@ -1063,7 +1069,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
                 && (name == null ? categoryFilter.filterName().isEmpty() : name.equals(categoryFilter.filterName()));
     }
 
-    /** The 「全部」row is ticked while no category filter is applied (picking it clears the filter). */
+    /** The "all" row is ticked while no category filter is applied (picking it clears the filter). */
     private boolean isNoCategoryFilter() {
         return categoryFilter == null || categoryFilter.kind() == SpaceCategoryListWidget.Kind.ALL;
     }
@@ -1071,7 +1077,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
     /** Whether one song passes the current category filter. Songs with no remembered tag never pass a tag category. */
     private boolean matchesCategory(Music m) {
         var kind = categoryFilter == null ? SpaceCategoryListWidget.Kind.ALL : categoryFilter.kind();
-        // 分P rows are answered from the local part cache alone (no tags, no request) and are therefore decided
+        // Multi-part rows are answered from the local part cache alone (no tags, no request), and are therefore decided
         // **before** the "no tag ⇒ no match" rule below
         if (kind == SpaceCategoryListWidget.Kind.MULTI_PART)
             return partCountOf(m) > 1;
@@ -1099,7 +1105,7 @@ public class PlayListMMMonitor extends MusicManagerMonitor {
         return parts == null ? 0 : parts.size();
     }
 
-    /** [Remembered 合集/分区 of one song] Looked up by the **bare video number** (an expanded part carries `BV…-p2`, with
+    /** [Remembered season/zone of one song] Looked up by the **bare video number** (an expanded part carries `BV…-p2`, with
      * which every part would drop out of its category); {@code null} when there are none. */
     @Nullable
     private static BiliBiliArcTags.Tag arcTagOf(Music m) {

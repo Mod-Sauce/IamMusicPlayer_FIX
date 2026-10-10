@@ -22,11 +22,12 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 「刷新」: re-walk the import source ({@code space:<mid>} / {@code fav:<fid>}) and append only missing songs — never reorder/delete/rename.
+ * Refresh: re-walk the import source ({@code space:<mid>} / {@code fav:<fid>}) and append only missing songs — never
+ * reorder, delete or rename anything.
  */
 public final class BiliBiliPlaylistRefresh {
     /**
-     * The marker the import writes into an UP playlist's name ("投稿" = submissions). It is **stored data**: the exact
+     * The marker the import writes into an UP playlist's name (submissions). It is **stored data**: the exact
      * text must not be translated or tidied up, because the claim/rename logic below matches names that are already
      * saved on servers.
      */
@@ -41,7 +42,7 @@ public final class BiliBiliPlaylistRefresh {
         IDLE, RUNNING, DONE, FAILED
     }
 
-    /** One video the source has and the playlist does not (B站's own fields, straight from the submissions response). */
+    /** One video the source has and the playlist does not (Bilibili's own fields, straight from the submissions response). */
     public record NewVideo(String bvid, String title, String author, long durationMs, String cover) {
     }
 
@@ -83,7 +84,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Last walk refused: the playlist is bound to **another UP** than its songs' author ({@link #upNameMatches}) — the page then offers 「重绑UP」.
+     * Last walk refused: the playlist is bound to **another UP** than its songs' author ({@link #upNameMatches}); the
+     * page then offers "Rebind UP".
      */
     private static volatile boolean needsRebind;
 
@@ -104,14 +106,14 @@ public final class BiliBiliPlaylistRefresh {
         }
     }
 
-    /** 本次走查是「只补投稿时间」（不碰歌单、不需要任何权限）。 */
+    /** This walk only fills in upload dates (it never touches the playlist and needs no permission). */
     private static volatile boolean pubdateOnly;
 
     public static boolean pubdateOnly() {
         return pubdateOnly;
     }
 
-    /** 最近一次走查补到的投稿时间条数（键上文字用：没新增歌但补到时间时也得有个说得出口的结果）。 */
+    /** How many upload dates the last walk filled in (shown on the key: filling dates without adding songs still deserves an answer). */
     private static volatile int pubdatesFilled;
 
     public static int pubdatesFilled() {
@@ -120,7 +122,7 @@ public final class BiliBiliPlaylistRefresh {
 
     // ------------------------------------------------------------------ pure parts (self-tested)
 
-    /** The bare B站 video numbers of a playlist — the identity a "already there?" check runs on. */
+    /** The bare Bilibili video numbers of a playlist — the identity an "already there?" check runs on. */
     public static Set<String> knownBvids(List<Music> musics) {
         var out = new LinkedHashSet<String>();
         if (musics == null)
@@ -136,7 +138,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Whether an entry is a B站 one — compared reversed on purpose: {@code MusicMedia#getName()} is a reverse lookup and answers {@code null} before {@code IMPMusicMedias.init()}.
+     * Whether an entry is a Bilibili one — compared reversed on purpose: {@code MusicMedia#getName()} is a reverse
+     * lookup and answers {@code null} before {@code IMPMusicMedias.init()}.
      */
     private static boolean isBiliBili(Music m) {
         var src = m == null ? null : m.getSource();
@@ -168,7 +171,7 @@ public final class BiliBiliPlaylistRefresh {
         if (videos == null)
             return out;
         for (var v : videos) {
-            // 投稿时间只有这条链看得见，顺手记下（播放列表页的「投稿日期」排序靠它）
+            // Only this path can see the upload date, so note it on the way (the playlist page's upload-date sort uses it)
             BiliBiliArcTags.getInstance().rememberPubdate(v.bvid(), v.createdMs());
             out.add(new NewVideo(v.bvid(), v.title(), v.author(), v.durationMs(), v.cover()));
         }
@@ -218,10 +221,10 @@ public final class BiliBiliPlaylistRefresh {
 
     // ------------------------------------------------------------------ the walk
 
-    /** 本次走查还缺投稿时间的曲子（裸 bvid）：没见完之前不因"这页没有新歌"提前停。 */
+    /** Songs of this walk that still lack an upload date (bare bvid): until they are all seen, "this page has no new songs" must not stop the walk early. */
     private static volatile Set<String> wantPubdates = Set.of();
 
-    /** 歌单里没记过投稿时间的 B站 曲子。 */
+    /** The playlist's Bilibili songs whose upload date was never recorded. */
     static Set<String> pubdateWanted(List<Music> existing) {
         var out = new LinkedHashSet<String>();
         if (existing == null)
@@ -240,7 +243,7 @@ public final class BiliBiliPlaylistRefresh {
         return out;
     }
 
-    /** 这批投稿的裸 bvid（分P 后缀要剥掉，标签缓存是按 bvid 存的）。 */
+    /** The bare bvids of this batch (the part suffix is stripped: the tag cache is keyed by bvid). */
     private static Set<String> bvidsOf(List<BiliBiliSpaceUtil.SpaceVideo> videos) {
         var out = new LinkedHashSet<String>();
         for (var v : videos) {
@@ -259,7 +262,7 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * @param playlistName a legacy {@code "<UP 名> 的投稿"} is renamed in the same write; needed **here** too, not only at bind time —
+     * @param playlistName a legacy name (with the extra space) is renamed in the same write; needed **here** too, not only at bind time —
      *                     a playlist bound by an earlier version never goes through the bind path again.
      */
     public static void start(UUID playlistId, String source, List<Music> existing, String playlistName) {
@@ -277,11 +280,11 @@ public final class BiliBiliPlaylistRefresh {
         var mid = BiliBiliSpaceUtil.midOf(source);
         var fid = BiliBiliSpaceUtil.favIdOf(source);
         var known = knownBvids(existing);
-        // 歌单里没记过投稿时间的曲子：走查要多走几页把它们见完（见 pubdateWanted）
+        // Songs without a recorded upload date force the walk to cover a few more pages (see pubdateWanted)
         wantPubdates = pubdateWanted(existing);
         var cfg = IamMusicPlayer.getConfig().bilibiliConfig;
-        // 「只补同类」: the scope this playlist allows — `refreshScope` picks the dimension, the playlist's own tags
-        // decide whether it is usable (合集 first when the playlist is mostly one, else 分区).
+        // "Same kind only": the scope this playlist allows — `refreshScope` picks the dimension and the playlist's own
+        // tags decide whether it is usable (a season first when the playlist is mostly one, otherwise the zone).
         var scope = resolveScope(cfg.refreshScope, existing);
         var maxPages = cfg.spaceMaxPages;
         var delay = Math.max(0, cfg.spacePageDelayMs);
@@ -316,8 +319,9 @@ public final class BiliBiliPlaylistRefresh {
                                 + " but its songs are by someone else");
                     }
                     fresh = walkUp(mid, known, scope, maxPages, delay);
-                    // 走完这一档仍有曲子没记过投稿时间（它们可能不在合集/分区里）：再走一遍**全部投稿**只为补时间 ——
-                    // 结果不并入"要新增的歌"，免得越过用户选的刷新范围。
+                    // When this scope is exhausted and songs still lack an upload date (they may sit outside any season
+                    // or zone), walk **all submissions** once just for the dates — those results are not merged into
+                    // "songs to add", so the scope the user chose is not exceeded.
                     if (!wantPubdates.isEmpty()) {
                         walkWholeUp(mid, known, maxPages, delay);
                         int filled = 0;
@@ -332,7 +336,7 @@ public final class BiliBiliPlaylistRefresh {
                     var fav = walkFav(fid, known, delay);
                     fresh = fav.videos();
                     cover = fav.cover();
-                    // 收藏夹来源也要补投稿时间：`walkFav` 只走"新歌"，已有的 13 首得靠列表/逐视频补，否则行上一直"未记录"
+                    // A favourites source needs the dates too: `walkFav` only walks "new songs", so existing ones rely on the list or a per-video lookup, or the rows stay "not recorded"
                     fillPubdatesOfFav(fid, wantPubdates, delay);
                 }
             } catch (Throwable t) {
@@ -342,7 +346,7 @@ public final class BiliBiliPlaylistRefresh {
                 LinkDebug.log("playlist refresh FAIL", "playlist", playlistId, "source", source, "ex", error);
                 return;
             }
-            // 走查顺手写下的投稿时间（见 fromSpace）要落盘，否则只在这次会话的内存里
+            // The upload dates noted during the walk (see fromSpace) must be written out, or they live only in this session's memory
             BiliBiliArcTags.getInstance().flush();
             final var videos = List.copyOf(keepExisting(playlistId, fresh));
             final var finalCover = cover;
@@ -360,7 +364,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * 只补投稿时间：不碰歌单（不加歌、不改名、不改封面，只需读权限）；有来源走查来源（便宜），没有来源就逐首问 {@code view}。
+     * Fill in upload dates only: the playlist is untouched (no song added, no rename, no cover; read permission is
+     * enough). With a source it walks that source (cheap); without one it asks {@code view} per song.
      */
     public static void startPubdates(UUID playlistId, String source, List<Music> existing) {
         if (state == State.RUNNING || playlistId == null)
@@ -419,7 +424,7 @@ public final class BiliBiliPlaylistRefresh {
         thread.start();
     }
 
-    /** 翻这个 UP 的投稿把缺时间的曲子补上（每页 30 个，比逐个视频问便宜得多）。 */
+    /** Walk this UP's submissions to fill in the missing dates (30 per page, much cheaper than one request per video). */
     private static int walkPubdateSpace(long mid, Set<String> want, int maxPages, int delay) throws Exception {
         var tags = BiliBiliArcTags.getInstance();
         int filled = 0;
@@ -443,7 +448,7 @@ public final class BiliBiliPlaylistRefresh {
         return filled;
     }
 
-    /** 收藏夹来源的「刷新」也要补投稿时间：先吃列表自带的 `pubtime`，剩下的逐个视频问。 */
+    /** A refresh of a favourites source fills in dates too: it takes the list's own `pubtime` first and asks per video for the rest. */
     private static void fillPubdatesOfFav(long fid, Set<String> wanted, int delay) {
         if (wanted == null || wanted.isEmpty())
             return;
@@ -459,7 +464,7 @@ public final class BiliBiliPlaylistRefresh {
         LinkDebug.log("playlist refresh pubdates", "wanted", wanted.size(), "filled", filled);
     }
 
-    /** 收藏夹列表本身带 `pubtime` 时直接补（省掉逐个视频的请求）。 */
+    /** When the favourites list itself carries `pubtime`, use it directly (that saves the per-video requests). */
     private static int fillFromFavListing(long fid, Set<String> want) throws Exception {
         var tags = BiliBiliArcTags.getInstance();
         int filled = 0;
@@ -478,7 +483,7 @@ public final class BiliBiliPlaylistRefresh {
         return filled;
     }
 
-    /** 兜底：逐个视频问（`view` 的响应里带 `pubdate`，`BiliBiliParts.fetch` 顺手把它写进标签）。 */
+    /** Fallback: ask per video (`view` answers with `pubdate`, which `BiliBiliParts.fetch` notes in the tag cache). */
     private static int fillByVideo(Set<String> want, int delay) {
         var tags = BiliBiliArcTags.getInstance();
         int filled = 0;
@@ -511,8 +516,8 @@ public final class BiliBiliPlaylistRefresh {
             try {
                 return walkSeason(mid, known, scope.season(), maxPages, delay);
             } catch (IllegalStateException e) {
-                // The 合集 is not in this UP's list: usually the playlist is bound to the **wrong UP** — retry with the
-                // 分区 dimension before giving up, a playlist may still be walkable that way.
+                // The season is not in this UP's list: usually the playlist is bound to the **wrong UP**; retry with
+                // the zone dimension before giving up, since the playlist may still be walkable that way.
                 LinkDebug.log("playlist refresh season miss", "mid", mid, "season", scope.season(), "ex", e.getMessage(),
                         "zones", scope.zones().isEmpty() ? "(none)" : String.join("/", scope.zones()));
                 if (scope.zones().isEmpty())
@@ -551,7 +556,7 @@ public final class BiliBiliPlaylistRefresh {
                 var fresh = pickNew(fromSpace(got.videos()), known);
                 out.addAll(fresh);
                 // Nothing new on this page of this zone: everything older in it is in the playlist as well ——
-                // 除非还有曲子缺投稿时间，那就得继续往下走
+                // Unless songs still lack an upload date, in which case the walk has to go on
                 if (fresh.isEmpty() && seen.containsAll(wantPubdates))
                     break;
                 if (got.videos().size() < BiliBiliSpaceUtil.MAX_PAGE_SIZE)
@@ -591,7 +596,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Scope {@code season}: only that 合集's members; the cached name's {@code 合集·} label is stripped on both sides before comparing.
+     * Scope {@code season}: only that season's members; the {@code 合集·} label the cached name may carry is stripped
+     * on both sides before comparing.
      */
     private static List<NewVideo> walkSeason(long mid, Set<String> known, String season, int maxPages, int delay) throws Exception {
         if (season == null || season.isBlank())
@@ -612,7 +618,7 @@ public final class BiliBiliPlaylistRefresh {
         var pages = 0;
         var total = 0;
         for (int page = 1; page <= cap; page++) {
-            // ⚠️ **newest first** — with the default order a 合集 answers oldest first, so the early stop below would
+            // **Newest first**: with the default order a season answers oldest first, so the early stop below would
             // fire on page 1 and the newest episode would never be seen.
             var got = BiliBiliSpaceUtil.fetchSeasonVideos(mid, seasonId, page, BiliBiliSpaceUtil.MAX_PAGE_SIZE, true);
             pages++;
@@ -632,7 +638,7 @@ public final class BiliBiliPlaylistRefresh {
         return out;
     }
 
-    /** 合集 names are compared without the {@code 合集·} label the tag cache may carry. */
+    /** Season names are compared without the {@code 合集·} label the tag cache may carry. */
     static String seasonKey(String name) {
         var n = name == null ? "" : name.strip();
         return n.startsWith("合集·") ? n.substring(3).strip() : n;
@@ -664,7 +670,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Scope for one playlist: the content decides, never the name; {@code auto} = the 合集 when ≥ half the tagged B站 songs sit in one, else the 分区; no data ⇒ throws.
+     * Scope for one playlist: the content decides, never the name; {@code auto} = the season when at least half the
+     * tagged Bilibili songs sit in one, otherwise the zone; no data at all ⇒ throws.
      */
     static Scope resolveScope(dev.felnull.imp.IMPConfig.RefreshScope configured, List<Music> existing) {
         var mode = configured == null ? dev.felnull.imp.IMPConfig.RefreshScope.AUTO : configured;
@@ -697,7 +704,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * The playlist's zones, from the local tag cache: a zone counts from a tenth of its tagged B站 songs up, so one stray video cannot widen the scope; nothing cached ⇒ empty set ⇒ refuse.
+     * The playlist's zones, from the local tag cache: a zone counts from a tenth of its tagged Bilibili songs up, so a
+     * single stray video cannot widen the scope; nothing cached ⇒ an empty set ⇒ refuse.
      */
     public static Set<String> zonesOf(List<Music> existing) {
         var counts = countsOf(existing, true);
@@ -710,14 +718,16 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * How many of the playlist's tagged B站 songs sit in each **合集** (key = the name without its {@code 合集·} label); used by {@code refreshScope=season} and {@code auto}.
+     * How many of the playlist's tagged Bilibili songs sit in each **season** (key = the name without its
+     * {@code 合集·} label); used by {@code refreshScope=season} and {@code auto}.
      */
     public static Map<String, Integer> seasonsOf(List<Music> existing) {
         return countsOf(existing, false);
     }
 
     /**
-     * Tag counts over the playlist's B站 songs: {@code byZone} = parent zone, else 合集 membership (a video in several 合集 counts once per membership).
+     * Tag counts over the playlist's Bilibili songs: {@code byZone} = parent zone, otherwise season membership (a
+     * video in several seasons counts once per membership).
      */
     private static Map<String, Integer> countsOf(List<Music> existing, boolean byZone) {
         var counts = new LinkedHashMap<String, Integer>();
@@ -844,7 +854,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Renames a legacy {@code "<UP 名> 的投稿"} **without** a refresh — a playlist bound by an earlier version would otherwise keep the old name.
+     * Renames a legacy name (with the extra space) **without** a refresh; a playlist bound by an earlier version would
+     * otherwise keep the old name.
      */
     public static void fixLegacyName(UUID playlistId, String playlistName) {
         var rename = legacyNameFixed(playlistName);
@@ -869,7 +880,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Claim an old playlist: writes **only** the source; UP by evidence — 合集 owner → a candidate's name inside the playlist name → a vote over ≤{@link #CLAIM_SAMPLE} songs.
+     * Claim an old playlist: writes **only** the source. The UP is decided by evidence: the season owner, then a
+     * candidate name inside the playlist name, then a vote over at most {@link #CLAIM_SAMPLE} songs.
      */
     public static void claim(UUID playlistId, String playlistName, List<Music> musics, BlockEntityExistence existence) {
         if (playlistId == null || state == State.RUNNING)
@@ -881,7 +893,7 @@ public final class BiliBiliPlaylistRefresh {
         added = 0;
         needsRebind = false;
         setExistence(existence);
-        // Legacy "<UP 名> 的投稿" → "<UP 名>的投稿" (the name is stored data, so it must be written back)
+         // Legacy name with the extra space → the current form (the name is stored data, so it has to be written back)
         var renamed = legacyNameFixed(playlistName);
         LinkDebug.log("playlist source claim", "playlist", playlistId, "name", playlistName,
                 "songs", musics == null ? -1 : musics.size(), "rename", renamed.isBlank() ? "(no)" : renamed);
@@ -898,7 +910,7 @@ public final class BiliBiliPlaylistRefresh {
                         NetworkManager.sendToServer(IMPPackets.MUSIC_PLAYLIST_SOURCE,
                                 new IMPPackets.PlayListSourceMessage(playlistId, source, ImageInfo.EMPTY, renamed, ex).toRFBB());
                         // ⚠️ The server does not broadcast a playlist change: without dropping the playlist-list cache
-                        // the client keeps its old object (source = "") for up to 60 s and 「刷新」 stays hidden.
+                        // the client keeps its old object (source = "") for up to 60 s and "Refresh" stays hidden.
                         MusicSyncManager.getInstance().invalidatePlayLists();
                         LinkDebug.log("playlist source claimed", "playlist", playlistId, "mid", mid,
                                 "songs", musics == null ? -1 : musics.size(),
@@ -926,7 +938,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * The legacy import name with the space dropped ({@code "某个UP主 的投稿"} → {@code "某个UP主的投稿"}); {@code ""} = nothing to fix, name untouched.
+     * The legacy import name with the space dropped ({@code "<UP> 的投稿"} → {@code "<UP>的投稿"}); {@code ""} = nothing
+     * to fix, the name is left alone.
      */
     public static String legacyNameFixed(String name) {
         var n = name == null ? "" : name.strip();
@@ -936,7 +949,8 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * The UP a playlist belongs to, by evidence: 合集 owner → its name inside the playlist name → a sampled majority (**over half**, since a 39 % share can win a small vote).
+     * The UP a playlist belongs to, by evidence: the season owner, then its name inside the playlist name, then a
+     * sampled majority (**over half**, since a 39 % share can win a small vote).
      *
      * @return the mid to bind, or {@code -1} when nothing is convincing enough
      */
@@ -973,7 +987,7 @@ public final class BiliBiliPlaylistRefresh {
         candidates.sort((a, b) -> Integer.compare(votes.get(b), votes.get(a)));
         if (candidates.size() == 1)
             return candidates.get(0);
-        // ---- 1) who owns the playlist's 合集 ----
+        // ---- 1) who owns the playlist's season ----
         var season = dominant(seasonsOf(musics));
         if (!season.isBlank()) {
             for (var mid : candidates) {

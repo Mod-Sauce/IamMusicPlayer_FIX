@@ -144,7 +144,7 @@ public class BiliBiliUtil {
     }
 
     /**
-     * Anonymous cookie trio B站 risk control wants, from {@code x/frontend/finger/spi} plus a fresh {@code b_nut}.
+     * The anonymous cookie trio Bilibili's risk control wants, from {@code x/frontend/finger/spi} plus a fresh {@code b_nut}.
      * buvid3 alone ⇒ {@code -352}, with buvid4 ⇒ HTTP 412, plus b_nut ⇒ code=0; a burst still hits 412, so callers pace.
      */
     public static String anonCookie() {
@@ -204,7 +204,7 @@ public class BiliBiliUtil {
     }
 
     /**
-     * The watch address of a video, for 「复制链接」; {@code page > 1} adds the {@code ?p=N} the site uses for a part.
+     * The watch address of a video, for "Copy link"; {@code page > 1} adds the {@code ?p=N} the site uses for a part.
      */
     public static String videoUrl(String bvid, int page) {
         var bare = stripPage(bvid);
@@ -253,7 +253,7 @@ public class BiliBiliUtil {
 
         JsonObject viewData = viewJson.getAsJsonObject("data");
 
-        // Playing a video already fetched this response: hand its video-level facts to the local cache too, so the 分P
+        // Playing a video already fetched this response: hand its video-level facts to the local cache too, so the part
         // page can show the cover/uploader/counts/publish date **without a request of its own**. Never fatal.
         try {
             if (viewData != null)
@@ -276,7 +276,8 @@ public class BiliBiliUtil {
             cid = viewData.get("cid").getAsLong();
         }
 
-        // 顺手记下"这首歌是哪个分P 的 cid"：SponsorBlock 的片段按 cid 存，播放时要靠它归类，这样不必再多打一次请求。
+        // Note which part's cid this track is on the way: SponsorBlock stores its segments by cid and playback needs the
+        // grouping, so this saves one extra request.
         BiliBiliSponsorSegments.rememberCid(bvid,
                 pagesArray != null && pagesArray.size() > 1 && page > 0 && page <= pagesArray.size() ? page : 1, cid);
 
@@ -334,7 +335,7 @@ public class BiliBiliUtil {
 
     /**
      * The audio addresses, best first — every {@code backupUrl} of the highest-bandwidth stream, then the next stream
-     * down. Order comes from {@code bilibiliConfig.cdnOrder} ({@link #hostRank}): B站 puts a P2P edge
+     * down. Order comes from {@code bilibiliConfig.cdnOrder} ({@link #hostRank}): Bilibili puts a P2P edge
      * ({@code mcdn.*:8082}) in {@code baseUrl} that often times out on the first connect, so a track goes silent.
      */
     static List<String> audioCandidates(JsonObject dash) {
@@ -343,8 +344,9 @@ public class BiliBiliUtil {
         for (var elem : audioArray) {
             if (elem.isJsonObject()) streams.add(elem.getAsJsonObject());
         }
-        // 解码只认 AAC 与 FLAC（Dolby/ec-3 等不要）。**Hi-Res(FLAC) 排在 AAC 前面**：AAC 只是保底，
-        // LavaPlayer 2.2.4 自带 FLAC 容器（KuGou 的 flac 音质一直在用），所以没理由把它过滤掉。
+        // Only AAC and FLAC are decodable (no Dolby/ec-3). **Hi-Res (FLAC) ranks ahead of AAC**: AAC is the fallback,
+        // and LavaPlayer 2.2.4 ships the FLAC container (KuGou's flac quality has always used it), so there is no
+        // reason to filter it out.
         var flac = new ArrayList<JsonObject>();
         var aac = new ArrayList<JsonObject>();
         for (var s : streams) {
@@ -359,12 +361,13 @@ public class BiliBiliUtil {
         var ordered = new ArrayList<JsonObject>();
         ordered.addAll(flac);
         ordered.addAll(aac);
-        // 两种都不认识时才退成"全都试"（与以前一致）
+        // Only when neither kind is recognised does it fall back to "try everything" (as before)
         streams = ordered.isEmpty() ? streams : ordered;
         if (ordered.isEmpty())
             streams.sort((a, b) -> Integer.compare(bandwidthOf(b), bandwidthOf(a)));
-        // B站 的 Hi-Res 不在 audio 数组里，而在 dash.flac：display 表示视频有这个档、audio 表示这次给了地址；
-        // 两个一起看才能分出「B站没给」与「给了但 LavaPlayer 没解出来」。
+        // Bilibili's Hi-Res is not in the audio array but in dash.flac: `display` says the video has that tier and
+        // `audio` says an address was handed out this time. Reading both is what tells "Bilibili did not offer it"
+        // apart from "it was offered but LavaPlayer could not decode it".
         var flacBlock = dash.has("flac") && dash.get("flac").isJsonObject() ? dash.getAsJsonObject("flac") : null;
         LinkDebug.log("BiliBili audio streams", "offered", audioArray.size(), "flac", flac.size(),
                 "aac", aac.size(), "first", codecsOf(streams.get(0)),
@@ -375,7 +378,8 @@ public class BiliBiliUtil {
 
         var out = new ArrayList<String>();
         for (var s : streams) {
-            // 去重按**每个流**算：不同码率的文件即使同 CDN 也是不同文件，跨流去重会把 AAC 保底候选丢掉
+            // Deduplication is **per stream**: files of different bitrates are different files even on one CDN, and
+            // deduplicating across streams would drop the fallback AAC candidates.
             var seenHosts = new ArrayList<String>();
             var urls = new ArrayList<String>();
             if (s.has("baseUrl") && !s.get("baseUrl").isJsonNull())
@@ -542,13 +546,14 @@ public class BiliBiliUtil {
                     duration = pageObj.get("duration").getAsLong();
             }
 
-            // [分P] The `view` response is fetched here anyway (the submission list carries no part count): store the
-            // part list so the HUD can label P1/2 and "展开分P" needs no extra request. One-element list = nothing to expand.
+            // [Parts] The `view` response is fetched here anyway (the submission list carries no part count): store the
+            // part list so the HUD can label P1/2 and "Expand parts" needs no extra request. A one-element list means
+            // there is nothing to expand.
             var parts = BiliBiliParts.partsOf(data);
             if (!parts.isEmpty()) {
                 BiliBiliArcTags.getInstance().rememberParts(BV, parts);
                 BiliBiliArcTags.getInstance().flush();
-                // …and the server gets it too: with 「多P 按一条算」 it is the server that walks from one part to the
+                // …and the server gets it too: with "multi-part counts as one entry" the server is what walks from one part to the
                 // next, while the video stays a single playlist entry.
                 BiliBiliParts.report(BV, parts);
             }
@@ -706,7 +711,7 @@ public class BiliBiliUtil {
         var subData = wbiJson.getAsJsonObject("data");
         LinkDebug.log("BiliBili subtitle", "bv", bvid, "page", page, "httpStatus", wbiResp.statusCode(),
                 "cookieNames", cookie.isEmpty() ? "(none)" : BiliBiliCookie.namesOf(cookie),
-                // True means B站 is withholding the track list from a request it does not consider logged in.
+                // True means Bilibili is withholding the track list from a request it does not consider logged in.
                 "needLoginSubtitle", flagOf(subData, "need_login_subtitle"),
                 "trackCount", trackCountOf(subData), "tracks", subtitleTagsOf(subData));
 
@@ -815,7 +820,7 @@ public class BiliBiliUtil {
         return dev.felnull.imp.IMPConfig.SubtitleLang.BUILTIN;
     }
 
-    /** The configured 「刷新」 scope, falling back to the shipped default where the config cannot be read. */
+    /** The configured refresh scope, falling back to the shipped default where the config cannot be read. */
     static dev.felnull.imp.IMPConfig.RefreshScope refreshScopeMode() {
         try {
             var scope = IamMusicPlayer.getConfig().bilibiliConfig.refreshScope;
@@ -917,7 +922,7 @@ public class BiliBiliUtil {
         Float2ObjectSortedMap<String> originalMap = parseLyricJson(main.getB());
         Float2ObjectSortedMap<String> transMap = translation == null ? null : parseLyricJson(translation.getB());
 
-        // [Diagnostic] Which track became the lyric matters when a video offers both a human upload and B站's AI transcript.
+        // [Diagnostic] Which track became the lyric matters when a video offers both a human upload and Bilibili's AI transcript.
         if (LinkDebug.shouldLogThrottled("bililyric:pick:" + main.getA()))
             LinkDebug.log("BiliBili lyric pick", "main", main.getA() + (main.getA().contains("ai") ? "(AI)" : "(human)"),
                     "trans", translation == null ? "(none)" : translation.getA(),
@@ -942,7 +947,7 @@ public class BiliBiliUtil {
             return null;
         var ordered = new ArrayList<Pair<String, String>>();
         for (var token : tokens) {
-            // Human uploads first inside one language: B站's AI transcript is the same language tag but drops sentences.
+            // Human uploads first inside one language: Bilibili's AI transcript uses the same language tag but drops sentences.
             for (var humanPass : new boolean[] {true, false}) {
                 for (var p : all) {
                     if (ordered.contains(p))
@@ -976,12 +981,12 @@ public class BiliBiliUtil {
             mode = dev.felnull.imp.IMPConfig.SubtitleTrans.SMART;
 
         return switch (mode) {
-            // 智能：中文正文不要外语翻译；外语正文仍配它的中文翻译
+            // Smart: a Chinese main line gets no foreign translation; a foreign main line still gets its Chinese one
             case SMART -> isChinese(main.getA()) ? null : other(ordered, main, humanTranslation, "zh", true);
-            // 明确指定要哪种外语作翻译行（中文视频也能看英/日文字幕）
+            // An explicitly chosen foreign language becomes the translation line (a Chinese video can show EN/JA subtitles)
             case EN -> other(ordered, main, null, "en", false);
             case JA -> other(ordered, main, null, "ja", false);
-            // 老行为：第一条不同语言的轨道
+            // Old behaviour: the first track in another language
             case FIRST -> other(ordered, main, humanTranslation, null, true);
         };
     }
@@ -992,7 +997,7 @@ public class BiliBiliUtil {
      * @param ordered            candidate tracks in list order
      * @param preferred          rejected when it is the main line itself (drawing one text twice reads as a bug)
      * @param langToken          language tag the track must contain ({@code null} = any other language)
-     * @param excludeMainContent also rejects a track whose text equals the main line's — B站 sometimes lists the same
+     * @param excludeMainContent also rejects a track whose text equals the main line's — Bilibili sometimes lists the same
      *                           content under two language tags
      */
     private static Pair<String, String> other(List<Pair<String, String>> ordered, Pair<String, String> main,
@@ -1008,7 +1013,7 @@ public class BiliBiliUtil {
     /**
      * The first track that is not {@code main} whose tag contains {@code langToken} ({@code null} = any language).
      *
-     * @param excludeMainContent also rejects a track whose text equals the main line's — B站 sometimes lists the same
+     * @param excludeMainContent also rejects a track whose text equals the main line's — Bilibili sometimes lists the same
      *                           content under two language tags
      */
     private static Pair<String, String> firstOther(List<Pair<String, String>> ordered, Pair<String, String> main,
@@ -1025,7 +1030,7 @@ public class BiliBiliUtil {
         return null;
     }
 
-    /** Language tags that mean "Chinese" in B站's subtitle list ({@code zh}, {@code zh-CN}, {@code ai-zh}, …). */
+    /** Language tags that mean "Chinese" in Bilibili's subtitle list ({@code zh}, {@code zh-CN}, {@code ai-zh}, …). */
     private static boolean isChinese(String lan) {
         return lan != null && lan.contains("zh");
     }
@@ -1053,7 +1058,7 @@ public class BiliBiliUtil {
 
     /**
      * The mid of the UP who uploaded a video ({@code data.owner.mid}), {@code -1} when unreadable: a mid survives an UP
-     * renaming themselves, which is what the 「刷新」 claim stores.
+     * renaming themselves, which is what the refresh claim stores.
      */
     public static long fetchOwnerMid(String bvid) throws Exception {
         var json = request("https://api.bilibili.com/x/web-interface/view?bvid=" + bvid);
@@ -1065,8 +1070,8 @@ public class BiliBiliUtil {
     }
 
     /**
-     * Every mid credited on one video: the uploader ({@code data.owner.mid}) plus the members of a 联合投稿
-     * ({@code data.staff[]}), since a 联合投稿 names the uploader first — so the caller samples several videos.
+     * Every mid credited on one video: the uploader ({@code data.owner.mid}) plus the members of a joint submission
+     * ({@code data.staff[]}), since a joint submission names the uploader first — so the caller samples several videos.
      *
      * @return the credited mids (uploader first, no duplicates); empty when the response cannot be read
      */
@@ -1102,7 +1107,8 @@ public class BiliBiliUtil {
     }
 
     /**
-     * 收藏夹内容：bvid + 投稿时间。响应里没有 `pubtime` 时给 0 —— 调用方自己决定要不要逐个视频补。
+     * Favourites-folder content: bvid + upload time. A response without `pubtime` yields 0 — the caller decides whether
+     * to fill it in per video.
      */
     public static List<FavMedia> fetchFavMedia(long fid) throws Exception {
         List<FavMedia> list = new ArrayList<>();
@@ -1145,7 +1151,7 @@ public class BiliBiliUtil {
         return list;
     }
 
-    /** 收藏夹列表的一条：B站 的列表接口自带标题/作者/封面/时长/投稿时间，导入时不必再逐首问。 */
+    /** One entry of a favourites list: Bilibili's listing already carries title/author/cover/duration/upload time, so the import needs no per-song request. */
     public record FavMedia(String bvid, long pubtimeMs, String title, String author, String cover, long durationSec) {
     }
 

@@ -29,28 +29,30 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * B站 SponsorBlock（哔哩屏蔽团 {@code bsbsb.top}）片段表：内容时间↔源时间换算；**任何失败都当「没有片段」**（播放照旧）。
- * 协议 {@code /api/skipSegments?videoID=<bvid>&categories=[…]} 无需鉴权头；无数据是 {@code 200 []}，片段单位是**秒**。
+ * SponsorBlock's Bilibili mirror ({@code bsbsb.top}) segment table, plus the content-time ↔ source-time conversion.
+ * **Any failure counts as "no segments"** and playback goes on. The protocol
+ * {@code /api/skipSegments?videoID=<bvid>&categories=[…]} needs no auth header; "no data" is {@code 200 []} and the
+ * segment unit is **seconds**.
  */
 public final class BiliBiliSponsorSegments {
     public static final String FILE_NAME = "bilibili_sponsor_segments.json";
-    /** 只跳「赞助/恰饭」与「无偿/自我推广」两类；interaction（三连提醒）等留在原地。 */
+    /** Only "sponsor" and "selfpromo" are skipped; interaction reminders and the rest are left in place. */
     private static final String CATEGORIES = "[\"sponsor\",\"selfpromo\"]";
     private static final String ENDPOINT = "https://bsbsb.top/api/skipSegments?videoID=";
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(8);
-    /** 众包数据会变；一周后重新问一次（过期只影响"要不要跳"，不影响播放）。 */
+    /** Crowd-sourced data changes; ask again after a week (a stale entry only affects "skip or not", never playback). */
     private static final long TTL_MS = 7L * 24 * 60 * 60 * 1000;
-    /** 缓存文件上限，超出先丢最早查的（每条视频几十字节）。 */
+    /** Cache-file cap; past it the oldest lookups are dropped (a video costs a few dozen bytes). */
     private static final int MAX_VIDEOS = 5000;
 
-    /** 源时间毫秒的一段；{@code cid} 说明它属于哪个分P。 */
+    /** One span in source-time milliseconds; {@code cid} says which part it belongs to. */
     public record Segment(long startMs, long endMs, String cid) {
         public long lengthMs() {
             return Math.max(0L, endMs - startMs);
         }
     }
 
-    /** 一条视频查回来的东西：查的时间、分P → cid（播放时顺手记的）、全部片段（含各分P）。 */
+    /** What one video lookup returned: the lookup time, part → cid (noted while playing) and every segment, all parts included. */
     private record Video(long checkedAt, Map<Integer, String> cids, List<Segment> segments) {
     }
 
@@ -73,7 +75,7 @@ public final class BiliBiliSponsorSegments {
         return INSTANCE;
     }
 
-    /** 开关（默认关）；读不到配置时当关。 */
+    /** The switch (off by default); an unreadable config counts as off. */
     public static boolean isEnabled() {
         try {
             return IamMusicPlayer.getConfig().bilibiliConfig.skipSponsorSegments;
@@ -83,8 +85,9 @@ public final class BiliBiliSponsorSegments {
     }
 
     /**
-     * 给播放器用的跳段表；不适用时返回 {@link MusicSkipProvider#NONE}（非 B站 / 直播 / 开关关）。
-     * 音响那条链**也走这里**：服务端的时间轴同样按「内容」走，两边算出的位置才是同一个。
+     * The skip table for a player; {@link MusicSkipProvider#NONE} when it does not apply (not Bilibili, a live stream,
+     * or the switch is off). The boombox path comes through here too: the server's timeline also runs on content time,
+     * which is what keeps both sides on the same position.
      */
     public static MusicSkipProvider providerFor(MusicSource source) {
         if (source == null || source.isLive() || !IMPMusicMedias.BILIBILI.getName().equals(source.getLoaderType()))
@@ -99,11 +102,11 @@ public final class BiliBiliSponsorSegments {
         return new Provider(source.getIdentifier(), source.getDuration());
     }
 
-    /** 一条曲子的跳段表（片段查到之后缓存下来：{@code sourcePositionOf} 每帧都会被问到）。 */
+    /** One track's skip table, cached once the segments arrive ({@code sourcePositionOf} is asked every frame). */
     private static final class Provider implements MusicSkipProvider {
         private final String identifier;
         private final long durationMs;
-        /** {@code null} = 还没解析出结果（可能正在查）；空表 = 查过了、这条视频没有片段。 */
+        /** {@code null} = no result yet (a lookup may be running); an empty list = looked up, this video has no segments. */
         private volatile List<Segment> resolved;
         /** Read head of the audio reader (source ms), reported by {@link #skips(long)}; 0 = nothing read yet. */
         private volatile long readHeadMs;
@@ -113,12 +116,12 @@ public final class BiliBiliSponsorSegments {
             this.durationMs = durationMs;
         }
 
-        /** 片段表（快照）。{@code mayBlock} 只对"从曲中开始放"为真 —— 那时位置算错了会直接播错地方。 */
+        /** The segment table (a snapshot). {@code mayBlock} is only true when playback starts mid-track, where a wrong position would play the wrong place. */
         private List<Segment> segments(boolean mayBlock) {
             var now = resolved;
             if (now != null)
                 return now;
-            // 从 0 开始放时不必等：查回来晚一点也只是"前面一小段广告照放"。
+            // Starting at 0 needs no wait: a late answer only means the first few seconds of an ad are played.
             ensure(identifier, durationMs, mayBlock);
             var segments = clipToReadHead(segmentsFor(identifier, durationMs));
             if (!segments.isEmpty() || isKnown(identifier)) {
@@ -129,8 +132,9 @@ public final class BiliBiliSponsorSegments {
         }
 
         /**
-         * 查回来时读头已经越过的那截按「已经照样播出去」处理：把片段起点夹到读头（整段在身后就剔除）。
-         * 否则那部分没丢的也算成跳过量 —— 对外位置永久偏移、曲尾被真截掉。只做一次。
+         * Whatever the read head already passed when the answer arrived counts as "played as is": clamp the segment
+         * start to the read head and drop a segment that is entirely behind it. Otherwise that unskipped part would be
+         * counted as skipped, shifting the reported position for good and really cutting the tail off. Runs once.
          */
         private List<Segment> clipToReadHead(List<Segment> segments) {
             long head = readHeadMs;
@@ -155,7 +159,7 @@ public final class BiliBiliSponsorSegments {
 
         @Override
         public List<Span> skips(long readHeadMs) {
-            // 记下读头：万一片段表是"读到一半才到"的，上面那次夹取就知道该从哪儿算起。
+            // Remember the read head: if the table arrives mid-read, the clamp above knows where to start from.
             this.readHeadMs = Math.max(this.readHeadMs, readHeadMs);
             return spans(segments(false));
         }
@@ -177,22 +181,23 @@ public final class BiliBiliSponsorSegments {
     }
 
     /**
-     * 把这份片段表报给服务端一次（音响的时间轴按它收尾：内容时长 = 源时长 − Σ跳过）；一个会话每个标识符只报一次，
-     * 送不出去就把标记撤掉，下次播放再试。
+     * Reports the table to the server once (the boombox timeline finishes on it: content length = source length − the
+     * skipped sum). Once per identifier per session; a failed send clears the mark so the next play tries again.
      */
     private static void reportIfNeeded(String identifier, List<Segment> segments) {
         report(identifier, segments, false);
     }
 
     /**
-     * @param allowEmpty 空表也发（服务端收到空表就忘掉这条 → 不再替这个曲子跳位置），开关被关掉时用
+     * @param allowEmpty send an empty table too (the server forgets the entry, so it stops skipping for this track); used when the switch is turned off
      */
     private static void report(String identifier, List<Segment> segments, boolean allowEmpty) {
         if (identifier == null || identifier.isBlank() || (segments.isEmpty() && !allowEmpty))
             return;
         if (allowEmpty) {
-            // ⚠️ 这一路必须**绕过**"一个会话只报一次"的闸门：能走到这里说明本会话报过（服务端手里可能还留着那条），
-            // 而被那闸门挡下就正是"关了开关、服务端还照跳"的原因。清掉标记，之后重新打开开关还能再报。
+            // This path must bypass the "once per session" gate: reaching it means this session did report (the server
+            // may still hold the entry), and being stopped by that gate is exactly why "switch off, server still skips"
+            // happened. Clearing the mark also lets a later re-enable report again.
             if (!REPORTED.remove(identifier))
                 return;
         } else if (!REPORTED.add(identifier)) {
@@ -221,10 +226,10 @@ public final class BiliBiliSponsorSegments {
         }
     }
 
-    /** 这个会话里已经报给服务端的标识符。 */
+    /** Identifiers already reported to the server in this session. */
     private static final Set<String> REPORTED = ConcurrentHashMap.newKeySet();
 
-    /** 记住"这首歌是哪个分P 的 cid"（加载时顺手记，见 {@code BiliBiliUtil.fetchAudioCandidates}）。 */
+    /** Remembers which part's cid this track is (noted during loading, see {@code BiliBiliUtil.fetchAudioCandidates}). */
     public static void rememberCid(String identifier, int page, long cid) {
         var bvid = BiliBiliUtil.stripPage(identifier);
         if (bvid == null || bvid.isBlank() || cid <= 0)
@@ -240,7 +245,7 @@ public final class BiliBiliSponsorSegments {
         }
     }
 
-    /** 查一次（必要时），返回当前已知的片段；{@code block} = 允许在调用线程上等这次网络请求。 */
+    /** Looks the table up once when needed and returns what is known; {@code block} allows waiting for the request on the calling thread. */
     public static void ensure(String identifier, long durationMs, boolean block) {
         var bvid = BiliBiliUtil.stripPage(identifier);
         if (bvid == null || bvid.isBlank() || !isEnabled())
@@ -264,7 +269,7 @@ public final class BiliBiliSponsorSegments {
         }
     }
 
-    /** 当前缓存的片段（不查网络），已按分P 归好类。 */
+    /** The cached segments (no network), already picked for the part being played. */
     public static List<Segment> segmentsFor(String identifier, long durationMs) {
         var bvid = BiliBiliUtil.stripPage(identifier);
         if (bvid == null || bvid.isBlank())
@@ -278,15 +283,16 @@ public final class BiliBiliSponsorSegments {
         return v == null ? List.of() : pick(v, BiliBiliUtil.pageOf(identifier), durationMs);
     }
 
-    /** 这条视频查过没有（查过但没片段也算"知道"，免得每次都重问一遍）。 */
+    /** Whether this video was looked up (an empty result counts as known, so it is not asked again every time). */
     public static boolean isKnown(String identifier) {
         var bvid = BiliBiliUtil.stripPage(identifier);
         return bvid != null && !bvid.isBlank() && INSTANCE.fresh(bvid) != null;
     }
 
     /**
-     * 内容位置 → 源位置：把**已经跳过**的片段长度加回去。注意比的是「内容位置」：一段的内容起点 = 段起点 − 它前面已跳掉的量，
-     * 拿段起点直接跟内容位置比会落到片段尾，而不是正确的内容位置。
+     * Content position → source position: add back the length of the segments **already skipped**. Note that the
+     * comparison is against the *content* position: a segment's content start is its start minus everything skipped
+     * before it, and comparing the raw start against the content position would land at the segment's end instead.
      */
     public static long contentToSource(long contentMs, List<Segment> segments) {
         long c = Math.max(0L, contentMs);
@@ -296,15 +302,16 @@ public final class BiliBiliSponsorSegments {
             if (len <= 0)
                 continue;
             if (c < seg.startMs() - skipped)
-                break;                          // 还没听到这一段
+                break;                          // this segment has not been reached yet
             skipped += len;
         }
         return c + skipped;
     }
 
     /**
-     * 视频时间 → 内容时间（内部队列的坐标）：把前面整段跳掉的长度减掉；落在片段里就取「这一段开始跳」的那个内容位置。
-     * 与 {@link #contentToSource(long, List)} 互为反函数（边界上按各自的约定取值）。
+     * Source time → content time (the coordinate of the internal queue): subtract what was skipped before, and for a
+     * position inside a segment take the content position where that segment starts skipping. The inverse of
+     * {@link #contentToSource(long, List)} (the two agree on their own convention at the boundaries).
      */
     public static long sourceToContent(long sourceMs, List<Segment> segments) {
         long s = Math.max(0L, sourceMs);
@@ -314,15 +321,15 @@ public final class BiliBiliSponsorSegments {
             if (len <= 0)
                 continue;
             if (s < seg.startMs())
-                break;                          // 还没走到这一段
+                break;                          // this segment has not been reached yet
             if (s < seg.endMs())
-                return Math.max(0L, seg.startMs() - skipped);   // 落在片段里 ⇒ 从"开始跳"的那个内容位置起
+                return Math.max(0L, seg.startMs() - skipped);   // inside a segment ⇒ start from where the skip begins
             skipped += len;
         }
         return Math.max(0L, s - skipped);
     }
 
-    /** 从视频位置 {@code sourceMs} 开始放时真正该开流的源位置：落在片段里就落到片段尾。 */
+    /** The real source position to open the stream at when playback starts at {@code sourceMs}: inside a segment it lands on the segment's end. */
     public static long readStartFor(long sourceMs, List<Segment> segments) {
         long s = Math.max(0L, sourceMs);
         for (var seg : segments) {
@@ -336,7 +343,7 @@ public final class BiliBiliSponsorSegments {
         return s;
     }
 
-    /** 内容的实际长度 = 源长度 − 落在里面的片段总长。 */
+    /** The real content length = source length − the total length of the segments inside it. */
     public static long contentDuration(long sourceMs, List<Segment> segments) {
         if (sourceMs <= 0)
             return 0L;
@@ -347,8 +354,9 @@ public final class BiliBiliSponsorSegments {
     }
 
     /**
-     * 这一块（源时间 {@code [sourceMs, sourceMs + chunkMs)}）是否**整块**落在某个片段里 —— 是就整块丢掉。
-     * 跨边界的那一块保留：宁可残留不到两秒广告，也不丢正片内容。
+     * Whether this block (source time {@code [sourceMs, sourceMs + chunkMs)}) lies **entirely** inside a segment; if so
+     * it is dropped whole. A block that crosses a boundary is kept: leaving under two seconds of ad beats losing real
+     * content.
      */
     public static boolean dropWholeChunk(long sourceMs, long chunkMs, List<Segment> segments) {
         var end = sourceMs + chunkMs;
@@ -358,9 +366,9 @@ public final class BiliBiliSponsorSegments {
         return false;
     }
 
-    // ------------------------------------------------------------------ 查询与缓存
+    // ------------------------------------------------------------------ Lookup and cache
 
-    /** 已缓存且没过期 → 该视频的记录；否则 {@code null}（调用方决定要不要发请求）。 */
+    /** The video's record when it is cached and fresh; otherwise {@code null} (the caller decides whether to request it). */
     private Video fresh(String bvid) {
         synchronized (this) {
             loadLocked();
@@ -369,7 +377,7 @@ public final class BiliBiliSponsorSegments {
         }
     }
 
-    /** 真正发请求。异常一律吞掉：这是锦上添花的数据，不能影响播放。 */
+    /** The actual request. Every exception is swallowed: this data is a bonus and must never affect playback. */
     private void fetch(String bvid) {
         try {
             var request = HttpRequest.newBuilder(URI.create(ENDPOINT + bvid + "&categories=" + encode(CATEGORIES)))
@@ -385,7 +393,7 @@ public final class BiliBiliSponsorSegments {
             List<Segment> found = List.of();
             if (response.statusCode() == 200)
                 found = parse(response.body());
-            // 404 = 这条视频一条片段都没有（wiki 的说法），和 200 [] 一样处理；其它状态码只记一行。
+            // 404 means the video has no segments at all (per the API wiki) and is treated like 200 []; other status codes only get a log line.
             else if (response.statusCode() != 404)
                 LinkDebug.log("BiliBili sponsor http", "bv", bvid, "httpStatus", response.statusCode());
 
@@ -417,7 +425,7 @@ public final class BiliBiliSponsorSegments {
             LinkDebug.log("BiliBili sponsor none", "bv", bvid, "why", "none");
     }
 
-    /** 响应体 → 片段表；一条也认不出就是空表。 */
+    /** Response body → segment table; nothing recognised means an empty table. */
     private static List<Segment> parse(String body) {
         try {
             var json = JsonParser.parseString(body);
@@ -456,8 +464,9 @@ public final class BiliBiliSponsorSegments {
     }
 
     /**
-     * 这条视频的片段里，哪些属于我们在放的那一 P：已知 cid → 直接用它；响应里只有一种 cid → 没有歧义；
-     * 否则拿片段自带的 {@code videoDuration} 和本曲时长对（±2 秒）。
+     * Which of the video's segments belong to the part being played: a known cid is used directly; a response with a
+     * single cid has no ambiguity; otherwise the answer's own {@code videoDuration} is matched against this track's
+     * length (±2 s).
      */
     private static List<Segment> pick(Video v, int page, long durationMs) {
         var known = v.cids().get(Math.max(1, page));
@@ -511,7 +520,7 @@ public final class BiliBiliSponsorSegments {
         return List.copyOf(out);
     }
 
-    /** 片段表 → 播放器用的跨度表。 */
+    /** Segment table → the span table the player uses. */
     private static List<MusicSkipProvider.Span> spans(List<Segment> segments) {
         if (segments.isEmpty())
             return List.of();
@@ -525,9 +534,9 @@ public final class BiliBiliSponsorSegments {
         return java.net.URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 
-    // ------------------------------------------------------------------ 落盘
+    // ------------------------------------------------------------------ Persistence
 
-    /** 写盘交给后台线程；缓存写不进去也绝不抛（同 {@code BiliBiliArcTags} 的做法）。 */
+    /** Writes go to a background thread; a cache that cannot be written never throws (same as {@code BiliBiliArcTags}). */
     private void startWriter() {
         synchronized (this) {
             if (writing)
@@ -615,7 +624,7 @@ public final class BiliBiliSponsorSegments {
         }
     }
 
-    /** 读盘；只在持锁时调用。坏文件当空表（缓存不值得让播放失败）。 */
+    /** Reads the file; only called while holding the lock. A broken file counts as an empty table (a cache is not worth failing playback for). */
     private void loadLocked() {
         if (loaded)
             return;
@@ -660,7 +669,7 @@ public final class BiliBiliSponsorSegments {
         }
     }
 
-    /** 缓存文件：与其它缓存同一个"游戏目录下的模组文件夹"。 */
+    /** The cache file: the mod folder under the game directory, the same place as the other caches. */
     private static Path file() {
         try {
             var folder = IamMusicPlayer.getConfig().IMPRFolder;
@@ -672,7 +681,7 @@ public final class BiliBiliSponsorSegments {
         }
     }
 
-    /** 自检钩子：清掉内存与"已加载"标记，供单元自检重放。 */
+    /** Self-test hook: clears the memory and the "loaded" flag so a test can replay from scratch. */
     static void resetForTest() {
         var inst = INSTANCE;
         synchronized (inst) {

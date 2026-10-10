@@ -33,8 +33,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 「分P」/视频信息 page of one B站 video: cover, title, the facts from the same {@code view} response, the 简介, and one
- * row per part (click selects, 播放 previews). Nothing here writes to the playlist — a multi-P video stays one entry.
+ * The parts / video-info page of one Bilibili video: cover, title, the facts from the same {@code view} response, the
+ * description, and one row per part (a click selects, the Play key previews). Nothing here writes to the playlist — a
+ * multi-part video stays one entry.
  */
 public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     private static final Component RETRY_TEXT = Component.translatable("imp.button.retry");
@@ -47,7 +48,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     private static final Component GONE_TEXT = Component.translatable("imp.text.bilibiliPartsGone");
     /** Risk control (`-352` / HTTP 412) refused the lookup — that one **is** worth retrying a bit later. */
     private static final Component RISK_TEXT = Component.translatable("imp.text.bilibiliPartsRisk");
-    /** Prefix of the description's first line («简介 »). */
+    /** Prefix of the description's first line. */
     private static final Component DESC_PREFIX = Component.translatable("imp.text.biliDesc", "");
     /** A BV/AV id inside the description: drawn as a link and clickable. */
     private static final java.util.regex.Pattern VIDEO_ID =
@@ -67,9 +68,9 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     private static final int TITLE_Y = 14;
     private static final int STATS_Y = 27;
     private static final int META_Y = 39;
-    /** The 简介 line, the last of the fact lines (it starts right of the cover, which ends at y = 62). */
+    /** The description line, the last of the fact lines (it starts right of the cover, which ends at y = 62). */
     private static final int DESC_Y = 51;
-    /** How many rows the 简介 may use (2·9 px still ends above the part list at y = 72). */
+    /** How many rows the description may use (2·9 px still ends above the part list at y = 72). */
     private static final int DESC_LINES = 2;
     private static final int DESC_LINE_H = 9;
     private static final int LIST_X = 6;
@@ -90,7 +91,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     private static final int RETRY_Y = 182;
     private static final int RETRY_W = 64;
     private static final int RETRY_H = 9;
-    /** How long the 复制链接 key says 「已复制」 after a click. */
+    /** How long the "Copy link" key says "Copied" after a click. */
     private static final long COPIED_SHOW_MS = 1500L;
     /** Grey for the fact lines: readable on the light page, quieter than the title. */
     private static final int FACT_COLOR = 0xFF404040;
@@ -122,10 +123,10 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     private String lookedUpFor = "";
     /** Signature of what the rows were built from, so a rebuild happens only when something really changed. */
     private String rowSignature = "";
-    /** When 「复制链接」 was last used (0 = never); drives the short 「已复制」 confirmation on the key. */
+    /** When "Copy link" was last used (0 = never); drives the short "Copied" confirmation on the key. */
     private long copiedAt;
 
-    /** Reusable clickable widgets for the 简介 links (see {@link #layoutLinks()}). */
+    /** Reusable clickable widgets for the description links (see {@link #layoutLinks()}). */
     private final List<ClickArea> linkSlots = new ArrayList<>();
 
     public BiliBiliPartsMMMonitor(MusicManagerBlockEntity.MonitorType type, MusicManagerScreen screen) {
@@ -138,7 +139,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         this.partsList = addRenderWidget(new BiliBiliPartsListWidget(getStartX() + LIST_X, getStartY() + LIST_Y,
                 LIST_W, LIST_H, LIST_TITLE, LIST_ROWS, List.of(), this::selectPart, null));
 
-        // 播放 key: the same control and the same two icons the music pages use, so 试听 behaves and looks alike
+        // Play key: the same control and the same two icons the music pages use, so a preview behaves and looks alike
         this.playButton = addRenderWidget(new SmartButton(getStartX() + PLAY_X, getStartY() + PLAY_Y, PLAY_SIZE, PLAY_SIZE,
                 PLAYBACK_CONTROL_TEXT, n -> {
             if (getScreen().isMusicPlaying() || getScreen().isMusicLoading()) {
@@ -159,7 +160,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         }));
         this.retryButton.visible = false;
 
-        // What the page can *do* with a video: hand the address over (the point of a 视频信息 page — the user asked for
+        // What the page can *do* with a video: hand the address over (the point of a video-info page — the user asked for
         // this page to be worth opening for a single-part video too, and "where is that video" is its most common use).
         this.copyLinkButton = addRenderWidget(new SmartButton(getStartX() + COPY_X, getStartY() + COPY_Y, COPY_W, COPY_H,
                 COPY_LINK_TEXT, n -> {
@@ -170,7 +171,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         }));
         this.copyLinkButton.visible = false;
 
-        // 简介 links: a fixed pool of invisible click areas, repositioned by layoutLinks() (the page paints the text)
+        // Description links: a fixed pool of invisible click areas, repositioned by layoutLinks() (the page paints the text)
         // init() runs again on every re-entry and Monitor.init() drops the old widgets, so the pool must start empty —
         // otherwise the first slots point at widgets nobody registered and the links stop reacting (n=24→48→72 in the log).
         linkSlots.clear();
@@ -191,7 +192,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         retryButton = null;
         copyLinkButton = null;
         // Leaving the page stops nothing on purpose: the preview is the manager's own player and the user may well want
-        // to walk back to the playlist while listening — the 播放 key here (and on the music pages) stops it.
+        // to walk back to the playlist while listening — the Play key here (and on the music pages) stops it.
     }
 
     @Override
@@ -215,7 +216,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
             rowSignature = "";
             coverKey = null;
         }
-        // ⚠️ `resolved == null` means "the sync snapshot is momentarily empty" or "not a B站 music" — it must **not** clear
+        // `resolved == null` means "the sync snapshot is momentarily empty" or "not a Bilibili music" — it must **not** clear
         // anything, or the page drops its list and re-requests the parts on every broadcast.
 
         if (bvid.isEmpty()) {
@@ -251,7 +252,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
             if (partsList != null)
                 partsList.setEntryList(rows(parts, entryTitle, selectedPage, playingPage(), thumbnailsOn()));
         }
-        // A single-part video draws **no** list frame: there is nothing to list, and the 简介 uses that space instead.
+        // A single-part video draws **no** list frame: there is nothing to list, and the description uses that space instead.
         if (partsList != null)
             partsList.visible = isMultiPart(parts);
         layoutLinks();
@@ -282,7 +283,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
             copyLinkButton.visible = false;
     }
 
-    /** Shows the 复制链接 key for a B站 video, and lets it report the copy for a moment. */
+    /** Shows the "Copy link" key for a Bilibili video, and lets it report the copy for a moment. */
     private void updateCopyLinkButton() {
         if (copyLinkButton == null)
             return;
@@ -320,7 +321,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
                 var knownInfo = BiliBiliParts.knownInfo(id);
                 if (!known.isEmpty() && !knownInfo.isEmpty()) {
                     got = known;
-                    // The server keeps its own copy for 「按一条算」: re-report it after a server restart
+                    // The server keeps its own copy for the "counts as one entry" rule: re-report it after a server restart
                     BiliBiliParts.report(id, known);
                     gotInfo = knownInfo;
                 } else {
@@ -354,7 +355,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         thread.start();
     }
 
-    /** A row was clicked: show that part's details (playing stays an explicit action — the 播放 key). */
+    /** A row was clicked: show that part's details (playing stays an explicit action — the Play key). */
     private void selectPart(BiliBiliPartsListWidget.Row row) {
         selectedPage = Math.max(1, row.page());
         rowSignature = "";
@@ -517,7 +518,8 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * The 简介, cut to {@code textWidth} px by appearance; a BV/AV id is never split across two lines and is reported in {@code links}/{@code ids}.
+     * The description, cut to {@code textWidth} px by appearance; a BV/AV id is never split across two lines and is
+     * reported in {@code links}/{@code ids}.
      */
     private static List<DescLine> descLines(BiliBiliArcTags.Info facts, int textWidth, int maxLines, int firstIndent) {
         var out = new ArrayList<DescLine>();
@@ -594,14 +596,14 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         return out;
     }
 
-    /** How many 简介 lines may be drawn: {@link #DESC_LINES} while the part list is shown, otherwise as many as fit down to the list's bottom edge. */
+    /** How many description lines may be drawn: {@link #DESC_LINES} while the part list is shown, otherwise as many as fit down to the list's bottom edge. */
     private static int descLineCapacity(boolean rowsShown) {
         if (rowsShown)
             return DESC_LINES;
         return Math.max(DESC_LINES, (LIST_Y + LIST_H - DESC_Y) / DESC_LINE_H - 1);
     }
 
-    /** Places the reusable link widgets over the visible 简介 links (called every tick). */
+    /** Places the reusable link widgets over the visible description links (called every tick). */
     private void layoutLinks() {
         var textWidth = width - TEXT_X - 6;
         var prefixWidth = mc.font.width(DESC_PREFIX);
@@ -649,7 +651,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     /** Last laid-out link set (see {@link #layoutLinks()}). */
     private String laidLinks = "";
 
-    /** Draws one 简介 line — the whole line, links included, is painted here (the click areas draw nothing). */
+    /** Draws one description line — the whole line, links included, is painted here (the click areas draw nothing). */
     private void drawDescLine(GuiGraphics guiGraphics, DescLine line, int index, int mouseX, int mouseY) {
         var x = getStartX() + TEXT_X;
         var y = getStartY() + DESC_Y + index * DESC_LINE_H;
@@ -688,7 +690,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         return out;
     }
 
-    /** A 简介 link was clicked: the mod's own detail page (default) or the system browser, per config. */
+    /** A description link was clicked: the mod's own detail page (default) or the system browser, per config. */
     private void openLink(String id) {
         if (id == null || id.isBlank())
             return;
@@ -761,7 +763,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         if (meta != null)
             drawSmartFixedWidthText(guiGraphics, fit(meta, textWidth), getStartX() + TEXT_X, getStartY() + META_Y,
                     textWidth, FACT_COLOR);
-        // A single-part video draws no part list, so the 简介 uses that space (see descLineCapacity).
+        // A single-part video draws no part list, so the description uses that space (see descLineCapacity).
         var rowsShown = isMultiPart(list);
         var desc = descLines(facts, textWidth, descLineCapacity(rowsShown), mc.font.width(DESC_PREFIX));
         for (int line = 0; line < desc.size(); line++)
@@ -828,7 +830,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
                     COVER_X * onPxW, monitorHeight - (COVER_Y + COVER_SIZE) * onPxH, OERenderUtils.MIN_BREADTH * 4,
                     COVER_SIZE * onPxH, i, j);
 
-        // A single-part video draws no list frame (the 简介 takes that space) — same rule as partsList.visible in tick().
+        // A single-part video draws no list frame (the description takes that space) — same rule as partsList.visible in tick().
         var rows = rows(known, title, selected, 0, thumbnailsOn());
         if (rowsShown)
             renderFixedListSprite(poseStack, multiBufferSource, LIST_X, LIST_Y, OERenderUtils.MIN_BREADTH * 3,
@@ -867,7 +869,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     }
 
     /**
-     * The line next to the 播放 key: which part is shown, its name and length — or just the length for a single-part
+     * The line next to the Play key: which part is shown, its name and length — or just the length for a single-part
      * video. Ask "is there something to show", never "is a request in flight" — the list may come from the cache.
      */
     private Component selectedText(@Nullable List<BiliBiliArcTags.Part> list, BiliBiliArcTags.Info facts, String videoId) {
@@ -898,7 +900,8 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
     // ------------------------------------------------------------------ fact lines (shared by both render paths)
 
     /**
-     * {@code 播放 12.3万 · 弹幕 456 · 赞 1.2万 · 投币 345 · 收藏 678}, or {@code null} when nothing is known yet; all five
+     * {@code play 12.3万 · danmaku 456 · likes 1.2万 · coins 345 · favourites 678}, or {@code null} when nothing is
+     * known yet; all five
      * numbers come from the same {@code view} response as the part list, so the line costs no extra request.
      */
     @Nullable
@@ -917,7 +920,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         return pieces.isEmpty() ? null : Component.literal(String.join(" · ", pieces));
     }
 
-    /** {@code UP 某某 · 分区 · 合集 xxx · 发布 yyyy-MM-dd ·（共 7 P）}, or {@code null} when there is nothing to say. */
+    /** {@code UP name · zone · season xxx · published yyyy-MM-dd ·(7 parts)}, or {@code null} when there is nothing to say. */
     @Nullable
     private static Component metaLine(BiliBiliArcTags.Info facts, int partCount, boolean notBilibili, String bvid) {
         if (notBilibili)
@@ -926,11 +929,11 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         var pieces = new ArrayList<String>(5);
         if (!facts.author().isBlank())
             pieces.add(Component.translatable("imp.text.biliAuthor", facts.author().strip()).getString());
-        // 分区: view.tname comes back empty, so fall back to the zone the import recorded.
+        // Zone: view.tname comes back empty, so fall back to the zone the import recorded.
         var zone = !facts.zone().isBlank() ? facts.zone() : (tag == null || tag.zone() == null ? "" : tag.zone());
         if (!zone.isBlank())
             pieces.add(zone);
-        // 合集: from the local tags as well — the import knows the season, view does not.
+        // Season: from the local tags as well — the import knows it, view does not.
         if (tag != null && tag.seasons() != null && !tag.seasons().isEmpty()) {
             var season = tag.seasons().iterator().next();
             if (season != null && !season.isBlank())
@@ -938,19 +941,19 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
         }
         if (facts.pubdateMs() > 0L)
             pieces.add(Component.translatable("imp.text.biliPublishDate", date(facts.pubdateMs())).getString());
-        // 共 nP only while the line is short: the rows below already show P1..Pn and the date must stay visible.
+        // The part count only while the line is short: the rows below already show P1..Pn and the date must stay visible.
         if (partCount > 1 && String.join(" · ", pieces).length() <= 22)
             pieces.add(Component.translatable("imp.text.biliPartTotal", partCount).getString());
         return pieces.isEmpty() ? null : Component.literal(String.join(" · ", pieces));
     }
 
-    /** Stored season names carry the 「合集·」 marker; the page shows the bare name. */
+    /** Stored season names carry the season marker the import writes; the page shows the bare name. */
     private static String bareSeason(String season) {
         var s = season.strip();
         return s.startsWith("合集·") ? s.substring("合集·".length()).strip() : s;
     }
 
-    /** {@code 12345} → {@code 1.2万}: keeps the fact lines short. */
+    /** {@code 12345} → {@code 1.2万} (ten-thousands): keeps the fact lines short. */
     static String count(long n) {
         if (n >= 100_000_000L)
             return String.format("%.1f亿", n / 100_000_000.0);
@@ -987,7 +990,7 @@ public class BiliBiliPartsMMMonitor extends MusicManagerMonitor {
 
     @Nullable
     private Music getSelectedMusic(MusicManagerBlockEntity blockEntity) {
-        // A 简介 link opens a guest video: this page (and the 详情 page) then show that one instead of the playlist row
+        // A description link opens a guest video: this page (and the detail page) then show that one instead of the playlist row
         var screen = getScreen();
         var guest = screen == null ? null : screen.getGuestMusic();
         if (guest != null)
