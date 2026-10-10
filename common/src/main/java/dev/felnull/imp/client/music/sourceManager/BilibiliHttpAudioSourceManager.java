@@ -61,7 +61,7 @@ public class BilibiliHttpAudioSourceManager extends HttpAudioSourceManager {
             dev.felnull.imp.client.music.link.LinkDebug.log("BiliBili media info NULL", "bv", bv);
             // Fallback only: a concrete reason recorded internally must not be overwritten with a generic line.
             dev.felnull.imp.client.music.MusicLoadFailure.noteReasonIfAbsent(bvRaw,
-                    "B站取不到这个视频的信息（接口异常，详见日志）");
+                    dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.bilibili.noInfo"));
             return null;
         }
         Pick pick;
@@ -90,16 +90,16 @@ public class BilibiliHttpAudioSourceManager extends HttpAudioSourceManager {
         var probe = pick.probe();
         if (probe == NetMusicUtil.AudioProbe.NOT_AUDIO) {
             dev.felnull.imp.client.music.MusicLoadFailure.noteReason(bvRaw,
-                    "B站这个地址不是音频（可能是付费或受限视频）");
+                    dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.bilibili.notAudio"));
             dev.felnull.imp.client.music.link.LinkDebug.log("BiliBili audio probe FAIL", "bv", bv,
                     "reason", NetMusicUtil.describeProbe(url), "probe", probe);
             return null;
         }
         if (probe == NetMusicUtil.AudioProbe.REJECTED) {
             // REJECTED = the CDN refused our request (401/403/412): a header/identity problem, **not** proof of a
-            // paid video — reporting it as "不是音频" sent the investigation the wrong way.
+            // paid video — reporting it as "not audio" sent the investigation the wrong way.
             dev.felnull.imp.client.music.MusicLoadFailure.noteReason(bvRaw,
-                    "B站 CDN 拒绝了这次请求（403/412）：多半是请求头/风控问题，不是付费视频");
+                    dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.bilibili.cdnRefused"));
             dev.felnull.imp.client.music.link.LinkDebug.log("BiliBili audio probe REJECTED", "bv", bv,
                     "reason", NetMusicUtil.describeProbe(url), "probe", probe);
             return null;
@@ -116,8 +116,8 @@ public class BilibiliHttpAudioSourceManager extends HttpAudioSourceManager {
                 false,
                 url
         );
-        // 逐个试：Hi-Res(FLAC) 在最前，LavaPlayer 认不出它时自动退到后面的 AAC ——
-        // 一首歌不该因为"B站给了 Hi-Res"就直接加载失败。
+        // Try the candidates one by one: Hi-Res (FLAC) comes first, and a LavaPlayer that cannot read it falls back
+        // to the AAC entries behind it — a track must not fail to load just because Bilibili offered Hi-Res.
         var attempts = new ArrayList<String>();
         attempts.add(url);
         for (var c : candidates) {
@@ -139,7 +139,7 @@ public class BilibiliHttpAudioSourceManager extends HttpAudioSourceManager {
                     "try", i, "of", maxTries, "url", tryUrl.split("\\?")[0]);
         }
         dev.felnull.imp.client.music.MusicLoadFailure.noteReason(bvRaw,
-                "B站地址 LavaPlayer 不认（404 或不是音频流）");
+                dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.bilibili.lavaRejected"));
         return null;
     }
 

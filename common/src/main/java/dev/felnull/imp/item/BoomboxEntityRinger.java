@@ -90,7 +90,7 @@ public class BoomboxEntityRinger implements IBoomboxRinger {
             if (u != null) sb.append("itemEntity=").append(u).append(' ');
         }
 
-        return sb.isEmpty() ? "(身上没有带 ringer UUID 的音响)" : sb.toString();
+        return sb.isEmpty() ? "(no boombox with a ringer UUID on this entity)" : sb.toString();
     }
 
     @Override

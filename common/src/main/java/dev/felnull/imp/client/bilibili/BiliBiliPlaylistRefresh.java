@@ -25,6 +25,15 @@ import java.util.UUID;
  * 「刷新」: re-walk the import source ({@code space:<mid>} / {@code fav:<fid>}) and append only missing songs — never reorder/delete/rename.
  */
 public final class BiliBiliPlaylistRefresh {
+    /**
+     * The marker the import writes into an UP playlist's name ("投稿" = submissions). It is **stored data**: the exact
+     * text must not be translated or tidied up, because the claim/rename logic below matches names that are already
+     * saved on servers.
+     */
+    private static final String UP_NAME_MARKER = "的投稿";
+    /** The same marker with the leading space the older builds wrote ({@code "<UP> 的投稿"}). */
+    private static final String UP_NAME_MARKER_LEGACY = " 的投稿";
+
     private BiliBiliPlaylistRefresh() {
     }
 
@@ -167,11 +176,12 @@ public final class BiliBiliPlaylistRefresh {
     }
 
     /**
-     * Claim rule for playlists imported **before** the source field: name ends with "的投稿" (**without** the space old names carried) and every B站 song shares one non-blank author.
+     * Claim rule for playlists imported **before** the source field: the name ends with {@link #UP_NAME_MARKER}
+     * (without the space the older names carried) and every Bilibili song shares one non-blank author.
      */
     public static boolean looksLikeUpImport(String name, List<Music> musics) {
         var plName = name == null ? "" : name.strip();
-        if (!plName.endsWith("的投稿"))
+        if (!plName.endsWith(UP_NAME_MARKER))
             return false;
         String author = null;
         int count = 0;
@@ -585,7 +595,7 @@ public final class BiliBiliPlaylistRefresh {
      */
     private static List<NewVideo> walkSeason(long mid, Set<String> known, String season, int maxPages, int delay) throws Exception {
         if (season == null || season.isBlank())
-            throw new IllegalStateException("no 合集 information for this playlist");
+            throw new IllegalStateException("no season information for this playlist");
         long seasonId = -1L;
         for (var s : BiliBiliSpaceUtil.fetchSeasons(mid)) {
             if (seasonKey(s.name()).equals(seasonKey(season))) {
@@ -594,7 +604,7 @@ public final class BiliBiliPlaylistRefresh {
             }
         }
         if (seasonId < 0)
-            throw new IllegalStateException("the playlist's 合集 is not among this UP's 合集: " + season);
+            throw new IllegalStateException("the playlist's season is not among this UP's seasons: " + season);
         LinkDebug.log("playlist refresh scope", "mid", mid, "kind", "season", "season", season, "seasonId", seasonId);
         var out = new ArrayList<NewVideo>();
         var seen = new LinkedHashSet<String>();
@@ -920,9 +930,9 @@ public final class BiliBiliPlaylistRefresh {
      */
     public static String legacyNameFixed(String name) {
         var n = name == null ? "" : name.strip();
-        if (!n.endsWith(" 的投稿") || n.length() <= 4)
+        if (!n.endsWith(UP_NAME_MARKER_LEGACY) || n.length() <= UP_NAME_MARKER_LEGACY.length())
             return "";
-        return n.substring(0, n.length() - 4) + "的投稿";
+        return n.substring(0, n.length() - UP_NAME_MARKER_LEGACY.length()) + UP_NAME_MARKER;
     }
 
     /**

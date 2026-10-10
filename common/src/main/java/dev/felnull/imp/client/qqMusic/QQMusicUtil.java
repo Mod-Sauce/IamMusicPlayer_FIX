@@ -395,7 +395,7 @@ public class QQMusicUtil {
         var second = data.getSecond();
         if (second == null || second <= 0) {
             LinkDebug.log("QQ getMusicMediaResult SKIP", "songId", musicID, "name", data.getName(),
-                    "second", second, "reason", "no duration（interval 空/0）");
+                    "second", second, "reason", "no duration (interval empty/0)");
             return null;
         }
 

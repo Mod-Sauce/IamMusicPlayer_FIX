@@ -155,7 +155,8 @@ public class BilibiliPlaylistLoader implements IPlaylistLoader{
             }
 
             if (musics.isEmpty()) {
-                setFailure(new IllegalStateException("这个 UP 没有可导入的视频投稿（或全部被充电/课堂/直播回放过滤掉了）"));
+                setFailure(new IllegalStateException(
+                        dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.space.upEmpty")));
                 return;
             }
 
@@ -167,7 +168,7 @@ public class BilibiliPlaylistLoader implements IPlaylistLoader{
                     IPlaylistLoader.createEntriesFromMusics(musics), musics));
         }
 
-        /** 充电专属(charging) / 课堂付费课程(lesson) / 直播回放(live playback) do not give playable audio. */
+        /** Charging-only, paid course (lesson) and live-replay entries do not give playable audio. */
         private static boolean skipFromSpace(BiliBiliSpaceUtil.SpaceVideo v) {
             return v.chargingOnly() || v.lesson() || v.livePlayback();
         }

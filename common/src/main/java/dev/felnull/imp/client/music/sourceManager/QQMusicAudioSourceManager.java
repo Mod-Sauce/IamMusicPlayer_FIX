@@ -33,12 +33,12 @@ public class QQMusicAudioSourceManager extends HttpAudioSourceManager {
         }
         var data = QQMusicUtil.getSongData(musicID);
         if(data == null){
-            MusicLoadFailure.noteReason(id, "QQ 拿不到这首歌的数据（多半 Cookie 失效）");
+            MusicLoadFailure.noteReason(id, MusicLoadFailure.text("imp.reason.qq.noData"));
             return null;
         }
         var url = QQMusicUtil.getMusicUrl(data.getMID(), data.getMediaMID());
         if(url == null){
-            MusicLoadFailure.noteReason(id, "QQ 没给播放地址（多半 Cookie 失效或曲目受限）");
+            MusicLoadFailure.noteReason(id, MusicLoadFailure.text("imp.reason.qq.noUrl"));
             return null;
         }
 
@@ -46,16 +46,16 @@ public class QQMusicAudioSourceManager extends HttpAudioSourceManager {
         // — a domain with no path. ⚠️ Handing that to LavaPlayer only turns into **silent playback** (the speaker runs, nothing is heard),
         // so it must be failed outright here instead.
         if (QQMusicUtil.isShellUrl(url)) {
-            MusicLoadFailure.noteReason(id, "QQ 只回了空壳地址（多半 Cookie 失效或被限）");
+            MusicLoadFailure.noteReason(id, MusicLoadFailure.text("imp.reason.qq.shellUrl"));
             LinkDebug.log("QQ loadItem FAIL", "songId", musicID, "mid", data.getMID(),
-                    "reason", "shell url（多半是没填 Cookie / Cookie 不完整 / 曲目受限）", "urlHost", LinkDebug.safeUrl(url));
+                    "reason", "shell url (missing/incomplete cookie, or a restricted track)", "urlHost", LinkDebug.safeUrl(url));
             return null;
         }
 
         // [Duration] Same reasoning as getMusicMediaResult: 0/empty means no track is created (duration 0 would be judged "already finished" and destroyed)
         var second = data.getSecond();
         if (second == null || second <= 0) {
-            MusicLoadFailure.noteReason(id, "QQ 没给时长（时长为 0 会被判成已播完）");
+            MusicLoadFailure.noteReason(id, MusicLoadFailure.text("imp.reason.qq.noDuration"));
             LinkDebug.log("QQ loadItem FAIL", "songId", musicID, "mid", data.getMID(),
                     "reason", "no duration", "second", second);
             return null;
@@ -73,9 +73,9 @@ public class QQMusicAudioSourceManager extends HttpAudioSourceManager {
         var result = (HttpAudioTrack)super.loadItem(manager, newR);
         // [logging] ⚠️ The URL logged here must be **host+path only, no query**: it carries credentials such as vkey.
         if (result == null) {
-            MusicLoadFailure.noteReason(id, "QQ 的地址 LavaPlayer 不认（多半 404 或不是音频）");
+            MusicLoadFailure.noteReason(id, MusicLoadFailure.text("imp.reason.qq.notAudio"));
             LinkDebug.log("QQ loadItem FAIL", "songId", musicID, "mid", data.getMID(),
-                    "reason", "LavaPlayer(HttpAudioSourceManager) 没认这个地址（多半 404/非音频）",
+                    "reason", "LavaPlayer(HttpAudioSourceManager) rejected the address (404 or not audio)",
                     "urlHost", LinkDebug.safeUrl(url), "durationSec", second);
             return null;
         }

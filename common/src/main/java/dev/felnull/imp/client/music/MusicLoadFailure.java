@@ -127,6 +127,14 @@ public final class MusicLoadFailure {
         return id != null && !id.isEmpty() && id.equals(identifier) && count > 0;
     }
 
+    /**
+     * Resolves a reason key into text right away. A reason travels as plain text (it goes into the log and into the
+     * play-failure hint), so the language in effect when the failure happened is the one that is kept.
+     */
+    public static String text(String key, Object... args) {
+        return net.minecraft.network.chat.Component.translatable(key, args).getString();
+    }
+
     /** Which source failed (`qq_music` / `kugou` / …). */
     @Nullable
     public static synchronized String failedLoaderType() {

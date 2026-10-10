@@ -164,7 +164,7 @@ public class NetMusicUtil {
             return url.toString().contains(RESTRICTED_URL_MARK);
         } catch (Exception e) {
             // A failure of the probe itself (offline, timeout, API error) is **not reported**, to avoid false positives
-            LOGGER.debug("网易云可用性探测失败：", e);
+            LOGGER.debug("NetEase availability probe failed: ", e);
             return false;
         }
     }
@@ -294,7 +294,7 @@ public class NetMusicUtil {
             var song = GSON.fromJson(data, NetEaseMusicSong.class);
             return song.getSong();
         } catch (Exception e) {
-            LOGGER.debug("获取音乐错误：", e);
+            LOGGER.debug("Failed to fetch the music: ", e);
             return null;
         }
     }
@@ -305,7 +305,7 @@ public class NetMusicUtil {
         try {
             return WEB_API.song(id);
         } catch (IOException e) {
-            LOGGER.debug("获取音乐错误：", e);
+            LOGGER.debug("Failed to fetch the music: ", e);
             return null;
         }
     }
@@ -463,7 +463,7 @@ public class NetMusicUtil {
                     if (music != null)
                         songs.add(music);
                 } catch (Exception ex) {
-                    LOGGER.debug("跳过一条无法解析的节目：", ex);
+                    LOGGER.debug("Skipping a program that cannot be parsed: ", ex);
                 }
             }
 

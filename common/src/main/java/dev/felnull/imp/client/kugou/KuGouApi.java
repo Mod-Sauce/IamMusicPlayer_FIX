@@ -188,7 +188,7 @@ public final class KuGouApi {
         if (dev == null) {
             LinkDebug.log("KuGou v5/url SKIP", "reason", "no device (register failed)");
             if (detail != null)
-                detail.append("设备注册失败");
+                detail.append("device registration failed");
             return null;
         }
         var cfg = IamMusicPlayer.getConfig().kugouConfig;
@@ -242,7 +242,7 @@ public final class KuGouApi {
             var resp = get(V5_URL + "?" + query(params), deviceHeaders(dev.dfid(), mid, cltime, extra));
             if (resp == null) {
                 if (detail != null)
-                    detail.append("请求无响应");
+                    detail.append("no response");
                 return null;
             }
 
@@ -266,7 +266,7 @@ public final class KuGouApi {
         } catch (Exception e) {
             LinkDebug.log("KuGou v5/url EX", "hash", hash, "ex", e.getClass().getSimpleName() + ": " + e.getMessage());
             if (detail != null)
-                detail.append("异常 ").append(e.getClass().getSimpleName());
+                detail.append("exception ").append(e.getClass().getSimpleName());
             return null;
         }
     }

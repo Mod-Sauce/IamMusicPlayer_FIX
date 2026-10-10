@@ -41,7 +41,7 @@ public class KuGouAudioSourceManager extends HttpAudioSourceManager {
 
         var info = KuGouUtil.getSongInfo(hash);
         if (info == null) {
-            MusicLoadFailure.noteReason(failId, "酷狗接口没返回这首歌的信息");
+            MusicLoadFailure.noteReason(failId, MusicLoadFailure.text("imp.reason.kugou.noInfo"));
             return null;
         }
         // The address goes through the **signed API** first (with device/login state; paid tracks only stand a chance on that route), falling back to the public API on failure.
@@ -72,7 +72,7 @@ public class KuGouAudioSourceManager extends HttpAudioSourceManager {
         // The probe is the same lightweight GET+Range check as `probeUrl` below, just evaluated as a verdict instead of written as a log line.
         var probe = NetMusicUtil.probeAudioUrl(url);
         if (probe == NetMusicUtil.AudioProbe.NOT_AUDIO) {
-            MusicLoadFailure.noteReason(failId, "酷狗这个地址不是音频（受限曲目需登录）");
+            MusicLoadFailure.noteReason(failId, MusicLoadFailure.text("imp.reason.kugou.notAudio"));
             LinkDebug.log("KuGou loadItem FAILED", "hash", hash, "reason", "audio probe not audio",
                     "hasLogin", KuGouUtil.hasLogin());
             probeUrl(hash, url);
@@ -82,7 +82,7 @@ public class KuGouAudioSourceManager extends HttpAudioSourceManager {
         if (!(httpItem instanceof HttpAudioTrack httpTrack)) {
             // HttpAudioSourceManager probes/downloads this address with **Java's HttpURLConnection** and returns null when it cannot get the audio;
             // the reason is recorded here, otherwise "address resolved but cannot play" has no lead in the log.
-            MusicLoadFailure.noteReason(failId, "地址取到了但拉不到音频流（CDN 拒绝或返回了错误页）");
+            MusicLoadFailure.noteReason(failId, MusicLoadFailure.text("imp.reason.kugou.noStream"));
             probeUrl(hash, url);
             return null;
         }

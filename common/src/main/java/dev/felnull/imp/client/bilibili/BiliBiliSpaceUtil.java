@@ -3,6 +3,7 @@ package dev.felnull.imp.client.bilibili;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.felnull.imp.client.music.link.LinkDebug;
+import dev.felnull.imp.client.music.MusicLoadFailure;
 
 import java.io.IOException;
 import java.net.URI;
@@ -378,8 +379,8 @@ public final class BiliBiliSpaceUtil {
                     "bodyHead", body.substring(0, Math.min(160, body.length())));
             var risk = response.statusCode() == 412 || response.statusCode() == 403;
             throw new SpaceApiException(risk
-                    ? "B站空间接口被风控拦下（HTTP " + response.statusCode() + "）：等几分钟再试，或在配置里扫码登录"
-                    : "B站空间接口返回 HTTP " + response.statusCode(), risk);
+                    ? MusicLoadFailure.text("imp.reason.space.risk", response.statusCode())
+                    : MusicLoadFailure.text("imp.reason.space.http", response.statusCode()), risk);
         }
 
         JsonObject json;
@@ -387,7 +388,7 @@ public final class BiliBiliSpaceUtil {
             json = JsonParser.parseString(body).getAsJsonObject();
         } catch (Exception e) {
             // A risk-control HTML page instead of JSON means the request identity was rejected
-            throw new SpaceApiException("B站空间接口没返回 JSON（很可能是风控页）：等几分钟再试", true);
+            throw new SpaceApiException(MusicLoadFailure.text("imp.reason.space.notJson"), true);
         }
 
         var code = json.has("code") ? json.get("code").getAsInt() : -1;
@@ -402,12 +403,13 @@ public final class BiliBiliSpaceUtil {
     /** Bilibili API code → one line a user can act on. */
     private static String reasonFor(int code, String message) {
         if (code == -352)
-            return "B站风控校验失败（-352）：匿名请求被拦，等几分钟再试，或在配置里扫码登录";
+            return MusicLoadFailure.text("imp.reason.space.risk352");
         if (code == -412)
-            return "B站请求被拦截（-412）：等几分钟再试";
+            return MusicLoadFailure.text("imp.reason.space.blocked412");
         if (code == -404 || code == 22001)
-            return "这个用户不存在或主页不可见";
-        return "B站空间接口报错：" + (message == null || message.isBlank() ? ("code " + code) : message);
+            return MusicLoadFailure.text("imp.reason.space.noUser");
+        return MusicLoadFailure.text("imp.reason.space.apiError",
+                message == null || message.isBlank() ? ("code " + code) : message);
     }
 
     private static String plainQuery(Map<String, String> params) {

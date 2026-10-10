@@ -141,7 +141,7 @@ public final class PlayerNameCache {
                 NAMES.put(id, name.trim());
             }
         } catch (Exception e) {
-            LOGGER.warn("[PlayerNameCache] 读取名字缓存失败，按空缓存继续: {}", FILE, e);
+            LOGGER.warn("[PlayerNameCache] Could not read the name cache, continuing with an empty one: {}", FILE, e);
         }
     }
 
@@ -159,7 +159,7 @@ public final class PlayerNameCache {
             // Even the thread pool rejected it (should not happen): restore the state and try again later
             writing = false;
             dirty = true;
-            LOGGER.warn("[PlayerNameCache] 提交写盘任务失败: {}", FILE, t);
+            LOGGER.warn("[PlayerNameCache] Could not submit the write task: {}", FILE, t);
         }
     }
 
@@ -180,7 +180,7 @@ public final class PlayerNameCache {
                 Files.move(tmp, FILE, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception e) {
-            LOGGER.warn("[PlayerNameCache] 写入名字缓存失败（内存里的数据不受影响，稍后重试）: {}", FILE, e);
+            LOGGER.warn("[PlayerNameCache] Could not write the name cache (in-memory data is unaffected, retrying later): {}", FILE, e);
             dirty = true;
         } finally {
             writing = false;

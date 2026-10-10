@@ -104,9 +104,8 @@ public class LavaMusicLoader implements MusicLoader {
     /** Records "it plays, but only a clip": the notice plus the unconditional warning line. {@code cached} = it came from the audio cache. */
     static void reportTrialFragment(MusicSource source, long fragmentMs, boolean cached, boolean trialAddress) {
         String what = fragmentMs > 0
-                ? String.format("只拿到 %d 秒试听片段（原曲 %d 秒）—— 会员曲需要会员账号，否则只会放这一小段",
-                fragmentMs / 1000, source.getDuration() / 1000)
-                : String.format("这首只给试听（原曲 %d 秒）—— 会员曲需要会员账号", source.getDuration() / 1000);
+                ? MusicLoadFailure.text("imp.reason.trial.clip", fragmentMs / 1000, source.getDuration() / 1000)
+                : MusicLoadFailure.text("imp.reason.trial.only", source.getDuration() / 1000);
         MusicLoadFailure.noteNotice(source.getIdentifier(), what);
         MusicEngine.getInstance().getLogger().warn(
                 "Music load warning | trial fragment | loaderType={} | identifier={} | gotMs={} | wantMs={} | cached={} | byAddress={}",
@@ -117,7 +116,7 @@ public class LavaMusicLoader implements MusicLoader {
     static boolean refusesTrialInRing(MusicSource source, boolean trial, boolean ringLoad) {
         if (!trial || !ringLoad || !IamMusicPlayer.getConfig().boomboxConfig.skipTrialFragment)
             return false;
-        MusicLoadFailure.noteReason(source.getIdentifier(), "会员曲只给试听片段（音响里按设置跳过）");
+        MusicLoadFailure.noteReason(source.getIdentifier(), MusicLoadFailure.text("imp.reason.trial.skipped"));
         return true;
     }
 

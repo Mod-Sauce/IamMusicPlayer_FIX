@@ -502,7 +502,8 @@ public class BiliBiliUtil {
                         "httpStatus", response.statusCode(), "cookieSent", !configCookie().isEmpty(),
                         "bodyHead", response.body().substring(0, Math.min(160, response.body().length())));
                 // [send the status code to the UI] 412 = risk control, reported as one actionable suggestion; others as they are.
-                MusicLoadFailure.noteReason(failId, httpFailReason("取视频信息", response.statusCode()));
+                MusicLoadFailure.noteReason(failId, httpFailReason(
+                        MusicLoadFailure.text("imp.reason.bilibili.whatView"), response.statusCode()));
                 return null;
             }
 
@@ -511,10 +512,10 @@ public class BiliBiliUtil {
                 dev.felnull.imp.client.music.link.LinkDebug.log("BiliBili view(media) code", "bv", BV,
                         "code", json.get("code").getAsString(),
                         "message", json.has("message") ? json.get("message").getAsString() : "?");
-                MusicLoadFailure.noteReason(failId, "B站接口说："
-                        + (json.has("message") && !json.get("message").isJsonNull()
-                        ? json.get("message").getAsString()
-                        : ("code " + json.get("code").getAsString())));
+                MusicLoadFailure.noteReason(failId, MusicLoadFailure.text("imp.reason.bilibili.apiSaid",
+                        json.has("message") && !json.get("message").isJsonNull()
+                                ? json.get("message").getAsString()
+                                : ("code " + json.get("code").getAsString())));
                 return null;
             }
 
@@ -591,12 +592,14 @@ public class BiliBiliUtil {
         }
     }
 
-    /** 412 = Bilibili's **risk control** stopped this request. */
-    public static final String REASON_412 = "B站 412：被风控拦下，可挂代理或稍后重试";
+    /** 412 = Bilibili's **risk control** stopped this request; resolved through the language files. */
+    public static String reason412() {
+        return MusicLoadFailure.text("imp.reason.bilibili.http412");
+    }
 
     /** HTTP status code → a one-line understandable reason (for the red text in the UI; keep it short: it is a single line at the bottom of the screen). */
     public static String httpFailReason(String what, int status) {
-        return status == 412 ? REASON_412 : "B站" + what + "接口返回 HTTP " + status;
+        return status == 412 ? reason412() : MusicLoadFailure.text("imp.reason.bilibili.http", what, status);
     }
 
     /**
@@ -607,16 +610,18 @@ public class BiliBiliUtil {
     public static String fetchFailReason(Throwable e) {
         var msg = String.valueOf(e.getMessage());
         if (msg.contains("412"))
-            return REASON_412;
+            return reason412();
         if (msg.contains("DASH"))
-            return "B站只给了 DASH 流、没有可播音频（可能要登录填 Cookie）";
+            return MusicLoadFailure.text("imp.reason.bilibili.noDashAudio");
         if (msg.contains("No audio stream"))
-            return "B站这个视频没有音频流";
+            return MusicLoadFailure.text("imp.reason.bilibili.noAudioStream");
         if (msg.contains("Failed to get video info"))
-            return "B站取不到这个视频的信息（可能已失效）";
+            return MusicLoadFailure.text("imp.reason.bilibili.videoGone");
         if (msg.contains("API error"))
-            return "B站接口报错：" + trimReason(msg.replace("Bilibili API error: ", ""));
-        return "B站取址失败：" + e.getClass().getSimpleName() + " " + trimReason(msg);
+            return MusicLoadFailure.text("imp.reason.bilibili.apiError",
+                    trimReason(msg.replace("Bilibili API error: ", "")));
+        return MusicLoadFailure.text("imp.reason.bilibili.resolveFailed",
+                e.getClass().getSimpleName(), trimReason(msg));
     }
 
     /** The reason must be short too: it is a single line at the bottom of the screen, and an over-long one gets cut off or smears the UI. */
@@ -914,7 +919,7 @@ public class BiliBiliUtil {
 
         // [Diagnostic] Which track became the lyric matters when a video offers both a human upload and B站's AI transcript.
         if (LinkDebug.shouldLogThrottled("bililyric:pick:" + main.getA()))
-            LinkDebug.log("BiliBili lyric pick", "main", main.getA() + (main.getA().contains("ai") ? "(AI)" : "(人工)"),
+            LinkDebug.log("BiliBili lyric pick", "main", main.getA() + (main.getA().contains("ai") ? "(AI)" : "(human)"),
                     "trans", translation == null ? "(none)" : translation.getA(),
                     "tracks", lyricsByLanguage.size());
 

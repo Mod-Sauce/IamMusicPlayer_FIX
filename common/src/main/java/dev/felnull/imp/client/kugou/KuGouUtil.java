@@ -395,19 +395,27 @@ public class KuGouUtil {
                                         @Nullable String vipSummary) {
         var detail = resolveDetail == null ? "" : resolveDetail;
         var err = platformError == null ? "" : platformError.strip();
-        var quote = err.isEmpty() ? "" : "（酷狗原话：" + err + "）";
-        var vip = vipSummary == null || vipSummary.isEmpty() ? "" : "；" + vipSummary;
+        var quote = err.isEmpty() ? "" : dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.quote", err);
+        var vip = vipSummary == null || vipSummary.isEmpty() ? ""
+                : dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.vipSuffix", vipSummary);
         // `fail_process` lists the entitlement reasons, e.g. ["pkg","buy"] = must buy the album/single, ["vip"] = membership
         boolean mustBuy = detail.contains("buy") || detail.contains("pkg");
         boolean needsVip = detail.contains("vip");
         if (mustBuy)
-            return (loggedIn ? "这首要购买（单曲/专辑）或有 VIP 才能播放；你已登录，是曲目权益受限" + vip
-                    : "这首要购买或登录后才能播放（当前未登录酷狗）") + quote;
+            return loggedIn
+                    ? dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.mustBuy.loggedIn", vip + quote)
+                    : dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.mustBuy.anonymous", quote);
         if (needsVip)
-            return (loggedIn ? "需要酷狗 VIP 会员（你已登录）" + vip : "需要酷狗 VIP 会员（当前未登录）") + quote;
+            return loggedIn
+                    ? dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.vip.loggedIn", vip + quote)
+                    : dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.vip.anonymous", quote);
         if (!err.isEmpty())
-            return loggedIn ? "曲目受限（你已登录" + vip + "）：" + err : "需要登录或曲目受限：" + err;
-        return loggedIn ? "酷狗没给地址（你已登录" + vip + "，属曲目受限）" : "酷狗没给地址（当前未登录）";
+            return loggedIn
+                    ? dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.restricted.loggedIn", vip, err)
+                    : dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.restricted.anonymous", err);
+        return loggedIn
+                ? dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.noUrl.loggedIn", vip)
+                : dev.felnull.imp.client.music.MusicLoadFailure.text("imp.reason.kugou.noUrl.anonymous");
     }
 
     /** Cached one-line account-VIP note (the query is an extra request, so it is reused for a while). */
